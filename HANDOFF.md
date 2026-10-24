@@ -244,6 +244,10 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   MPL-2.0 はファイル単位のコピーレフトなので MIT の本体と組み合わせてよいが、取り込んだファイルは MPL-2.0 のまま
   (ライセンス表記を残す・そのファイルを改変したら改変後のソースを公開する) にし、自前コードと混ぜずに専用パッケージ
   (例: `packages/cad-dwg-writer`) に分けておく。書き出しは `ExportDrawing` を入力にすれば JWW / SXF と同じ流れに乗る。
+  進捗次第で **DWG の読み込みも CADcraft に置き換え**、LibreDWG (GPL) を外す (example の `registerLibreDwg.ts`・
+  `@mlightcad/libredwg-converter` とそのパッチ・worker の配信をやめる)。そうなれば DWG を含めて GPL の部分が無くなり、
+  Rust CLI も MIT + MPL ファイルで配布できる (CLI を先に GPL で公開していても、自分だけが書いたコードなら後から MIT にできる。
+  公開済みの GPL 版はそのまま GPL)。
   以下はそれ以前に調べた別案。
 - **DWG 書き出し (調査メモ)**: 読み込みに使っている npm の `@mlightcad/libredwg-web` は `disable-write` でビルドされていて書けない。
   LibreDWG を書き込み有効で wasm ビルドすれば (GPL のまま example 側 opt-in) R2000 DWG は出せるが、LibreDWG の DWG writer は実験的。
