@@ -53,6 +53,7 @@ pnpm patch-commit /tmp/dm-edit
   (cad-simple-viewer `src/i18n/*`, cad-viewer `src/locale/*`, cad-viewer-example `src/locale/*`)。日本語を最優先で自然に。
 - 図面フォントは CDN を使わない。BIZ UD を同梱、他言語は Google Fonts (`fonts.json` の絶対 URL)。UI フォントは Noto Sans JP。
 - LibreDWG (GPL) を本体パッケージに取り込まない。DWG は example 側で opt-in 登録している。JWW / SXF も同じく **MIT 互換のライブラリか自前実装** にする。
+  例外として DWG 書き出しは CADcraft (MPL-2.0) を取り込む予定 — MPL のファイルは専用パッケージに分け、ライセンス表記を残す (HANDOFF.md 2.5)。
 - `main` と `ja-localization` は現在同一。今後は `main` から作業ブランチを切ればよい。
 - テーマカラーは **`packages/cad-simple-viewer/src/theme/theme.config.ts`** の 1 か所で決める
   (現在: 一色 `#AF61DA`、グラデーション `#EA60D4 → #9C62DC`)。書き換えて `pnpm build` すれば全 UI に反映される。

@@ -240,7 +240,12 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   e2e をこの環境で回すときは channel を外し `launchOptions.executablePath` を `/opt/pw-browsers/chromium-*/chrome-linux64/chrome` にした一時設定を使った。
 - 未対応・やり残し: 用紙・縮尺を選ぶダイアログ (API の `paper` / `scale` はある)、ブロックを JWW / SXF のブロック・複合図形として残す、
   寸法を寸法要素として残す、SXF の画像、Jw_cad 実機での確認 (Wine / Windows)。
-- **DWG 書き出し**: 読み込みに使っている npm の `@mlightcad/libredwg-web` は `disable-write` でビルドされていて書けない。
+- **DWG 書き出し — 方針 (2026-10-24 決定)**: CADcraft の DWG 対応がまともになったら、それを取り込む (ライセンスは MPL-2.0)。
+  MPL-2.0 はファイル単位のコピーレフトなので MIT の本体と組み合わせてよいが、取り込んだファイルは MPL-2.0 のまま
+  (ライセンス表記を残す・そのファイルを改変したら改変後のソースを公開する) にし、自前コードと混ぜずに専用パッケージ
+  (例: `packages/cad-dwg-writer`) に分けておく。書き出しは `ExportDrawing` を入力にすれば JWW / SXF と同じ流れに乗る。
+  以下はそれ以前に調べた別案。
+- **DWG 書き出し (調査メモ)**: 読み込みに使っている npm の `@mlightcad/libredwg-web` は `disable-write` でビルドされていて書けない。
   LibreDWG を書き込み有効で wasm ビルドすれば (GPL のまま example 側 opt-in) R2000 DWG は出せるが、LibreDWG の DWG writer は実験的。
   他の候補は ODA File Converter (無償だがプロプライエタリ、デスクトップ専用 = CLI 側なら外部ツールとして呼べる) か商用 SDK。
 - **Rust CLI (Windows) への道筋**: ezjww (`ezjww-core` crate、読み書き) と ezsxf (読み書き。ただし PyO3 と一体の cdylib なので
