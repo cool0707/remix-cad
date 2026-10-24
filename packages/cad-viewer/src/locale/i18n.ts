@@ -18,6 +18,7 @@ import jaCommand from './ja/command'
 import jaDialog from './ja/dialog'
 import jaEntity from './ja/entity'
 import jaMain from './ja/main'
+import { resolveLineTypeNameKey } from './lineTypeNameKey'
 import { pluralRules } from './pluralRules'
 import trCommand from './tr/command'
 import trDialog from './tr/dialog'
@@ -142,22 +143,39 @@ export const entityPropEnum = (name: string) => {
   return t(key, name, { missingWarn: true })
 }
 
+/** Label for the ByLayer / ByBlock / Default pseudo values. */
+export const symbolicName = (key: 'byLayer' | 'byBlock' | 'default') => {
+  const t = i18n.global.t
+  return t('entity.symbolic.' + key)
+}
+
+/**
+ * Localized display name of a linetype table record. Unknown (user defined)
+ * names are returned unchanged; the stored name itself is never translated.
+ */
+export const lineTypeName = (name: string) => {
+  const value = name.trim()
+  const normalized = value.toLowerCase()
+  if (normalized === 'bylayer') return symbolicName('byLayer')
+  if (normalized === 'byblock') return symbolicName('byBlock')
+
+  const resolved = resolveLineTypeNameKey(value)
+  if (!resolved) return value
+
+  const t = i18n.global.t
+  return t('entity.lineTypeName.' + resolved.key) + resolved.suffix
+}
+
 export const colorName = (colorKeyName: string) => {
   const normalizedSymbolicColor = colorKeyName.trim().toLowerCase()
 
-  if (i18n.global.locale.value === 'ar') {
-    if (normalizedSymbolicColor === 'bylayer') return 'حسب الطبقة'
-    if (normalizedSymbolicColor === 'byblock') return 'حسب الكتلة'
-  }
+  if (normalizedSymbolicColor === 'bylayer') return symbolicName('byLayer')
+  if (normalizedSymbolicColor === 'byblock') return symbolicName('byBlock')
   const value = colorKeyName.trim()
 
   // Numeric values are AutoCAD Color Index (ACI) values.
   // They are identifiers, not locale message keys.
   if (/^\d+$/.test(value)) {
-    return value
-  }
-
-  if (value === 'ByLayer' || value === 'ByBlock') {
     return value
   }
 

@@ -414,7 +414,14 @@ import {
   useEntityInspector,
   useLayers
 } from '../../composable'
-import { entityName, entityPropEnum, entityPropName } from '../../locale'
+import {
+  colorName,
+  entityName,
+  entityPropEnum,
+  entityPropName,
+  lineTypeName,
+  symbolicName
+} from '../../locale'
 import {
   MlColorDropdown,
   MlHatchPatternDropdown,
@@ -505,9 +512,11 @@ function formatValue(row: MlInspectorRow, v: unknown): string {
     case 'enum':
       return entityPropEnum(row.options?.find(o => o.value === v)?.label ?? '')
     case 'color':
-      return (v as AcCmColor | undefined)?.toString() ?? ''
+      return colorName((v as AcCmColor | undefined)?.toString() ?? '')
+    case 'linetype':
+      return lineTypeName(String(v ?? ''))
     case 'lineweight':
-      return AcGiLineWeight[v as number] ?? String(v ?? '')
+      return formatLineWeight(v as number)
     case 'transparency':
       return (v as AcCmTransparency | undefined)?.toString() ?? ''
     default:
@@ -515,6 +524,19 @@ function formatValue(row: MlInspectorRow, v: unknown): string {
         return formatInspectorNumber(v, decimalsOf(row))
       }
       return v != null ? String(v) : ''
+  }
+}
+
+function formatLineWeight(v: number): string {
+  switch (v) {
+    case AcGiLineWeight.ByLayer:
+      return symbolicName('byLayer')
+    case AcGiLineWeight.ByBlock:
+      return symbolicName('byBlock')
+    case AcGiLineWeight.ByLineWeightDefault:
+      return symbolicName('default')
+    default:
+      return AcGiLineWeight[v] ?? String(v ?? '')
   }
 }
 

@@ -64,6 +64,32 @@ export default {
     white: '白',
     yellow: '黄'
   },
+  symbolic: {
+    byLayer: 'レイヤーに従う',
+    byBlock: 'ブロックに従う',
+    default: '既定'
+  },
+  lineTypeName: {
+    continuous: '実線',
+    dashed: '破線',
+    dashedSpaced: '間隔の広い破線',
+    hidden: '破線 (隠れ線)',
+    dot: '点線',
+    dashDot: '一点鎖線',
+    center: '一点鎖線 (中心線)',
+    divide: '二点鎖線',
+    phantom: '二点鎖線 (想像線)',
+    border: '境界線',
+    longDashDot: '一点長鎖線',
+    longDashDoubleDot: '二点長鎖線',
+    longDashTripleDot: '三点長鎖線',
+    dashDotShort: '一点短鎖線',
+    doubleDashDot: '一点二短鎖線',
+    dashDoubleDot: '二点短鎖線',
+    doubleDashDoubleDot: '二点二短鎖線',
+    dashTripleDot: '三点短鎖線',
+    doubleDashTripleDot: '三点二短鎖線'
+  },
   enum: {
     AtLeast: '最小',
     Exactly: '固定',

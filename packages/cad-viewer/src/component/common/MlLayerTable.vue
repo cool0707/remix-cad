@@ -192,7 +192,7 @@
             v-if="readonly || scope.row.isDraft"
             class="ml-layer-table-cell ml-layer-table-text-cell"
           >
-            {{ scope.row.linetype }}
+            {{ lineTypeName(scope.row.linetype) }}
           </div>
           <div
             v-else-if="
@@ -215,7 +215,7 @@
             class="ml-layer-table-cell ml-layer-table-text-cell ml-layer-table-edit-trigger"
             @click.stop="beginEdit(scope.row, 'linetype')"
           >
-            {{ scope.row.linetype }}
+            {{ lineTypeName(scope.row.linetype) }}
           </button>
         </template>
       </el-table-column>
@@ -337,7 +337,7 @@ import { ElCheckbox, ElInput, ElTable, ElTableColumn } from 'element-plus'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { colorName } from '../../locale'
+import { colorName, lineTypeName, symbolicName } from '../../locale'
 import {
   layerLight,
   layerLocker,
@@ -521,9 +521,9 @@ const formatLayerColorName = (row: MlLayerTableRow) => {
 const formatLineWeightLabel = (value: number) => {
   switch (value) {
     case AcGiLineWeight.ByLayer:
-      return 'ByLayer'
+      return symbolicName('byLayer')
     case AcGiLineWeight.ByBlock:
-      return 'ByBlock'
+      return symbolicName('byBlock')
     case AcGiLineWeight.ByLineWeightDefault:
       return t('main.toolPalette.layerManager.layerList.lineWeightDefault')
     default:

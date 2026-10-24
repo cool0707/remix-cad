@@ -44,7 +44,7 @@
         :label="item.label"
         :value="item.value"
       >
-        <div class="ml-linetype-item">
+        <div class="ml-linetype-item" :title="item.value">
           <span
             class="ml-linetype-preview"
             :class="{
@@ -80,6 +80,7 @@ import {
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { lineTypeName } from '../../locale'
 import {
   buildLineTypeOptions,
   lineTypeHasEmbeddedText,
@@ -111,19 +112,13 @@ interface LineTypeSelectProps {
 const props = defineProps<LineTypeSelectProps>()
 const { locale } = useI18n()
 
-function localizeSymbolicLineTypeLabel(
-  value: string,
-  label: string
-) {
-  if (locale.value !== 'ar') return label
-
-  const normalized = value.trim().toLowerCase()
-
-  if (normalized === 'bylayer') return 'حسب الطبقة'
-  if (normalized === 'byblock') return 'حسب الكتلة'
-  if (normalized === 'continuous') return 'متصل'
-
-  return label
+/**
+ * Translates the default (table name) label; caller-provided labels are kept.
+ */
+function localizeLineTypeLabel(value: string, label: string) {
+  // Read the locale so the computed below re-runs on language change.
+  void locale.value
+  return label === value ? lineTypeName(value) : label
 }
 
 const emit = defineEmits<{
@@ -141,16 +136,23 @@ const activeDatabase = shallowRef(
 const resolvedOptions = computed(() =>
   (props.options ?? buildLineTypeOptions(activeDatabase.value)).map(item => ({
     ...item,
-    label: localizeSymbolicLineTypeLabel(item.value, item.label)
+    label: localizeLineTypeLabel(item.value, item.label)
     // Intentionally omit eager per-option SVG strings. Large linetype tables
     // (800+ complex TEXT styles) plus multiple selects explode DOM/memory.
     // CSS dash previews stay cheap while closed; SVG is resolved on demand
     // for the selected value and for open-menu rows that need text glyphs.
   }))
 )
-const selectedOption = computed(() =>
-  resolvedOptions.value.find(item => item.value === props.modelValue)
-)
+// Linetype names are case-insensitive (CELTYPE `ByLayer` vs record `BYLAYER`).
+const selectedOption = computed(() => {
+  const value = props.modelValue
+  if (value == null) return undefined
+  const options = resolvedOptions.value
+  return (
+    options.find(item => item.value === value) ??
+    options.find(item => item.value.toLowerCase() === value.toLowerCase())
+  )
+})
 const currentLabel = computed(
   () => selectedOption.value?.label ?? props.placeholder ?? ''
 )
@@ -259,6 +261,12 @@ defineExpose({
 
 .ml-linetype-item--selected {
   width: 100%;
+}
+
+/* Narrower swatch in the closed box so translated names stay readable. */
+.ml-linetype-item--selected .ml-linetype-preview {
+  width: 48px;
+  flex-basis: 48px;
 }
 
 .ml-linetype-preview {

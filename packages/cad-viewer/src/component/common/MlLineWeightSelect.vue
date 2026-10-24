@@ -61,7 +61,8 @@ import {
   ElIcon
 } from 'element-plus'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
+
+import { symbolicName } from '../../locale'
 
 /**
  * Render-ready line weight entry shown by the select control.
@@ -97,8 +98,6 @@ const props = withDefaults(defineProps<LineWeightSelectProps>(), {
   compact: false
 })
 
-const { locale } = useI18n()
-
 const popperClass = computed(() =>
   props.compact
     ? 'ml-lineweight-popper ml-lineweight-popper--compact'
@@ -120,15 +119,11 @@ const emit = defineEmits<{
 function formatLabel(value: AcGiLineWeight): string {
   switch (value) {
     case AcGiLineWeight.ByLayer:
-      return locale.value === 'ar' ? 'حسب الطبقة' : 'ByLayer'
+      return symbolicName('byLayer')
     case AcGiLineWeight.ByBlock:
-      return locale.value === 'ar' ? 'حسب الكتلة' : 'ByBlock'
+      return symbolicName('byBlock')
     case AcGiLineWeight.ByLineWeightDefault:
-      return locale.value === 'ar'
-        ? 'افتراضي'
-        : locale.value === 'ja'
-          ? '既定'
-          : 'Default'
+      return symbolicName('default')
     default:
       return `${(value / 100).toFixed(2)} mm`
   }

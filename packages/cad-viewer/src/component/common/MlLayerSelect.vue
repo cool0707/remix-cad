@@ -157,6 +157,7 @@ import { ElIcon, ElInput, ElOption, ElSelect, useGlobalConfig } from 'element-pl
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { lineTypeName } from '../../locale'
 import { layerLight, layerLocker, layerUnlocked } from '../../svg'
 
 defineOptions({
@@ -267,7 +268,9 @@ function isShown(item: LayerSelectOption) {
 }
 
 function buildLayerTooltip(item: LayerSelectOption) {
-  const lineType = item.lineType || t('main.ribbonProperty.lineType')
+  const lineType = item.lineType
+    ? lineTypeName(item.lineType)
+    : t('main.ribbonProperty.lineType')
   const color = item.cssColor || '#8a8a8a'
   const visibility = isShown(item)
     ? t('main.layerSelect.tooltip.visible')

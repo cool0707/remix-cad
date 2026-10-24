@@ -10,6 +10,8 @@ import {
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { symbolicName } from '../../locale'
+
 const emit = defineEmits(['update:modelValue'])
 
 const props = defineProps({
@@ -27,7 +29,9 @@ onMounted(() => {
       index: t('main.colorIndexPicker.colorIndex'),
       rgb: t('main.colorIndexPicker.rgb'),
       input: t('main.colorIndexPicker.color'),
-      inputPlaceholder: t('main.colorIndexPicker.inputPlaceholder')
+      inputPlaceholder: t('main.colorIndexPicker.inputPlaceholder'),
+      byLayer: symbolicName('byLayer'),
+      byBlock: symbolicName('byBlock')
     },
     initialIndex: props.modelValue ?? null,
     onChange: index => emit('update:modelValue', index)

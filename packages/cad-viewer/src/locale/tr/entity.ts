@@ -178,6 +178,32 @@ export default {
     yellow: 'Sarı',
     yellowgreen: 'Sarı Yeşil'
   },
+  symbolic: {
+    byLayer: 'Katmana göre',
+    byBlock: 'Bloğa göre',
+    default: 'Varsayılan'
+  },
+  lineTypeName: {
+    continuous: 'Sürekli',
+    dashed: 'Kesikli',
+    dashedSpaced: 'Aralıklı kesikli',
+    hidden: 'Gizli',
+    dot: 'Noktalı',
+    dashDot: 'Kesik-nokta',
+    center: 'Merkez',
+    divide: 'Kesik-çift nokta',
+    phantom: 'Hayali',
+    border: 'Sınır',
+    longDashDot: 'Uzun kesik-nokta',
+    longDashDoubleDot: 'Uzun kesik-çift nokta',
+    longDashTripleDot: 'Uzun kesik-üç nokta',
+    dashDotShort: 'Kısa kesik-nokta',
+    doubleDashDot: 'Çift kesik-nokta',
+    dashDoubleDot: 'Kısa kesik-çift nokta',
+    doubleDashDoubleDot: 'Çift kesik-çift nokta',
+    dashTripleDot: 'Kısa kesik-üç nokta',
+    doubleDashTripleDot: 'Çift kesik-üç nokta'
+  },
   enum: {
     AtLeast: 'En Az',
     Exactly: 'Tam Olarak',

@@ -178,6 +178,32 @@ export default {
     yellow: 'žlutá',
     yellowgreen: 'žlutozelená'
   },
+  symbolic: {
+    byLayer: 'Podle hladiny',
+    byBlock: 'Podle bloku',
+    default: 'Výchozí'
+  },
+  lineTypeName: {
+    continuous: 'Plná',
+    dashed: 'Čárkovaná',
+    dashedSpaced: 'Řídce čárkovaná',
+    hidden: 'Skrytá',
+    dot: 'Tečkovaná',
+    dashDot: 'Čerchovaná',
+    center: 'Osová',
+    divide: 'Dvojitě čerchovaná',
+    phantom: 'Fantomová',
+    border: 'Hraniční',
+    longDashDot: 'Dlouhá čerchovaná',
+    longDashDoubleDot: 'Dlouhá dvojitě čerchovaná',
+    longDashTripleDot: 'Dlouhá trojitě čerchovaná',
+    dashDotShort: 'Krátká čerchovaná',
+    doubleDashDot: 'Dvojčárková čerchovaná',
+    dashDoubleDot: 'Krátká dvojitě čerchovaná',
+    doubleDashDoubleDot: 'Dvojčárková dvojitě čerchovaná',
+    dashTripleDot: 'Krátká trojitě čerchovaná',
+    doubleDashTripleDot: 'Dvojčárková trojitě čerchovaná'
+  },
   enum: {
     AtLeast: 'Nejméně',
     Exactly: 'Přesně',

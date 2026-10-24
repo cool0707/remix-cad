@@ -178,6 +178,32 @@ export default {
     yellow: 'Yellow',
     yellowgreen: 'Yellow Green'
   },
+  symbolic: {
+    byLayer: 'ByLayer',
+    byBlock: 'ByBlock',
+    default: 'Default'
+  },
+  lineTypeName: {
+    continuous: 'Continuous',
+    dashed: 'Dashed',
+    dashedSpaced: 'Dashed spaced',
+    hidden: 'Hidden',
+    dot: 'Dotted',
+    dashDot: 'Dash dot',
+    center: 'Center',
+    divide: 'Dash double-dot',
+    phantom: 'Phantom',
+    border: 'Border',
+    longDashDot: 'Long dash dot',
+    longDashDoubleDot: 'Long dash double-dot',
+    longDashTripleDot: 'Long dash triple-dot',
+    dashDotShort: 'Short dash dot',
+    doubleDashDot: 'Double dash dot',
+    dashDoubleDot: 'Short dash double-dot',
+    doubleDashDoubleDot: 'Double dash double-dot',
+    dashTripleDot: 'Short dash triple-dot',
+    doubleDashTripleDot: 'Double dash triple-dot'
+  },
   enum: {
     AtLeast: 'At Least',
     Exactly: 'Exactly',

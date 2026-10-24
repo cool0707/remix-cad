@@ -42,7 +42,7 @@ import { ComponentPublicInstance, computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useHover, useSettings } from '../../composable'
-import { colorName, entityName } from '../../locale'
+import { colorName, entityName, lineTypeName } from '../../locale'
 
 const { t } = useI18n()
 const cardRef = ref<ComponentPublicInstance<{}, HTMLElement> | null>(null)
@@ -70,7 +70,7 @@ const info = computed(() => {
     type: entityName(ent),
     color: colorName(ent.color.toString()),
     layer: ent.layer,
-    lineType: ent.lineType
+    lineType: lineTypeName(ent.lineType)
   }
 })
 

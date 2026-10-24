@@ -178,6 +178,32 @@ export default {
     yellow: '黄色',
     yellowgreen: '黄绿色'
   },
+  symbolic: {
+    byLayer: '随层',
+    byBlock: '随块',
+    default: '默认'
+  },
+  lineTypeName: {
+    continuous: '实线',
+    dashed: '虚线',
+    dashedSpaced: '疏虚线',
+    hidden: '隐藏线',
+    dot: '点线',
+    dashDot: '点划线',
+    center: '中心线',
+    divide: '双点划线',
+    phantom: '假想线',
+    border: '边界线',
+    longDashDot: '长划点线',
+    longDashDoubleDot: '长划双点线',
+    longDashTripleDot: '长划三点线',
+    dashDotShort: '短划点线',
+    doubleDashDot: '双短划点线',
+    dashDoubleDot: '短划双点线',
+    doubleDashDoubleDot: '双短划双点线',
+    dashTripleDot: '短划三点线',
+    doubleDashTripleDot: '双短划三点线'
+  },
   enum: {
     AtLeast: '至少',
     Exactly: '固定',

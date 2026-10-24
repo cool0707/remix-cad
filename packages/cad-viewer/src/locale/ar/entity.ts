@@ -51,6 +51,32 @@ export default {
     Xline: 'خط إنشائي'
   },
 
+  symbolic: {
+    byLayer: 'حسب الطبقة',
+    byBlock: 'حسب الكتلة',
+    default: 'افتراضي'
+  },
+  lineTypeName: {
+    continuous: 'متصل',
+    dashed: 'متقطع',
+    dashedSpaced: 'متقطع متباعد',
+    hidden: 'مخفي',
+    dot: 'منقط',
+    dashDot: 'شرطة ونقطة',
+    center: 'خط المركز',
+    divide: 'شرطة ونقطتان',
+    phantom: 'وهمي',
+    border: 'حدودي',
+    longDashDot: 'شرطة طويلة ونقطة',
+    longDashDoubleDot: 'شرطة طويلة ونقطتان',
+    longDashTripleDot: 'شرطة طويلة وثلاث نقاط',
+    dashDotShort: 'شرطة قصيرة ونقطة',
+    doubleDashDot: 'شرطتان ونقطة',
+    dashDoubleDot: 'شرطة قصيرة ونقطتان',
+    doubleDashDoubleDot: 'شرطتان ونقطتان',
+    dashTripleDot: 'شرطة قصيرة وثلاث نقاط',
+    doubleDashTripleDot: 'شرطتان وثلاث نقاط'
+  },
   enum: {
     ...enEntity.enum,
 

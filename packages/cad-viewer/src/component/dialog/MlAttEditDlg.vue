@@ -261,7 +261,7 @@
                 disabled
                 class="ml-att-edit-dlg__control"
               >
-                <el-option label="ByLayer" value="ByLayer" />
+                <el-option :label="symbolicName('byLayer')" value="ByLayer" />
               </el-select>
             </el-form-item>
           </el-form>
@@ -310,6 +310,7 @@ import {
   useDialogManager,
   useLayers
 } from '../../composable'
+import { symbolicName } from '../../locale'
 import { select as selectIcon } from '../../svg/toolbarIcons'
 import {
   buildLineTypeOptions,
