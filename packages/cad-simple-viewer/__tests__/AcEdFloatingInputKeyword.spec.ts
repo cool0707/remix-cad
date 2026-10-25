@@ -47,4 +47,33 @@ describe('AcEdFloatingInputBoxes keyword input', () => {
     expect(onKeyword).toHaveBeenCalledWith('Q')
     expect(xInput.classList.contains('invalid')).toBe(true)
   })
+
+  it('picks a keyword as soon as its letter is pressed', () => {
+    const onKeyword = jest.fn((text: string, instant?: boolean) =>
+      Boolean(instant && text === 'a')
+    )
+    const { xInput, onCommit } = createBoxes(onKeyword)
+    const press = (key: string, init: KeyboardEventInit = {}) => {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        cancelable: true,
+        ...init
+      })
+      xInput.dispatchEvent(event)
+      return event
+    }
+
+    expect(press('a').defaultPrevented).toBe(true)
+    expect(onKeyword).toHaveBeenLastCalledWith('a', true)
+
+    // Not a keyword: the letter is typed as usual.
+    expect(press('q').defaultPrevented).toBe(false)
+    // Digits, Ctrl shortcuts and IME composition never trigger keywords.
+    onKeyword.mockClear()
+    press('5')
+    press('a', { ctrlKey: true })
+    press('a', { isComposing: true })
+    expect(onKeyword).not.toHaveBeenCalled()
+    expect(onCommit).not.toHaveBeenCalled()
+  })
 })

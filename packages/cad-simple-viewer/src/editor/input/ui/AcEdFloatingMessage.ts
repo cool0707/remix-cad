@@ -267,7 +267,7 @@ export class AcEdFloatingMessage {
   /**
    * Replaces the keyword pills (e.g. `Arc [A]`) shown above the prompt.
    * They are hints only: the tooltip follows the cursor, so the letter is
-   * typed (then Enter) rather than clicked.
+   * pressed (no Enter needed) rather than clicked.
    */
   setKeywords(keywords: AcEdFloatingKeyword[]) {
     this.keywordsEl.replaceChildren(

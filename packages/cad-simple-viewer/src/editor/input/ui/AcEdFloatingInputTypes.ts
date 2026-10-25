@@ -78,11 +78,14 @@ export type AcEdFloatingInputCancelCallback = () => void
 export type AcEdFloatingInputNoneCallback = () => void
 
 /**
- * Callback invoked when Enter submits typed text that is not a valid value.
- * Returns true when the text was consumed as a prompt keyword (e.g. `A` for
- * PLINE Arc), the same way the command line accepts it.
+ * Callback invoked when Enter submits typed text that is not a valid value,
+ * or (`instant`) when a single letter key is pressed. Returns true when the
+ * text was consumed as a prompt keyword (e.g. `A` for PLINE Arc).
  */
-export type AcEdFloatingInputKeywordCallback = (text: string) => boolean
+export type AcEdFloatingInputKeywordCallback = (
+  text: string,
+  instant?: boolean
+) => boolean
 
 /**
  * Callback invoked on mousemove to update the preview geometry.
@@ -130,7 +133,7 @@ export interface AcEdFloatingInputOptions<T> {
   message?: string
 
   /**
-   * Keyword pills shown above the prompt (type the key, then Enter).
+   * Keyword pills shown above the prompt (pressing the key picks it).
    */
   keywords?: AcEdFloatingKeyword[]
 

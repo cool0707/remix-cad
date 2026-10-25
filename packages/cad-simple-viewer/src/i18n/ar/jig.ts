@@ -573,7 +573,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'إغلاق(C)',
+        display: 'إغلاق(J)',
         local: 'إغلاق',
         global: 'Close'
       },
@@ -588,7 +588,7 @@ export default {
         global: 'Angle'
       },
       center: {
-        display: 'المركز(CE)',
+        display: 'المركز(C)',
         local: 'المركز',
         global: 'Center'
       },

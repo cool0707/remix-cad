@@ -2712,7 +2712,7 @@ export class AcEdInputManager {
 
   /**
    * Keyword pills for the cursor tooltip (`Arc [A]`), so options can be found
-   * without the command line. Typing the key and Enter in the tooltip inputs
+   * without the command line. Pressing the key in the tooltip inputs
    * picks it.
    */
   private floatingPromptKeywords<T>(
@@ -2913,7 +2913,11 @@ export class AcEdInputManager {
         },
         onCancel: () => rejector(),
         onNone: () => noneRejector(),
-        onKeyword: text => {
+        onKeyword: (text, instant) => {
+          // Free text (e.g. a string prompt) keeps its letters.
+          if (instant && options.handler instanceof AcEdStringHandler) {
+            return false
+          }
           const keyword = options.promptOptions.keywords?.findByName(text)
           if (!keyword) return false
           keywordRejector(keyword.globalName)

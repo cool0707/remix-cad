@@ -860,7 +860,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Uzavřít(C)',
+        display: 'Uzavřít(J)',
         local: 'Uzavřít',
         global: 'Close'
       },
@@ -875,7 +875,7 @@ export default {
         global: 'Angle'
       },
       center: {
-        display: 'Střed(CE)',
+        display: 'Střed(C)',
         local: 'Střed',
         global: 'Center'
       },

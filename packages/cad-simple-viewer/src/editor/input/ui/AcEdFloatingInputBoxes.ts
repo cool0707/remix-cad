@@ -238,6 +238,24 @@ export class AcEdFloatingInputBoxes<T> {
       nextInput = this.xInput
     }
 
+    // A letter that is an option's shortcut picks it at once (A = Arc), the
+    // way the pills above the prompt suggest. Coordinates never need
+    // letters; other text still waits for Enter.
+    if (
+      this.onKeyword &&
+      !e.isComposing &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey &&
+      e.key.length === 1 &&
+      e.key.toLowerCase() !== e.key.toUpperCase() &&
+      this.onKeyword(e.key, true)
+    ) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+
     if (e.key === 'Enter') {
       if (this.useDefaultValue && !this.userTyped) {
         const committed =

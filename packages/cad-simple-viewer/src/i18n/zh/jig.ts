@@ -851,7 +851,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: '闭合(C)',
+        display: '闭合(J)',
         local: '闭合',
         global: 'Close'
       },
@@ -866,7 +866,7 @@ export default {
         global: 'Angle'
       },
       center: {
-        display: '圆心(CE)',
+        display: '圆心(C)',
         local: '圆心',
         global: 'Center'
       },

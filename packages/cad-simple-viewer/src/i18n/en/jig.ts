@@ -862,7 +862,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Close(C)',
+        display: 'Close(J)',
         local: 'Close',
         global: 'Close'
       },
@@ -877,7 +877,7 @@ export default {
         global: 'Angle'
       },
       center: {
-        display: 'Center(CE)',
+        display: 'Center(C)',
         local: 'Center',
         global: 'Center'
       },
