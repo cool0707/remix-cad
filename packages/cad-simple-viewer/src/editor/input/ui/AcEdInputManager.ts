@@ -11,6 +11,7 @@ import {
 import { AcApDocManager, AcApSettingManager } from '../../../app'
 import { AcApI18n } from '../../../i18n'
 import { isEntityOnLockedLayer as entityIsOnLockedLayer } from '../../../service/AcApLockedLayer'
+import type { AcUiMobileSessionMetricMode } from '../../../ui/AcUiMobileSessionPanel'
 import { AcUiTouchPointTutorialDialog } from '../../../ui/AcUiTouchPointTutorialDialog'
 import type {
   AcEdSessionAccessory,
@@ -78,6 +79,7 @@ import { AcEdMessageType } from './AcEdMessageType'
 import { acedAttachMobileBoxGesture } from './AcEdMobileBoxGesture'
 import {
   AcEdMobileCommandChrome,
+  type AcEdMobileCommandChromeCallbacks,
   type AcEdMobileKeywordChip
 } from './AcEdMobileCommandChrome'
 import {
@@ -149,6 +151,8 @@ export class AcEdInputManager {
    */
   private _confirmedPointMarks: AcEdMarkerManager | null = null
   private _confirmedPointPositions: AcGePoint2dLike[] = []
+  /** Last live readout pushed to the session panel (fills untyped fields). */
+  private _lastMobileMetrics: AcEdMobileSessionMetrics | null = null
   private readonly _boundRepositionConfirmedPointMarks: () => void
 
   /** Command line UI component */
@@ -413,6 +417,7 @@ export class AcEdInputManager {
     onConfirm: () => void
     onCancel: () => void
     onKeyword: (globalName: string) => void
+    onMetricsSubmit?: AcEdMobileCommandChromeCallbacks['onMetricsSubmit']
   }): void {
     this.syncDesktopCommandLineVisibility()
     if (!acedInteractionStrategy().point.usesSessionChrome) return
@@ -429,7 +434,8 @@ export class AcEdInputManager {
       {
         onConfirm: args.onConfirm,
         onCancel: args.onCancel,
-        onKeyword: args.onKeyword
+        onKeyword: args.onKeyword,
+        onMetricsSubmit: args.onMetricsSubmit
       }
     )
     this._sessionAccessoryController.remountActiveSessionAccessory()
@@ -493,6 +499,12 @@ export class AcEdInputManager {
     // A zero-length rubber-band (cursor still on lastPoint after lift / before
     // the next press) must not wipe the previous readout.
     if (metrics.hasBasePoint && metrics.length === 0) return
+    this.showMobileMetrics(metrics)
+  }
+
+  /** Shows a metric readout on the session panel and remembers it. */
+  private showMobileMetrics(metrics: AcEdMobileSessionMetrics): void {
+    this._lastMobileMetrics = metrics
     this._mobileChrome.setMetrics(metrics, {
       length: this.formatNumber(metrics.length, 'distance'),
       angle: this.formatNumber(metrics.angleDeg, 'angle'),
@@ -2662,6 +2674,37 @@ export class AcEdInputManager {
   }
 
   /**
+   * Turns a pair typed on the session panel into a command-line point token
+   * (`x,y`, `@dx,dy` or `@length<angle`). An empty field keeps the last live
+   * value, so typing only the length keeps the rubber-band direction.
+   */
+  private mobileMetricsToken(
+    mode: AcUiMobileSessionMetricMode,
+    first: string,
+    second: string
+  ): string | null {
+    const live = this._lastMobileMetrics
+    const pick = (text: string, liveValue: number | undefined) =>
+      text !== '' ? text : liveValue != null ? String(liveValue) : null
+    let a: string | null
+    let b: string | null
+    switch (mode) {
+      case 'absolute':
+        a = pick(first, live?.x)
+        b = pick(second, live?.y)
+        return a != null && b != null ? `${a},${b}` : null
+      case 'delta':
+        a = pick(first, live?.hasBasePoint ? live.dx : undefined)
+        b = pick(second, live?.hasBasePoint ? live.dy : undefined)
+        return a != null && b != null ? `@${a},${b}` : null
+      case 'polar':
+        a = pick(first, live?.hasBasePoint ? live.length : undefined)
+        b = pick(second, live?.hasBasePoint ? live.angleDeg : undefined)
+        return a != null && b != null ? `@${a}<${b}` : null
+    }
+  }
+
+  /**
    * Prompt text for the cursor tooltip, with the visible keywords appended
    * (`Specify next point or [Arc(A)/Undo(U)]`) so options can be found
    * without the command line. Typing one of them and pressing Enter in the
@@ -2892,8 +2935,38 @@ export class AcEdInputManager {
           }
         },
         onCancel: () => rejector(),
-        onKeyword: keywordRejector
+        onKeyword: keywordRejector,
+        onMetricsSubmit:
+          options.handler instanceof AcEdPointHandler && !showStringInput
+            ? (mode, first, second) => {
+                const pointHandler = options.handler as AcEdPointHandler
+                const token = this.mobileMetricsToken(mode, first, second)
+                const referencePoint =
+                  basePoint ?? floatingInput.sessionBasePoint
+                const point = token
+                  ? pointHandler.parseCommandLine(token, { referencePoint })
+                  : null
+                if (!point) return false
+                const value = point as unknown as T
+                if (options.onCommit && !options.onCommit(value)) return false
+                this.lastPoint = { x: point.x, y: point.y }
+                resolver(value)
+                return true
+              }
+            : undefined
       })
+
+      // A point typed on the panel leaves no live sample against the new base
+      // point; switch the readout to length / angle so the next one can be
+      // typed relative to it.
+      if (
+        showMetrics &&
+        basePoint &&
+        this._mobileChrome.isOpen &&
+        !this._lastMobileMetrics?.hasBasePoint
+      ) {
+        this.showMobileMetrics(acedComputeSessionMetrics(basePoint, basePoint))
+      }
 
       const escHandler = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {

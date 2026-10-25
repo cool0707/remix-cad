@@ -113,9 +113,7 @@ describe('AcEdMobileCommandChrome', () => {
       'Specify next point'
     )
     const panel = host.querySelector('.ml-mobile-cmd-panel') as HTMLElement
-    expect(
-      panel.querySelector('.ml-mobile-cmd-accessory')
-    ).toBeTruthy()
+    expect(panel.querySelector('.ml-mobile-cmd-accessory')).toBeTruthy()
     expect(
       (panel.querySelector('.ml-mobile-cmd-accessory') as HTMLElement).hidden
     ).toBe(false)
@@ -131,9 +129,9 @@ describe('AcEdMobileCommandChrome', () => {
     confirm.click()
     expect(onConfirm).not.toHaveBeenCalled()
 
-    host.querySelector('.ml-mobile-cmd-cancel')?.dispatchEvent(
-      new MouseEvent('click', { bubbles: true })
-    )
+    host
+      .querySelector('.ml-mobile-cmd-cancel')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     expect(onCancel).toHaveBeenCalledTimes(1)
 
     const abs = host.querySelector('.ml-mobile-cmd-group-abs') as HTMLElement
@@ -229,9 +227,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('enables ✓ for allowNone and fires onConfirm', () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     const onConfirm = jest.fn()
     chrome.show(
       {
@@ -252,9 +248,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('lets accessory children receive pointerdown while sinking bubbles to the host', () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     const childHit = jest.fn()
     const hostHit = jest.fn()
     host.addEventListener('pointerdown', hostHit)
@@ -284,9 +278,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('hides the overlay and clears the host class', () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify point',
@@ -362,10 +354,96 @@ describe('AcEdMobileCommandChrome', () => {
     media.restore()
   })
 
-  it('exposes an accessory host and keeps widgets across hide/show', () => {
+  it('lets a tapped metric pair be typed and submits it with ✓', () => {
     const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
+      query =>
+        query === ML_UI_MOBILE_MEDIA_QUERY ||
+        query === ML_UI_COMPACT_MEDIA_QUERY
     )
+    const onConfirm = jest.fn()
+    const onCancel = jest.fn()
+    const onMetricsSubmit = jest
+      .fn<boolean, [string, string, string]>()
+      .mockReturnValueOnce(false)
+      .mockReturnValue(true)
+    chrome.show(
+      {
+        prompt: 'Specify next point:',
+        keywords: [],
+        allowNone: false,
+        showMetrics: true
+      },
+      { onConfirm, onCancel, onKeyword: jest.fn(), onMetricsSubmit }
+    )
+    chrome.setMetrics(
+      { hasBasePoint: true, length: 5, angleDeg: 0, dx: 5, dy: 0, x: 5, y: 0 },
+      { length: '5', angle: '0', dx: '5', dy: '0', x: '5', y: '0' }
+    )
+    const panel = host.querySelector('.ml-mobile-cmd-panel') as HTMLElement
+    const metric = (id: string) =>
+      panel.querySelector(`[data-metric="${id}"]`) as HTMLElement
+    const input = (id: string) =>
+      metric(id).querySelector(
+        '.ml-mobile-cmd-metric-input'
+      ) as HTMLInputElement
+    const confirm = panel.querySelector(
+      '.ml-mobile-cmd-confirm'
+    ) as HTMLButtonElement
+    const cancel = panel.querySelector(
+      '.ml-mobile-cmd-cancel'
+    ) as HTMLButtonElement
+
+    expect(panel.classList.contains('is-metrics-editable')).toBe(true)
+    expect(confirm.disabled).toBe(true)
+
+    metric('length').click()
+    expect(metric('length').classList.contains('is-editing')).toBe(true)
+    expect(metric('angle').classList.contains('is-editing')).toBe(true)
+    expect(metric('dx').classList.contains('is-editing')).toBe(false)
+    expect(input('length').placeholder).toBe('5')
+    expect(confirm.disabled).toBe(false)
+
+    input('length').value = 'abc'
+    confirm.click()
+    expect(onMetricsSubmit).toHaveBeenLastCalledWith('polar', 'abc', '')
+    expect(metric('length').classList.contains('is-invalid')).toBe(true)
+
+    input('length').value = '100'
+    input('length').dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter' })
+    )
+    expect(onMetricsSubmit).toHaveBeenLastCalledWith('polar', '100', '')
+    expect(onConfirm).not.toHaveBeenCalled()
+
+    // × while typing only leaves editing; it does not cancel the command.
+    cancel.click()
+    expect(onCancel).not.toHaveBeenCalled()
+    expect(metric('length').classList.contains('is-editing')).toBe(false)
+    expect(confirm.disabled).toBe(true)
+    media.restore()
+  })
+
+  it('keeps metrics read-only without onMetricsSubmit', () => {
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
+    chrome.show(
+      {
+        prompt: 'Specify first point:',
+        keywords: [],
+        allowNone: false,
+        showMetrics: true
+      },
+      { onConfirm: jest.fn(), onCancel: jest.fn(), onKeyword: jest.fn() }
+    )
+    const panel = host.querySelector('.ml-mobile-cmd-panel') as HTMLElement
+    const x = panel.querySelector('[data-metric="x"]') as HTMLElement
+    x.click()
+    expect(panel.classList.contains('is-metrics-editable')).toBe(false)
+    expect(x.classList.contains('is-editing')).toBe(false)
+    media.restore()
+  })
+
+  it('exposes an accessory host and keeps widgets across hide/show', () => {
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify point',
@@ -410,9 +488,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('clears accessory widgets only via clearAccessory', () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify point',
@@ -429,9 +505,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('collapses to a compact bar that keeps prompt and confirm/cancel', () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify next point:',
@@ -484,9 +558,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('moves prompt and chips to the message row when an accessory is mounted', async () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify next point:',
@@ -509,12 +581,12 @@ describe('AcEdMobileCommandChrome', () => {
       '.ml-mobile-cmd-prompt-row'
     ) as HTMLElement
     expect(messageRow.hidden).toBe(false)
-    expect(messageRow.querySelector('.ml-mobile-cmd-chips')?.childElementCount).toBe(
-      2
-    )
-    expect(messageRow.contains(host.querySelector('.ml-mobile-cmd-prompt')!)).toBe(
-      false
-    )
+    expect(
+      messageRow.querySelector('.ml-mobile-cmd-chips')?.childElementCount
+    ).toBe(2)
+    expect(
+      messageRow.contains(host.querySelector('.ml-mobile-cmd-prompt')!)
+    ).toBe(false)
 
     chrome.accessoryHost.appendChild(document.createElement('span'))
     await Promise.resolve()
@@ -523,19 +595,17 @@ describe('AcEdMobileCommandChrome', () => {
       host.querySelector('.ml-mobile-cmd-accessory > .ml-mobile-cmd-prompt')
     ).toBeNull()
     expect(messageRow.hidden).toBe(false)
-    expect(
-      messageRow.querySelector('.ml-mobile-cmd-prompt')?.textContent
-    ).toBe('Specify next point')
-    expect(messageRow.querySelector('.ml-mobile-cmd-chips')?.childElementCount).toBe(
-      2
+    expect(messageRow.querySelector('.ml-mobile-cmd-prompt')?.textContent).toBe(
+      'Specify next point'
     )
+    expect(
+      messageRow.querySelector('.ml-mobile-cmd-chips')?.childElementCount
+    ).toBe(2)
     media.restore()
   })
 
   it('keeps accessory widgets in compact mode and still shows the prompt', async () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify next point:',
@@ -559,9 +629,9 @@ describe('AcEdMobileCommandChrome', () => {
       (host.querySelector('.ml-mobile-cmd-prompt-row') as HTMLElement).hidden
     ).toBe(false)
 
-    host.querySelector('.ml-mobile-cmd-collapse')?.dispatchEvent(
-      new MouseEvent('click', { bubbles: true })
-    )
+    host
+      .querySelector('.ml-mobile-cmd-collapse')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     expect(panel.classList.contains('is-collapsed')).toBe(true)
     expect(
       host.querySelector('.ml-mobile-cmd-accessory-content')?.childElementCount
@@ -572,15 +642,13 @@ describe('AcEdMobileCommandChrome', () => {
     const prompt = host.querySelector(
       '.ml-mobile-cmd-accessory > .ml-mobile-cmd-prompt'
     ) as HTMLElement
-    const expand = host.querySelector(
-      '.ml-mobile-cmd-collapse'
-    ) as HTMLElement
+    const expand = host.querySelector('.ml-mobile-cmd-collapse') as HTMLElement
     expect(prompt?.textContent).toBe('Specify next point')
     // Order: accessory content → prompt → expand (title actions).
     const kids = [...accessory.children]
-    expect(kids.indexOf(host.querySelector('.ml-mobile-cmd-accessory-content')!)).toBeLessThan(
-      kids.indexOf(prompt)
-    )
+    expect(
+      kids.indexOf(host.querySelector('.ml-mobile-cmd-accessory-content')!)
+    ).toBeLessThan(kids.indexOf(prompt))
     expect(kids.indexOf(prompt)).toBeLessThan(
       kids.indexOf(host.querySelector('.ml-mobile-cmd-title-actions')!)
     )
@@ -596,9 +664,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('hides the compact prompt when less than one third of the text fits', async () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify next point for a very long command message:',
@@ -611,9 +677,9 @@ describe('AcEdMobileCommandChrome', () => {
     chrome.accessoryHost.appendChild(document.createElement('span'))
     await Promise.resolve()
 
-    host.querySelector('.ml-mobile-cmd-collapse')?.dispatchEvent(
-      new MouseEvent('click', { bubbles: true })
-    )
+    host
+      .querySelector('.ml-mobile-cmd-collapse')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
     const prompt = host.querySelector(
       '.ml-mobile-cmd-accessory > .ml-mobile-cmd-prompt'
@@ -671,9 +737,7 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('keeps the compact prompt when at least one third of the text fits', async () => {
-    const media = installMatchMedia(
-      query => query === ML_UI_MOBILE_MEDIA_QUERY
-    )
+    const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
         prompt: 'Specify next point:',
@@ -686,9 +750,9 @@ describe('AcEdMobileCommandChrome', () => {
     chrome.accessoryHost.appendChild(document.createElement('span'))
     await Promise.resolve()
 
-    host.querySelector('.ml-mobile-cmd-collapse')?.dispatchEvent(
-      new MouseEvent('click', { bubbles: true })
-    )
+    host
+      .querySelector('.ml-mobile-cmd-collapse')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
     const prompt = host.querySelector(
       '.ml-mobile-cmd-accessory > .ml-mobile-cmd-prompt'
@@ -744,7 +808,8 @@ describe('AcEdMobileCommandChrome', () => {
   })
 
   it('uses shared session panel styles with 440px metric-row breakpoint', () => {
-    const css = document.getElementById('ml-mobile-cmd-styles')?.textContent ?? ''
+    const css =
+      document.getElementById('ml-mobile-cmd-styles')?.textContent ?? ''
     expect(css).toContain('flex: 0 0 36px')
     expect(css).toContain('width: 36px')
     expect(css).toContain('height: 36px')

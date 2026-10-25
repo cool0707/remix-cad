@@ -1,9 +1,7 @@
-import {
-  ACAP_DOCS_PATH_MAGNIFIER,
-  acapDocsUrl
-} from '../../../app/AcApDocsUrl'
+import { ACAP_DOCS_PATH_MAGNIFIER, acapDocsUrl } from '../../../app/AcApDocsUrl'
 import { AcApI18n } from '../../../i18n/AcApI18n'
 import {
+  type AcUiMobileSessionMetricMode,
   type AcUiMobileSessionMetricTexts,
   AcUiMobileSessionPanel,
   type AcUiMobileSessionPanelLabels
@@ -32,8 +30,8 @@ export type AcEdMobileMetricTexts = AcUiMobileSessionMetricTexts
  * Callbacks for the mobile command chrome.
  *
  * For point / actions sessions, `onConfirm` is empty-Enter / `allowNone`
- * (panel ✓). Typed coordinate commit is a separate future path (numeric
- * keypad) and must not use `onConfirm`.
+ * (panel ✓). Typed coordinates go through `onMetricsSubmit`, never
+ * `onConfirm`.
  *
  * For string sessions (`showStringInput`), `onConfirm` commits the typed
  * value from {@link AcEdMobileCommandChrome.getStringValue}.
@@ -45,6 +43,15 @@ export interface AcEdMobileCommandChromeCallbacks {
   onCancel: () => void
   /** Keyword chip tap. */
   onKeyword: (globalName: string) => void
+  /**
+   * Typed metric pair (tap a metric, type, ✓). Omit for prompts that do not
+   * take a point. Empty texts keep the live value; return false if invalid.
+   */
+  onMetricsSubmit?: (
+    mode: AcUiMobileSessionMetricMode,
+    first: string,
+    second: string
+  ) => boolean
 }
 
 /** Session content pushed into {@link AcEdMobileCommandChrome.show}. */
@@ -130,7 +137,8 @@ export class AcEdMobileCommandChrome {
       {
         onConfirm: callbacks.onConfirm,
         onCancel: callbacks.onCancel,
-        onKeyword: callbacks.onKeyword
+        onKeyword: callbacks.onKeyword,
+        onMetricsSubmit: callbacks.onMetricsSubmit
       }
     )
   }
@@ -157,8 +165,8 @@ export class AcEdMobileCommandChrome {
   }
 
   /**
-   * Pushes live metric values. Phase 1 displays them read-only; the metric
-   * buttons stay disabled as a hook for the numeric keypad.
+   * Pushes live metric values. Tapping one lets the user type the pair when
+   * the session passed `onMetricsSubmit`.
    *
    * @param metrics - Live numeric metrics including base-point state.
    * @param texts - Formatted strings for display.

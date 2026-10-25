@@ -46,6 +46,7 @@ export type {
   AcUiMobileSessionPanelState,
   AcUiMobileSessionPanelCallbacks,
   AcUiMobileSessionKeyword,
+  AcUiMobileSessionMetricMode,
   AcUiMobileSessionMetricTexts
 } from './ui/AcUiMobileSessionPanel'
 export { AcUiShortCutToolbar } from './ui/AcUiShortCutToolbar'
