@@ -34,7 +34,7 @@ export default {
       description: '导出当前图纸为DXF格式'
     },
     cimage: {
-      description: '将图纸导出为图像（显示画面、对象范围或图纸与比例；PNG / JPEG / BMP）'
+      description: '将图纸导出为图像（显示画面、对象范围或图纸与比例；PNG / JPEG / BMP / TIFF）'
     },
     cjww: {
       description: '导出当前图纸为JWW (Jw_cad)格式'

@@ -74,7 +74,7 @@ export default {
 
     cimage: {
       ...enCommand.ACAD.cimage,
-      description: 'تصدير الرسم إلى صورة (العرض أو النطاق أو الورق والمقياس؛ PNG / JPEG / BMP)'
+      description: 'تصدير الرسم إلى صورة (العرض أو النطاق أو الورق والمقياس؛ PNG / JPEG / BMP / TIFF)'
     },
 
     cjww: {

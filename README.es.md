@@ -61,7 +61,7 @@ del dispositivo del usuario.
   conservan los suyos) o se eligen automáticamente (A3, la menor escala normalizada que cabe).
   Antes de exportar, un diálogo pregunta la hoja, la orientación y la escala (Auto por defecto); la exportación a DXF
   la escribe como límites del dibujo y la exportación a PDF puede imprimir el espacio modelo en una hoja a escala.
-  Exportar a imagen usa el mismo encuadre (vista, extensión u hoja y escala con ppp) y escribe PNG, JPEG o BMP;
+  Exportar a imagen usa el mismo encuadre (vista, extensión u hoja y escala con ppp) y escribe PNG, JPEG, BMP o TIFF;
   la exportación de una ventana elegida sigue disponible aparte.
 - **Escritura vertical (縦書き)** — el texto con una fuente vertical de Windows (`@ＭＳ ゴシック`,
   p. ej. el 縦字 de Jw_cad) y el TEXT cuyo estilo tiene el indicador «vertical» de AutoCAD se

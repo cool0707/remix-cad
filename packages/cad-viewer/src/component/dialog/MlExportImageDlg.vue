@@ -64,7 +64,7 @@
 /**
  * Image export (`cimage`): frames the canvas like the PDF export (current
  * view, object extents or a paper size at a scale) and writes PNG, JPEG or
- * BMP. Exporting a picked window is still available as `pngout` (File →
+ * BMP or TIFF. Exporting a picked window is still available as `pngout` (File →
  * Export → Export selected area as image).
  */
 import {
@@ -106,7 +106,8 @@ const visible = computed({
 const FORMATS: { value: AcApRasterImageFormat; label: string }[] = [
   { value: 'png', label: 'PNG' },
   { value: 'jpeg', label: 'JPEG' },
-  { value: 'bmp', label: 'BMP' }
+  { value: 'bmp', label: 'BMP' },
+  { value: 'tiff', label: 'TIFF' }
 ]
 const RESOLUTIONS = [72, 96, 150, 200, 300]
 
@@ -185,6 +186,7 @@ async function handleOk() {
   const fit = form.fit
   const longSide = requestedLongSide.value
   const converter = new AcApRasterImageConvertor(form.format)
+  if (fit === 'sheet') converter.dpi = form.dpi
   visible.value = false
   try {
     await docManager.withBusyIndicator(async () => {

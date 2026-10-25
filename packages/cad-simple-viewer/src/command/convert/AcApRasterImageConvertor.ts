@@ -3,6 +3,7 @@ import * as THREE from 'three'
 
 import { AcApDocManager } from '../../app'
 import { resolveExportDownloadName } from '../../util/AcApExportFileNameUtil'
+import { acapEncodeTiff } from '../../util/AcApTiffEncoder'
 import { AcTrView2d } from '../../view'
 
 /**
@@ -13,7 +14,7 @@ import { AcTrView2d } from '../../view'
 export const MAX_EXPORT_LONG_SIDE = 8192
 
 /** Supported raster export formats. */
-export type AcApRasterImageFormat = 'png' | 'jpeg' | 'bmp'
+export type AcApRasterImageFormat = 'png' | 'jpeg' | 'bmp' | 'tiff'
 
 const JPEG_QUALITY = 0.92
 
@@ -37,6 +38,9 @@ export class AcApRasterImageConvertor {
   get format(): AcApRasterImageFormat {
     return this._format
   }
+
+  /** Resolution recorded in formats that store one (TIFF). */
+  dpi = 96
 
   /**
    * Largest image side this viewer exports: the GPU texture limit, capped at
@@ -242,13 +246,19 @@ export class AcApRasterImageConvertor {
         return 'JPGOUT'
       case 'bmp':
         return 'BMPOUT'
+      case 'tiff':
+        return 'TIFOUT'
       default:
         return 'PNGOUT'
     }
   }
 
   private get fileExtension(): string {
-    return this._format === 'jpeg' ? 'jpg' : this._format
+    return this._format === 'jpeg'
+      ? 'jpg'
+      : this._format === 'tiff'
+        ? 'tif'
+        : this._format
   }
 
   private resolveOutputSize(
@@ -429,6 +439,10 @@ export class AcApRasterImageConvertor {
         return this.canvasToJpegDataUrl(canvas)
       case 'bmp':
         return this.encodeBmpDataUrl(pixels, width, height)
+      case 'tiff':
+        return `data:image/tiff;base64,${this.bytesToBase64(
+          acapEncodeTiff(pixels, width, height, this.dpi)
+        )}`
       default:
         return canvas.toDataURL('image/png')
     }
