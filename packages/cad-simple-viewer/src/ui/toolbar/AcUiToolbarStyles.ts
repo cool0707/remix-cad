@@ -306,6 +306,15 @@ export function acuiEnsureToolbarStyles(): void {
   background: var(--ml-ui-accent-soft, var(--ml-brand-soft));
 }
 
+/* The tool in use: filled with the brand colour (Illustrator / Photoshop
+   style), so it reads apart from hover / open / toggled states. */
+.ml-ex-ui-toolbar .ml-ex-ui-toolbar-btn.is-active:not(:disabled),
+.ml-ex-ui-subtoolbar .ml-ex-ui-toolbar-btn.is-active:not(:disabled) {
+  border-color: transparent;
+  color: #ffffff;
+  background: var(--ml-brand-gradient, var(--ml-ui-accent, var(--ml-brand)));
+}
+
 /* Flyout mark: a small opaque right triangle in the corner toward the
    submenu. It sits in the icon padding so the glyph stays clear.
    Only shown when the toolbar/subtoolbar root has .show-children-indicator

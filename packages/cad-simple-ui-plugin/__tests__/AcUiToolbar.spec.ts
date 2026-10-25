@@ -1414,3 +1414,71 @@ describe('AcUiToolbar movable', () => {
     toolbar.destroy()
   })
 })
+
+describe('AcUiToolbar active tool', () => {
+  afterEach(() => {
+    document.body.replaceChildren()
+    document.getElementById('ml-ex-ui-styles')?.remove()
+    document.getElementById('ml-ui-toolbar-styles')?.remove()
+  })
+
+  const items: AcUiToolbarItem[] = [
+    { id: 'select', label: 'Select', command: 'select' },
+    {
+      id: 'draw',
+      label: 'Draw',
+      childrenUi: 'toolbar',
+      children: [
+        { id: 'draw-line', label: 'Line', command: 'line' },
+        { id: 'draw-rect', label: 'Rect', command: 'rectang' }
+      ]
+    },
+    {
+      id: 'zoom',
+      label: 'Zoom',
+      childrenUi: 'toolbar',
+      children: [
+        { id: 'zoom-extent', label: 'Extent', command: 'zoom\nall' },
+        { id: 'zoom-window', label: 'Window', command: 'zoom\nwindow' }
+      ]
+    }
+  ]
+
+  const active = (host: HTMLElement) =>
+    Array.from(host.querySelectorAll('.ml-ex-ui-toolbar-btn.is-active')).map(
+      el => (el as HTMLElement).dataset.toolbarItemId
+    )
+
+  it('lights the matching button and moves with the command', () => {
+    const { host, toolbar } = createToolbar(items)
+    toolbar.setActiveCommand(command => command === 'select')
+    expect(active(host)).toEqual(['select'])
+
+    toolbar.setActiveCommand(command => command === 'line')
+    expect(active(host)).toEqual(['draw'])
+
+    host.querySelector<HTMLButtonElement>('[data-toolbar-item-id="draw"]')?.click()
+    expect(active(host)).toEqual(['draw', 'draw-line'])
+
+    toolbar.setActiveCommand(undefined)
+    expect(active(host)).toEqual([])
+    toolbar.destroy()
+  })
+
+  it('prefers the clicked item when several share a command', () => {
+    const { host, toolbar } = createToolbar(items)
+    const isZoom = (command: string) => command.startsWith('zoom\n')
+    toolbar.setActiveCommand(isZoom)
+    // Typed in: only the group can tell which zoom is running.
+    expect(active(host)).toEqual(['zoom'])
+
+    host.querySelector<HTMLButtonElement>('[data-toolbar-item-id="zoom"]')?.click()
+    host
+      .querySelector<HTMLButtonElement>('[data-toolbar-item-id="zoom-window"]')
+      ?.click()
+    toolbar.setActiveCommand(isZoom)
+    host.querySelector<HTMLButtonElement>('[data-toolbar-item-id="zoom"]')?.click()
+    expect(active(host)).toEqual(['zoom', 'zoom-window'])
+    toolbar.destroy()
+  })
+})
