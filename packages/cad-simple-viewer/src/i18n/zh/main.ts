@@ -20,6 +20,21 @@ export default {
   prompt: {
     orConnector: '或'
   },
+  tool: {
+    select: '选择',
+    pan: '平移',
+    line: '直线',
+    pline: '多段线',
+    circle: '圆',
+    arc: '圆弧',
+    rectang: '矩形',
+    polygon: '多边形',
+    ellipse: '椭圆',
+    spline: '样条曲线',
+    mtext: '文字',
+    hatch: '填充',
+    point: '点'
+  },
   mobileCommand: {
     length: '长度',
     angle: '角度',

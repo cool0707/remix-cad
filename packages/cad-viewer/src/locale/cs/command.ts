@@ -36,6 +36,9 @@ export default {
       description:
         'Vytvoří výběrovou množinu filtrováním objektů podle typu a vlastností'
     },
+    options: {
+      description: 'Otevře nastavení (profil ovládání, výběr, zobrazení)'
+    },
     units: {
       description:
         'Nastaví formát délkových a úhlových jednotek, přesnost, směr úhlů a jednotky měřítka vkládání'

@@ -37,6 +37,9 @@ export default {
       description:
         'Tür ve özellik koşullarına göre nesneleri filtreleyerek bir seçim kümesi oluşturur'
     },
+    options: {
+      description: 'Ayarları açar (kullanım profili, seçim, görünüm)'
+    },
     units: {
       description:
         'Doğrusal ve açısal birim biçimlerini, hassasiyeti, açı yönünü ve ekleme ölçek birimlerini ayarlar'

@@ -2,6 +2,8 @@ import { expect, test, type Page } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
+import { useCadProfile } from '../helpers/operationProfile'
+
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 const fixturePath = path.resolve(
   currentDir,
@@ -62,6 +64,8 @@ async function countNonBackgroundPixels(page: Page) {
 test('drawn lines appear immediately without panning the view', async ({
   page
 }) => {
+  // Draws a chain of segments with one LINE command (CAD profile).
+  await useCadProfile(page)
   await page.goto('/')
   await uploadFixture(page)
   await expect(page.locator('.ml-cad-container')).toBeVisible({

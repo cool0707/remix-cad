@@ -31,6 +31,9 @@ export default {
     qselect: {
       description: '按对象类型与属性条件筛选图元并创建选择集'
     },
+    options: {
+      description: '打开设置 (操作模式、选择、显示)'
+    },
     units: {
       description:
         '设置长度与角度单位格式、精度、角度方向及插入内容缩放所用单位'

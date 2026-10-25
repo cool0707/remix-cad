@@ -11,6 +11,7 @@ export default {
     exportAs: 'Exportovat do {format}',
     exportImage: 'Exportovat do obrázku',
     exportImageArea: 'Exportovat vybranou oblast jako obrázek',
+    settings: 'Nastavení',
     about: 'O aplikaci'
   },
   ribbon: {
@@ -608,14 +609,15 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: 'Nastavení zobrazení',
       commandLine: 'Příkazový řádek',
       coordinate: 'Souřadnice',
       entityInfo: 'Informace o objektu',
       languageSelector: 'Volba jazyka',
       ribbon: 'Pás karet',
       toolbar: 'Panel nástrojů',
-      stats: 'Statistiky'
+      stats: 'Statistiky',
+      replaceOnClick: 'Kliknutí nahradí výběr',
+      continuousDraw: 'Pokračovat v kreslení (zůstat v nástroji)'
     },
     osnap: {
       tooltip: 'Uchopení objektů',
@@ -643,10 +645,13 @@ export default {
       on: 'Skrýt tloušťky čar',
       off: 'Zobrazit tloušťky čar'
     },
-    selectionStyle: {
-      simple:
-        'Kliknutí nahradí výběr (Shift+kliknutí přidá nebo odebere). Kliknutím přepnete na styl CAD',
-      cad: 'Styl CAD: každé kliknutí přidá do výběru. Kliknutím přepnete na nahrazení kliknutím'
+    operationProfile: {
+      simple: 'Jednoduchý',
+      cad: 'CAD',
+      simpleTooltip:
+        'Jednoduché ovládání: kliknutí nahradí výběr a po každém kreslení se vrátí nástroj Výběr. Nástroje jednou klávesou (V Výběr / H Posun / L Úsečka / R Obdélník / T Text; posun tažením s podrženým mezerníkem). Kliknutím přepnete na ovládání CAD (klasické)',
+      cadTooltip:
+        'Ovládání CAD (klasické): každé kliknutí přidá do výběru a kreslicí příkazy pokračují až do Enter / Esc. Kliknutím přepnete na jednoduché ovládání'
     },
     orthoMode: {
       on: 'Vypnout režim ortho',
@@ -656,9 +661,16 @@ export default {
       on: 'Vypnout polární trasování',
       off: 'Zapnout polární trasování'
     },
+    zoom: {
+      zoomIn: 'Přiblížit',
+      zoomOut: 'Oddálit',
+      fitAll: 'Zobrazit vše',
+      tooltip:
+        'Měřítko zobrazení (délka na obrazovce : skutečná délka). Kliknutím zvolíte ze seznamu'
+    },
     theme: {
-      dark: 'Přepnout na světlý motiv',
-      light: 'Přepnout na tmavý motiv'
+      toLight: 'Přepnout na světlý motiv',
+      toDark: 'Přepnout na tmavý motiv'
     },
     warning: {
       font: 'Následující fonty nebyly nalezeny!'

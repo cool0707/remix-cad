@@ -11,6 +11,7 @@ export default {
     exportAs: '导出为 {format}',
     exportImage: '导出图片',
     exportImageArea: '导出选定区域为图像',
+    settings: '设置',
     about: '关于'
   },
   ribbon: {
@@ -577,14 +578,15 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: '显示设置',
       commandLine: '命令行',
       coordinate: '坐标',
       entityInfo: '图元信息',
       languageSelector: '语言菜单',
       ribbon: '功能区',
       toolbar: '工具栏',
-      stats: '性能面板'
+      stats: '性能面板',
+      replaceOnClick: '单击替换选择',
+      continuousDraw: '连续绘图 (不返回选择工具)'
     },
     osnap: {
       tooltip: '对象捕捉',
@@ -612,9 +614,13 @@ export default {
       on: '隐藏线宽',
       off: '显示线宽'
     },
-    selectionStyle: {
-      simple: '单击替换选择 (Shift+单击添加或取消)。点击切换为 CAD 方式',
-      cad: 'CAD 方式：每次单击都添加到选择。点击切换为单击替换'
+    operationProfile: {
+      simple: '简单',
+      cad: 'CAD',
+      simpleTooltip:
+        '简单操作：单击替换选择，每次绘图后返回选择工具。单键切换工具 (V 选择 / H 平移 / L 直线 / R 矩形 / T 文字，按住空格拖动可平移)。点击切换为 CAD (传统) 操作',
+      cadTooltip:
+        'CAD (传统) 操作：每次单击都添加到选择，绘图命令持续到 Enter / Esc。点击切换为简单操作'
     },
     orthoMode: {
       on: '关闭正交模式',
@@ -624,9 +630,16 @@ export default {
       on: '关闭极轴追踪',
       off: '打开极轴追踪'
     },
+    zoom: {
+      zoomIn: '放大',
+      zoomOut: '缩小',
+      fitAll: '全部显示',
+      tooltip:
+        '显示比例 (屏幕上的长度 : 实际长度)。点击可从列表选择'
+    },
     theme: {
-      dark: '切换到暗黑主题',
-      light: '切换到明亮主题'
+      toLight: '切换到明亮主题',
+      toDark: '切换到暗黑主题'
     },
     warning: {
       font: '没有找到如下字体：'

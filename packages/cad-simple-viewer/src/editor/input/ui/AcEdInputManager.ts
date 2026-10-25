@@ -1000,12 +1000,14 @@ export class AcEdInputManager {
    *
    * @typeParam T - Raw successful value from prompt workflow
    * @typeParam R - Prompt result type
+   * @param prompt - Prompt options, reported through `promptStarted`
    * @param run - Async prompt workflow that may throw control-flow errors
    * @param onOk - Maps successful workflow value to result object
    * @param create - Creates a result object from mapped prompt status
    * @param options - Toggles for supported mapped statuses
    */
   private async executePrompt<T, R extends AcEdPromptResult>(
+    prompt: AcEdPromptOptions<unknown>,
     run: () => Promise<T>,
     onOk: (value: T) => R,
     create: (status: AcEdPromptStatus) => R,
@@ -1015,13 +1017,20 @@ export class AcEdInputManager {
       keyword?: boolean
     }
   ): Promise<R> {
+    this._editorEvents.promptStarted.dispatch({ message: prompt.message })
+    let result: R | undefined
     try {
       const value = await run()
-      return onOk(value)
+      result = onOk(value)
+      return result
     } catch (error) {
-      const mapped = this.mapPromptErrorToResult(error, create, options)
-      if (mapped) return mapped
+      result = this.mapPromptErrorToResult(error, create, options)
+      if (result) return result
       throw error
+    } finally {
+      this._editorEvents.promptEnded.dispatch({
+        status: result?.status ?? AcEdPromptStatus.Error
+      })
     }
   }
 
@@ -1060,6 +1069,7 @@ export class AcEdInputManager {
     options: AcEdPromptPointOptions
   ): Promise<AcEdPromptPointResult> {
     return this.executePrompt(
+      options,
       () => this.getPointInternal(options),
       value => new AcEdPromptPointResult(AcEdPromptStatus.OK, value),
       status => new AcEdPromptPointResult(status)
@@ -1201,6 +1211,7 @@ export class AcEdInputManager {
     const basePoint = this.resolveDistanceBasePoint(options)
 
     return this.executePrompt(
+      options,
       async () => {
         if (basePoint) {
           return await this.makeFloatingInputPromise<number>({
@@ -1245,6 +1256,7 @@ export class AcEdInputManager {
     // No reference point available: fallback to typed angle input only.
     if (!basePoint) {
       return this.executePrompt(
+      options,
         () => this.getNumberTyped(options, handler),
         value => new AcEdPromptDoubleResult(AcEdPromptStatus.OK, value),
         status => new AcEdPromptDoubleResult(status)
@@ -1267,6 +1279,7 @@ export class AcEdInputManager {
     }
 
     return this.executePrompt(
+      options,
       () =>
         this.makeFloatingInputPromise<number>({
           inputCount: 1,
@@ -1298,6 +1311,7 @@ export class AcEdInputManager {
     }
 
     return this.executePrompt(
+      options,
       () => this.getNumberTyped(options, handler),
       value => new AcEdPromptDoubleResult(AcEdPromptStatus.OK, value),
       status => new AcEdPromptDoubleResult(status)
@@ -1325,6 +1339,7 @@ export class AcEdInputManager {
     }
 
     return this.executePrompt(
+      options,
       () => this.getNumberTyped(options, new AcEdIntegerHandler(options)),
       value => new AcEdPromptIntegerResult(AcEdPromptStatus.OK, value),
       status => new AcEdPromptIntegerResult(status)
@@ -1351,6 +1366,7 @@ export class AcEdInputManager {
     }
 
     return this.executePrompt(
+      options,
       async () => {
         const getDynamicValue = () => {
           return {
@@ -1390,6 +1406,7 @@ export class AcEdInputManager {
     options: AcEdPromptKeywordOptions
   ): Promise<AcEdPromptResult> {
     return this.executePrompt(
+      options,
       async () => {
         const scriptedValue = this.tryGetScriptedValue(
           new AcEdKeywordHandler(options),
@@ -1489,6 +1506,7 @@ export class AcEdInputManager {
     options: AcEdPromptSelectionOptions
   ): Promise<AcEdPromptSelectionResult> {
     return this.executePrompt(
+      options,
       () =>
         new Promise<string[]>((resolve, reject) => {
           this.active = true
@@ -1825,6 +1843,7 @@ export class AcEdInputManager {
   ): Promise<AcEdPromptEntityResult> {
     let pickedPoint: AcGePoint3dLike | undefined
     return this.executePrompt(
+      options,
       () =>
         new Promise<string | null>((resolve, reject) => {
           this.active = true
@@ -1989,6 +2008,7 @@ export class AcEdInputManager {
    */
   async getBox(options: AcEdPromptBoxOptions): Promise<AcEdPromptBoxResult> {
     return this.executePrompt(
+      options,
       () =>
         acedInteractionStrategy().acquireBox(
           {

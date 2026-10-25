@@ -7,9 +7,12 @@ import {
   Delete,
   DocumentCopy,
   Hide,
+  Moon,
   RefreshRight,
   Right,
+  Setting,
   Stamp,
+  Sunny,
   View
 } from '@element-plus/icons-vue'
 import {
@@ -96,7 +99,9 @@ import { useI18n } from 'vue-i18n'
 import { store } from '../../app'
 import type { LayerStateSnapshot, LayerStateToggleKey } from '../../composable'
 import {
+  isDark,
   LAYER_FILTER_ALL,
+  toggleDark,
   useDataSources,
   useDocument,
   useLayerFilters,
@@ -2067,14 +2072,27 @@ const buildBaseTabs = (
                       }
                     ]
                   }
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          // Its own group: filling an area is not drawing a shape.
+          id: 'home-hatch',
+          title: t('main.ribbon.command.hatch'),
+          orientation: 'row',
+          collections: [
+            {
+              id: 'home-hatch-main',
+              layout: 'row',
+              items: [
                 {
                   id: 'cmd-hatch',
                   type: 'button',
                   label: t('main.ribbon.command.hatch'),
                   tooltip: ribbonTooltips.hatch,
-                  hideLabel: true,
-                  size: 'small',
+                  size: 'large',
                   props: { icon: hatch }
                 }
               ]
@@ -2760,6 +2778,11 @@ const fileMenuItems = computed<FileMenuItemModel[]>(() => {
     })
   }
   items.push({
+    id: 'Settings',
+    label: t('main.mainMenu.settings'),
+    divided: true
+  })
+  items.push({
     id: 'About',
     label: t('main.mainMenu.about'),
     divided: true
@@ -2813,6 +2836,10 @@ const runLazyCommand = async (command: string) => {
 }
 
 /** Header undo / redo glyphs: the same arrows the toolbars use. */
+const openSettings = () => {
+  AcApDocManager.instance.sendStringToExecute('options')
+}
+
 const HeaderUndoIcon = () => h('span', { class: 'ml-ribbon-tabs-after__icon', innerHTML: ICON_UNDO })
 const HeaderRedoIcon = () => h('span', { class: 'ml-ribbon-tabs-after__icon', innerHTML: ICON_REDO })
 
@@ -2873,6 +2900,8 @@ const handleFileMenuSelect = async (command: string) => {
     }
   } else if (command === 'DrawingUnits') {
     AcApDocManager.instance.sendStringToExecute('units')
+  } else if (command === 'Settings') {
+    AcApDocManager.instance.sendStringToExecute('options')
   } else if (command === 'About') {
     AcApDocManager.instance.sendStringToExecute('about')
   }
@@ -2928,11 +2957,45 @@ const handleFileMenuSelect = async (command: string) => {
         </div>
       </template>
       <template #tabs-extra="{ disabled }">
+        <el-tooltip
+          :content="
+            isDark ? t('main.statusBar.theme.toLight') : t('main.statusBar.theme.toDark')
+          "
+          :hide-after="0"
+          :show-after="500"
+        >
+          <el-button
+            class="ml-ribbon-header-button ml-ribbon-theme-button"
+            :aria-label="
+              isDark ? t('main.statusBar.theme.toLight') : t('main.statusBar.theme.toDark')
+            "
+            :disabled="disabled"
+            :icon="isDark ? Sunny : Moon"
+            text
+            circle
+            @click="toggleDark"
+          />
+        </el-tooltip>
         <ml-ribbon-language-selector
           v-if="features.isShowLanguageSelector"
           :current-locale="props.currentLocale"
           :disabled="disabled"
         />
+        <el-tooltip
+          :content="t('main.mainMenu.settings')"
+          :hide-after="0"
+          :show-after="500"
+        >
+          <el-button
+            class="ml-ribbon-header-button"
+            :aria-label="t('main.mainMenu.settings')"
+            :disabled="disabled"
+            :icon="Setting"
+            text
+            circle
+            @click="openSettings"
+          />
+        </el-tooltip>
       </template>
     </ml-ribbon>
     <ml-ribbon-file-name :container-el="ribbonContainerRef" />
@@ -2957,6 +3020,13 @@ const handleFileMenuSelect = async (command: string) => {
   display: inline-flex;
   align-items: center;
   gap: 2px;
+}
+
+.ml-ribbon-header-button {
+  width: 28px;
+  height: 28px;
+  margin: 0 2px;
+  font-size: 18px;
 }
 
 .ml-ribbon-tabs-after__button {

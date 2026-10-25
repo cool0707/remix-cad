@@ -16,6 +16,7 @@ export default {
     exportAs: 'تصدير إلى {format}',
     exportImage: 'تصدير إلى صورة',
     exportImageArea: 'تصدير المنطقة المحددة كصورة',
+    settings: 'الإعدادات',
     about: 'حول'
   },
 
@@ -858,14 +859,15 @@ export default {
 
     setting: {
       ...enMain.statusBar.setting,
-      tooltip: 'إعدادات العرض',
       commandLine: 'سطر الأوامر',
       coordinate: 'الإحداثيات',
       entityInfo: 'معلومات العنصر',
       languageSelector: 'اختيار اللغة',
       ribbon: 'الشريط',
       toolbar: 'شريط الأدوات',
-      stats: 'الإحصائيات'
+      stats: 'الإحصائيات',
+      replaceOnClick: 'النقر يستبدل التحديد',
+      continuousDraw: 'متابعة الرسم (البقاء في أداة الرسم)'
     },
 
     osnap: {
@@ -904,10 +906,13 @@ export default {
       off: 'إظهار سماكات الخطوط'
     },
 
-    selectionStyle: {
-      simple:
-        'النقر يستبدل التحديد (Shift+نقر للإضافة أو الإزالة). انقر للتبديل إلى نمط CAD',
-      cad: 'نمط CAD: كل نقرة تضيف إلى التحديد. انقر للتبديل إلى الاستبدال بالنقر'
+    operationProfile: {
+      simple: 'بسيط',
+      cad: 'CAD',
+      simpleTooltip:
+        'التشغيل البسيط: النقر يستبدل التحديد، ويعود إلى أداة التحديد بعد كل رسم. أدوات بمفتاح واحد (V تحديد / H تحريك العرض / L خط / R مستطيل / T نص؛ اضغط مع الاستمرار على المسافة واسحب لتحريك العرض). انقر للتبديل إلى تشغيل CAD (التقليدي)',
+      cadTooltip:
+        'تشغيل CAD (التقليدي): كل نقرة تضيف إلى التحديد، وتستمر أوامر الرسم حتى Enter / Esc. انقر للتبديل إلى التشغيل البسيط'
     },
     orthoMode: {
       ...enMain.statusBar.orthoMode,
@@ -921,10 +926,16 @@ export default {
       off: 'تشغيل التتبع القطبي'
     },
 
+    zoom: {
+      zoomIn: 'تكبير',
+      zoomOut: 'تصغير',
+      fitAll: 'عرض الكل',
+      tooltip:
+        'مقياس العرض (الطول على الشاشة : الطول الفعلي). انقر للاختيار من قائمة'
+    },
     theme: {
-      ...enMain.statusBar.theme,
-      dark: 'التبديل إلى الوضع الفاتح',
-      light: 'التبديل إلى الوضع الداكن'
+      toLight: 'التبديل إلى الوضع الفاتح',
+      toDark: 'التبديل إلى الوضع الداكن'
     },
 
     warning: {

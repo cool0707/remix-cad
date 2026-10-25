@@ -243,6 +243,11 @@ export abstract class AcEdBaseView {
    * only read entities, such as layer isolate and hatch boundaries.
    */
   private _allowSelectOnLockedLayer = false
+  /**
+   * Tool name shown in front of the prompt next to the cursor (e.g. `線` in
+   * `線: 次の点を指定`). Empty for no badge. Set by the tool manager.
+   */
+  promptBadge = ''
   /** Input manager for handling user interactions */
   private _editor: AcEditor
   /** Size of selection box in pixels for entity picking */

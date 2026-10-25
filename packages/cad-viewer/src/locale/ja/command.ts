@@ -35,6 +35,9 @@ export default {
       description:
         'オブジェクトの種類とプロパティの条件で絞り込んで選択セットを作成します'
     },
+    options: {
+      description: '環境設定 (操作プロファイル、選択、表示) を開きます'
+    },
     units: {
       description:
         '長さと角度の単位の形式、精度、角度の方向、挿入尺度の単位を設定します'

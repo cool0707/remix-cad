@@ -308,6 +308,9 @@ export class AcApMLineCmd extends AcEdCommand {
         }))
         // AutoCAD MLINE: Enter at "next point" ends the command without adding a vertex.
         prompt.allowNone = true
+        // Double-click ends the multiline; right-click removes the last point.
+        prompt.finishOnDoubleClick = true
+        prompt.rightClickKeyword = 'Undo'
         return prompt
       }
 

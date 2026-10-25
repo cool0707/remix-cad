@@ -20,6 +20,21 @@ export default {
   prompt: {
     orConnector: 'or'
   },
+  tool: {
+    select: 'Select',
+    pan: 'Pan',
+    line: 'Line',
+    pline: 'Polyline',
+    circle: 'Circle',
+    arc: 'Arc',
+    rectang: 'Rectangle',
+    polygon: 'Polygon',
+    ellipse: 'Ellipse',
+    spline: 'Spline',
+    mtext: 'Text',
+    hatch: 'Pattern fill',
+    point: 'Point'
+  },
   mobileCommand: {
     length: 'Length',
     angle: 'Angle',

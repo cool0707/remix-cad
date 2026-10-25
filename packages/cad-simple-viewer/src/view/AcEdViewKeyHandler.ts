@@ -1,4 +1,5 @@
 import { AcApDocManager } from '../app'
+import { ACAP_TOOL_SHORTCUTS } from '../app/AcApToolShortcuts'
 import { runMarkupEdit } from '../command/markup/AcApMarkupHistory'
 import { runMeasurementEdit } from '../command/measure/AcApMeasurementHistory'
 import { MEASUREMENT_LAYER } from '../command/measure/AcApMeasurementStore'
@@ -36,6 +37,14 @@ export class AcEdViewKeyHandler {
     const undoRedoShortcut = this.resolveUndoRedoShortcut(e)
     const ignoreEditableTarget = this.shouldIgnoreEditableTargetShortcut(e)
 
+    if (
+      !undoRedoShortcut &&
+      this.view.toolManager.isSimple &&
+      this.handleSimpleProfileKey(e)
+    ) {
+      return true
+    }
+
     if (ignoreEditableTarget && !undoRedoShortcut) {
       return false
     }
@@ -56,9 +65,7 @@ export class AcEdViewKeyHandler {
 
     switch (e.code) {
       case 'Escape':
-        this.view.selectionSet.clear()
-        this.view.htmlTransientManager.deselectAll()
-        this.view.isHtmlDirty = true
+        this.clearSelection()
         return false
 
       case 'Delete':
@@ -107,6 +114,78 @@ export class AcEdViewKeyHandler {
     }
 
     return false
+  }
+
+  /** Clears the entity and markup / measurement selection. */
+  private clearSelection() {
+    this.view.selectionSet.clear()
+    this.view.htmlTransientManager.deselectAll()
+    this.view.isHtmlDirty = true
+  }
+
+  /**
+   * Simple profile keys: single-key tools (V / H / L / R / T) and the staged
+   * Esc (a running command is cancelled by
+   * its prompt; then the pan tool goes back to the select tool; only then
+   * does Esc clear the selection).
+   *
+   * @returns `true` when the event was consumed.
+   */
+  private handleSimpleProfileKey(e: KeyboardEvent): boolean {
+    if (e.isComposing || e.keyCode === 229) return false
+    const tools = this.view.toolManager
+    const running = this.view.editor.isActive || tools.isCommandRunning
+
+    if (e.code === 'Escape') {
+      if (running) {
+        // Esc cancels the prompt (its own listener); keep the selection.
+        return true
+      }
+      if (tools.handleEscape()) return true
+      // Also when a prompt left the focus in the (empty) command line.
+      if (this.isTyping(e)) return false
+      this.clearSelection()
+      return true
+    }
+
+    if (e.ctrlKey || e.metaKey || e.altKey || this.isTyping(e)) {
+      return false
+    }
+
+    const tool = ACAP_TOOL_SHORTCUTS[e.code]
+    if (!tool || e.shiftKey || running) {
+      return false
+    }
+    // lookupGlobalCmd applies the document's open mode: drawing tools are
+    // ignored in read-only documents.
+    if (!AcApDocManager.instance.lookupGlobalCmd(tool)) {
+      return false
+    }
+    tools.activate(tool)
+    e.preventDefault()
+    return true
+  }
+
+  /**
+   * Whether the key goes into a text field. The command line counts only when
+   * the user clicked into it or typed something: prompts focus it on their
+   * own, and single-key tools must still work after a command.
+   */
+  private isTyping(e: KeyboardEvent): boolean {
+    if (!this.shouldIgnoreEditableTargetShortcut(e)) return false
+    const target = e.target as HTMLElement | null
+    if (
+      target?.tagName === 'INPUT' &&
+      target.classList.contains(AcEdViewKeyHandler.COMMAND_LINE_INPUT_CLASS)
+    ) {
+      const input = target as HTMLInputElement
+      return (
+        input.value.trim() !== '' ||
+        input.readOnly ||
+        input.dataset.userFocus === 'true'
+      )
+    }
+    return true
   }
 
   private resolveUndoRedoShortcut(

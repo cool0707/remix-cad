@@ -16,6 +16,8 @@
     <template #right>
       <ml-progress />
       <el-button-group class="ml-status-bar-right-button-group">
+        <ml-tool-status v-if="!isMobile" />
+        <ml-operation-profile-button />
         <el-button
           v-if="features.isShowCoordinate && !isMobile"
           class="ml-status-bar-current-pos"
@@ -23,13 +25,9 @@
         >
         <ml-warning-button />
         <ml-notification-button @click="toggleNotificationCenter" />
-        <ml-theme-button
-          :is-dark="props.isDark"
-          :toggle-dark="props.toggleDark"
-        />
         <ml-full-screen-button />
+        <ml-zoom-control />
         <ml-point-style-button />
-        <ml-selection-style-button />
         <ml-osnap-button />
         <ml-sys-var-toggle-button
           :sys-var-name="AcDbSystemVariables.ORTHOMODE"
@@ -61,7 +59,6 @@
           off-color="var(--el-text-color-regular)"
           remember-last-enabled
         />
-        <ml-setting-button />
       </el-button-group>
     </template>
   </ml-status-bar>
@@ -81,22 +78,17 @@ import { MlSysVarToggleButton } from '../common'
 import MlFullScreenButton from './MlFullScreenButton.vue'
 import MlLayoutTabs from './MlLayoutTabs.vue'
 import MlNotificationButton from './MlNotificationButton.vue'
+import MlOperationProfileButton from './MlOperationProfileButton.vue'
 import MlOsnapButton from './MlOsnapButton.vue'
 import MlPointStyleButton from './MlPointStyleButton.vue'
 import MlPolarTrackingButton from './MlPolarTrackingButton.vue'
 import MlProgress from './MlProgress.vue'
-import MlSelectionStyleButton from './MlSelectionStyleButton.vue'
-import MlSettingButton from './MlSettingButton.vue'
-import MlThemeButton from './MlThemeButton.vue'
+import MlToolStatus from './MlToolStatus.vue'
 import MlWarningButton from './MlWarningButton.vue'
+import MlZoomControl from './MlZoomControl.vue'
 
 /** Room kept free for longer coordinates while the mouse moves. */
 const COORDINATE_RESERVED_WIDTH = 220
-
-const props = defineProps<{
-  isDark: boolean
-  toggleDark: () => void
-}>()
 
 const { text: posText } = useCurrentPos(AcApDocManager.instance.curView)
 const features = useSettings()

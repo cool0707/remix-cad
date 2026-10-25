@@ -20,7 +20,9 @@ Figma / Illustrator 風の「先に選ぶ → ドラッグ / 右サイドバー�
   こうすると元に戻す (Undo)、スナップ、プレビューが自動的に揃う。
 - プロファイルで切り替えるもの: 選択の挙動 / 右クリック / コマンドラインの表示 / 用語辞書。
 - 既存の e2e テストは CAD プロファイルの動作を前提にしているので、CAD プロファイルでは今の動作を変えない。
-- 既定をどちらのプロファイルにするかは、ステップ 4 まで揃ってから決める (それまでは設定で切り替えて確認する)。
+  CAD の流れを前提にする e2e は `e2e/helpers/operationProfile.ts` の `useCadProfile(page)` で CAD にしてから動かす。
+- **既定はシンプル** (ステップ 6 で決定)。コマンドラインはシンプルでも表示したまま
+  (コマンドパレットが入るステップ 8 までは隠さない)。
 
 ### 1.2 用語 (シンプルのプロファイル)
 | CAD 用語 (現在の ja) | 新しい用語 | 備考 |
@@ -283,11 +285,67 @@ Figma / Illustrator 風の「先に選ぶ → ドラッグ / 右サイドバー�
 - `packages/cad-viewer/src/component/palette/MlEntityProperties.vue` (今は複数選択を 1 図形ずつドロップダウンで切り替える形)、`composable/useSelectionSet.ts`。
 - 属性: `component/dialog/MlAttDefDlg.vue`, `MlAttEditDlg.vue`, `composable/useAttEdit.ts`。
 
-### ステップ 5: 条件で選択ペイン
+### ステップ 5: 条件で選択ペイン (保留)
+- ユーザーの判断で保留にし、先にステップ 6 を行った。
 - 今の実装: `component/dialog/MlQuickSelectDlg.vue`, `composable/useQuickSelect.ts`, `command/AcApQSelectCmd.ts`。
 - ペインの登録: `component/palette/MlPaletteManager.vue`。
 
-### ステップ 6: ツール層 + カーソル + 選択ツールに戻るボタン + Esc の段階動作
+### ステップ 6: ツール層 + カーソル + 選択ツールに戻るボタン + Esc の段階動作 (済)
+- **着手時に決めたこと** (ユーザーと合意):
+  - 「作図が 1 回終わったら選択ツールに戻る」の 1 回 = **線は 1 本** (2 点目で終わる)。ポリラインはダブルクリック / Enter で終わる。
+    矩形・円などはもともと 1 個で終わる。
+  - シンプルでも**コマンドラインは表示したまま** (ステップ 8 のコマンドパレットまで)。
+  - プロファイルの切り替えは**ステータスバーのボタン** (旧「選択方式」ボタンを置き換え)。切り替えると選択方式も連動する。
+    選択方式だけを変えたい人向けに、環境設定に「クリックで選択を置き換える」を残した。
+  - **既定はシンプル**。
+- **実施内容 (結果)**:
+  - 設定 (`AcApSettingManager`): `operationProfile: 'cad' | 'simple'` (既定 `'simple'`)、`continuousDraw` (既定 `false`)。
+    `operationProfile` のセッターは `selectionStyle` も同じ値にする。`selectionStyle` の既定も `'simple'` にした。
+    以前のビルドで選択方式を切り替えていた人は、その値をプロファイルに引き継ぐ (`migrateStoredSettings`)。
+  - 入力待ちのイベント: `AcEditor.events.promptStarted` (`{ message }`) / `promptEnded` (`{ status }`)。
+    `AcEdInputManager.executePrompt()` (getPoint など全プロンプトが通る 1 か所) で出す。
+  - ツール層 `cad-simple-viewer/src/app/AcApToolManager.ts` (ビューごとに 1 つ、`view.toolManager`)。ツール = 既存コマンド。
+    `commandWillStart` / `commandEnded` / `promptStarted` / `promptEnded` を見て次を行う (シンプルのときだけ。CAD では状態を通知するだけ):
+    - カーソル: 選択ツール = 矢印、パン = 手、コマンドが入力待ちの間 = 十字。CAD は従来どおり十字。
+      **OrbitControls は作られるたびに canvas の cursor を `auto` に戻す** (connect → disconnect)。
+      レイアウトのビューを作ったとき・切り替えたときにカーソルを付け直す (CAD プロファイルでも、ファイルを開いたあと十字が消えていた不具合が直った)。
+    - カーソル横の入力待ちの文言の前にツール名を出す (`線: 次の点を指定`)。`view.promptBadge` を `AcEdFloatingMessage` が読む。
+    - 線は 2 点目を取ったら、次の入力待ちに空の入力 (= Enter) を入れて終わらせる (`SINGLE_SHOT_POINTS`)。
+      スクリプト (入力付きの `sendStringToExecute`) で動かしたコマンドには何もしない。
+    - 入力待ちが 1 回以上あったコマンドが終わったら選択ツールに戻す (パンにいても)。
+      連続作図が ON なら作図コマンド (`DRAW_TOOLS`) を `setTimeout` でもう一度起動する。ただし別のコマンドが先に始まったら起動しない。
+    - Esc の段階: ① 実行中のコマンドを取り消す (選択は残す) → ② パンから選択ツールへ → ③ 選択を解除。
+      連続作図中は、点を 1 つでも取っていれば ① でそのツールにとどまり、何も取っていなければ選択ツールに戻る。
+    - 状態は `AcApToolManager.events.changed` (static) で `{ view, tool, label, prompt }` を通知。ツール名は i18n `main.tool.*`。
+  - キー (`view/AcEdViewKeyHandler.ts`、シンプルのときだけ): V 選択 / H パン / L 線 / R 矩形 / T 文字 (`AcApToolShortcuts.ts`、`e.code` で判定)。
+    コマンドの実行中・修飾キー付き・文字入力中は無効。開いている文書で使えないコマンド (読み取り専用で線など) も無視。
+    Space を押しながらの左ドラッグでのパンは、別の PR (#29) で全プロファイル・作図中も効く形で入ったので、そちらに一本化した
+    (`AcTrView2d.installSpacePan`)。
+    - コマンドラインは入力待ちのたびに自分でフォーカスを取るので、**空のコマンドラインで、ユーザーがクリックして入ったのでない**ときは
+      「文字入力中」と見なさない (`AcEdCommandLine` がクリックで `data-user-focus` を付け、blur で外す)。
+    - 空のコマンドラインでの Esc は、シンプルではビューに渡す (CAD は従来どおりコマンドラインが「*キャンセル*」で受ける)。
+    - 入力ボックスが消えるとフォーカスが `<body>` に落ち、ビューのキー処理 (ビューの中のキーだけ扱う) に届かなくなる。
+      コマンドが終わったとき、フォーカスがどこにも無ければビューのコンテナに戻す。
+  - ダブルクリックで属性付きシンボルの欄にフォーカスする条件を `selectionStyle` から `operationProfile` に変えた。
+  - UI (cad-viewer): ステータスバーに使用中のツールと入力待ちの文言 (`MlToolStatus.vue`、`useActiveTool`) と
+    プロファイル切り替え (`MlOperationProfileButton.vue`、「シンプル」/「CAD」の文字ボタン)。
+    設定は**環境設定ダイアログ** (`MlSettingsDlg.vue`) にまとめた。開き方は「ファイル」→「環境設定」、リボン右上の言語の選択の隣の歯車、
+    コマンド `OPTIONS` (リボンを隠したときの入口)。中身は「操作」(プロファイル・クリックで選択を置き換える・作図を続ける
+    (シンプルのときだけ有効)) と「表示」(旧ステータスバーの歯車メニューの項目)。OK / 適用で反映、キャンセルで破棄。
+    ステータスバーの歯車 (`MlSettingButton.vue`) は削除した。
+    テーマ (ダーク / ライト) も「表示」に入れた。テーマの切り替えボタンはステータスバーからリボン右上の言語の選択の左へ移した
+    (`MlThemeButton.vue` は削除)。ツールチップが逆になっていた (ダークのとき「ダークテーマに切り替え」) のを直し、
+    文言キーを `main.statusBar.theme.toLight` / `toDark` に改めた (zh は意味が逆、en は誤字だった)。
+    左ツールバーのツールチップに、シンプルのときだけショートカットキーを併記 (`選択 (V)` など)。`MlSelectionStyleButton.vue` は削除。
+  - 「選択ツールに戻るボタン」は、左ツールバーの一番上の選択ボタンがそのまま役目を果たす (押すと実行中のコマンドを取り消して選択ツールへ)。
+  - テスト: jest `AcApToolManager.spec.ts`・`AcEdViewKeyHandler.spec.ts` (シンプルのキー)・`AcApSettingManager.spec.ts`、
+    e2e `simple-tools.spec.ts` (fixture `two-lines.dxf`)。`selection-style.spec.ts` / `property-inspector.spec.ts` は既定がシンプルになったのに合わせて直し、
+    `draw-after-load.spec.ts` は CAD プロファイルで動かす。
+- **未実施 / 残り**:
+  - プロファイル別の用語辞書 (1.2 の方式 (a)) は入れていない。今は両プロファイルとも一般用語。
+  - 右クリックの挙動とコマンドラインの表示はプロファイルで変えていない (ステップ 8)。
+  - 単キーのツールはコマンドの実行中 (連続作図で次の作図を待っているときも) は効かない。Esc で選択ツールに戻ってから押す。
+- 以下は着手前の調査メモ:
 - `editor/input/AcEdCursorManager.ts`, `editor/input/AcEditor.ts`, `editor/command/AcEdCommandStack.ts`, `view/AcEdViewKeyHandler.ts`。
 - 操作プロファイル (1.1) の切り替えはこのステップで入れる。
 

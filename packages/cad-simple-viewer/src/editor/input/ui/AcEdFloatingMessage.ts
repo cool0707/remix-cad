@@ -142,7 +142,13 @@ export class AcEdFloatingMessage {
     this.label = document.createElement('span')
     this.label.className = 'ml-floating-input-label'
     this.label.textContent = message
-    if (!message.trim()) {
+    const badge = view.promptBadge
+    if (badge) {
+      const tool = document.createElement('span')
+      tool.className = 'ml-floating-input-tool'
+      tool.textContent = message.trim() ? `${badge}:` : badge
+      this.label.prepend(tool)
+    } else if (!message.trim()) {
       this.label.style.display = 'none'
     }
     this.container.appendChild(this.label)
@@ -208,6 +214,11 @@ export class AcEdFloatingMessage {
       .ml-floating-input-label {
         white-space: nowrap;
         color: var(--ml-ui-text, #fff);
+      }
+      .ml-floating-input-tool {
+        margin-right: 4px;
+        font-weight: 700;
+        color: var(--ml-brand, #af61da);
       }
       .ml-floating-input-keywords {
         position: absolute;

@@ -37,9 +37,18 @@ del dispositivo del usuario.
   ella la cambia entre vertical y horizontal o la devuelve a su posición inicial: el borde izquierdo del área
   de dibujo, o el derecho cuando el panel flotante (capas, etc.) tapa la izquierda. Si el panel la tapa, vuelve allí sola. Los
   submenús se abren hacia el centro de la pantalla y la posición se recuerda.
-- **Cambio del modo de selección** — un botón de la barra de estado alterna entre el estilo CAD
-  (cada clic añade) y reemplazar al hacer clic (Mayús + clic añade o quita, un clic en vacío
-  borra la selección). Por ahora el estilo CAD sigue siendo el predeterminado.
+- **Perfiles de uso: Simple (predeterminado) / CAD** — un botón de la barra de estado los alterna.
+  Simple: un clic reemplaza la selección (Mayús + clic añade o quita, un clic en vacío la borra),
+  herramientas de una tecla (V Seleccionar / H Desplazar / L Línea / R Rectángulo / T Texto; mantén Espacio y arrastra para desplazar),
+  la herramienta en uso se ve en la forma del cursor, junto al cursor y en la barra de estado, se vuelve a Seleccionar
+  después de cada dibujo (una línea es un segmento; «Seguir dibujando» en Ajustes mantiene la herramienta)
+  y Esc actúa por etapas (cancelar la operación → volver a Seleccionar → borrar la selección).
+  CAD conserva el manejo clásico (cada clic añade, LÍNEA sigue hasta Intro).
+- **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
+  abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
+  (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).
+- **Escala de visualización** — la barra de estado muestra la vista como escala de plano (`1/100` = 1 mm en pantalla muestra 100 mm del plano,
+  según las unidades del dibujo y 96 px por pulgada), con botones −/+ y un control deslizante. Al hacer clic se elige Mostrar todo o 1/1 … 1/5000.
 - **Inspector de propiedades** — la pestaña Propiedades agrupa los valores en secciones (General,
   Ubicación, Símbolo…) y los edita directamente (un paso de deshacer por cambio). Con varios objetos
   seleccionados, una sección Selección muestra X / Y / An / Al con un punto de referencia de 9 posiciones,

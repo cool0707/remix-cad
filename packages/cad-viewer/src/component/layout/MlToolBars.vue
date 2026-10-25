@@ -125,17 +125,34 @@ const syncReadingMode = () => {
  * `main.verticalToolbar.chrome`.
  */
 const i18n = {
-  t: (key: string) =>
-    // eslint-disable-next-line @intlify/vue-i18n/no-dynamic-keys -- toolbar label keys are data-driven
-    AcApI18n.t(
-      key.startsWith('toolbar.')
-        ? `main.verticalToolbar.chrome.${key.slice('toolbar.'.length)}`
-        : key
-    )
-      // Ribbon labels wrap with "\n" (e.g. "DWG\nアタッチ"); tooltips are one line.
-      .replace(/([\u3000-\u9fff\uff00-\uffef])\n(?=[\u3000-\u9fff\uff00-\uffef])/g, '$1')
-      .replace(/\s*\n\s*/g, ' ')
+  t: (key: string) => withToolShortcut(key, translateLabel(key))
 }
+
+/** Single-key tools of the simple profile, shown in the button tooltips. */
+const TOOL_SHORTCUT_KEYS: Readonly<Record<string, string>> = {
+  'main.verticalToolbar.select.text': 'V',
+  'main.verticalToolbar.pan.text': 'H',
+  'main.ribbon.command.line': 'L',
+  'main.ribbon.command.rect': 'R',
+  'main.verticalToolbar.text.text': 'T'
+}
+
+const withToolShortcut = (key: string, label: string) => {
+  const shortcut =
+    features.operationProfile === 'simple' ? TOOL_SHORTCUT_KEYS[key] : undefined
+  return shortcut ? `${label} (${shortcut})` : label
+}
+
+const translateLabel = (key: string) =>
+  // eslint-disable-next-line @intlify/vue-i18n/no-dynamic-keys -- toolbar label keys are data-driven
+  AcApI18n.t(
+    key.startsWith('toolbar.')
+      ? `main.verticalToolbar.chrome.${key.slice('toolbar.'.length)}`
+      : key
+  )
+    // Ribbon labels wrap with "\n" (e.g. "DWG\nアタッチ"); tooltips are one line.
+    .replace(/([\u3000-\u9fff\uff00-\uffef])\n(?=[\u3000-\u9fff\uff00-\uffef])/g, '$1')
+    .replace(/\s*\n\s*/g, ' ')
 
 /** Where the user dragged the toolbar to (and its orientation). */
 const FLOATING_LAYOUT_STORAGE_KEY = 'ml-cad-viewer.toolbarLayout'
@@ -292,12 +309,6 @@ const buildItems = (): AcUiToolbarItem[] => {
           icon: ellipseCenter,
           command: 'ellipse'
         },
-        {
-          id: 'draw-hatch',
-          label: 'main.ribbon.command.hatch',
-          icon: hatch,
-          command: 'hatch'
-        },
         // The ones the ribbon keeps in the Draw group's overflow menu.
         {
           id: 'draw-spline',
@@ -342,6 +353,13 @@ const buildItems = (): AcUiToolbarItem[] => {
           command: 'point'
         }
       ]
+    },
+    {
+      id: 'hatch',
+      label: 'main.ribbon.command.hatch',
+      icon: hatch,
+      command: 'hatch',
+      minOpenMode: AcEdOpenMode.Write
     },
     {
       id: 'insert',
@@ -775,6 +793,12 @@ watch(
 watch(isDocumentOpening, opening => {
   toolbar?.setDocState({ isOpening: opening })
 })
+
+// Shortcut keys in the tooltips follow the operation profile.
+watch(
+  () => features.operationProfile,
+  () => toolbar?.refreshLocale()
+)
 </script>
 
 <template>

@@ -189,11 +189,10 @@ test('changes the layer of mixed entities at once', async ({ page }) => {
     .toEqual(['DOORS', 'DOORS', 'DOORS', 'DOORS'])
 })
 
-test('double-click on a symbol focuses its field in the simple style', async ({
+test('double-click on a symbol focuses its field in the simple profile', async ({
   page
 }) => {
   await loadFixture(page)
-  await page.locator('.ml-selection-style-button').click()
   await page.locator('.ml-overflow-tab', { hasText: 'Layers' }).click()
 
   const client = await page.evaluate(async url => {

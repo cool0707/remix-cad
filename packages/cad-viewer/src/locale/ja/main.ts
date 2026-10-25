@@ -11,6 +11,7 @@ export default {
     exportAs: '{format} に書き出し',
     exportImage: '画像に書き出し',
     exportImageArea: '選択範囲を画像に書き出し',
+    settings: '環境設定',
     about: 'バージョン情報'
   },
   ribbon: {
@@ -602,14 +603,15 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: '表示設定',
       commandLine: 'コマンドライン',
       coordinate: '座標',
       entityInfo: 'オブジェクト情報',
       languageSelector: '言語の選択',
       ribbon: 'リボン',
       toolbar: 'ツールバー',
-      stats: '統計'
+      stats: '統計',
+      replaceOnClick: 'クリックで選択を置き換える',
+      continuousDraw: '作図を続ける (選択ツールに戻らない)'
     },
     osnap: {
       tooltip: 'オブジェクトスナップ',
@@ -637,10 +639,13 @@ export default {
       on: '線の太さを非表示',
       off: '線の太さを表示'
     },
-    selectionStyle: {
-      simple:
-        'クリックで選択を置き換えます (Shift+クリックで追加・解除)。押すと CAD 式に切り替え',
-      cad: 'CAD 式: クリックするたびに選択に追加します。押すと「クリックで置き換え」に切り替え'
+    operationProfile: {
+      simple: 'シンプル',
+      cad: 'CAD',
+      simpleTooltip:
+        'シンプル操作: クリックで選択を置き換え、作図のあとは選択ツールに戻ります。キー 1 つでツールを切り替え (V 選択 / H パン / L 線 / R 矩形 / T 文字、Space を押しながらドラッグでパン)。押すと CAD (従来) の操作に切り替え',
+      cadTooltip:
+        'CAD (従来) の操作: クリックするたびに選択に追加し、作図コマンドは Enter / Esc まで続きます。押すとシンプル操作に切り替え'
     },
     orthoMode: {
       on: '直交モードをオフにする',
@@ -650,9 +655,16 @@ export default {
       on: '極トラッキングをオフにする',
       off: '極トラッキングをオンにする'
     },
+    zoom: {
+      zoomIn: '拡大',
+      zoomOut: '縮小',
+      fitAll: '全体表示',
+      tooltip:
+        '表示倍率 (画面上の長さ : 実際の長さ)。クリックで一覧から選べます'
+    },
     theme: {
-      dark: 'ライトテーマに切り替え',
-      light: 'ダークテーマに切り替え'
+      toLight: 'ライトテーマに切り替え',
+      toDark: 'ダークテーマに切り替え'
     },
     warning: {
       font: '次のフォントが見つかりません。'

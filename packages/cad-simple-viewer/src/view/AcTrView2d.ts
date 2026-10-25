@@ -48,6 +48,7 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
 import { AcApDocManager, AcApSettingManager } from '../app'
 import { AcApOpenViewMode } from '../app/AcApOpenDatabaseOptions'
+import { AcApToolManager } from '../app/AcApToolManager'
 import { AcApZoomCmd } from '../command/AcApZoomCmd'
 import { isMarkupHtmlTextEditing } from '../command/markup/AcApMarkupTextEdit'
 import { notifyMeasurementLayoutChanged } from '../command/measure/AcApMeasurementStore'
@@ -394,6 +395,8 @@ export class AcTrView2d extends AcEdBaseView {
   private _gripManager: AcEdGripManager
   /** Global keyboard shortcuts for the view (undo/redo, erase, etc.). */
   private _keyHandler: AcEdViewKeyHandler
+  /** Tool in use and the simple profile's tool behavior. */
+  private _toolManager: AcApToolManager
   /** Removes iOS canvas long-press callout listeners registered in the constructor. */
   private _disposeCanvasTouchCallout: (() => void) | undefined
   /** Removes mobile long-press box-selection gesture listeners. */
@@ -631,6 +634,7 @@ export class AcTrView2d extends AcEdBaseView {
       })
     }
     this._gripManager = new AcEdGripManager(this)
+    this._toolManager = new AcApToolManager(this)
     this._keyHandler = new AcEdViewKeyHandler(this)
     if (options.calculateSizeCallback) {
       this.setCalculateSizeCallback(options.calculateSizeCallback)
@@ -1004,6 +1008,8 @@ export class AcTrView2d extends AcEdBaseView {
       this.loadLayoutEntitiesIfNeeded(btrId)
       this.refreshCanvasBackgroundForActiveLayout()
       this._isDirty = true
+      // Each layout view has its own mode.
+      this._toolManager.syncCursor()
 
       if (isFirstVisit) {
         this.applyInitialZoom(btrId, args.layout)
@@ -1066,7 +1072,7 @@ export class AcTrView2d extends AcEdBaseView {
   initialize() {
     // This method is called after camera and render are created.
     // Children class can override this method to add its own logic
-    this.setCursor(AcEdCorsorType.Crosshair)
+    this._toolManager.syncCursor()
     this._onCommandWillStartHitTest = () => {
       this.htmlTransientManager.setHitTestEnabled(false)
     }
@@ -1143,6 +1149,11 @@ export class AcTrView2d extends AcEdBaseView {
   /** Grip point manager for the view (Write mode only). */
   get gripManager() {
     return this._gripManager
+  }
+
+  /** Tool in use and the simple profile's tool behavior. */
+  get toolManager() {
+    return this._toolManager
   }
 
   /**
@@ -2046,10 +2057,10 @@ export class AcTrView2d extends AcEdBaseView {
       e.preventDefault()
       this.selectionSet.clear()
       this.selectionSet.add(attributedBlock.objectId)
-      // Simple selection style: edit the symbol properties in the property
+      // Simple profile: edit the symbol properties in the property
       // inspector (when the UI provides one) instead of the dialog.
       if (
-        AcApSettingManager.instance.selectionStyle === 'simple' &&
+        AcApSettingManager.instance.operationProfile === 'simple' &&
         eventBus.all.get('focus-symbol-property')?.length
       ) {
         eventBus.emit('focus-symbol-property', {
@@ -3578,6 +3589,7 @@ export class AcTrView2d extends AcEdBaseView {
     this._disposeMobileBoxGesture?.()
     this._disposeMobileBoxGesture = undefined
     this._viewDomAbort.abort()
+    this._toolManager.dispose()
 
     if (this._onFontNotFound) {
       this._renderer.events.fontNotFound.removeEventListener(
@@ -3782,6 +3794,8 @@ export class AcTrView2d extends AcEdBaseView {
         this.clearHover()
       })
       this._layoutViewManager.add(layoutView)
+      // Its camera controls reset the shared canvas cursor to `auto`.
+      this._toolManager.syncCursor()
     }
     // Viewport entities may already have been converted while this view was
     // missing. Creating it is the moment those AcTrViewportViews can exist.

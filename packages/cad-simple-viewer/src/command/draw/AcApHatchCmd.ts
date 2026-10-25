@@ -587,6 +587,8 @@ export class AcApHatchCmd extends AcEdCommand {
 
     loops.forEach(loop => hatch.add(loop))
     context.doc.database.tables.blockTable.modelSpace.appendEntity(hatch)
+    // Show it now: HATCH goes on picking boundaries until it is ended.
+    context.view.addEntity(hatch)
     return true
   }
 

@@ -15,6 +15,10 @@ import {
   AcEdPromptStatus
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
+import {
+  acapAddUndoOnRightClick,
+  acapUndoLastEntity
+} from './AcApRepeatDrawUtil'
 
 function resolveUnitDirection(
   start: AcGePoint3dLike,
@@ -54,6 +58,9 @@ class AcApRayJig extends AcEdPreviewJig<AcGePoint3dLike> {
 
 /**
  * Command to create one or more rays from a common start point.
+ *
+ * Each ray is shown as soon as it is placed. Double-click (or Enter) ends
+ * the command; right-click (`Undo`) removes the last ray.
  */
 export class AcApRayCmd extends AcEdCommand {
   constructor() {
@@ -71,6 +78,7 @@ export class AcApRayCmd extends AcEdCommand {
     if (startPointResult.status !== AcEdPromptStatus.OK) return
 
     const startPoint = new AcGePoint3d(startPointResult.value!)
+    const created: AcDbRay[] = []
 
     while (true) {
       const throughPointPrompt = new AcEdPromptPointOptions(
@@ -80,9 +88,14 @@ export class AcApRayCmd extends AcEdCommand {
       throughPointPrompt.useBasePoint = true
       throughPointPrompt.basePoint = new AcGePoint3d(startPoint)
       throughPointPrompt.jig = new AcApRayJig(context.view, startPoint)
+      acapAddUndoOnRightClick(throughPointPrompt)
 
       const throughPointResult =
         await AcApDocManager.instance.editor.getPoint(throughPointPrompt)
+      if (throughPointResult.status === AcEdPromptStatus.Keyword) {
+        acapUndoLastEntity(context, created)
+        continue
+      }
       if (throughPointResult.status !== AcEdPromptStatus.OK) break
 
       const unitDir = resolveUnitDirection(
@@ -95,6 +108,8 @@ export class AcApRayCmd extends AcEdCommand {
       ray.basePoint = new AcGePoint3d(startPoint)
       ray.unitDir = unitDir
       db.tables.blockTable.modelSpace.appendEntity(ray)
+      context.view.addEntity(ray)
+      created.push(ray)
     }
   }
 }

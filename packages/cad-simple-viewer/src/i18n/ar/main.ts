@@ -20,6 +20,21 @@ export default {
   prompt: {
     orConnector: 'أو'
   },
+  tool: {
+    select: 'تحديد',
+    pan: 'تحريك العرض',
+    line: 'خط',
+    pline: 'خط متعدد',
+    circle: 'دائرة',
+    arc: 'قوس',
+    rectang: 'مستطيل',
+    polygon: 'مضلع',
+    ellipse: 'قطع ناقص',
+    spline: 'منحنى',
+    mtext: 'نص',
+    hatch: 'تعبئة بنمط',
+    point: 'نقطة'
+  },
   mobileCommand: {
     length: 'الطول',
     angle: 'الزاوية',

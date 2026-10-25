@@ -151,13 +151,15 @@ const createContext = () => {
       if (item instanceof AcDbHatch) appended.push(item)
     })
   })
+  const addEntity = jest.fn()
   const context = {
     doc: {
       database
-    }
+    },
+    view: { addEntity }
   }
 
-  return { appended, context, database }
+  return { addEntity, appended, context, database }
 }
 
 const createSettings = (
@@ -173,7 +175,7 @@ const createSettings = (
 
 describe('AcApHatchCmd', () => {
   test('creates SOLID hatches by default', () => {
-    const { appended, context, database } = createContext()
+    const { addEntity, appended, context, database } = createContext()
     AcDbSysVarManager.instance().setVar(
       AcDbSystemVariables.HPNAME,
       HATCH_PATTERN_SOLID,
@@ -184,6 +186,8 @@ describe('AcApHatchCmd', () => {
     expect(cmd.appendForTest(context as never, [createSquareLoop()])).toBe(true)
 
     const hatch = appended[0]
+    // Shown right away, while HATCH goes on asking for boundaries.
+    expect(addEntity).toHaveBeenCalledWith(hatch)
     expect(hatch.patternName).toBe(HATCH_PATTERN_SOLID)
     expect(hatch.isSolidFill).toBe(true)
     expect(hatch.definitionLines).toHaveLength(0)
@@ -218,7 +222,12 @@ describe('AcApHatchCmd', () => {
     expect(hatch.isSolidFill).toBe(false)
     expect(hatch.definitionLines.length).toBeGreaterThan(0)
     expect(hatch.definitionLines[0].angle).toBeCloseTo(Math.PI / 4)
-    expect(hatch.definitionLines[0].offset.y).toBeCloseTo(3.175 * 2)
+    // ANSI31 lines are 3.175 apart (x2 here), measured across the 45° lines:
+    // the offset is stored in WCS, perpendicular to them (45° + 90° = 135°).
+    const { offset } = hatch.definitionLines[0]
+    expect(offset.x).toBeCloseTo(-3.175 * 2 * Math.SQRT1_2)
+    expect(offset.y).toBeCloseTo(3.175 * 2 * Math.SQRT1_2)
+    expect(Math.hypot(offset.x, offset.y)).toBeCloseTo(3.175 * 2)
   })
 
   test('keeps SOLID hatches as solid fills without pattern definition lines', () => {

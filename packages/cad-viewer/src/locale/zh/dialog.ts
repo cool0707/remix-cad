@@ -8,6 +8,20 @@ export default {
     title: '点样式',
     pointSize: '点大小:'
   },
+  settingsDlg: {
+    title: '设置',
+    operationSection: '操作',
+    operationProfile: '操作模式',
+    profileSimple: '简单',
+    profileCad: 'CAD (传统)',
+    profileSimpleHint: '单击替换选择，单键切换工具 (V / H / L / R / T)，每次绘图后返回选择工具，Esc 分阶段生效。',
+    profileCadHint: 'AutoCAD 风格：每次单击都添加到选择，绘图命令持续到 Enter / Esc。',
+    theme: '主题',
+    themeDark: '暗黑',
+    themeLight: '明亮',
+    displaySection: '显示',
+    ribbonHiddenHint: '隐藏功能区后，请用 OPTIONS 命令打开此对话框。'
+  },
   drawingUnitsDlg: {
     title: '图形单位',
     lengthSection: '长度',
