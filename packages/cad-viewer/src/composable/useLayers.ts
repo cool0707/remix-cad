@@ -77,10 +77,10 @@ function enrichLayerInfo(
     ...base,
     isInUse: layer.isInUse,
     isPlottable: layer.isPlottable,
-    // A layer has nothing to inherit from: ByLayer / ByBlock (the default of
-    // a new AcCmTransparency) is opaque, shown as 0 like AutoCAD.
     transparency:
-      transparencyPercentage != null ? String(transparencyPercentage) : '0',
+      transparencyPercentage != null
+        ? String(transparencyPercentage)
+        : layer.transparency.toString(),
     linetype: layer.linetype,
     lineWeight: layer.lineWeight,
     description: layer.description ?? ''

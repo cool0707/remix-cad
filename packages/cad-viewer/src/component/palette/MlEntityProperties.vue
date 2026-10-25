@@ -420,7 +420,8 @@ import {
   entityPropEnum,
   entityPropName,
   lineTypeName,
-  symbolicName
+  symbolicName,
+  transparencyName
 } from '../../locale'
 import {
   MlColorDropdown,
@@ -518,7 +519,9 @@ function formatValue(row: MlInspectorRow, v: unknown): string {
     case 'lineweight':
       return formatLineWeight(v as number)
     case 'transparency':
-      return (v as AcCmTransparency | undefined)?.toString() ?? ''
+      return transparencyName(
+        (v as AcCmTransparency | undefined)?.toString() ?? ''
+      )
     default:
       if (typeof v === 'number') {
         return formatInspectorNumber(v, decimalsOf(row))
