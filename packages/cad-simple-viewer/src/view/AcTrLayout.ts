@@ -963,6 +963,18 @@ export class AcTrLayout {
   }
 
   /**
+   * Returns the drawn bounds of one entity from the spatial index (built from
+   * the rendered geometry, so text uses its real glyph extents).
+   *
+   * @param id - Entity object id.
+   * @returns The world XY box, or `undefined` when the entity is not drawn here.
+   */
+  getEntityBox(id: AcDbObjectId): AcEdSpatialQueryResultItem | undefined {
+    const box = this._spatialIndex.getRootById(id)
+    return box && isFiniteSpatialBBox(box) ? box : undefined
+  }
+
+  /**
    * Collects finite spatial-index AABBs for intelligent zoom-to-fit.
    *
    * Prefers child-level boxes when present so INSERT/hatch islands contribute

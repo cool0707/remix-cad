@@ -650,7 +650,8 @@ export class AcTrView2d extends AcEdBaseView {
     this._gripManager = new AcEdGripManager(this)
     this._selectionTransformer = new AcEdSelectionTransformer(this, {
       activeSpaceId: () => this._scene.activeLayoutBtrId,
-      isGripMode: () => this._gripManager.hasGripFocus
+      isGripMode: () => this._gripManager.hasGripFocus,
+      drawnBox: id => this._scene.getEntityBox(id)
     })
     this._toolManager = new AcApToolManager(this)
     this._keyHandler = new AcEdViewKeyHandler(this)
@@ -2843,6 +2844,8 @@ export class AcTrView2d extends AcEdBaseView {
         this.highlight(selectedIds)
       }
       this._gripManager.refresh()
+      // The frame follows the drawn bounds, which exist only now.
+      this._selectionTransformer.queueRefresh()
       this._isDirty = true
     })()
     this._isDirty = true
