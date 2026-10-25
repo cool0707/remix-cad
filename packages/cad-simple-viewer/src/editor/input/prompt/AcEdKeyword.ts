@@ -133,4 +133,15 @@ export class AcEdKeyword {
   get alias(): string {
     return this._globalName.replace(/[^A-Z]/g, '')
   }
+
+  /**
+   * Shortcut shown in parentheses at the end of the display name, e.g. `CE`
+   * for `Center(CE)`, or `undefined` when there is none. It takes priority
+   * over {@link alias} when matching typed input, so two options whose
+   * global names share a capital (Center / Close) can be told apart.
+   */
+  get shortcut(): string | undefined {
+    const match = /[(（]\s*([^()（）]+?)\s*[)）]\s*$/.exec(this._displayName)
+    return match?.[1]
+  }
 }

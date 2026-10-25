@@ -17,6 +17,9 @@ export default {
     invalidInput: '输入无效。',
     close: '关闭命令行'
   },
+  prompt: {
+    orConnector: '或'
+  },
   mobileCommand: {
     length: '长度',
     angle: '角度',

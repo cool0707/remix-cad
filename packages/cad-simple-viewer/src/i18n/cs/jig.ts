@@ -875,7 +875,7 @@ export default {
         global: 'Angle'
       },
       center: {
-        display: 'Střed(C)',
+        display: 'Střed(CE)',
         local: 'Střed',
         global: 'Center'
       },

@@ -17,6 +17,9 @@ export default {
     invalidInput: 'Geçersiz giriş.',
     close: 'Komut satırını kapat'
   },
+  prompt: {
+    orConnector: 'veya'
+  },
   mobileCommand: {
     length: 'Uzunluk',
     angle: 'Açı',

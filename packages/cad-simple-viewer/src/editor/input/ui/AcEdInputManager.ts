@@ -433,7 +433,9 @@ export class AcEdInputManager {
     if (!acedInteractionStrategy().point.usesSessionChrome) return
     this._mobileChrome.show(
       {
-        prompt: args.prompt,
+        prompt: args.keywords?.length
+          ? this.stripPromptOrConnector(args.prompt)
+          : args.prompt,
         keywords: args.keywords ?? [],
         allowNone: args.allowNone,
         showMetrics: args.showMetrics,
@@ -2720,18 +2722,34 @@ export class AcEdInputManager {
     return (options.keywords?.toArray() ?? [])
       .filter(kw => kw.visible)
       .map(kw => {
-        // "Arc(A)" / "円弧(A)" → name + key; otherwise the alias letter.
-        const match = /^(.*?)\s*[(（]\s*([^()（）]+?)\s*[)）]\s*$/.exec(
-          kw.displayName
-        )
-        return match
-          ? { name: match[1], key: match[2], enabled: kw.enabled }
-          : {
-              name: kw.displayName,
-              key: kw.alias || undefined,
-              enabled: kw.enabled
-            }
+        const key = kw.shortcut
+        return {
+          // "円弧(A)" → name "円弧" + key "A"; otherwise the alias letter.
+          name: key
+            ? kw.displayName.replace(/\s*[(（][^()（）]*[)）]\s*$/, '')
+            : kw.displayName,
+          key: key ?? (kw.alias || undefined),
+          enabled: kw.enabled
+        }
       })
+  }
+
+  /**
+   * Drops the trailing "or" of "Specify next point or" when the options are
+   * shown separately (pills / chips) rather than as `[A/B]` after it.
+   */
+  private stripPromptOrConnector(message: string): string {
+    const connector = AcApI18n.t('main.prompt.orConnector')
+    if (!connector || connector === 'main.prompt.orConnector') return message
+    const core = message.trim().replace(/[：:]\s*$/, '')
+    if (!core.endsWith(connector)) return message
+    const before = core.slice(0, core.length - connector.length)
+    // Latin-script connectors are whole words ("Specify point or"), so
+    // "Color" must not lose its "or".
+    if (before && !/\s$/.test(before) && /^[A-Za-z\u00C0-\u024F]/.test(connector)) {
+      return message
+    }
+    return before.trimEnd()
   }
 
   /**
@@ -2837,11 +2855,17 @@ export class AcEdInputManager {
         return options.getDynamicValue(pos)
       }
 
+      const floatingKeywords = this.floatingPromptKeywords(
+        options.promptOptions
+      )
       const floatingInput = new AcEdFloatingInput(this.view, {
         parent: this.view.canvas,
         inputCount: options.inputCount,
-        message: promptDefaults.message,
-        keywords: this.floatingPromptKeywords(options.promptOptions),
+        message:
+          floatingKeywords.length > 0
+            ? this.stripPromptOrConnector(promptDefaults.message)
+            : promptDefaults.message,
+        keywords: floatingKeywords,
         disableOSnap: options.disableOSnap,
         showBaseLineOnly: promptDefaults.showBaseLineOnly,
         basePoint,

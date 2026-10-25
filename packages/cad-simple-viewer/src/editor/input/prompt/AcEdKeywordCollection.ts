@@ -336,34 +336,24 @@ export class AcEdKeywordCollection {
 
     const needle = input.toLowerCase()
 
-    return this._keywords.find(kw => {
-      if (!kw.enabled) return false
+    const enabled = this._keywords.filter(kw => kw.enabled)
 
-      // Global match (always allowed, or forced by "_")
-      if (kw.globalName.toLowerCase() === needle) {
-        return true
-      }
+    // Global match (always allowed, or forced by "_")
+    const global = enabled.find(kw => kw.globalName.toLowerCase() === needle)
+    if (global || forceGlobal) return global
 
-      // If "_" is used, do not allow local/display matches
-      if (forceGlobal) return false
-
-      // Local name match (what user types)
-      if (kw.localName && kw.localName.toLowerCase() === needle) {
-        return true
-      }
-
-      // Alias match (derived from global name capitals)
-      if (kw.alias && kw.alias.toLowerCase() === needle) {
-        return true
-      }
-
-      // Display name match (fallback)
-      if (kw.displayName.toLowerCase() === needle) {
-        return true
-      }
-
-      return false
-    })
+    // Explicit names first: local name, display shortcut ("CE" in
+    // "Center(CE)"), display name. Only then the alias derived from the
+    // global name's capitals, so "C" picks Close(C) rather than the "C" of
+    // Center when Center shows CE.
+    return (
+      enabled.find(
+        kw =>
+          (!!kw.localName && kw.localName.toLowerCase() === needle) ||
+          kw.shortcut?.toLowerCase() === needle ||
+          kw.displayName.toLowerCase() === needle
+      ) ?? enabled.find(kw => !!kw.alias && kw.alias.toLowerCase() === needle)
+    )
   }
 
   /** Gets the number of keywords in this collection. */

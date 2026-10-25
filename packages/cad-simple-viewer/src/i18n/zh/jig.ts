@@ -866,7 +866,7 @@ export default {
         global: 'Angle'
       },
       center: {
-        display: '圆心(C)',
+        display: '圆心(CE)',
         local: '圆心',
         global: 'Center'
       },

@@ -613,7 +613,7 @@ export default {
       close: { display: '閉じる(C)', local: '閉じる', global: 'Close' },
       line: { display: '線分(L)', local: '線分', global: 'Line' },
       angle: { display: '角度(A)', local: '角度', global: 'Angle' },
-      center: { display: '中心(C)', local: '中心', global: 'Center' },
+      center: { display: '中心(CE)', local: '中心', global: 'Center' },
       secondPoint: {
         display: '2 点目(P)',
         local: '2 点目',
