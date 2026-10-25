@@ -620,6 +620,9 @@ export default {
       continuousDraw: 'Pokračovat v kreslení (zůstat v nástroji)'
     },
     osnap: {
+      on: 'Vypnout uchopení',
+      off: 'Zapnout uchopení',
+      enabled: 'Používat uchopení',
       tooltip: 'Uchopení objektů',
       endpoint: 'Koncový bod',
       midpoint: 'Střed úsečky',

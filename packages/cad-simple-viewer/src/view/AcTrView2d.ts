@@ -25,6 +25,7 @@ import {
   AcGePoint2dLike,
   AcGePoint3d,
   acgiForegroundColorForBackground,
+  AcGiLineWeight,
   AcGiViewport,
   log
 } from '@mlightcad/data-model'
@@ -39,7 +40,8 @@ import {
   AcTrRenderer,
   AcTrViewportView,
   hasPendingComplexLineTypeGlyphs,
-  setAcTrDrawOrderZAllocator
+  setAcTrDrawOrderZAllocator,
+  setHoverHighlightColor
 } from '@mlightcad/three-renderer'
 import { AcTrMatrixUtil } from '@mlightcad/three-renderer'
 import * as THREE from 'three'
@@ -65,6 +67,7 @@ import {
   AcEdMTextEditor,
   AcEdOpenMode,
   AcEdSelectionAction,
+  AcEdSelectionTransformer,
   acedShouldIgnoreCompatMouse,
   AcEdSnapLoupeViewState,
   AcEdSpatialQueryResultItem,
@@ -85,8 +88,10 @@ import {
   acedNeedsCrossingGeometryRefine
 } from '../editor/view/AcEdSelectionBoxIntersect'
 import { isEffectiveSpatialQueryHit } from '../editor/view/AcEdSpatialQueryResult'
+import { excludeLockedLayerIds } from '../service/AcApLockedLayer'
 import type { AcTrLazySpatialChildren } from '../spatialIndex'
 import type { AcTrSpatialSearchOptions } from '../spatialIndex/AcTrSpatialIndex'
+import { acedGetBrandColors } from '../theme/AcEdBrandTheme'
 import { AcTrGeometryUtil } from '../util'
 import { acapRunDatabaseEdit } from '../util/AcApDatabaseEdit'
 import {
@@ -393,6 +398,7 @@ export class AcTrView2d extends AcEdBaseView {
   private _textStyleFontPreloadPromise: Promise<void> | null = null
   /** Grip point display and drag editing (Write mode only). */
   private _gripManager: AcEdGripManager
+  private _selectionTransformer: AcEdSelectionTransformer
   /** Global keyboard shortcuts for the view (undo/redo, erase, etc.). */
   private _keyHandler: AcEdViewKeyHandler
   /** Tool in use and the simple profile's tool behavior. */
@@ -633,7 +639,19 @@ export class AcTrView2d extends AcEdBaseView {
         capture: true
       })
     }
+    // Hover in the theme color, unlike the cyan of the selection. Lightened:
+    // thin lines in the plain theme color look dim on the dark canvas.
+    setHoverHighlightColor(
+      new THREE.Color(acedGetBrandColors().primary).lerp(
+        new THREE.Color(0xffffff),
+        0.4
+      )
+    )
     this._gripManager = new AcEdGripManager(this)
+    this._selectionTransformer = new AcEdSelectionTransformer(this, {
+      activeSpaceId: () => this._scene.activeLayoutBtrId,
+      isGripMode: () => this._gripManager.hasGripFocus
+    })
     this._toolManager = new AcApToolManager(this)
     this._keyHandler = new AcEdViewKeyHandler(this)
     if (options.calculateSizeCallback) {
@@ -728,7 +746,8 @@ export class AcTrView2d extends AcEdBaseView {
         !this.editor.isActive &&
         !AcEdMTextEditor.getActiveInputBox() &&
         !isMarkupHtmlTextEditing() &&
-        !this._gripManager.isDragging
+        !this._gripManager.isDragging &&
+        !this._selectionTransformer.isDragging
       )
     }
 
@@ -859,6 +878,9 @@ export class AcTrView2d extends AcEdBaseView {
           return
         }
 
+        // Simple profile: a press on a selected entity may become a drag
+        // move; until the pointer travels it is still a selection click.
+        this._selectionTransformer.handlePointerDown(e)
         beginSelectionPreview(e.clientX, e.clientY)
       },
       { signal: viewDomSignal }
@@ -877,6 +899,10 @@ export class AcTrView2d extends AcEdBaseView {
         if (acedIsTouchDerivedMouseEvent(e) || acedShouldIgnoreCompatMouse()) {
           return
         }
+        if (this._selectionTransformer.isDragging) {
+          clearSelectionPreview()
+          return
+        }
 
         updateSelectionPreview(
           e.clientX,
@@ -890,7 +916,10 @@ export class AcTrView2d extends AcEdBaseView {
     this.canvas.addEventListener(
       'mouseup',
       e => {
-        if (this._gripManager.isDragging) {
+        if (
+          this._gripManager.isDragging ||
+          this._selectionTransformer.isDragging
+        ) {
           resetSelectionDrag()
           return
         }
@@ -1010,6 +1039,7 @@ export class AcTrView2d extends AcEdBaseView {
       this._isDirty = true
       // Each layout view has its own mode.
       this._toolManager.syncCursor()
+      this._selectionTransformer.queueRefresh()
 
       if (isFirstVisit) {
         this.applyInitialZoom(btrId, args.layout)
@@ -1149,6 +1179,11 @@ export class AcTrView2d extends AcEdBaseView {
   /** Grip point manager for the view (Write mode only). */
   get gripManager() {
     return this._gripManager
+  }
+
+  /** Simple profile frame, drag move and nudge of the selection. */
+  get selectionTransformer() {
+    return this._selectionTransformer
   }
 
   /** Tool in use and the simple profile's tool behavior. */
@@ -2085,6 +2120,17 @@ export class AcTrView2d extends AcEdBaseView {
     if (entity instanceof AcDbText) {
       e.preventDefault()
       await this.editTextEntity(entity)
+      return
+    }
+
+    // Simple profile: other entities show their CAD grips (vertex editing)
+    // instead of the selection frame.
+    if (AcApSettingManager.instance.operationProfile === 'simple') {
+      e.preventDefault()
+      this.selectionSet.clear()
+      this.selectionSet.add(entity.objectId)
+      this._gripManager.focus(entity.objectId)
+      this._selectionTransformer.refresh()
     }
   }
 
@@ -2494,6 +2540,7 @@ export class AcTrView2d extends AcEdBaseView {
 
     if (this._layerAppearance.layerStyleMayHaveChanged(changes)) {
       this._layerAppearance.syncFromLiveRecord(layer)
+      this.redrawInheritingBlockReferences(layer.name)
     }
 
     if (this._entityDisplay.layerVisibilityMayHaveChanged(changes)) {
@@ -3626,6 +3673,7 @@ export class AcTrView2d extends AcEdBaseView {
     }
 
     this._gripManager.dispose()
+    this._selectionTransformer.dispose()
     this.clearFontLoadedRedrawTimer()
     this.cancelOpenLineworkFrame()
     this.stopAnimationLoop()
@@ -3653,7 +3701,13 @@ export class AcTrView2d extends AcEdBaseView {
    */
   onHover(id: AcDbObjectId) {
     if (!this.entitySelectionEnabled) return
+    // Only what a click could select: not entities on locked layers.
+    if (!this.allowSelectOnLockedLayer) {
+      const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
+      if (excludeLockedLayerIds(db, [id]).lockedCount > 0) return
+    }
     this._isDirty = this._scene.hover([id])
+    this._selectionTransformer.setHoveredId(id)
   }
 
   /**
@@ -3661,6 +3715,7 @@ export class AcTrView2d extends AcEdBaseView {
    */
   onUnhover(id: AcDbObjectId) {
     this._isDirty = this._scene.unhover([id])
+    this._selectionTransformer.setHoveredId(null)
   }
 
   protected createScene() {
@@ -3959,6 +4014,54 @@ export class AcTrView2d extends AcEdBaseView {
    * Converts entities on the given layer that were skipped while the layer was
    * off/frozen and therefore are not yet present in the scene.
    */
+  /**
+   * Redraws the INSERTs on `layerName` whose block contents take the INSERT's
+   * layer style (entities on layer 0, or ByBlock colour / linetype /
+   * lineweight). Their materials are bound when the INSERT is drawn, so a
+   * new layer colour would otherwise not reach them.
+   */
+  private redrawInheritingBlockReferences(layerName: string) {
+    const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
+    if (!db) return
+    const inherits = new Map<AcDbObjectId, boolean>()
+    const blockInherits = (block: AcDbBlockTableRecord) => {
+      const cached = inherits.get(block.objectId)
+      if (cached != null) return cached
+      let result = false
+      for (const entity of block.newIterator()) {
+        if (
+          entity.layer === '0' ||
+          entity.color?.isByBlock ||
+          entity.lineType?.toLowerCase() === 'byblock' ||
+          entity.lineWeight === AcGiLineWeight.ByBlock
+        ) {
+          result = true
+          break
+        }
+      }
+      inherits.set(block.objectId, result)
+      return result
+    }
+
+    const spaceIds = new Set([this.activeLayoutBtrId, this.modelSpaceBtrId])
+    const pending: AcDbEntity[] = []
+    for (const spaceId of spaceIds) {
+      const space = db.tables.blockTable.getIdAt(spaceId)
+      if (!space) continue
+      for (const entity of space.newIterator()) {
+        if (
+          entity instanceof AcDbBlockReference &&
+          entity.layer === layerName &&
+          this.hasEntity(entity.objectId)
+        ) {
+          const block = entity.blockTableRecord
+          if (block && blockInherits(block)) pending.push(entity)
+        }
+      }
+    }
+    if (pending.length > 0) this.updateEntity(pending)
+  }
+
   private async convertMissingEntitiesOnLayer(layerName: string) {
     if (this._convertingLayers.has(layerName)) {
       return

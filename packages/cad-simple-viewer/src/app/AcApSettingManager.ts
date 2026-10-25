@@ -63,6 +63,12 @@ export interface AcApSettings {
   /** Object snap modes */
   osnapModes: number
   /**
+   * Master switch for snapping: object snaps while picking points, and the
+   * snaps and alignment guides of the simple profile's drag edits. The
+   * individual modes in {@link AcApSettings.osnapModes} are kept when off.
+   */
+  osnapEnabled: boolean
+  /**
    * Operation profile. Setting it through
    * {@link AcApSettingManager.operationProfile} also switches
    * {@link AcApSettings.selectionStyle} to the profile's style.
@@ -139,6 +145,7 @@ const DEFAULT_VALUES: AcApSettings = {
     AcDbOsnapMode.Intersection,
     AcDbOsnapMode.Nearest
   ]),
+  osnapEnabled: true,
   operationProfile: 'simple',
   continuousDraw: false,
   selectionStyle: 'simple',
@@ -729,6 +736,22 @@ export class AcApSettingManager<T extends AcApSettings = AcApSettings> {
   set operationProfile(value: AcApOperationProfile) {
     this.set('operationProfile', value)
     this.set('selectionStyle', value)
+  }
+
+  /**
+   * Gets whether snapping is on (see {@link AcApSettings.osnapEnabled}).
+   */
+  get osnapEnabled() {
+    return this.get('osnapEnabled')
+  }
+
+  /**
+   * Turns snapping on or off without changing the snap modes.
+   *
+   * @param value - `true` to snap.
+   */
+  set osnapEnabled(value: boolean) {
+    this.set('osnapEnabled', value)
   }
 
   /**

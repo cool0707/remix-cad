@@ -6,6 +6,7 @@ import {
 } from '@mlightcad/data-model'
 
 import { AcApDocManager } from '../../app'
+import { AcApSettingManager } from '../../app/AcApSettingManager'
 import { isEntityOnLockedLayer } from '../../service/AcApLockedLayer'
 import { AcEdMTextEditor } from '../input/ui/AcEdMTextEditor'
 import { AcEdBaseView } from '../view/AcEdBaseView'
@@ -47,6 +48,11 @@ interface AcEdGripEntry {
  * Clicking a grip starts an {@link AcEdGripEditSession} that previews and
  * commits entity geometry changes; while dragging, all grip handles are hidden.
  *
+ * With the simple operation profile the selection shows a scale / rotate
+ * frame instead (`AcEdSelectionTransformer`), and grips are shown only for
+ * the one entity the user double-clicked ({@link focus}) while it stays the
+ * whole selection.
+ *
  * ## Key Responsibilities
  * - **Display**: Create and position grip handles from entity grip points
  * - **Interaction**: Route hover, hot, and mousedown events to edit sessions
@@ -69,6 +75,8 @@ export class AcEdGripManager {
   private _editSession: AcEdGripEditSession | null = null
   /** Entry currently under the pointer during mousedown (hot grip), if any. */
   private _hotEntry: AcEdGripEntry | null = null
+  /** Simple profile: the entity whose grips were asked for by double-click. */
+  private _focusId: AcDbObjectId | null = null
 
   /** Stable listener reference for selection/command refresh. */
   private readonly _boundRefresh = () => this.refresh()
@@ -77,6 +85,10 @@ export class AcEdGripManager {
   /** Stable listener reference for grip-related system variable changes. */
   private readonly _boundSysVarChanged = (args: { name: string }) =>
     this.onGripSysVarChanged(args.name)
+  /** Stable listener reference for operation profile changes. */
+  private readonly _boundSettingsModified = (args: { key: string }) => {
+    if (args.key === 'operationProfile') this.refresh()
+  }
 
   /**
    * Creates a grip manager bound to the given view.
@@ -106,6 +118,32 @@ export class AcEdGripManager {
   }
 
   /**
+   * Simple profile: whether the selection is exactly the entity passed to
+   * {@link focus}, so it shows grips instead of the selection frame.
+   */
+  get hasGripFocus(): boolean {
+    const focusId = this._focusId
+    if (focusId == null) return false
+    const selectionSet = this._view.selectionSet
+    if (selectionSet.count !== 1 || !selectionSet.has(focusId)) {
+      this._focusId = null
+      return false
+    }
+    return true
+  }
+
+  /**
+   * Simple profile: shows the grips of `entityId` (it should be the whole
+   * selection). Selecting anything else ends it.
+   *
+   * @param entityId - Entity to edit by its grips, or `null` to stop.
+   */
+  focus(entityId: AcDbObjectId | null) {
+    this._focusId = entityId
+    this.refresh()
+  }
+
+  /**
    * Tears down the manager and releases all resources.
    *
    * Unsubscribes from view events, cancels any active edit session, and
@@ -129,6 +167,10 @@ export class AcEdGripManager {
     this.clearEntries()
     this.applyAppearance()
     if (!this.canShowGrips()) {
+      return
+    }
+    const simple = AcApSettingManager.instance.operationProfile === 'simple'
+    if (simple && !this.hasGripFocus) {
       return
     }
 
@@ -201,6 +243,9 @@ export class AcEdGripManager {
     AcDbSysVarManager.instance().events.sysVarChanged.addEventListener(
       this._boundSysVarChanged
     )
+    AcApSettingManager.instance.events.modified.addEventListener(
+      this._boundSettingsModified
+    )
   }
 
   /**
@@ -218,6 +263,9 @@ export class AcEdGripManager {
 
     AcDbSysVarManager.instance().events.sysVarChanged.removeEventListener(
       this._boundSysVarChanged
+    )
+    AcApSettingManager.instance.events.modified.removeEventListener(
+      this._boundSettingsModified
     )
   }
 

@@ -20,7 +20,9 @@ export default {
     themeDark: 'Koyu',
     themeLight: 'Açık',
     displaySection: 'Görünüm',
-    ribbonHiddenHint: 'Şerit gizliyken bu pencereyi OPTIONS komutuyla açın.'
+    ribbonHiddenHint: 'Şerit gizliyken bu pencereyi OPTIONS komutuyla açın.',
+    snapSection: 'Yakalama',
+    snapHint: 'Nokta seçerken, seçimi sürüklerken ve hizalama kılavuzlarında kullanılır. Yakalanacak noktalar:'
   },
   drawingUnitsDlg: {
     title: 'Çizim Birimleri',

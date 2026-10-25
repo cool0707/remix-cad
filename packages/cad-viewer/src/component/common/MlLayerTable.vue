@@ -275,15 +275,19 @@
               v-if="readonly || scope.row.isDraft"
               class="ml-layer-table-text-value"
             >
-              {{ scope.row.transparency }}
+              {{ transparencyName(scope.row.transparency) }}
             </span>
             <input
               v-else
               class="ml-layer-table-text-input"
-              :value="scope.row.transparency"
+              :value="transparencyName(scope.row.transparency)"
               @click.stop
               @change="
-                emitChange(scope.row, 'transparency', inputEventValue($event))
+                emitChange(
+                  scope.row,
+                  'transparency',
+                  transparencyInput(inputEventValue($event))
+                )
               "
             />
           </div>
@@ -337,7 +341,13 @@ import { ElCheckbox, ElInput, ElTable, ElTableColumn } from 'element-plus'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { colorName, lineTypeName, symbolicName } from '../../locale'
+import {
+  colorName,
+  lineTypeName,
+  symbolicName,
+  transparencyInput,
+  transparencyName
+} from '../../locale'
 import {
   layerLight,
   layerLocker,

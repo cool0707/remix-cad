@@ -20,7 +20,9 @@ export default {
     themeDark: 'Dark',
     themeLight: 'Light',
     displaySection: 'Display',
-    ribbonHiddenHint: 'Without the ribbon, open this dialog with the OPTIONS command.'
+    ribbonHiddenHint: 'Without the ribbon, open this dialog with the OPTIONS command.',
+    snapSection: 'Snap',
+    snapHint: 'Snapping is used when picking points, dragging the selection and for alignment guides. Points to snap to:'
   },
   drawingUnitsDlg: {
     title: 'Drawing Units',

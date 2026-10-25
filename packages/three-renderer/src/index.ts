@@ -38,6 +38,7 @@ export {
 } from './style/AcTrHatchPatternShaders'
 export { wrapPatternBaseToLocalFrame } from './style/AcTrFillMaterialManager'
 export * from './util/AcTrMTextColorUtil'
+export { setHoverHighlightColor } from './util/AcTrMaterialUtil'
 export { AcTrMatrixUtil } from './util/AcTrMatrixUtil'
 export {
   getSceneDrawableUserData,

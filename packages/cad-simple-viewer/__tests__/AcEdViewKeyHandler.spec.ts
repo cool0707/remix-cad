@@ -291,6 +291,37 @@ describe('AcEdViewKeyHandler', () => {
       expect(toolManager.activate).not.toHaveBeenCalled()
     })
 
+    test('arrow keys nudge the selection, Shift ten times as far', () => {
+      const view = createMockView(false, {}, tools())
+      const nudge = jest.fn(() => true)
+      ;(view as unknown as Record<string, unknown>).selectionTransformer = {
+        nudge
+      }
+      const handler = new AcEdViewKeyHandler(view)
+
+      const event = keyboardEvent({ code: 'ArrowLeft' })
+      expect(handler.handleKeyDown(event)).toBe(true)
+      expect(nudge).toHaveBeenLastCalledWith(-1, 0, false)
+      expect(event.preventDefault).toHaveBeenCalled()
+
+      handler.handleKeyDown(keyboardEvent({ code: 'ArrowUp', shiftKey: true }))
+      expect(nudge).toHaveBeenLastCalledWith(0, 1, true)
+
+      // Fields (the command line too) keep their arrow keys.
+      nudge.mockClear()
+      handler.handleKeyDown(
+        keyboardEvent({ code: 'ArrowDown', target: commandLine() })
+      )
+      handler.handleKeyDown(keyboardEvent({ code: 'ArrowDown', ctrlKey: true }))
+      expect(nudge).not.toHaveBeenCalled()
+
+      // Nothing to move: the key is not consumed.
+      nudge.mockReturnValue(false)
+      const idle = keyboardEvent({ code: 'ArrowRight' })
+      expect(handler.handleKeyDown(idle)).toBe(false)
+      expect(idle.preventDefault).not.toHaveBeenCalled()
+    })
+
     test('Esc keeps the selection while a command runs or the pan tool is left', () => {
       const running = createMockView(true, {}, tools())
       new AcEdViewKeyHandler(running).handleKeyDown(

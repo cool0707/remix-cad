@@ -1,20 +1,55 @@
 <template>
-  <el-tooltip :content="t('main.statusBar.osnap.tooltip')" :hide-after="0">
+  <!-- Simple profile: one switch; the snap modes live in the settings dialog. -->
+  <el-tooltip
+    v-if="isSimple"
+    :content="
+      features.osnapEnabled
+        ? t('main.statusBar.osnap.on')
+        : t('main.statusBar.osnap.off')
+    "
+    :hide-after="0"
+  >
+    <el-button
+      class="ml-osnap-setting-button"
+      data-testid="osnap-toggle"
+      :aria-pressed="features.osnapEnabled"
+      :icon="osnap"
+      :style="{ color: iconColor }"
+      @click="toggleEnabled"
+    />
+  </el-tooltip>
+  <el-tooltip
+    v-else
+    :content="t('main.statusBar.osnap.tooltip')"
+    :hide-after="0"
+  >
     <el-dropdown trigger="click" @command="handleCommand">
-      <el-button class="ml-osnap-setting-button" :icon="osnap" />
+      <el-button
+        class="ml-osnap-setting-button"
+        :icon="osnap"
+        :style="{ color: iconColor }"
+      />
       <template #dropdown>
         <el-dropdown-menu>
           <el-dropdown-item
-            v-for="mode in osnapModes"
+            command="enabled"
+            :icon="features.osnapEnabled ? Check : undefined"
+          >
+            {{ t('main.statusBar.osnap.enabled') }}
+          </el-dropdown-item>
+          <el-dropdown-item
+            v-for="(mode, index) in ML_OSNAP_MODES"
             :key="mode.value"
             :command="mode.value"
+            :divided="index === 0"
+            :disabled="!features.osnapEnabled"
             :icon="
               acdbHasOsnapMode(features.osnapModes, mode.value)
                 ? Check
                 : undefined
             "
           >
-            {{ mode.label }}
+            {{ mode.label(t) }}
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
@@ -37,49 +72,40 @@ import {
   ElDropdownMenu,
   ElTooltip
 } from 'element-plus'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useSettings } from '../../composable'
 import { osnap } from '../../svg'
+import { ML_OSNAP_MODES } from './osnapModes'
 
 const { t } = useI18n()
 const features = useSettings()
 
-/**
- * All object snap modes generated from AcDbOsnapMode enum.
- *
- * Label key format:
- *   main.statusBar.osnap.<LowerCaseEnumName>
- *
- * Example:
- *   AcDbOsnapMode.EndPoint → main.statusBar.osnap.endpoint
- */
-const osnapModes = [
-  { value: AcDbOsnapMode.EndPoint, label: t('main.statusBar.osnap.endpoint') },
-  { value: AcDbOsnapMode.MidPoint, label: t('main.statusBar.osnap.midpoint') },
-  { value: AcDbOsnapMode.Center, label: t('main.statusBar.osnap.center') },
-  { value: AcDbOsnapMode.Node, label: t('main.statusBar.osnap.node') },
-  { value: AcDbOsnapMode.Quadrant, label: t('main.statusBar.osnap.quadrant') },
-  {
-    value: AcDbOsnapMode.Intersection,
-    label: t('main.statusBar.osnap.intersection')
-  },
-  {
-    value: AcDbOsnapMode.Insertion,
-    label: t('main.statusBar.osnap.insertion')
-  },
-  { value: AcDbOsnapMode.Nearest, label: t('main.statusBar.osnap.nearest') }
-  // { value: AcDbOsnapMode.Perpendicular, label: t('main.statusBar.osnap.perpendicular') },
-  // { value: AcDbOsnapMode.Tangent, label: t('main.statusBar.osnap.tangent') },
-  // { value: AcDbOsnapMode.Centroid, label: t('main.statusBar.osnap.centroid') }
-]
+const isSimple = computed(() => features.operationProfile === 'simple')
+
+const iconColor = computed(() =>
+  features.osnapEnabled
+    ? 'var(--el-color-primary)'
+    : 'var(--el-text-color-regular)'
+)
+
+const toggleEnabled = () => {
+  AcApSettingManager.instance.osnapEnabled = !features.osnapEnabled
+}
 
 /**
- * Toggle osnap mode and update the bitmask.
+ * CAD profile menu: the master switch, or toggle one mode in the bitmask.
  */
-const handleCommand = (mode: AcDbOsnapMode) => {
-  features.osnapModes = acdbToggleOsnapMode(features.osnapModes, mode)
-  AcApSettingManager.instance.osnapModes = features.osnapModes
+const handleCommand = (command: AcDbOsnapMode | 'enabled') => {
+  if (command === 'enabled') {
+    toggleEnabled()
+    return
+  }
+  AcApSettingManager.instance.osnapModes = acdbToggleOsnapMode(
+    features.osnapModes,
+    command
+  )
 }
 </script>
 

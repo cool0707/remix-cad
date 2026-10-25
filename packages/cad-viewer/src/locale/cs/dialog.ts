@@ -20,7 +20,9 @@ export default {
     themeDark: 'Tmavý',
     themeLight: 'Světlý',
     displaySection: 'Zobrazení',
-    ribbonHiddenHint: 'Bez pásu karet otevřete toto okno příkazem OPTIONS.'
+    ribbonHiddenHint: 'Bez pásu karet otevřete toto okno příkazem OPTIONS.',
+    snapSection: 'Uchopení',
+    snapHint: 'Používá se při zadávání bodů, přetahování výběru a u vodítek zarovnání. Body k uchopení:'
   },
   drawingUnitsDlg: {
     title: 'Jednotky výkresu',

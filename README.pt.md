@@ -43,6 +43,12 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   após cada desenho (uma linha é um segmento; "Continuar desenhando" em Configurações mantém a ferramenta)
   e o Esc age em etapas (cancelar a operação → voltar a Selecionar → limpar a seleção).
   CAD mantém o uso clássico (cada clique adiciona, LINHA continua até Enter).
+- **Edição direta (Simples)** — a seleção ganha uma moldura: arraste um canto para escalar (mantém a proporção, Alt a partir do centro)
+  ou logo fora de um canto para girar (Shift: passos de 15°). Arraste um objeto selecionado para movê-lo (Alt + arrastar copia, Shift mantém
+  horizontal ou vertical); o ponto agarrado se prende aos snaps de objeto e, sem nenhum, bordas e centros se alinham a objetos próximos
+  (guias de alinhamento). As setas deslocam a seleção um passo redondo de cerca de um pixel da tela (Shift: ×10). Clique duas vezes em um
+  objeto para editar seus vértices com os grips do CAD. O snap é um único botão liga/desliga na barra de status; os modos ficam nas Configurações.
+  Objetos selecionáveis são destacados na cor do tema sob o cursor (nos dois perfis); sobre um objeto selecionado, o cursor indica que ele pode ser arrastado.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).

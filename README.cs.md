@@ -41,6 +41,12 @@ takže výkresy nikdy neopustí zařízení uživatele.
   použitý nástroj ukazuje tvar kurzoru, popisek u kurzoru i stavový řádek, po každém kreslení se vrátí nástroj Výběr
   (úsečka je jedna; „Pokračovat v kreslení“ v Nastavení nástroj ponechá) a Esc funguje postupně
   (zrušit operaci → zpět na Výběr → zrušit výběr). CAD zachovává klasické ovládání (každé kliknutí přidá, úsečka pokračuje do Enter).
+- **Přímé úpravy (Jednoduchý)** — výběr dostane rámeček: tažením rohu se mění velikost (se zachováním poměru stran, Alt od středu),
+  tažením těsně vně rohu se otáčí (Shift: po 15°). Tažením vybraného objektu jej přesunete (Alt + tažení kopíruje, Shift jen vodorovně nebo svisle);
+  uchopený bod se přichytí k uchopení objektů, jinak se okraje a středy zarovnají s okolními objekty (vodítka zarovnání). Šipky posunou výběr o zaokrouhlený
+  krok přibližně jednoho pixelu obrazovky (Shift: ×10). Dvojklikem na objekt upravíte jeho vrcholy uzlovými body CAD. Uchopení je jedno tlačítko zapnout/vypnout
+  ve stavovém řádku; režimy uchopení jsou v Nastavení.
+  Objekty, které lze vybrat, se pod kurzorem zvýrazní barvou motivu (v obou profilech); nad vybraným objektem kurzor ukazuje, že jej lze přetáhnout.
 - **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
   otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
   (motiv, pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).

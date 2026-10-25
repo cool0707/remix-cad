@@ -43,6 +43,12 @@ drawings never leave the user's device.
   Select tool after each drawing (a line is one segment; "Keep drawing" in Settings keeps the tool),
   and a staged Esc (cancel the operation → back to the Select tool → clear the selection).
   CAD keeps the classic behavior (every click adds, LINE goes on until Enter).
+- **Direct editing (Simple)** — the selection gets a frame: drag a corner to scale it (aspect ratio kept, Alt from the center),
+  drag just outside a corner to rotate it (Shift: 15° steps). Drag a selected object to move it (Alt + drag copies, Shift keeps it
+  horizontal or vertical); the grabbed point snaps to object snaps, otherwise edges and centers line up with nearby objects
+  (alignment guides). Arrow keys nudge the selection by a round step of about one screen pixel (Shift: ×10). Double-click an object
+  to edit its vertices with the CAD grips. Snapping is one on/off button in the status bar; the snap modes are in Settings.
+  Objects you can select light up in the theme color under the cursor (both profiles); over a selected object the cursor shows that it can be dragged.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).

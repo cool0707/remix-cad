@@ -589,6 +589,9 @@ export default {
       continuousDraw: '连续绘图 (不返回选择工具)'
     },
     osnap: {
+      on: '关闭捕捉',
+      off: '打开捕捉',
+      enabled: '使用捕捉',
       tooltip: '对象捕捉',
       endpoint: '端点',
       midpoint: '中点',

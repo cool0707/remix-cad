@@ -150,6 +150,28 @@ export const symbolicName = (key: 'byLayer' | 'byBlock' | 'default') => {
 }
 
 /**
+ * Localized text of a transparency value (`AcCmTransparency.toString()`):
+ * ByLayer / ByBlock are translated, numbers are returned unchanged.
+ */
+export const transparencyName = (value: string) => {
+  const normalized = value.trim().toLowerCase()
+  if (normalized === 'bylayer') return symbolicName('byLayer')
+  if (normalized === 'byblock') return symbolicName('byBlock')
+  return value
+}
+
+/**
+ * Reverse of {@link transparencyName} for typed input: the localized
+ * ByLayer / ByBlock label becomes the stored `ByLayer` / `ByBlock`.
+ */
+export const transparencyInput = (value: string) => {
+  const trimmed = value.trim()
+  if (trimmed === symbolicName('byLayer')) return 'ByLayer'
+  if (trimmed === symbolicName('byBlock')) return 'ByBlock'
+  return trimmed
+}
+
+/**
  * Localized display name of a linetype table record. Unknown (user defined)
  * names are returned unchanged; the stored name itself is never translated.
  */

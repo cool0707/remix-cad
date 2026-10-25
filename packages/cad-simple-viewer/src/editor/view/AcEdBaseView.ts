@@ -1393,8 +1393,9 @@ export abstract class AcEdBaseView {
 
     // Hover handler
     if (this.entitySelectionEnabled && this.mode == AcEdViewMode.SELECTION) {
-      // If it is in “input acquisition” mode, disable hover behavior
-      if (!this._editor.isActive) {
+      // While a prompt asks for something other than objects (points,
+      // distances...), hover nothing; "select objects" prompts hover too.
+      if (!this._editor.isActive || this._editor.isEntitySelectionActive) {
         this._hoverController.handleMouseMove(wcsPos.x, wcsPos.y)
       }
     }

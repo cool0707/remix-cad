@@ -45,6 +45,8 @@ export interface AcEdOsnapResolveOptions {
   lastPoint?: AcGePoint3dLike
   /** Screen-space pick aperture radius in pixels. */
   hitRadiusPx?: number
+  /** Entities whose snap points are ignored (e.g. the ones being dragged). */
+  excludeIds?: ReadonlySet<AcDbObjectId>
 }
 
 const DEFAULT_HIT_RADIUS_PX = 20
@@ -249,6 +251,10 @@ export class AcEdOsnapResolver {
    * Resolves the best osnap point near the cursor, matching command-input behavior.
    */
   resolve(options: AcEdOsnapResolveOptions): AcEdOsnapPoint | undefined {
+    if (!AcApSettingManager.instance.osnapEnabled) {
+      this._acquiredCenters = []
+      return undefined
+    }
     const hitRadiusPx = options.hitRadiusPx ?? DEFAULT_HIT_RADIUS_PX
     const lastPoint = options.lastPoint ?? options.cursorWcs
     const p1 = this._view.screenToWorld({ x: 0, y: 0 })
@@ -258,7 +264,8 @@ export class AcEdOsnapResolver {
       options.cursorWcs,
       lastPoint,
       hitRadiusPx,
-      threshold
+      threshold,
+      options.excludeIds
     )
 
     for (const mark of this._acquiredCenters) {
@@ -601,9 +608,13 @@ export class AcEdOsnapResolver {
     cursorWcs: AcGePoint2dLike,
     lastPoint: AcGePoint2dLike,
     hitRadiusPx: number,
-    threshold: number
+    threshold: number,
+    excludeIds?: ReadonlySet<AcDbObjectId>
   ): AcEdOsnapPoint[] {
-    const results = this._view.pick(cursorWcs, hitRadiusPx)
+    let results = this._view.pick(cursorWcs, hitRadiusPx)
+    if (excludeIds && excludeIds.size > 0) {
+      results = results.filter(item => !excludeIds.has(item.id))
+    }
     const db = acdbHostApplicationServices().workingDatabase
     const osnapPoints: AcEdOsnapPoint[] = []
     const pickPoint = AcGeGeometryUtil.point2dToPoint3d(cursorWcs)

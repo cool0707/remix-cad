@@ -16,6 +16,14 @@ import type { AcTrView2d } from './AcTrView2d'
  */
 export type AcEdUndoRedoShortcut = 'undo' | 'redo'
 
+/** Simple profile: arrow keys nudge the selection in these directions. */
+const NUDGE_DIRECTIONS: Readonly<Record<string, readonly [number, number]>> = {
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+  ArrowUp: [0, 1],
+  ArrowDown: [0, -1]
+}
+
 /**
  * Handles global keyboard shortcuts for a CAD view.
  *
@@ -124,8 +132,8 @@ export class AcEdViewKeyHandler {
   }
 
   /**
-   * Simple profile keys: single-key tools (V / H / L / R / T) and the staged
-   * Esc (a running command is cancelled by
+   * Simple profile keys: single-key tools (V / H / L / R / T), arrow keys
+   * that nudge the selection (Shift: ×10) and the staged Esc (a running command is cancelled by
    * its prompt; then the pan tool goes back to the select tool; only then
    * does Esc clear the selection).
    *
@@ -146,6 +154,28 @@ export class AcEdViewKeyHandler {
       if (this.isTyping(e)) return false
       this.clearSelection()
       return true
+    }
+
+    const nudge = NUDGE_DIRECTIONS[e.code]
+    if (nudge) {
+      // Any focused field keeps its arrow keys (including the command line's
+      // history), unlike the single-key tools below.
+      if (
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        running ||
+        this.shouldIgnoreEditableTargetShortcut(e)
+      ) {
+        return false
+      }
+      if (
+        this.view.selectionTransformer.nudge(nudge[0], nudge[1], e.shiftKey)
+      ) {
+        e.preventDefault()
+        return true
+      }
+      return false
     }
 
     if (e.ctrlKey || e.metaKey || e.altKey || this.isTyping(e)) {
