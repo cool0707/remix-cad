@@ -25,10 +25,6 @@
         >
         <ml-warning-button />
         <ml-notification-button @click="toggleNotificationCenter" />
-        <ml-theme-button
-          :is-dark="props.isDark"
-          :toggle-dark="props.toggleDark"
-        />
         <ml-full-screen-button />
         <ml-point-style-button />
         <ml-osnap-button />
@@ -86,17 +82,11 @@ import MlOsnapButton from './MlOsnapButton.vue'
 import MlPointStyleButton from './MlPointStyleButton.vue'
 import MlPolarTrackingButton from './MlPolarTrackingButton.vue'
 import MlProgress from './MlProgress.vue'
-import MlThemeButton from './MlThemeButton.vue'
 import MlToolStatus from './MlToolStatus.vue'
 import MlWarningButton from './MlWarningButton.vue'
 
 /** Room kept free for longer coordinates while the mouse moves. */
 const COORDINATE_RESERVED_WIDTH = 220
-
-const props = defineProps<{
-  isDark: boolean
-  toggleDark: () => void
-}>()
 
 const { text: posText } = useCurrentPos(AcApDocManager.instance.curView)
 const features = useSettings()

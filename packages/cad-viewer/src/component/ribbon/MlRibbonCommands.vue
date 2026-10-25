@@ -7,10 +7,12 @@ import {
   Delete,
   DocumentCopy,
   Hide,
+  Moon,
   RefreshRight,
   Right,
   Setting,
   Stamp,
+  Sunny,
   View
 } from '@element-plus/icons-vue'
 import {
@@ -97,7 +99,9 @@ import { useI18n } from 'vue-i18n'
 import { store } from '../../app'
 import type { LayerStateSnapshot, LayerStateToggleKey } from '../../composable'
 import {
+  isDark,
   LAYER_FILTER_ALL,
+  toggleDark,
   useDataSources,
   useDocument,
   useLayerFilters,
@@ -2940,6 +2944,25 @@ const handleFileMenuSelect = async (command: string) => {
         </div>
       </template>
       <template #tabs-extra="{ disabled }">
+        <el-tooltip
+          :content="
+            isDark ? t('main.statusBar.theme.toLight') : t('main.statusBar.theme.toDark')
+          "
+          :hide-after="0"
+          :show-after="500"
+        >
+          <el-button
+            class="ml-ribbon-header-button ml-ribbon-theme-button"
+            :aria-label="
+              isDark ? t('main.statusBar.theme.toLight') : t('main.statusBar.theme.toDark')
+            "
+            :disabled="disabled"
+            :icon="isDark ? Sunny : Moon"
+            text
+            circle
+            @click="toggleDark"
+          />
+        </el-tooltip>
         <ml-ribbon-language-selector
           v-if="features.isShowLanguageSelector"
           :current-locale="props.currentLocale"
@@ -2951,7 +2974,7 @@ const handleFileMenuSelect = async (command: string) => {
           :show-after="500"
         >
           <el-button
-            class="ml-ribbon-settings-button"
+            class="ml-ribbon-header-button"
             :aria-label="t('main.mainMenu.settings')"
             :disabled="disabled"
             :icon="Setting"
@@ -2986,10 +3009,10 @@ const handleFileMenuSelect = async (command: string) => {
   gap: 2px;
 }
 
-.ml-ribbon-settings-button {
+.ml-ribbon-header-button {
   width: 28px;
   height: 28px;
-  margin-left: 4px;
+  margin: 0 2px;
   font-size: 18px;
 }
 

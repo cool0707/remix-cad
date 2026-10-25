@@ -43,7 +43,7 @@ takže výkresy nikdy neopustí zařízení uživatele.
   (zrušit operaci → zpět na Výběr → zrušit výběr). CAD zachovává klasické ovládání (každé kliknutí přidá, úsečka pokračuje do Enter).
 - **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
   otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
-  (pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).
+  (motiv, pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).
 - **Panel vlastností** — karta Vlastnosti dělí hodnoty do skupin (Obecné, Umístění, Symbol…)
   a upravuje je přímo (jedna změna = jeden krok zpět). Při výběru více objektů ukazuje sekce Výběr
   X / Y / Š / V s 9bodovým referenčním bodem, počty podle typu (kliknutím ponecháte jen daný typ)

@@ -675,8 +675,8 @@ export default {
       off: 'Turn on polar tracking'
     },
     theme: {
-      dark: 'Switch to light light',
-      light: 'Switch to dark theme'
+      toLight: 'Switch to light theme',
+      toDark: 'Switch to dark theme'
     },
     warning: {
       font: 'The following fonts are not found!'

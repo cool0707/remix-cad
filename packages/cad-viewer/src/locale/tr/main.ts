@@ -675,8 +675,8 @@ export default {
       off: 'Kutupsal izlemeyi aç'
     },
     theme: {
-      dark: 'Açık temaya geç',
-      light: 'Koyu temaya geç'
+      toLight: 'Açık temaya geç',
+      toDark: 'Koyu temaya geç'
     },
     warning: {
       font: 'Aşağıdaki yazı tipleri bulunamadı!'

@@ -46,7 +46,7 @@ del dispositivo del usuario.
   CAD conserva el manejo clásico (cada clic añade, LÍNEA sigue hasta Intro).
 - **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
   abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
-  (cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).
+  (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).
 - **Inspector de propiedades** — la pestaña Propiedades agrupa los valores en secciones (General,
   Ubicación, Símbolo…) y los edita directamente (un paso de deshacer por cambio). Con varios objetos
   seleccionados, una sección Selección muestra X / Y / An / Al con un punto de referencia de 9 posiciones,

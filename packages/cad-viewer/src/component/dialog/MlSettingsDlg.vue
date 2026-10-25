@@ -47,6 +47,18 @@
       </ml-fieldset-group>
 
       <ml-fieldset-group :title="t('dialog.settingsDlg.displaySection')">
+        <el-form label-position="left" class="ml-settings-dlg__form">
+          <el-form-item :label="t('dialog.settingsDlg.theme')">
+            <el-radio-group v-model="theme" class="ml-settings-dlg__profiles">
+              <el-radio value="dark">
+                {{ t('dialog.settingsDlg.themeDark') }}
+              </el-radio>
+              <el-radio value="light">
+                {{ t('dialog.settingsDlg.themeLight') }}
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-form>
         <div class="ml-settings-dlg__grid">
           <el-checkbox
             v-for="item in displayItems"
@@ -77,10 +89,10 @@ import {
   ElRadio,
   ElRadioGroup
 } from 'element-plus'
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useIsMobile } from '../../composable'
+import { isDark, setColorTheme, useIsMobile } from '../../composable'
 import MlBaseDialog from '../common/MlBaseDialog.vue'
 import MlFieldsetGroup from '../common/MlFieldsetGroup.vue'
 
@@ -139,10 +151,16 @@ const readSettings = (): SettingsForm => {
 const form = reactive<SettingsForm>(readSettings())
 let saved: SettingsForm = readSettings()
 
-const isDirty = computed(() =>
-  (Object.keys(form) as (keyof SettingsForm)[]).some(
-    key => form[key] !== saved[key]
-  )
+/** Color theme of the drawing (COLORTHEME), not part of the settings above. */
+const theme = ref<'dark' | 'light'>(isDark.value ? 'dark' : 'light')
+const currentTheme = () => (isDark.value ? 'dark' : 'light')
+
+const isDirty = computed(
+  () =>
+    theme.value !== currentTheme() ||
+    (Object.keys(form) as (keyof SettingsForm)[]).some(
+      key => form[key] !== saved[key]
+    )
 )
 
 const replaceOnClick = computed({
@@ -179,6 +197,7 @@ const displayItems = computed(() => {
 const handleOpen = () => {
   saved = readSettings()
   Object.assign(form, saved)
+  theme.value = currentTheme()
 }
 
 const apply = () => {
@@ -188,6 +207,7 @@ const apply = () => {
       settings.set(key, form[key])
     }
   }
+  if (theme.value !== currentTheme()) setColorTheme(theme.value)
   saved = readSettings()
   Object.assign(form, saved)
 }

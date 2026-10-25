@@ -927,9 +927,8 @@ export default {
     },
 
     theme: {
-      ...enMain.statusBar.theme,
-      dark: 'التبديل إلى الوضع الفاتح',
-      light: 'التبديل إلى الوضع الداكن'
+      toLight: 'التبديل إلى الوضع الفاتح',
+      toDark: 'التبديل إلى الوضع الداكن'
     },
 
     warning: {

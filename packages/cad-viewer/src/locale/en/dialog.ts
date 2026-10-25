@@ -16,6 +16,9 @@ export default {
     profileCad: 'CAD (classic)',
     profileSimpleHint: 'A click replaces the selection, single-key tools (V / H / L / R / T), back to the Select tool after each drawing, staged Esc.',
     profileCadHint: 'AutoCAD-style: every click adds to the selection, drawing commands go on until Enter / Esc.',
+    theme: 'Theme',
+    themeDark: 'Dark',
+    themeLight: 'Light',
     displaySection: 'Display',
     ribbonHiddenHint: 'Without the ribbon, open this dialog with the OPTIONS command.'
   },

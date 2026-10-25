@@ -24,6 +24,9 @@ export default {
     profileCad: 'CAD (تقليدي)',
     profileSimpleHint: 'النقر يستبدل التحديد، وأدوات بمفتاح واحد (V / H / L / R / T)، والعودة إلى أداة التحديد بعد كل رسم، وEsc يعمل على مراحل.',
     profileCadHint: 'بأسلوب AutoCAD: كل نقرة تضيف إلى التحديد، وتستمر أوامر الرسم حتى Enter / Esc.',
+    theme: 'السمة',
+    themeDark: 'داكن',
+    themeLight: 'فاتح',
     displaySection: 'العرض',
     ribbonHiddenHint: 'عند إخفاء الشريط، افتح هذه النافذة بالأمر OPTIONS.'
   },

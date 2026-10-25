@@ -45,7 +45,7 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   CAD mantém o uso clássico (cada clique adiciona, LINHA continua até Enter).
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
-  (faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).
+  (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).
 - **Inspetor de propriedades** — a aba Propriedades agrupa os valores em seções (Geral, Posicionamento,
   Símbolo…) e os edita diretamente (um passo de desfazer por alteração). Com vários objetos selecionados,
   uma seção Seleção mostra X / Y / L / A com um ponto de referência de 9 posições, a contagem por tipo

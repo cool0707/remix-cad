@@ -662,8 +662,8 @@ export default {
       off: 'Zapnout polární trasování'
     },
     theme: {
-      dark: 'Přepnout na světlý motiv',
-      light: 'Přepnout na tmavý motiv'
+      toLight: 'Přepnout na světlý motiv',
+      toDark: 'Přepnout na tmavý motiv'
     },
     warning: {
       font: 'Následující fonty nebyly nalezeny!'

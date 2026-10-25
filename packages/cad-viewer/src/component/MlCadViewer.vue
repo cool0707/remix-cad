@@ -117,7 +117,6 @@ import {
   isDark,
   provideViewerRect,
   setColorTheme,
-  toggleDark,
   useDocument,
   useLocale,
   useSettings
@@ -703,8 +702,6 @@ const closeNotificationCenter = () => {
         <footer v-if="editorRef" class="ml-cad-footer">
           <!-- Status bar with progress, settings, and theme controls -->
           <ml-status-bar
-            :is-dark="isDark"
-            :toggle-dark="toggleDark"
             @toggle-notification-center="toggleNotificationCenter"
           />
         </footer>

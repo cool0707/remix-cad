@@ -16,6 +16,9 @@ export default {
     profileCad: 'CAD (klasický)',
     profileSimpleHint: 'Kliknutí nahradí výběr, nástroje jednou klávesou (V / H / L / R / T), po každém kreslení zpět na Výběr, Esc funguje postupně.',
     profileCadHint: 'Ve stylu AutoCADu: každé kliknutí přidá do výběru, kreslicí příkazy pokračují až do Enter / Esc.',
+    theme: 'Motiv',
+    themeDark: 'Tmavý',
+    themeLight: 'Světlý',
     displaySection: 'Zobrazení',
     ribbonHiddenHint: 'Bez pásu karet otevřete toto okno příkazem OPTIONS.'
   },

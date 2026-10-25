@@ -45,7 +45,7 @@ drawings never leave the user's device.
   CAD keeps the classic behavior (every click adds, LINE goes on until Enter).
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
-  (ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).
+  (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).
 - **Property inspector** — the Properties tab groups values into sections (General, Placement, Symbol…)
   and edits them directly (one undo step per change). With several objects selected, a Selection
   section shows X / Y / W / H with a 9-point reference point, counts per type (click to keep only

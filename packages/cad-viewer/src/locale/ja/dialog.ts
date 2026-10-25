@@ -34,6 +34,9 @@ export default {
     profileCad: 'CAD (従来)',
     profileSimpleHint: 'クリックで選択を置き換え、キー 1 つでツールを切り替え (V / H / L / R / T)、作図のあとは選択ツールに戻ります。Esc は段階的に動きます。',
     profileCadHint: 'AutoCAD 風の操作です。クリックするたびに選択に追加し、作図コマンドは Enter / Esc まで続きます。',
+    theme: 'テーマ',
+    themeDark: 'ダーク',
+    themeLight: 'ライト',
     displaySection: '表示',
     ribbonHiddenHint: 'リボンを隠すと、この画面はコマンド OPTIONS で開きます。'
   },

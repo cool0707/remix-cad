@@ -16,6 +16,9 @@ export default {
     profileCad: 'CAD (klasik)',
     profileSimpleHint: 'Tıklama seçimi değiştirir, tek tuşla araçlar (V / H / L / R / T), her çizimden sonra Seç aracına dönülür, Esc aşamalı çalışır.',
     profileCadHint: 'AutoCAD tarzı: her tıklama seçime ekler, çizim komutları Enter / Esc tuşuna kadar sürer.',
+    theme: 'Tema',
+    themeDark: 'Koyu',
+    themeLight: 'Açık',
     displaySection: 'Görünüm',
     ribbonHiddenHint: 'Şerit gizliyken bu pencereyi OPTIONS komutuyla açın.'
   },

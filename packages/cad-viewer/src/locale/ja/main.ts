@@ -656,8 +656,8 @@ export default {
       off: '極トラッキングをオンにする'
     },
     theme: {
-      dark: 'ライトテーマに切り替え',
-      light: 'ダークテーマに切り替え'
+      toLight: 'ライトテーマに切り替え',
+      toDark: 'ダークテーマに切り替え'
     },
     warning: {
       font: '次のフォントが見つかりません。'
