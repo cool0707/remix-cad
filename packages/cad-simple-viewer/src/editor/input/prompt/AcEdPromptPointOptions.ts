@@ -3,6 +3,17 @@ import { AcGePoint3d } from '@mlightcad/data-model'
 import { AcEdPromptOptions } from './AcEdPromptOptions'
 
 /**
+ * A key that does something during a point prompt without being a keyword
+ * (e.g. Ctrl flips the arc direction). Shown next to the keyword pills.
+ */
+export interface AcEdPromptKeyHint {
+  /** What the key does, e.g. "Flip arc". */
+  label: string
+  /** Key name shown on the badge, e.g. "Ctrl". */
+  key: string
+}
+
+/**
  * Represents options for prompting the user to select a point, similar to
  * AutoCAD .NET `PromptPointOptions` and `PromptCornerOptions`.
  *
@@ -17,6 +28,7 @@ export class AcEdPromptPointOptions extends AcEdPromptOptions<AcGePoint3d> {
   private _showConfirmedPointMark?: boolean
   private _finishOnDoubleClick: boolean = false
   private _rightClickKeyword?: string
+  private _keyHints: AcEdPromptKeyHint[] = []
   private _defaultValue?: AcGePoint3d
   private _useDefaultValue: boolean = false
 
@@ -181,6 +193,19 @@ export class AcEdPromptPointOptions extends AcEdPromptOptions<AcGePoint3d> {
    * instead of the usual right-click Enter (e.g. `Undo` while drawing a
    * polyline). Ignored when the keyword is missing or disabled.
    */
+  /**
+   * Gets or sets extra key hints shown with the keyword pills in the cursor
+   * tooltip (desktop only; they are not keywords and cannot be typed).
+   */
+  get keyHints(): AcEdPromptKeyHint[] {
+    return this._keyHints
+  }
+  set keyHints(hints: AcEdPromptKeyHint[]) {
+    if (!this.isReadOnly) {
+      this._keyHints = hints
+    }
+  }
+
   get rightClickKeyword(): string | undefined {
     return this._rightClickKeyword
   }

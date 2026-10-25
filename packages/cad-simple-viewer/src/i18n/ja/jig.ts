@@ -606,6 +606,7 @@ export default {
     firstPoint: '1 点目を指定',
     nextPoint: '次の点を指定 (Enter で終了)',
     nextPointWithOptions: '次の点を指定 または',
+    flipArcHint: '弧を反対側に',
     nextPointWithArcOptions: '次の点を指定 または',
     keywords: {
       arc: { display: '円弧(A)', local: '円弧', global: 'Arc' },

@@ -684,6 +684,10 @@ export class AcApPolylineCmd extends AcEdCommand {
         prompt.allowNone = true
         prompt.finishOnDoubleClick = true
         prompt.rightClickKeyword = 'Undo'
+        // Ctrl toggles the arc to the other side (see flipArcBulgeForCtrl).
+        prompt.keyHints = [
+          { label: AcApI18n.t('jig.polyline.flipArcHint'), key: 'Ctrl' }
+        ]
         return prompt
       }
 

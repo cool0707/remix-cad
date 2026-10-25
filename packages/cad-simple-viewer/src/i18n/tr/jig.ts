@@ -848,6 +848,7 @@ export default {
     firstPoint: 'İlk noktayı belirtin',
     nextPoint: 'Sonraki noktayı belirtin (bitirmek için Enter\'a basın)',
     nextPointWithOptions: 'Sonraki noktayı belirtin veya',
+    flipArcHint: 'Yayı diğer tarafa',
     nextPointWithArcOptions: 'Sonraki noktayı belirtin veya',
     keywords: {
       arc: {

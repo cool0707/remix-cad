@@ -2719,9 +2719,13 @@ export class AcEdInputManager {
     options: AcEdPromptOptions<T>
   ): AcEdFloatingKeyword[] {
     if (!options.appendKeywordsToMessage) return []
+    const hints: AcEdFloatingKeyword[] =
+      options instanceof AcEdPromptPointOptions
+        ? options.keyHints.map(hint => ({ name: hint.label, key: hint.key }))
+        : []
     return (options.keywords?.toArray() ?? [])
       .filter(kw => kw.visible)
-      .map(kw => {
+      .map((kw): AcEdFloatingKeyword => {
         const key = kw.shortcut
         return {
           // "円弧(A)" → name "円弧" + key "A"; otherwise the alias letter.
@@ -2732,6 +2736,7 @@ export class AcEdInputManager {
           enabled: kw.enabled
         }
       })
+      .concat(hints)
   }
 
   /**

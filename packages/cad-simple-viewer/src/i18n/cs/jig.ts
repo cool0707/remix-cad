@@ -847,6 +847,7 @@ export default {
     firstPoint: 'Zadejte první bod',
     nextPoint: 'Zadejte další bod (nebo stiskněte Enter pro dokončení)',
     nextPointWithOptions: 'Zadejte další bod nebo',
+    flipArcHint: 'Oblouk na druhou stranu',
     nextPointWithArcOptions: 'Zadejte další bod nebo',
     keywords: {
       arc: {

@@ -542,6 +542,7 @@ export default {
     nextPointWithOptions:
       'حدد النقطة التالية أو',
 
+    flipArcHint: 'القوس من الجهة الأخرى',
     nextPointWithArcOptions:
       'حدد النقطة التالية أو',
 
