@@ -168,8 +168,8 @@ export default {
     }
   },
   hatch: {
-    prompt: 'Vyberte objekt hranice nebo',
-    pickPoint: 'Zadejte vnitřní bod (nebo stiskněte Enter pro dokončení)',
+    prompt: 'Vyberte vnitřní bod nebo',
+    pickPoint: 'Vyberte vnitřní bod (nebo stiskněte Enter pro dokončení)',
     select: 'Vyberte objekty k vyplnění',
     patternName: 'Zadejte název vzoru výplně',
     scale: 'Zadejte měřítko vzoru výplně',
@@ -177,6 +177,13 @@ export default {
     style: 'Zadejte styl vzorové výplně',
     associative: 'Zadejte asociativitu',
     invalidBoundary: 'Vybrané objekty netvoří uzavřenou hranici.',
+    boundaryFound: 'Hranice nalezena a vyplněna.',
+    boundaryFoundIslands: 'Hranice nalezena a vyplněna (ostrovů uvnitř: {count}).',
+    boundaryNotFound: 'Nebyla nalezena platná hranice šrafování. Zkontrolujte, zda je bod zcela uzavřen čarami bez mezer.',
+    alreadyHatched: 'Tato oblast je již vyplněna.',
+    tooComplex: 'Příliš mnoho objektů pro analýzu hranice. Přibližte oblast k vyplnění a vyberte znovu.',
+    selectFound: 'Nalezeno uzavřených hranic: {count}.',
+    selectNotClosed: 'Neuzavřené objekty ({count}) nebyly použity jako hranice.',
     keywords: {
       pick: {
         display: 'Vybrat body(P)',

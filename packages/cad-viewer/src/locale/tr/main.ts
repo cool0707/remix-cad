@@ -67,7 +67,7 @@ export default {
       },
       tooltip: {
         pickPoints: 'Desen dolgusu bölgeleri oluşturmak için iç noktalar seçin.',
-        selectObjects: 'Taranacak kapalı sınır nesnelerini seçin.',
+        selectObjects: 'Doldurulacak alanı çevreleyen nesneleri seçin (kapalı nesneler veya birlikte kapanan çizgiler).',
         pattern: 'Dolgu deseni adını seçin.',
         scale: 'Dolgu deseni ölçeğini ayarlayın.',
         angle: 'Dolgu deseni açısını derece cinsinden ayarlayın.',

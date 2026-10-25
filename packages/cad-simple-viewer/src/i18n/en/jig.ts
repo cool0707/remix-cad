@@ -170,8 +170,8 @@ export default {
     }
   },
   hatch: {
-    prompt: 'Select boundary object or',
-    pickPoint: 'Specify internal point (or press Enter to finish)',
+    prompt: 'Pick internal point or',
+    pickPoint: 'Pick internal point (or press Enter to finish)',
     select: 'Select objects to fill',
     patternName: 'Enter fill pattern name',
     scale: 'Specify fill pattern scale',
@@ -179,6 +179,13 @@ export default {
     style: 'Enter pattern fill style',
     associative: 'Specify associativity',
     invalidBoundary: 'Selected objects do not form a closed boundary.',
+    boundaryFound: 'Boundary found and filled.',
+    boundaryFoundIslands: 'Boundary found and filled ({count} island(s) inside).',
+    boundaryNotFound: 'Valid hatch boundary not found. Check that the point is fully enclosed by lines with no gaps.',
+    alreadyHatched: 'This area is already filled.',
+    tooComplex: 'Too many objects to analyze the boundary. Zoom in on the area to fill and pick again.',
+    selectFound: '{count} closed boundary(ies) found.',
+    selectNotClosed: '{count} object(s) are not closed and were not used as boundaries.',
     keywords: {
       pick: {
         display: 'Pick points(P)',

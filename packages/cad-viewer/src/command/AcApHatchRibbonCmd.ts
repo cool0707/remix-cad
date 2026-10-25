@@ -4,7 +4,6 @@ import {
   AcApHatchCmd,
   AcApI18n,
   acapRunDatabaseEdit,
-  AcEdPromptEntityOptions,
   AcEdPromptStatus,
   type HatchSettings
 } from '@mlightcad/cad-simple-viewer'
@@ -634,6 +633,7 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
 
   async execute(context: AcApContext) {
     this.syncStateFromSysVars()
+    this.resetBoundaryState()
     this._isActive = true
     this._activeHatchIds.clear()
     const entityAppendedListener = (args: AcDbEntityEventArgs) => {
@@ -656,7 +656,7 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
           continue
         }
 
-        const result = await AcApDocManager.instance.editor.getEntity(
+        const result = await AcApDocManager.instance.editor.getPoint(
           this.createBoundaryPrompt()
         )
         const actionAfterPrompt = this.consumeQueuedAction()
@@ -665,11 +665,8 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
           continue
         }
 
-        if (result.status === AcEdPromptStatus.OK && result.objectId) {
-          const loops = this.collectLoopsFromIds(context, [result.objectId])
-          if (loops.length) {
-            this.appendHatch(context, loops)
-          }
+        if (result.status === AcEdPromptStatus.OK && result.value) {
+          this.hatchAtPoint(context, result.value)
           continue
         }
 
@@ -735,18 +732,10 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
   }
 
   private createBoundaryPrompt() {
-    const options = new AcEdPromptEntityOptions(AcApI18n.t('jig.hatch.prompt'))
-    options.allowNone = true
-    options.setRejectMessage(AcApI18n.t('jig.hatch.invalidBoundary'))
-    options.addAllowedClass('Polyline')
-    options.addAllowedClass('Circle')
-    options.addAllowedClass('Arc')
-    options.addAllowedClass('Line')
-    options.keywords.add(
-      AcApI18n.t('jig.hatch.keywords.pick.display'),
-      AcApI18n.t('jig.hatch.keywords.pick.global'),
-      AcApI18n.t('jig.hatch.keywords.pick.local')
+    const options = this.createInternalPointOptions(
+      AcApI18n.t('jig.hatch.prompt')
     )
+    options.allowNone = true
     options.keywords.add(
       AcApI18n.t('jig.hatch.keywords.select.display'),
       AcApI18n.t('jig.hatch.keywords.select.global'),

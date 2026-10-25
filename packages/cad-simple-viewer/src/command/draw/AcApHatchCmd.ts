@@ -1,21 +1,15 @@
 import {
-  AcDbArc,
-  AcDbCircle,
   AcDbDatabase,
   AcDbEntity,
   AcDbHatch,
   AcDbHatchPatternType,
   AcDbHatchStyle,
-  AcDbLine,
   AcDbObjectId,
-  AcDbPolyline,
   AcDbSystemVariables,
   AcDbSysVarManager,
   type AcDbSysVarType,
-  AcGeBoundaryEdgeType,
-  AcGeCircArc2d,
-  AcGeLine2d,
-  AcGeLoop2d,
+  AcGeBox2d,
+  AcGeLoop2dType,
   HATCH_PATTERN_SOLID
 } from '@mlightcad/data-model'
 
@@ -24,7 +18,6 @@ import {
   AcEdCommand,
   AcEdOpenMode,
   AcEdPromptDoubleOptions,
-  AcEdPromptEntityOptions,
   AcEdPromptKeywordOptions,
   AcEdPromptPointOptions,
   AcEdPromptSelectionOptions,
@@ -32,6 +25,21 @@ import {
   AcEdPromptStringOptions
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
+import {
+  ACAP_HATCH_MAX_SEGMENTS,
+  AcApHatchBoundaryFinder,
+  type AcApHatchBounds,
+  acapHatchBounds,
+  acapHatchPointInPolygon,
+  type AcApHatchPolyline,
+  acapHatchSignedArea,
+  acapHatchSnapEnds
+} from './AcApHatchBoundary'
+import {
+  acapCollectHatchBoundarySet,
+  type AcApHatchBoundarySet,
+  acapHatchLoopFor
+} from './AcApHatchBoundarySet'
 
 /**
  * Persisted HATCH command options reused between command invocations.
@@ -49,33 +57,22 @@ export interface HatchSettings {
   associative: boolean
 }
 
-/**
- * Computed loop metadata used for pick-point seed resolution.
- *
- * The command samples each loop to polygon points, computes an absolute area,
- * and builds a parent/child containment tree so one seed point can map to
- * the appropriate loop set.
- */
-interface LoopInfo {
-  /** Original geometric loop object used by {@link AcDbHatch.add}. */
-  loop: AcGeLoop2d
-  /** Segmented loop points used for point-in-polygon and area operations. */
-  points: Array<{ x: number; y: number }>
-  /** Absolute loop area derived from signed polygon area. */
-  area: number
-  /** Parent loop index in the loop info array; `null` means top-level loop. */
-  parent: number | null
-  /** Child loop indices contained directly by this loop. */
-  children: number[]
+/** The boundary set pick points trace in, with its finder. */
+interface PickBoundary {
+  set: AcApHatchBoundarySet
+  finder: AcApHatchBoundaryFinder
+  /** Layer visibility the set was collected under. */
+  signature: string
 }
 
 /**
- * Command-line HATCH command (no dialog), inspired by AutoCAD flow.
+ * Command-line HATCH command (no dialog), following AutoCAD's -HATCH.
  *
- * Current scope:
- * - Build hatch boundaries from selected objects.
- * - Support command-line option branches (pattern/scale/angle/style/associative).
- * - No island-detection refinement beyond loop construction.
+ * - Pick internal point (the default): the smallest closed area around the
+ *   point, traced through the visible objects with lines split where they
+ *   cross, with islands handled by the hatch style.
+ * - Select objects: closed objects, or groups of objects that close an area.
+ * - Command-line option branches (pattern/scale/angle/style/associative).
  */
 export class AcApHatchCmd extends AcEdCommand {
   /**
@@ -228,333 +225,281 @@ export class AcApHatchCmd extends AcEdCommand {
   }
 
   /**
-   * Converts a closed polyline entity into a boundary-edge sequence.
-   *
-   * The function keeps arc segments by reading per-vertex bulge values.
-   * If runtime bulge data is unavailable, vertices fall back to straight edges.
-   *
-   * @param entity Input polyline entity.
-   * @returns Ordered boundary edges or empty array if not hatchable.
+   * Boundary set for pick points, kept while the layer visibility it was
+   * built under stays the same (HATCH never adds boundary objects itself).
    */
-  private buildEdgesFromPolyline(entity: AcDbPolyline): AcGeBoundaryEdgeType[] {
-    if (!entity.closed || entity.numberOfVertices < 2) return []
+  private _pickBoundary: PickBoundary | undefined
 
-    // Runtime polyline geometry keeps bulge data; typed API does not expose it.
-    const runtimeVertices = (
-      entity as unknown as {
-        _geo?: { vertices?: Array<{ x: number; y: number; bulge?: number }> }
-      }
-    )._geo?.vertices
+  /** Layer visibility under which the whole drawing was too much to analyze. */
+  private _wholeDrawingTooComplex: string | undefined
 
-    const vertices =
-      runtimeVertices && runtimeVertices.length > 1
-        ? runtimeVertices.map(v => ({ x: v.x, y: v.y, bulge: v.bulge }))
-        : Array.from({ length: entity.numberOfVertices }, (_, i) => {
-            const p = entity.getPoint2dAt(i)
-            return { x: p.x, y: p.y, bulge: 0 }
-          })
-
-    if (vertices.length < 2) return []
-
-    const edges: AcGeBoundaryEdgeType[] = []
-    for (let i = 0; i < vertices.length; i++) {
-      const start = vertices[i]
-      const end = vertices[(i + 1) % vertices.length]
-      const bulge = start.bulge ?? 0
-      if (Math.abs(bulge) > 1e-12) {
-        edges.push(new AcGeCircArc2d(start, end, bulge))
-      } else {
-        edges.push(new AcGeLine2d(start, end))
-      }
-    }
-    return edges
-  }
+  /** Outer loops hatched by picks in this run, so one area is not hatched twice. */
+  private _pickedAreas: Array<{ area: number; bounds: AcApHatchBounds }> = []
 
   /**
-   * Converts a supported boundary entity into one or more boundary edges.
-   *
-   * Supported entities:
-   * - `AcDbPolyline` (closed)
-   * - `AcDbCircle`
-   * - `AcDbArc` (closed only)
-   * - `AcDbLine`
-   *
-   * @param entity Input entity from model space.
-   * @returns Edge list consumable by loop builder.
+   * Forgets the boundary set and the areas picked so far. Called when a
+   * HATCH run starts.
    */
-  private buildEdgesFromEntity(entity: AcDbEntity): AcGeBoundaryEdgeType[] {
-    if (entity instanceof AcDbPolyline) {
-      return this.buildEdgesFromPolyline(entity)
-    }
-
-    if (entity instanceof AcDbCircle) {
-      const center = entity.center
-      return [
-        new AcGeCircArc2d(
-          { x: center.x, y: center.y },
-          entity.radius,
-          0,
-          Math.PI * 2,
-          false
-        )
-      ]
-    }
-
-    if (entity instanceof AcDbArc) {
-      if (!entity.closed) return []
-      const center = entity.center
-      return [
-        new AcGeCircArc2d(
-          { x: center.x, y: center.y },
-          entity.radius,
-          entity.startAngle,
-          entity.endAngle,
-          false
-        )
-      ]
-    }
-
-    if (entity instanceof AcDbLine) {
-      return [new AcGeLine2d(entity.startPoint, entity.endPoint)]
-    }
-
-    return []
+  protected resetBoundaryState() {
+    this._pickBoundary = undefined
+    this._wholeDrawingTooComplex = undefined
+    this._pickedAreas = []
   }
 
-  /**
-   * Builds closed loops from explicit object ids.
-   *
-   * @param context Active command context.
-   * @param ids Object ids selected by the user.
-   * @returns Closed loops ready for hatch creation.
-   */
-  protected collectLoopsFromIds(context: AcApContext, ids: AcDbObjectId[]) {
-    const modelSpace = context.doc.database.tables.blockTable.modelSpace
-    const edges: AcGeBoundaryEdgeType[] = []
-
-    ids.forEach(id => {
-      const entity = modelSpace.getIdAt(id)
-      if (!entity) return
-      edges.push(...this.buildEdgesFromEntity(entity))
-    })
-
-    return this.buildLoopsFromEdges(edges)
+  /** Shows a warning as a notification. */
+  private warn(key: string) {
+    this.notify(AcApI18n.t(key), 'warning')
   }
 
-  /**
-   * Scans model space and builds closed loops from all supported boundaries.
-   *
-   * This is used by pick-points mode so a seed point can be resolved against
-   * all potential loops in the drawing.
-   *
-   * @param context Active command context.
-   * @returns Closed loops derived from all hatchable entities.
-   */
-  protected collectLoopsFromAllBoundaries(context: AcApContext) {
-    const modelSpace = context.doc.database.tables.blockTable.modelSpace
-    const edges: AcGeBoundaryEdgeType[] = []
-    for (const entity of modelSpace.newIterator()) {
-      edges.push(...this.buildEdgesFromEntity(entity))
-    }
-    return this.buildLoopsFromEdges(edges)
+  private finderFor(set: AcApHatchBoundarySet) {
+    // Line ends that stop just short of another curve (a flattened arc, a
+    // T junction drawn a hair short) are moved onto it first.
+    const polys = acapHatchSnapEnds(set.polys, set.outlineTol, set.tol)
+    return new AcApHatchBoundaryFinder(polys, set.tol)
   }
 
-  /**
-   * Builds best-effort closed loops from boundary edges.
-   *
-   * The loop solver is retried with increasing tolerance values and the best
-   * (largest) closed-loop result set is returned.
-   *
-   * @param edges Input boundary edge set.
-   * @returns Closed loops produced by the best tolerance attempt.
-   */
-  private buildLoopsFromEdges(edges: ReadonlyArray<AcGeBoundaryEdgeType>) {
-    if (edges.length === 0) return []
-
-    // Try from strict to loose tolerance, and keep the best closed-loop result.
-    const tolerances = [1e-6, 1e-5, 1e-4, 1e-3]
-    let best: AcGeLoop2d[] = []
-    for (const tolerance of tolerances) {
-      const loops = AcGeLoop2d.buildFromEdges(edges, tolerance).filter(
-        loop => loop.closed && loop.numberOfEdges > 0
+  /** On / frozen state of every layer, to notice layer changes during HATCH. */
+  private layerSignature(database: AcDbDatabase) {
+    const parts: string[] = []
+    for (const layer of database.tables.layerTable.newIterator()) {
+      parts.push(
+        `${layer.name}:${layer.isOff ? 1 : 0}${layer.isFrozen ? 1 : 0}`
       )
-      if (loops.length > best.length) {
-        best = loops
+    }
+    return parts.join('|')
+  }
+
+  /** Model-space objects that touch the visible part of the view. */
+  private entitiesInView(context: AcApContext): AcDbEntity[] {
+    const view = context.view
+    const a = view.screenToWorld({ x: 0, y: 0 })
+    const b = view.screenToWorld({ x: view.width, y: view.height })
+    const modelSpace = context.doc.database.tables.blockTable.modelSpace
+    const out: AcDbEntity[] = []
+    for (const item of view.search(
+      new AcGeBox2d().expandByPoint(a).expandByPoint(b)
+    )) {
+      const entity = modelSpace.getIdAt(item.id)
+      if (entity) out.push(entity)
+    }
+    return out
+  }
+
+  /**
+   * The boundary set pick points trace in, like AutoCAD's default boundary
+   * set: every visible object in model space. When that is too much to
+   * analyze, only the objects in the current view are used.
+   *
+   * @returns The set and its finder, or `undefined` when it is too complex.
+   */
+  private pickBoundary(context: AcApContext): PickBoundary | undefined {
+    const database = context.doc.database
+    const signature = this.layerSignature(database)
+    if (this._pickBoundary?.signature === signature) return this._pickBoundary
+
+    if (this._wholeDrawingTooComplex !== signature) {
+      const all = acapCollectHatchBoundarySet(
+        database,
+        database.tables.blockTable.modelSpace.newIterator()
+      )
+      if (all.segmentCount <= ACAP_HATCH_MAX_SEGMENTS) {
+        const finder = this.finderFor(all)
+        if (finder.usable) {
+          this._pickBoundary = { set: all, finder, signature }
+          return this._pickBoundary
+        }
       }
+      this._wholeDrawingTooComplex = signature
     }
-    return best
+    // Not kept: it depends on the view.
+    this._pickBoundary = undefined
+    const inView = acapCollectHatchBoundarySet(
+      database,
+      this.entitiesInView(context)
+    )
+    if (inView.segmentCount > ACAP_HATCH_MAX_SEGMENTS) return undefined
+    const finder = this.finderFor(inView)
+    return finder.usable ? { set: inView, finder, signature } : undefined
+  }
+
+  /** Whether loop `outer` contains loop `inner` (they never cross). */
+  private loopContains(outer: AcApHatchPolyline, inner: AcApHatchPolyline) {
+    return (
+      Math.abs(acapHatchSignedArea(outer)) >
+        Math.abs(acapHatchSignedArea(inner)) &&
+      acapHatchPointInPolygon(outer, inner[0])
+    )
   }
 
   /**
-   * Calculates polygon signed area using the shoelace formula.
+   * Hatches the area enclosed around an internal point, like AutoCAD's
+   * "pick internal point": the smallest closed area around the point, with
+   * the islands inside it handled by the hatch style.
    *
-   * @param points Polygon vertices.
-   * @returns Signed area; positive/negative sign depends on winding direction.
+   * @param context - Active command context.
+   * @param point - The internal point.
+   * @returns `true` when a hatch was created.
    */
-  private signedArea(points: Array<{ x: number; y: number }>) {
-    if (points.length < 3) return 0
-    let sum = 0
-    for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-      const p1 = points[j]
-      const p2 = points[i]
-      sum += p1.x * p2.y - p2.x * p1.y
-    }
-    return sum * 0.5
-  }
-
-  /**
-   * Tests whether one point lies on a finite segment within a tolerance.
-   *
-   * @param px Test point X.
-   * @param py Test point Y.
-   * @param ax Segment start X.
-   * @param ay Segment start Y.
-   * @param bx Segment end X.
-   * @param by Segment end Y.
-   * @param tolerance Distance tolerance.
-   * @returns `true` if point is on segment; otherwise `false`.
-   */
-  private isPointOnSegment(
-    px: number,
-    py: number,
-    ax: number,
-    ay: number,
-    bx: number,
-    by: number,
-    tolerance = 1e-8
+  protected hatchAtPoint(
+    context: AcApContext,
+    point: { x: number; y: number }
   ) {
-    const abx = bx - ax
-    const aby = by - ay
-    const apx = px - ax
-    const apy = py - ay
-    const cross = Math.abs(abx * apy - aby * apx)
-    if (cross > tolerance) return false
-    const dot = apx * abx + apy * aby
-    if (dot < -tolerance) return false
-    const len2 = abx * abx + aby * aby
-    if (dot - len2 > tolerance) return false
+    const pick = this.pickBoundary(context)
+    if (!pick) {
+      this.warn('jig.hatch.tooComplex')
+      return false
+    }
+    const found = pick.finder.boundaryAt(point)
+    if (!found) {
+      this.warn('jig.hatch.boundaryNotFound')
+      return false
+    }
+
+    const area = Math.abs(acapHatchSignedArea(found.outer))
+    const bounds = acapHatchBounds(found.outer)
+    const slack = pick.set.outlineTol
+    const picked = this._pickedAreas.some(
+      p =>
+        Math.abs(p.area - area) <= area * 1e-6 + slack * slack &&
+        Math.abs(p.bounds.minX - bounds.minX) <= slack &&
+        Math.abs(p.bounds.minY - bounds.minY) <= slack &&
+        Math.abs(p.bounds.maxX - bounds.maxX) <= slack &&
+        Math.abs(p.bounds.maxY - bounds.maxY) <= slack
+    )
+    if (picked) {
+      this.warn('jig.hatch.alreadyHatched')
+      return false
+    }
+
+    const style = this.settings.style
+    let islands = found.islands
+    if (style === AcDbHatchStyle.Ignore) {
+      islands = []
+    } else if (style === AcDbHatchStyle.Outer) {
+      islands = islands.filter(
+        island =>
+          !islands.some(
+            other =>
+              other !== island &&
+              this.loopContains(other.outline, island.outline)
+          )
+      )
+    }
+
+    const loops = [
+      acapHatchLoopFor(pick.set, found.outer, found.outerSources),
+      ...islands.map(island =>
+        acapHatchLoopFor(pick.set, island.outline, island.sources)
+      )
+    ]
+    if (!this.appendHatch(context, loops)) return false
+    this._pickedAreas.push({ area, bounds })
+    this.showMessage(
+      islands.length
+        ? AcApI18n.t('jig.hatch.boundaryFoundIslands').replace(
+            '{count}',
+            String(islands.length)
+          )
+        : AcApI18n.t('jig.hatch.boundaryFound')
+    )
     return true
   }
 
   /**
-   * Determines whether a point is inside (or on boundary of) a polygon.
+   * Hatches the areas enclosed by selected objects, like AutoCAD's "select
+   * objects": every closed object, or group of objects that closes an area
+   * (four lines around a square), is a boundary; boundaries inside others are
+   * islands handled by the hatch style.
    *
-   * Boundary points are treated as inside to keep seed-point behavior stable
-   * near loop edges.
-   *
-   * @param point Test point.
-   * @param polygon Polygon vertices.
-   * @returns `true` when inside or on boundary.
+   * @param context - Active command context.
+   * @param ids - Selected object ids.
+   * @returns `true` when at least one hatch was created.
    */
-  private isPointInPolygon(
-    point: { x: number; y: number },
-    polygon: Array<{ x: number; y: number }>
+  protected hatchSelectedObjects(
+    context: AcApContext,
+    ids: ReadonlyArray<AcDbObjectId>
   ) {
-    if (polygon.length < 3) return false
-
-    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      const a = polygon[j]
-      const b = polygon[i]
-      if (this.isPointOnSegment(point.x, point.y, a.x, a.y, b.x, b.y)) {
-        return true
-      }
+    const database = context.doc.database
+    const modelSpace = database.tables.blockTable.modelSpace
+    const entities: AcDbEntity[] = []
+    ids.forEach(id => {
+      const entity = modelSpace.getIdAt(id)
+      if (entity) entities.push(entity)
+    })
+    const set = acapCollectHatchBoundarySet(database, entities, false)
+    if (set.segmentCount > ACAP_HATCH_MAX_SEGMENTS) {
+      this.warn('jig.hatch.tooComplex')
+      return false
+    }
+    const finder = this.finderFor(set)
+    if (set.polys.length && !finder.usable) {
+      this.warn('jig.hatch.tooComplex')
+      return false
+    }
+    const outlines = finder.closedOutlines()
+    if (!outlines.length) {
+      this.warn('jig.hatch.invalidBoundary')
+      return false
     }
 
-    let inside = false
-    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      const xi = polygon[i].x
-      const yi = polygon[i].y
-      const xj = polygon[j].x
-      const yj = polygon[j].y
-      const intersects =
-        yi > point.y !== yj > point.y &&
-        point.x < ((xj - xi) * (point.y - yi)) / (yj - yi + Number.EPSILON) + xi
-      if (intersects) inside = !inside
-    }
-    return inside
-  }
-
-  /**
-   * Builds loop metadata and parent/child containment relationships.
-   *
-   * @param loops Candidate closed loops.
-   * @returns Loop info array with area and hierarchy metadata.
-   */
-  private buildLoopInfos(loops: ReadonlyArray<AcGeLoop2d>): LoopInfo[] {
-    const infos: LoopInfo[] = []
-    loops.forEach(loop => {
-      const points = loop.tessellate().map(p => ({ x: p.x, y: p.y }))
-      if (points.length < 3) return
-      infos.push({
-        loop,
-        points,
-        area: Math.abs(this.signedArea(points)),
-        parent: null,
-        children: []
+    // Nesting depth of every boundary: how many others contain it.
+    const depth = outlines.map(
+      (o, i) =>
+        outlines.filter(
+          (p, j) => j !== i && this.loopContains(p.outline, o.outline)
+        ).length
+    )
+    const style = this.settings.style
+    const maxDepth =
+      style === AcDbHatchStyle.Ignore
+        ? 0
+        : style === AcDbHatchStyle.Outer
+          ? 1
+          : Infinity
+    let created = 0
+    outlines.forEach((top, i) => {
+      if (depth[i] !== 0) return
+      const loops = [acapHatchLoopFor(set, top.outline, top.sources)]
+      outlines.forEach((inner, j) => {
+        if (depth[j] === 0 || depth[j] > maxDepth) return
+        if (!this.loopContains(top.outline, inner.outline)) return
+        loops.push(acapHatchLoopFor(set, inner.outline, inner.sources))
       })
+      if (this.appendHatch(context, loops)) created++
     })
 
-    for (let i = 0; i < infos.length; i++) {
-      const sample = infos[i].points[0]
-      let parentIndex: number | null = null
-      let parentArea = Number.POSITIVE_INFINITY
-
-      for (let j = 0; j < infos.length; j++) {
-        if (i === j) continue
-        if (infos[j].area <= infos[i].area) continue
-        if (!this.isPointInPolygon(sample, infos[j].points)) continue
-        if (infos[j].area < parentArea) {
-          parentArea = infos[j].area
-          parentIndex = j
-        }
-      }
-
-      infos[i].parent = parentIndex
-      if (parentIndex != null) {
-        infos[parentIndex].children.push(i)
-      }
+    const closedOwners = new Set(
+      outlines.flatMap(o => o.sources.map(i => set.owners[i]))
+    )
+    const notClosed = entities.filter(e => !closedOwners.has(e)).length
+    this.showMessage(
+      AcApI18n.t('jig.hatch.selectFound').replace(
+        '{count}',
+        String(outlines.filter((_, i) => depth[i] <= maxDepth).length)
+      )
+    )
+    if (notClosed > 0) {
+      this.notify(
+        AcApI18n.t('jig.hatch.selectNotClosed').replace(
+          '{count}',
+          String(notClosed)
+        ),
+        'warning'
+      )
     }
-
-    return infos
+    return created > 0
   }
 
   /**
-   * Resolves which loops should be used for one pick-point seed.
+   * Point prompt for internal points. Object snap is off: a snapped point
+   * lands on a boundary line instead of inside the area.
    *
-   * Strategy:
-   * - Find the smallest containing loop as target.
-   * - Include direct children as holes unless style is `Ignore`.
-   *
-   * @param point Seed point selected by user.
-   * @param loops Candidate loops.
-   * @returns Ordered loop set to append into one hatch entity.
+   * @param message - Prompt message.
    */
-  protected resolveLoopsForPickPoint(
-    point: { x: number; y: number },
-    loops: ReadonlyArray<AcGeLoop2d>
-  ) {
-    const infos = this.buildLoopInfos(loops)
-    if (!infos.length) return []
-
-    const containing = infos
-      .map((info, index) =>
-        this.isPointInPolygon(point, info.points) ? index : -1
-      )
-      .filter(index => index >= 0)
-
-    if (!containing.length) return []
-
-    containing.sort((a, b) => infos[a].area - infos[b].area)
-    const target = containing[0]
-    const selected = new Set<number>([target])
-
-    // Pick-points mode should hatch the region connected to the picked seed.
-    // Use target loop as outer boundary and its direct children as holes.
-    if (this.settings.style !== AcDbHatchStyle.Ignore) {
-      infos[target].children.forEach(child => selected.add(child))
-    }
-
-    return [...selected].map(index => infos[index].loop)
+  protected createInternalPointOptions(message: string) {
+    const options = new AcEdPromptPointOptions(message)
+    options.disableOSnap = true
+    return options
   }
 
   /**
@@ -566,7 +511,7 @@ export class AcApHatchCmd extends AcEdCommand {
    */
   protected appendHatch(
     context: AcApContext,
-    loops: ReadonlyArray<AcGeLoop2d>
+    loops: ReadonlyArray<AcGeLoop2dType>
   ) {
     if (!loops.length) return false
 
@@ -748,28 +693,22 @@ export class AcApHatchCmd extends AcEdCommand {
     options.allowObjectOnLockedLayer = true
     const result = await AcApDocManager.instance.editor.getSelection(options)
     if (result.status !== AcEdPromptStatus.OK || !result.value) return false
-
-    const loops = this.collectLoopsFromIds(context, result.value.ids)
-    if (!loops.length) return false
-    return this.appendHatch(context, loops)
+    return this.hatchSelectedObjects(context, result.value.ids)
   }
 
   /**
    * Executes pick-points branch of HATCH.
    *
-   * The user can place multiple seed points. Each accepted point attempts
-   * one hatch creation, and pressing Enter terminates this branch.
+   * The user can place multiple internal points. Each accepted point hatches
+   * the area around it, and pressing Enter terminates this branch.
    *
    * @param context Active command context.
    * @returns `true` if at least one hatch was created.
    */
   protected async doPickPoints(context: AcApContext) {
-    const sourceLoops = this.collectLoopsFromAllBoundaries(context)
-    if (!sourceLoops.length) return false
-
     let created = false
     while (true) {
-      const pointOptions = new AcEdPromptPointOptions(
+      const pointOptions = this.createInternalPointOptions(
         AcApI18n.t('jig.hatch.pickPoint')
       )
       pointOptions.allowNone = true
@@ -777,13 +716,7 @@ export class AcApHatchCmd extends AcEdCommand {
         await AcApDocManager.instance.editor.getPoint(pointOptions)
       if (pointResult.status !== AcEdPromptStatus.OK || !pointResult.value)
         break
-
-      const loops = this.resolveLoopsForPickPoint(
-        pointResult.value,
-        sourceLoops
-      )
-      if (!loops.length) continue
-      if (this.appendHatch(context, loops)) {
+      if (this.hatchAtPoint(context, pointResult.value)) {
         created = true
       }
     }
@@ -792,33 +725,24 @@ export class AcApHatchCmd extends AcEdCommand {
   }
 
   /**
-   * Runs the interactive command-line HATCH workflow.
+   * Runs the interactive command-line HATCH workflow, like AutoCAD's -HATCH.
    *
    * Main loop behavior:
-   * - Direct entity pick: hatch from picked boundary object.
-   * - Keyword branches: pick-points, select-objects, or option editing.
+   * - Point: hatch the area around the internal point.
+   * - Keyword branches: select objects, or option editing.
    * - Enter/Cancel: exits command.
    *
    * @param context Active command context.
    * @returns Promise resolved when command ends.
    */
   async execute(context: AcApContext) {
+    this.resetBoundaryState()
     let running = true
     while (running) {
-      const options = new AcEdPromptEntityOptions(
+      const options = this.createInternalPointOptions(
         AcApI18n.t('jig.hatch.prompt')
       )
       options.allowNone = true
-      options.setRejectMessage(AcApI18n.t('jig.hatch.invalidBoundary'))
-      options.addAllowedClass('Polyline')
-      options.addAllowedClass('Circle')
-      options.addAllowedClass('Arc')
-      options.addAllowedClass('Line')
-      options.keywords.add(
-        AcApI18n.t('jig.hatch.keywords.pick.display'),
-        AcApI18n.t('jig.hatch.keywords.pick.global'),
-        AcApI18n.t('jig.hatch.keywords.pick.local')
-      )
       options.keywords.add(
         AcApI18n.t('jig.hatch.keywords.select.display'),
         AcApI18n.t('jig.hatch.keywords.select.global'),
@@ -850,21 +774,15 @@ export class AcApHatchCmd extends AcEdCommand {
         AcApI18n.t('jig.hatch.keywords.associative.local')
       )
 
-      const result = await AcApDocManager.instance.editor.getEntity(options)
-      if (result.status === AcEdPromptStatus.OK && result.objectId) {
-        const loops = this.collectLoopsFromIds(context, [result.objectId])
-        if (!loops.length) {
-          continue
-        }
-        this.appendHatch(context, loops)
+      const result = await AcApDocManager.instance.editor.getPoint(options)
+      if (result.status === AcEdPromptStatus.OK && result.value) {
+        this.hatchAtPoint(context, result.value)
         continue
       }
 
       if (result.status === AcEdPromptStatus.Keyword) {
         const keyword = result.stringResult ?? ''
-        if (keyword === 'PickPoints') {
-          await this.doPickPoints(context)
-        } else if (keyword === 'SelectObjects') {
+        if (keyword === 'SelectObjects') {
           await this.doSelectObjects(context)
         } else if (keyword === 'Pattern') {
           await this.promptPatternName()

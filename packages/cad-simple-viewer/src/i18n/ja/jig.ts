@@ -102,8 +102,8 @@ export default {
     }
   },
   hatch: {
-    prompt: '境界オブジェクトを選択 または',
-    pickPoint: '内側の点を指定 (Enter で終了)',
+    prompt: '内側の点をクリック または',
+    pickPoint: '内側の点をクリック (Enter で終了)',
     select: '塗りつぶすオブジェクトを選択',
     patternName: '塗りつぶしパターン名を入力',
     scale: '塗りつぶしパターンの尺度を指定',
@@ -111,6 +111,13 @@ export default {
     style: '塗りつぶしのスタイルを入力',
     associative: '自動調整を指定',
     invalidBoundary: '選択したオブジェクトは閉じた境界を構成していません。',
+    boundaryFound: '境界を検出して塗りつぶしました。',
+    boundaryFoundIslands: '境界を検出して塗りつぶしました (内側の島: {count} 個)。',
+    boundaryNotFound: '閉じた境界が見つかりません。クリックした位置が線で囲まれているか (途切れがないか) 確認してください。',
+    alreadyHatched: 'この範囲はすでに塗りつぶしています。',
+    tooComplex: '図形が多すぎて境界を調べられません。塗りつぶしたい範囲を拡大表示してから、もう一度クリックしてください。',
+    selectFound: '閉じた境界が {count} 個見つかりました。',
+    selectNotClosed: '閉じていないオブジェクト {count} 個は境界に使いませんでした。',
     keywords: {
       pick: {
         display: '点をクリック(P)',

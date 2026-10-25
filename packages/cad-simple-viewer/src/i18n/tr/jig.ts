@@ -168,8 +168,8 @@ export default {
     }
   },
   hatch: {
-    prompt: 'Sınır nesnesini seçin veya',
-    pickPoint: 'İç noktayı belirtin (bitirmek için Enter\'a basın)',
+    prompt: 'İç noktayı seçin veya',
+    pickPoint: 'İç noktayı seçin (bitirmek için Enter\'a basın)',
     select: 'Doldurulacak nesneleri seçin',
     patternName: 'Dolgu deseni adını girin',
     scale: 'Dolgu deseni ölçeğini belirtin',
@@ -177,6 +177,13 @@ export default {
     style: 'Desen dolgusu stilini girin',
     associative: 'İlişkiselliği belirtin',
     invalidBoundary: 'Seçilen nesneler kapalı bir sınır oluşturmuyor.',
+    boundaryFound: 'Sınır bulundu ve dolduruldu.',
+    boundaryFoundIslands: 'Sınır bulundu ve dolduruldu (içinde {count} ada).',
+    boundaryNotFound: 'Geçerli bir tarama sınırı bulunamadı. Noktanın çizgilerle boşluksuz çevrili olduğunu kontrol edin.',
+    alreadyHatched: 'Bu alan zaten dolduruldu.',
+    tooComplex: 'Sınırı analiz etmek için çok fazla nesne var. Doldurulacak alanı yakınlaştırıp yeniden seçin.',
+    selectFound: '{count} kapalı sınır bulundu.',
+    selectNotClosed: '{count} nesne kapalı değil ve sınır olarak kullanılmadı.',
     keywords: {
       pick: {
         display: 'Nokta seç(N)',

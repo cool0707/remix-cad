@@ -67,7 +67,7 @@ export default {
       },
       tooltip: {
         pickPoints: 'Určete vnitřní body pro vytvoření vyplněných oblastí.',
-        selectObjects: 'Vyberte uzavřené hraniční objekty k vyplnění.',
+        selectObjects: 'Vyberte objekty ohraničující oblast k vyplnění (uzavřené objekty nebo čáry, které ji společně uzavírají).',
         pattern: 'Zvolte název vzoru výplně.',
         scale: 'Nastavte měřítko vzoru výplně.',
         angle: 'Nastavte úhel vzoru výplně ve stupních.',

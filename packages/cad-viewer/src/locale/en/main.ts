@@ -67,7 +67,7 @@ export default {
       },
       tooltip: {
         pickPoints: 'Pick internal points to create pattern fill regions.',
-        selectObjects: 'Select closed boundary objects to fill.',
+        selectObjects: 'Select the objects that enclose the area to fill (closed objects, or lines that close it together).',
         pattern: 'Choose the fill pattern name.',
         scale: 'Set the fill pattern scale.',
         angle: 'Set the fill pattern angle in degrees.',

@@ -272,6 +272,26 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   1:1 で写せる。CLI は「入力 (DXF: `dxf` crate / JWW: ezjww / SXF: ezsxf) → ExportDrawing 相当 → 出力」にし、平坦化 (`collect.ts`) と
   writer (`jwwExport.ts` / `sxfExport.ts`) を Rust に移植するのが最短。共有したくなったら逆に Rust 側を wasm にしてブラウザから使う。
 
+## 2.6 ハッチングの境界検出 (2026-10-25)
+
+HATCH (`AcApHatchCmd`、リボンの `AcApHatchRibbonCmd` も継承) を AutoCAD の -HATCH に合わせて作り直した。
+以前は「線を端点同士でつなぐだけ」(`AcGeLoop2d.buildFromEdges`) で、交差・T 字・共有辺で閉じず、
+`AcGeLoop2d.closed` が常に true なので開いた形も多角形扱いになっていた。
+
+- 境界検出は CADCraft (MIT OR Apache-2.0) の `crates/geom/src/region.rs` を TypeScript に移植
+  (`command/draw/AcApHatchBoundary.ts`、MIT の表記をファイル先頭に残している)。線を交点で分割 → 平面グラフ →
+  点から +X 方向の光線で当たった辺から最小の面をたどる → 面の内側で境界に触れない図形のまとまりを島にする。
+  追加分: 重なった同一直線上の線の分割、許容差ビンの隣接チェック、端点スナップのグリッド化、`closedOutlines` (オブジェクト選択用)。
+- 境界セット (`AcApHatchBoundarySet.ts`): モデル空間の表示中の図形 (非表示・フリーズのレイヤー、他のハッチ、画像、3D は除外)。
+  ブロック参照は展開し、ブロック内のレイヤー 0 は参照のレイヤーとみなす。曲線は `subGetIntersectCurves()` で取り出して折れ線にする。
+  円・閉じたポリラインがそのまま境界/島になるときは元の形 (円弧) を残す。
+  線分が 6 万本を超える図面は、表示中の範囲の図形だけで調べる。
+- 点を指定 (既定): Osnap は切る (線上に吸着すると内側にならない)。島はハッチスタイルで扱う (標準 = 全部、外側 = 一番外側だけ、無視 = なし)。
+  同じ範囲を 2 回クリックすると警告。オブジェクトを選択: 閉じた図形、または組み合わせて閉じる線のまとまりが境界、入れ子は島。
+- 失敗時は通知 (`jig.hatch.boundaryNotFound` / `tooComplex` / `alreadyHatched` / `invalidBoundary` / `selectNotClosed`)。
+- やり残し: AutoCAD はクリックした範囲を Enter でまとめて 1 つのハッチにする (HPSEPARATE=0) が、ここではクリックごとに 1 つ作る。
+  HPGAPTOL は無い (図面サイズの 1/20000 以内の隙間は端点スナップで閉じる)。文字を島として避ける処理、自動調整 (境界の変更への追従) は未実装。
+
 ## 3. 既知の問題・やり残し
 
 - DWG を開く処理: NURBS 以外では、LibreDWG の `convertEx` (embind) が約 1 秒かかる。ここは手付かず。

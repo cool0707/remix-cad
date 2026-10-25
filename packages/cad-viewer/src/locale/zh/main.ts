@@ -67,7 +67,7 @@ export default {
       },
       tooltip: {
         pickPoints: '拾取内部点来创建填充区域。',
-        selectObjects: '选择闭合边界对象进行填充。',
+        selectObjects: '选择围住填充区域的对象（闭合对象，或共同围成闭合区域的线）。',
         pattern: '设置填充图案名称。',
         scale: '设置填充图案比例。',
         angle: '设置填充图案角度（度）。',
