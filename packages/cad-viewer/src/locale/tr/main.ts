@@ -8,7 +8,9 @@ export default {
     exportHtml: 'HTML\'e Dışa Aktar',
     exportPdf: 'PDF\'e Dışa Aktar',
     exportSvg: 'SVG\'e Dışa Aktar',
+    exportAs: '{format} olarak dışa aktar',
     exportImage: 'Görüntüye Dışa Aktar',
+    exportImageArea: 'Seçili alanı görüntü olarak dışa aktar',
     about: 'Hakkında'
   },
   ribbon: {

@@ -8,7 +8,9 @@ export default {
     exportHtml: '导出为 HTML',
     exportPdf: '导出为PDF',
     exportSvg: '导出为 SVG',
+    exportAs: '导出为 {format}',
     exportImage: '导出图片',
+    exportImageArea: '导出选定区域为图像',
     about: '关于'
   },
   ribbon: {

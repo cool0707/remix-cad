@@ -55,6 +55,14 @@ drawings never leave the user's device.
   `@mlightcad/cad-sxf-converter` (MIT, TypeScript; ported from
   [ezsxf](https://github.com/monozukuri-ai/ezsxf)). Partial drawings are shown at
   the real size of the main view, the sheet becomes the drawing limits.
+- **JWW / SXF export** — File → Export saves the drawing as JWW (Jw_cad), SXF SFC or SXF P21
+  (commands `cjww`, `csfc`, `cp21`). Blocks, dimensions and hatches are exploded; the sheet and
+  scale come from the drawing limits (drawings read from JWW / SXF keep theirs) or are chosen
+  automatically (A3, smallest standard scale that fits).
+  Before export a dialog asks for paper, orientation and scale (Auto by default); DXF export writes
+  the choice as the drawing limits and PDF export can print model space on a paper size at a scale.
+  Export → Image uses the same framing (view, extents, or paper and scale with a dpi) and writes PNG, JPEG, BMP or TIFF;
+  picking a window is still there as "Export selected area as image".
 - **Vertical text (縦書き)** — text in a Windows vertical font (`@ＭＳ ゴシック`, e.g. Jw_cad
   縦字) and TEXT whose text style has the AutoCAD "vertical" flag are written top to bottom
   on screen and in SVG / PDF export, with the bundled BIZ UD fonts
@@ -141,8 +149,9 @@ The monorepo layout is unchanged from upstream:
 | `@mlightcad/cad-html-plugin`, `cad-pdf-plugin`, `cad-svg-plugin` | HTML / PDF / SVG export |
 | `@mlightcad/cad-diff-viewer` | Side-by-side drawing comparison |
 | `@mlightcad/three-renderer` | Three.js rendering |
-| `@mlightcad/cad-jww-converter` | JWW (Jw_cad) reader (ezjww, WebAssembly) |
-| `@mlightcad/cad-sxf-converter` | SXF (SFC / P21 / SFZ / P2Z) reader (TypeScript) |
+| `@mlightcad/cad-jww-converter` | JWW (Jw_cad) reader and writer (ezjww, WebAssembly) |
+| `@mlightcad/cad-sxf-converter` | SXF (SFC / P21 / SFZ / P2Z) reader and writer (TypeScript) |
+| `@mlightcad/cad-export-model` | Flattens a drawing into 2D primitives + sheet for the JWW / SXF writers |
 | `@mlightcad/cad-vertical-text` | Vertical text (縦書き) layout shared by screen, SVG and PDF |
 
 Package names keep the upstream `@mlightcad/` scope; this fork is not
@@ -203,6 +212,30 @@ and ellipses stay true curves, and text is sized from its SXF character box.
 Raster images (SXF 3.1 image attributes) are shown when the image file is bundled in the
 `.sfz` / `.p2z`; monochrome TIFF (G4) is converted for the browser, JPEG is used as is. A plain
 `.sfc` / `.p21` shows the image frame as a missing image. SAF attribute files are not loaded.
+
+## JWW / SXF export
+
+The drawing is first flattened by `@mlightcad/cad-export-model` into lines, arcs / ellipses,
+single-line text, points and fills in real millimetres (blocks, dimensions, leaders, splines and
+hatch patterns are exploded), together with a sheet (paper + scale). The writers then produce:
+
+| Format | Writer | Notes |
+| --- | --- | --- |
+| JWW | `AcDbJwwConverter.exportDatabase()` (ezjww's writer, in the parser worker) | Paper A0–A4 (landscape), every layer group at the sheet scale, layers named `<group>-<layer> …` go back to their slots, colours → pens 1–9, line types → Jw_cad line types, `@` fonts → 縦字, fills → solids |
+| SFC / P21 | `exportSxf(db, 'sfc' \| 'p21' \| 'sfz' \| 'p2z')` (TypeScript) | One partial drawing (部分図) at the sheet scale; predefined + user RGB colours, predefined line types and widths; SFC in Shift_JIS, P21 as an AP202 graph (checked with ezsxf) |
+
+```ts
+import { registerJwwConverter } from '@mlightcad/cad-jww-converter'
+import { exportSxf } from '@mlightcad/cad-sxf-converter'
+
+const jww = registerJwwConverter('./assets/jww-parser-worker.js')
+const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
+const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
+```
+
+The example app registers both with `acapRegisterDrawingExporter()` (`cad-simple-viewer`).
+Raster images are embedded in JWW (not yet written to SXF), and DWG export is not available (the npm build of
+LibreDWG used for reading has writing disabled).
 
 ## License
 

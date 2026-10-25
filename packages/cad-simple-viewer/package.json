@@ -77,5 +77,8 @@
     "@mlightcad/three-renderer": "workspace:*",
     "lodash-es": "4.17.21",
     "three": "^0.186.1"
+  },
+  "dependencies": {
+    "@mlightcad/cad-export-model": "workspace:*"
   }
 }

@@ -28,6 +28,7 @@ import {
   AcApEllipseCmd,
   AcApEntityPreviewCmd,
   AcApEraseCmd,
+  AcApExportDrawingCmd,
   AcApHatchCmd,
   AcApHideObjectsCmd,
   AcApImageAttachCmd,
@@ -110,6 +111,11 @@ import {
   acapSetDocsBaseUrl
 } from './AcApDocsUrl'
 import { AcApDocument } from './AcApDocument'
+import {
+  type AcApDrawingExporter,
+  acapDrawingExporters,
+  acapOnDrawingExporterRegistered
+} from './AcApDrawingExporters'
 import { AcApFontLoader } from './AcApFontLoader'
 import {
   AcApOpenDatabaseOptions,
@@ -1986,6 +1992,15 @@ export class AcApDocManager {
       addSystemCommand('cdxf', 'cdxf', new AcApConvertToDxfCmd())
       addSystemCommand('jpgout', 'jpgout', new AcApConvertToJpgCmd())
       addSystemCommand('pngout', 'pngout', new AcApConvertToPngCmd())
+      // Formats such as JWW / SXF registered by the host application.
+      const addExporter = (exporter: AcApDrawingExporter) =>
+        addSystemCommand(
+          exporter.command,
+          exporter.command,
+          new AcApExportDrawingCmd(exporter)
+        )
+      acapDrawingExporters().forEach(addExporter)
+      acapOnDrawingExporterRegistered(addExporter)
     }
     addSystemCommand('entout', 'entout', new AcApEntityPreviewCmd())
     addSystemCommand('ellipse', 'ellipse', new AcApEllipseCmd())

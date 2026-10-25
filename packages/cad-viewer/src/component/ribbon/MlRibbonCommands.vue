@@ -16,6 +16,7 @@ import {
   AcApConvertToDxfCmd,
   acapCssColor,
   AcApDocManager,
+  acapDrawingExporters,
   acapDrawStyleKindForCommand,
   acapGetMeasurementColor,
   acapGetMeasurementCustomTextHeightWcs,
@@ -2729,6 +2730,12 @@ const fileMenuItems = computed<FileMenuItemModel[]>(() => {
           id: 'Convert',
           label: t('main.mainMenu.export')
         },
+        // CAD formats registered by the application (JWW, SFC, P21) follow
+        // DXF.
+        ...acapDrawingExporters().map(exporter => ({
+          id: `ExportFormat:${exporter.command}`,
+          label: t('main.mainMenu.exportAs', { format: exporter.formatName })
+        })),
         {
           id: 'ExportHtml',
           label: t('main.mainMenu.exportHtml')
@@ -2742,8 +2749,12 @@ const fileMenuItems = computed<FileMenuItemModel[]>(() => {
           label: t('main.mainMenu.exportSvg')
         },
         {
-          id: 'PngOut',
+          id: 'ExportImage',
           label: t('main.mainMenu.exportImage')
+        },
+        {
+          id: 'PngOut',
+          label: t('main.mainMenu.exportImageArea')
         }
       ]
     })
@@ -2823,7 +2834,9 @@ const handleFileMenuSelect = async (command: string) => {
       command === 'ExportHtml' ||
       command === 'ExportPdf' ||
       command === 'ExportSvg' ||
-      command === 'PngOut')
+      command === 'ExportImage' ||
+      command === 'PngOut' ||
+      command.startsWith('ExportFormat:'))
   ) {
     return
   }
@@ -2838,8 +2851,14 @@ const handleFileMenuSelect = async (command: string) => {
     AcApDocManager.instance.sendStringToExecute('cpdf')
   } else if (command === 'ExportSvg') {
     AcApDocManager.instance.sendStringToExecute('csvg')
+  } else if (command === 'ExportImage') {
+    AcApDocManager.instance.sendStringToExecute('cimage')
   } else if (command === 'PngOut') {
     AcApDocManager.instance.sendStringToExecute('pngout')
+  } else if (command.startsWith('ExportFormat:')) {
+    AcApDocManager.instance.sendStringToExecute(
+      command.slice('ExportFormat:'.length)
+    )
   } else if (command === 'QNew') {
     const cmd = new AcApQNewCmd()
     cmd.trigger(AcApDocManager.instance.context)

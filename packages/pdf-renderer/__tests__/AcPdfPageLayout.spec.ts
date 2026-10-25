@@ -101,3 +101,20 @@ describe('pdfCoordinateDecimals', () => {
     expect(pdfCoordinateDecimals(1e12)).toBe(8)
   })
 })
+
+describe('computePageLayout with a sheet', () => {
+  it('prints the sheet box at an exact scale without padding', () => {
+    // A3 at 1:100 in millimetres: 42000 x 29700 drawing units fill the page.
+    const layout = computePageLayout(box(-21000, -14850, 21000, 14850), {
+      insunits: 4,
+      paper: { widthMm: 420, heightMm: 297 },
+      pagePadding: 0
+    })
+    const ptPerMm = 72 / 25.4
+    expect(layout.pageWidth).toBeCloseTo(420 * ptPerMm, 6)
+    expect(layout.scale).toBeCloseTo(ptPerMm / 100, 12)
+    const corner = mapDrawingToPage(layout, -21000, -14850)
+    expect(corner.x).toBeCloseTo(0, 6)
+    expect(corner.y).toBeCloseTo(0, 6)
+  })
+})

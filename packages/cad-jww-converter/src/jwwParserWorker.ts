@@ -1,11 +1,13 @@
 /// <reference lib="webworker" />
 /**
  * Web Worker that parses JWW files with ezjww (WebAssembly) and returns DXF
- * text. Built as a standalone bundle (`jww-parser-worker.js`).
+ * text, and writes JWW files from exported drawings. Built as a standalone
+ * bundle (`jww-parser-worker.js`).
  */
 import * as ezjww from 'ezjww'
 
 import { JWW_PARSER_WASM_FILE } from './constants'
+import { writeJwwBytes } from './jwwExport'
 import { convertJwwToDxf, cropJwwImages } from './jwwToDxf'
 import type { JwwWorkerRequest, JwwWorkerResponse } from './jwwWorkerProtocol'
 
@@ -32,11 +34,20 @@ function init(wasmUrl?: string) {
 }
 
 self.onmessage = async (event: MessageEvent<JwwWorkerRequest>) => {
-  const { id, data, wasmUrl, scaleMode } = event.data
+  const request = event.data
+  const { id, wasmUrl } = request
   let response: JwwWorkerResponse
   let transfer: Transferable[] = []
   try {
     await init(wasmUrl)
+    if (request.kind === 'write') {
+      const result = writeJwwBytes(ezjww, request.drawing, request.options)
+      self.postMessage({ id, ok: true, kind: 'write', ...result }, [
+        result.bytes.buffer as ArrayBuffer
+      ])
+      return
+    }
+    const { data, scaleMode } = request
     const result = await cropJwwImages(
       convertJwwToDxf(ezjww, new Uint8Array(data), { scaleMode })
     )

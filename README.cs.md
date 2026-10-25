@@ -52,6 +52,14 @@ takže výkresy nikdy neopustí zařízení uživatele.
   `.p21` a jejich ZIP verze `.sfz` / `.p2z` pomocí `@mlightcad/cad-sxf-converter` (MIT, TypeScript,
   převzato z [ezsxf](https://github.com/monozukuri-ai/ezsxf)). Dílčí výkresy se zobrazí ve skutečné velikosti
   hlavního pohledu a list se použije jako meze výkresu.
+- **Export do JWW / SXF** — Soubor → Export uloží výkres jako JWW (Jw_cad), SXF SFC nebo SXF P21
+  (příkazy `cjww`, `csfc`, `cp21`). Bloky, kóty a šrafy se rozloží; formát listu a měřítko se berou
+  z limitů výkresu (výkresy načtené z JWW / SXF si je ponechají), jinak se zvolí automaticky
+  (A3, nejmenší standardní měřítko, do kterého se výkres vejde).
+  Před exportem se dialog zeptá na papír, orientaci a měřítko (výchozí Automaticky); export do DXF je zapíše jako
+  limity výkresu a export do PDF umí vytisknout modelový prostor na daný papír v měřítku.
+  Export do obrázku používá stejné volby (zobrazení, rozsah nebo papír a měřítko s rozlišením) a zapisuje PNG, JPEG,
+  BMP nebo TIFF; výběr oblasti zůstává jako „Exportovat vybranou oblast jako obrázek“.
 - **Svislé písmo (縦書き)** — text ve svislém písmu Windows (`@ＭＳ ゴシック`, např. 縦字 z Jw_cad)
   a TEXT se stylem s příznakem AutoCAD „svislý“ se píše shora dolů na obrazovce i v exportu
   SVG / PDF, s přibalenými písmy BIZ UD (`@mlightcad/cad-vertical-text`).
@@ -133,6 +141,30 @@ milimetrech; `scaleMode: 'paper'` ponechá milimetry na papíře. Kružnice, obl
 křivkami a text odpovídá rámečku SXF. Rastrové obrázky (obrazové atributy SXF 3.1) se zobrazí, pokud je soubor obrázku přibalen v `.sfz` / `.p2z`;
 černobílý TIFF (G4) se převede pro prohlížeč, JPEG se použije beze změny. Samostatný `.sfc` / `.p21`
 zobrazí rámeček obrázku jako chybějící obrázek. Atributové soubory (SAF) se nenačítají.
+
+## Export do JWW / SXF
+
+Nejprve `@mlightcad/cad-export-model` převede výkres na úsečky, oblouky / elipsy, jednořádkový text,
+body a výplně ve skutečných milimetrech (bloky, kóty, odkazy, spliny a vzory šraf se rozloží) a určí
+list (formát + měřítko). Poté zapisovače vytvoří:
+
+| Formát | Zapisovač | Poznámky |
+| --- | --- | --- |
+| JWW | `AcDbJwwConverter.exportDatabase()` (zapisovač ezjww ve workeru parseru) | List A0–A4 (na šířku), všechny skupiny hladin v měřítku listu, hladiny `<skupina>-<hladina> …` se vrátí na své místo, barvy → pera 1–9, typy čar → typy čar Jw_cad, písma `@` → svislý text, výplně → solidy |
+| SFC / P21 | `exportSxf(db, 'sfc' \| 'p21' \| 'sfz' \| 'p2z')` (TypeScript) | Jeden dílčí výkres (部分図) v měřítku listu; předdefinované a uživatelské barvy RGB, předdefinované typy a tloušťky čar; SFC v Shift_JIS, P21 jako graf AP202 (ověřeno pomocí ezsxf) |
+
+```ts
+import { registerJwwConverter } from '@mlightcad/cad-jww-converter'
+import { exportSxf } from '@mlightcad/cad-sxf-converter'
+
+const jww = registerJwwConverter('./assets/jww-parser-worker.js')
+const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
+const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
+```
+
+Ukázková aplikace registruje obojí pomocí `acapRegisterDrawingExporter()` (`cad-simple-viewer`).
+Rastrové obrázky se vkládají do JWW (do SXF zatím ne) a export do DWG není k dispozici (sestavení LibreDWG z npm
+použité pro čtení má zápis vypnutý).
 
 ## Licence
 

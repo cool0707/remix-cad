@@ -209,6 +209,69 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
 
 ---
 
+## 2.5 JWW / SXF への書き出し (2026-10-24)
+
+構成: `packages/cad-export-model` (MIT、data-model のみ依存) が図面を **形式に依存しない 2D モデル** (`ExportDrawing`:
+実寸 mm の polyline / curve (共役半径の楕円弧) / 1 行文字 / 点 / 塗りつぶし / 画像 + 画層 + 用紙 `ExportSheet`) に平坦化し、
+各コンバーターがそれを書く。
+
+- 平坦化 (`collectExportDrawing`): LINE / ARC / CIRCLE / ELLIPSE / LWPOLYLINE (bulge → 円弧) / TEXT / MTEXT (行に分割、位置は文字セルで推定) /
+  POINT / SOLID / INSERT (展開。画層 0 は INSERT の画層、ByBlock 色・線種を継承) / RASTER IMAGE は直接変換。
+  それ以外 (寸法・引出線・スプライン・ハッチング・表など) は `AcExRecordingRenderer` (AcGiRenderer の記録版) で `worldDraw` の出力を取る。
+  ハッチング模様は画面のシェーダーと同じ規則で線分に切り出す (`hatchPatternSegments`、20 万本超は境界のみ)。
+  `AcDbRenderingCache` は前後で clear する (記録物をビューアに使わせない)。非表示画層の「記録」経由の要素は worldDraw が描かないので落ちる。
+- 用紙 (`chooseSheet`): `$LIMMIN/$LIMMAX` が A0–A4 × 縮尺ちょうどならそれ (JWW / SXF から読んだ図面は往復で一致)。
+  A2 と A4 は比が同じなので標準縮尺 → 小さい用紙を優先。無ければ A3 (縦長なら縦) に 85% で収まる最小の標準縮尺、図面中心に配置。
+  Jest は data-model の CJS ビルドでパッチが効かず limits が読めないので、テストでは `db.limmin` を直接入れている。
+- 文字: DXF の高さ (英大文字の高さ) ↔ Jw_cad / SXF の文字枠 (em) を読み込みと同じ BIZ UD の値 (`cellFontMetrics`) で逆変換。
+  JWW・SXF とも往復で位置・高さ・幅係数が一致する (テスト済み)。
+- **JWW** (`cad-jww-converter/src/jwwExport.ts`、ezjww の `toJwwBytes`): 読み込みと同じ Worker で書く (`AcDbJwwConverter.exportDatabase()` / `writeJww()`)。
+  用紙 A0–A4 横のみ、全レイヤグループに同じ縮尺、座標は用紙中心原点の図寸。`<g>-<l> グループ名 - レイヤ名` の画層は元の位置へ、他は順に詰める。
+  色 → 既定パレットで最も近い線色 1–9 (黒白 = 2、`colorMode: 'exact'` で SXF 拡張色)、線種は `JWW_*` 名はそのまま・他はパターンの形で 1–9、
+  `@` フォント → 縦字 (角度 = 文字列方向 + 90°)、塗りつぶし → 三角形分割したソリッド (色は COLORREF で正確)、画像 → `^@BM%temp%名前` + gzip 同梱。
+- **SXF** (`cad-sxf-converter/src/sxfExport.ts`、`exportSxf(db, 'sfc'|'p21'|'sfz'|'p2z')`): 要素は図面縮尺の部分図 1 つ (sfig_org 種別 1) に実寸で入れ、
+  sfig_locate で用紙に置く。色は既定 16 色 or ユーザ定義 RGB、線種・線幅は既定のみ (形で分類)。SFC は Shift_JIS (`shiftJis.ts`、TextDecoder から表を作る)。
+  **SFC の階層規則: composite_curve はその直前の定義以降の要素を全部部品にする** ので、塗りつぶし境界 + composite は要素の先頭にまとめて出す。
+  P21 は ezsxf `p21_writer.rs` の AP202 グラフを移植。ezsxf (Python) の strict パースで警告なし、ezsxf が同じ SFC から作る P21 と数値の最下位桁以外一致。
+  画像は未対応 (SFZ / P2Z に TIFF / JPEG を同梱し、属性付き複合図形を書く必要がある)。
+- UI: `cad-simple-viewer` の `acapRegisterDrawingExporter()` に登録すると、コマンド (`cjww` / `csfc` / `cp21`) とファイル → 書き出しのメニュー項目
+  (`main.mainMenu.exportAs`) ができる。example は `src/registerExporters.ts` で登録。警告は詳細をコンソール、通知は i18n の定型文。
+- テスト: `cad-export-model/__tests__`、`cad-jww-converter/__tests__/jwwExport.spec.ts`、`cad-sxf-converter/__tests__/sxfExport.spec.ts`、e2e `export.spec.ts`。
+  e2e をこの環境で回すときは channel を外し `launchOptions.executablePath` を `/opt/pw-browsers/chromium-*/chrome-linux64/chrome` にした一時設定を使った。
+- 用紙・縮尺ダイアログ (2026-10-25): DXF / JWW / SFC / P21 の書き出し前に `MlExportDrawingDlg` が開く。
+  cad-simple-viewer の `acapSetExportSheetPrompt()` に cad-viewer がダイアログを差し込み、コマンド (`cdxf` / `cjww` …) は
+  `acapPromptExportSheet()` で聞く (差し込みが無ければ自動)。入力部品 `MlExportSheetFields` (用紙・向き・縮尺、1:N は自由入力可、
+  選んだ結果を「書き出す用紙: A3 横 1:100」と表示) は PDF ダイアログの 3 枚目のカード「用紙と縮尺」でも使う。
+  用紙の決め方は全形式で `acapResolveDrawingSheet()` / `chooseSheet()` (図面範囲 → 無ければ A3 に収まる最小の標準縮尺)。
+  DXF: すべて自動なら今までどおり、指定があれば `$LIMMIN/$LIMMAX` を HEADER に書き込む (`acapSetDxfLimits`、dxfOut は書かない)。
+  PDF: モデルのページを用紙サイズにし、用紙の範囲を `fitBox`、`pagePadding: 0` で縮尺どおり (pdf-renderer に `pagePadding` を追加。
+  印刷ページのページには用紙指定を適用しない)。`-cpdf` のコマンドライン版には未追加。
+  e2e で PDF を試すと、開発サーバーが初回に pdf-lib を最適化してページを再読み込みする (example の `optimizeDeps.include` の
+  pdf-lib が解決できていない既存の問題) ので、PDF の e2e は入れていない。
+- 画像に書き出し (2026-10-25): `cimage` → `MlExportImageDlg`。キャンバスの選び方は PDF と同じ 3 択 (表示画面・オブジェクト範囲・用紙と縮尺、
+  カードは共通部品 `MlChoiceCards` + `exportCanvas.ts`、PDF ダイアログもこれに置き換え)、形式 PNG / JPEG / BMP / TIFF (TIFF は `acapEncodeTiff` の自前実装: 24bit RGB・PackBits・解像度タグに dpi)、
+  長辺 px (用紙と縮尺のときは解像度 dpi から計算)。描画は既存の `AcApRasterImageConvertor` (画面の背景色のまま)。
+  長辺は GPU のテクスチャ上限と 8192 px の小さい方で頭打ち (`AcApRasterImageConvertor.maxLongSide()`、ダイアログに表示)。
+  範囲を 2 点で指定する従来の `pngout` はメニュー「選択範囲を画像に書き出し」として残した。
+- 未対応・やり残し: ブロックを JWW / SXF のブロック・複合図形として残す、
+  寸法を寸法要素として残す、SXF の画像、Jw_cad 実機での確認 (Wine / Windows)。
+- **DWG 書き出し — 方針 (2026-10-24 決定)**: CADcraft の DWG 対応がまともになったら、それを取り込む (ライセンスは MPL-2.0)。
+  MPL-2.0 はファイル単位のコピーレフトなので MIT の本体と組み合わせてよいが、取り込んだファイルは MPL-2.0 のまま
+  (ライセンス表記を残す・そのファイルを改変したら改変後のソースを公開する) にし、自前コードと混ぜずに専用パッケージ
+  (例: `packages/cad-dwg-writer`) に分けておく。書き出しは `ExportDrawing` を入力にすれば JWW / SXF と同じ流れに乗る。
+  進捗次第で **DWG の読み込みも CADcraft に置き換え**、LibreDWG (GPL) を外す (example の `registerLibreDwg.ts`・
+  `@mlightcad/libredwg-converter` とそのパッチ・worker の配信をやめる)。そうなれば DWG を含めて GPL の部分が無くなり、
+  Rust CLI も MIT + MPL ファイルで配布できる (CLI を先に GPL で公開していても、自分だけが書いたコードなら後から MIT にできる。
+  公開済みの GPL 版はそのまま GPL)。
+  以下はそれ以前に調べた別案。
+- **DWG 書き出し (調査メモ)**: 読み込みに使っている npm の `@mlightcad/libredwg-web` は `disable-write` でビルドされていて書けない。
+  LibreDWG を書き込み有効で wasm ビルドすれば (GPL のまま example 側 opt-in) R2000 DWG は出せるが、LibreDWG の DWG writer は実験的。
+  他の候補は ODA File Converter (無償だがプロプライエタリ、デスクトップ専用 = CLI 側なら外部ツールとして呼べる) か商用 SDK。
+- **Rust CLI (Windows) への道筋**: ezjww (`ezjww-core` crate、読み書き) と ezsxf (読み書き。ただし PyO3 と一体の cdylib なので
+  `writer.rs` / `p21_writer.rs` / `parser.rs` を切り出す必要あり) はどちらも Rust・MIT。`ExportDrawing` は素のデータなので Rust の struct に
+  1:1 で写せる。CLI は「入力 (DXF: `dxf` crate / JWW: ezjww / SXF: ezsxf) → ExportDrawing 相当 → 出力」にし、平坦化 (`collect.ts`) と
+  writer (`jwwExport.ts` / `sxfExport.ts`) を Rust に移植するのが最短。共有したくなったら逆に Rust 側を wasm にしてブラウザから使う。
+
 ## 3. 既知の問題・やり残し
 
 - DWG を開く処理: NURBS 以外では、LibreDWG の `convertEx` (embind) が約 1 秒かかる。ここは手付かず。

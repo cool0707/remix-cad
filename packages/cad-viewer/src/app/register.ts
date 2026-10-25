@@ -18,6 +18,7 @@ import {
   AcApCountListCmd,
   AcApDrawingUnitsCmd,
   AcApExportHtmlDlgCmd,
+  AcApExportImageDlgCmd,
   AcApExportPdfDlgCmd,
   AcApFindCmd,
   AcApInsertPaletteCmd,
@@ -39,12 +40,15 @@ import {
   MlAttDefDlg,
   MlAttEditDlg,
   MlDrawingUnitsDlg,
+  MlExportDrawingDlg,
   MlExportHtmlDlg,
+  MlExportImageDlg,
   MlExportPdfDlg,
   MlPointStyleDlg,
   MlQuickSelectDlg,
   MlTextStyleDlg
 } from '../component'
+import { installExportSheetPrompt } from '../component/dialog/exportSheet'
 import { useDialogManager } from '../composable'
 import { i18n } from '../locale'
 import { store } from './store'
@@ -102,6 +106,12 @@ export const registerCmds = () => {
         'cpdf',
         'cpdf',
         new AcApExportPdfDlgCmd()
+      )
+      register.addCommand(
+        AcEdCommandStack.SYSTEMT_COMMAND_GROUP_NAME,
+        'cimage',
+        'cimage',
+        new AcApExportImageDlgCmd()
       )
     }
     register.addCommand(
@@ -189,7 +199,7 @@ export const registerCmds = () => {
 let isDialogRegistered = false
 export const registerDialogs = () => {
   if (!isDialogRegistered) {
-    const { registerDialog } = useDialogManager()
+    const { registerDialog, toggleDialog } = useDialogManager()
     const disableExport = AcApDocManager.instance.disableExport
     registerDialog({
       name: 'PointStyleDlg',
@@ -212,6 +222,18 @@ export const registerDialogs = () => {
         component: markRaw(MlExportPdfDlg),
         props: {}
       })
+      registerDialog({
+        name: 'ExportImageDlg',
+        component: markRaw(MlExportImageDlg),
+        props: {}
+      })
+      registerDialog({
+        name: 'ExportDrawingDlg',
+        component: markRaw(MlExportDrawingDlg),
+        props: {}
+      })
+      // DXF / JWW / SXF exports ask for the paper and scale in this dialog.
+      installExportSheetPrompt(() => toggleDialog('ExportDrawingDlg', true))
     }
     registerDialog({
       name: 'DrawingUnitsDlg',

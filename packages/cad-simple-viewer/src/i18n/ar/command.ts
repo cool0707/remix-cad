@@ -72,6 +72,26 @@ export default {
         'تصدير الرسم الحالي إلى DXF'
     },
 
+    cimage: {
+      ...enCommand.ACAD.cimage,
+      description: 'تصدير الرسم إلى صورة (العرض أو النطاق أو الورق والمقياس؛ PNG / JPEG / BMP / TIFF)'
+    },
+
+    cjww: {
+      ...enCommand.ACAD.cjww,
+      description: 'تصدير الرسم الحالي إلى JWW (Jw_cad)'
+    },
+
+    csfc: {
+      ...enCommand.ACAD.csfc,
+      description: 'تصدير الرسم الحالي إلى SXF SFC'
+    },
+
+    cp21: {
+      ...enCommand.ACAD.cp21,
+      description: 'تصدير الرسم الحالي إلى SXF P21'
+    },
+
     cpdf: {
       ...enCommand.ACAD.cpdf,
       description:

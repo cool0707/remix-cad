@@ -1,0 +1,34 @@
+{
+  "name": "@mlightcad/cad-export-model",
+  "version": "1.7.7-preview.1",
+  "license": "MIT",
+  "type": "module",
+  "description": "Flattens a CAD drawing into format-neutral 2D primitives for the JWW / SXF writers",
+  "files": [
+    "dist",
+    "lib",
+    "README.md",
+    "package.json"
+  ],
+  "main": "./dist/cad-export-model.js",
+  "module": "./dist/cad-export-model.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./dist/cad-export-model.js"
+    }
+  },
+  "scripts": {
+    "clean": "rimraf dist lib tsconfig.tsbuildinfo",
+    "build": "tsc && vite build",
+    "lint": "eslint src/",
+    "lint:fix": "eslint --fix --quiet src/"
+  },
+  "devDependencies": {
+    "@mlightcad/data-model": "1.15.14"
+  },
+  "peerDependencies": {
+    "@mlightcad/data-model": "1.15.14"
+  }
+}

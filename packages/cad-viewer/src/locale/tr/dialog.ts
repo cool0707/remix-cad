@@ -131,6 +131,33 @@ export default {
     copyPasswordSuccess: 'Parola panoya kopyalandı.',
     copyPasswordFailed: 'Parola panoya kopyalanamadı.'
   },
+  exportImageDlg: {
+    title: 'Görüntüye Dışa Aktar',
+    imageSection: 'Görüntü',
+    format: 'Biçim',
+    resolution: 'Çözünürlük',
+    longSide: 'Uzun kenar (px)',
+    pixelSize: 'Görüntü boyutu: {width} × {height} px',
+    limited: '({max} px sınırına küçültüldü)'
+  },
+  exportDrawingDlg: {
+    title: '{format} olarak dışa aktar'
+  },
+  exportSheet: {
+    section: 'Kağıt ve ölçek',
+    paper: 'Kağıt',
+    orientation: 'Yön',
+    scale: 'Ölçek',
+    auto: 'Otomatik',
+    landscape: 'Yatay',
+    portrait: 'Dikey',
+    sheetValue: '{paper} {orientation} {scale}',
+    result: 'Kağıt: {value}',
+    keepDrawing: 'Çizim sınırları değiştirilmez',
+    invalidScale: '1:100 gibi bir ölçek girin',
+    dxfHint: 'Seçilen kağıt ve ölçek çizim sınırları (LIMITS) olarak yazılır. Hepsi Otomatik ise değiştirilmez.',
+    jwwHint: 'Jw_cad kağıtları yalnızca yataydır.'
+  },
   exportPdfDlg: {
     title: 'PDF\'e Dışa Aktar',
     modelSpaceSection: 'Tuval',
@@ -139,6 +166,8 @@ export default {
     modelSpaceExtents: 'Kapsam',
     modelSpaceExtentsHint:
       'Geçerli alandaki tüm nesnelerin kapsamını dışa aktar',
+    modelSpaceSheet: 'Kağıt ve ölçek',
+    modelSpaceSheetHint: 'Çizimi seçilen kağıda belirli bir ölçekte yerleştirir',
     paperSpaceSection: 'Baskı sayfası',
     exportLayouts: 'Baskı sayfalarını dışa aktar',
     exportLayoutsHint:

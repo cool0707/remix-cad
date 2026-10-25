@@ -3,10 +3,18 @@ import * as THREE from 'three'
 
 import { AcApDocManager } from '../../app'
 import { resolveExportDownloadName } from '../../util/AcApExportFileNameUtil'
+import { acapEncodeTiff } from '../../util/AcApTiffEncoder'
 import { AcTrView2d } from '../../view'
 
+/**
+ * Upper bound of the long side of an exported image in pixels. 8192 × 5793
+ * (A-series aspect) already needs several hundred megabytes for the pixel
+ * copies made while encoding.
+ */
+export const MAX_EXPORT_LONG_SIDE = 8192
+
 /** Supported raster export formats. */
-export type AcApRasterImageFormat = 'png' | 'jpeg' | 'bmp'
+export type AcApRasterImageFormat = 'png' | 'jpeg' | 'bmp' | 'tiff'
 
 const JPEG_QUALITY = 0.92
 
@@ -29,6 +37,21 @@ export class AcApRasterImageConvertor {
 
   get format(): AcApRasterImageFormat {
     return this._format
+  }
+
+  /** Resolution recorded in formats that store one (TIFF). */
+  dpi = 96
+
+  /**
+   * Largest image side this viewer exports: the GPU texture limit, capped at
+   * {@link MAX_EXPORT_LONG_SIDE} to keep the pixel buffers in memory.
+   */
+  static maxLongSide(): number {
+    const view = AcApDocManager.instance.curView as AcTrView2d | undefined
+    const gpuLimit =
+      view?.renderer?.internalRenderer?.capabilities?.maxTextureSize ??
+      MAX_EXPORT_LONG_SIDE
+    return Math.min(MAX_EXPORT_LONG_SIDE, gpuLimit)
   }
 
   /**
@@ -100,7 +123,10 @@ export class AcApRasterImageConvertor {
     let outputHeight = Math.max(1, Math.round(view.height))
 
     if (longSide && longSide > 0) {
-      const outputSize = this.resolveOutputSize(longSide, targetAspect)
+      const outputSize = this.resolveOutputSize(
+        Math.min(longSide, AcApRasterImageConvertor.maxLongSide()),
+        targetAspect
+      )
       outputWidth = outputSize.width
       outputHeight = outputSize.height
     }
@@ -220,13 +246,19 @@ export class AcApRasterImageConvertor {
         return 'JPGOUT'
       case 'bmp':
         return 'BMPOUT'
+      case 'tiff':
+        return 'TIFOUT'
       default:
         return 'PNGOUT'
     }
   }
 
   private get fileExtension(): string {
-    return this._format === 'jpeg' ? 'jpg' : this._format
+    return this._format === 'jpeg'
+      ? 'jpg'
+      : this._format === 'tiff'
+        ? 'tif'
+        : this._format
   }
 
   private resolveOutputSize(
@@ -407,6 +439,10 @@ export class AcApRasterImageConvertor {
         return this.canvasToJpegDataUrl(canvas)
       case 'bmp':
         return this.encodeBmpDataUrl(pixels, width, height)
+      case 'tiff':
+        return `data:image/tiff;base64,${this.bytesToBase64(
+          acapEncodeTiff(pixels, width, height, this.dpi)
+        )}`
       default:
         return canvas.toDataURL('image/png')
     }

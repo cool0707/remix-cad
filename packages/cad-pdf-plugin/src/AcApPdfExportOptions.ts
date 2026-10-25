@@ -1,10 +1,13 @@
+import type { AcApSheetOptions } from '@mlightcad/cad-simple-viewer'
+
 /**
  * Model-space page framing for PDF export.
  *
  * - `display` — fit the live viewport (on-screen view).
  * - `extents` — fit drawable geometry in the current space.
+ * - `sheet` — print on a paper size at a scale ({@link AcApPdfExportOptions.sheet}).
  */
-export type AcApPdfModelSpaceFit = 'display' | 'extents'
+export type AcApPdfModelSpaceFit = 'display' | 'extents' | 'sheet'
 
 /**
  * User-configurable options for PDF export (`cpdf` dialog, `-cpdf`, and API).
@@ -31,6 +34,12 @@ export interface AcApPdfExportOptions {
    *   (self-contained, but dense text dominates the file size).
    */
   textMode?: 'vector' | 'text'
+  /**
+   * Paper, orientation and scale of the model page when
+   * {@link modelSpaceFit} is `'sheet'`; unset fields are chosen
+   * automatically (drawing limits, else A3 at the smallest standard scale).
+   */
+  sheet?: AcApSheetOptions
 }
 
 /**
@@ -41,8 +50,11 @@ export function resolveAcApPdfExportOptions(
 ): Required<AcApPdfExportOptions> {
   return {
     modelSpaceFit:
-      options.modelSpaceFit === 'display' ? 'display' : 'extents',
+      options.modelSpaceFit === 'display' || options.modelSpaceFit === 'sheet'
+        ? options.modelSpaceFit
+        : 'extents',
     exportLayouts: options.exportLayouts !== false,
-    textMode: options.textMode === 'vector' ? 'vector' : 'text'
+    textMode: options.textMode === 'vector' ? 'vector' : 'text',
+    sheet: options.sheet ?? {}
   }
 }

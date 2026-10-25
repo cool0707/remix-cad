@@ -2,7 +2,7 @@
   <ml-base-dialog
     v-model:modelValue="visible"
     :title="t('dialog.exportPdfDlg.title')"
-    :width="480"
+    :width="560"
     :auto-close="false"
     @open="handleOpen"
     @ok="handleOk"
@@ -12,84 +12,23 @@
         :title="t('dialog.exportPdfDlg.modelSpaceSection')"
         class="ml-export-pdf-dlg__section"
       >
-        <el-radio-group
+        <ml-choice-cards
           v-model="form.modelSpaceFit"
-          class="ml-export-pdf-dlg__card-group"
-        >
-          <label
-            class="ml-export-pdf-dlg__card"
-            :class="{ 'is-selected': form.modelSpaceFit === 'display' }"
-          >
-            <el-radio
-              value="display"
-              class="ml-export-pdf-dlg__card-radio"
-            />
-            <span class="ml-export-pdf-dlg__card-body">
-              <span class="ml-export-pdf-dlg__card-title">{{
-                t('dialog.exportPdfDlg.modelSpaceDisplay')
-              }}</span>
-              <span class="ml-export-pdf-dlg__card-hint">{{
-                t('dialog.exportPdfDlg.modelSpaceDisplayHint')
-              }}</span>
-            </span>
-          </label>
-          <label
-            class="ml-export-pdf-dlg__card"
-            :class="{ 'is-selected': form.modelSpaceFit === 'extents' }"
-          >
-            <el-radio
-              value="extents"
-              class="ml-export-pdf-dlg__card-radio"
-            />
-            <span class="ml-export-pdf-dlg__card-body">
-              <span class="ml-export-pdf-dlg__card-title">{{
-                t('dialog.exportPdfDlg.modelSpaceExtents')
-              }}</span>
-              <span class="ml-export-pdf-dlg__card-hint">{{
-                t('dialog.exportPdfDlg.modelSpaceExtentsHint')
-              }}</span>
-            </span>
-          </label>
-        </el-radio-group>
+          :options="canvasOptions"
+        />
+        <ml-export-sheet-fields
+          v-if="form.modelSpaceFit === 'sheet'"
+          class="ml-export-pdf-dlg__sheet"
+          v-model:form="sheetForm"
+          :refresh-key="openCount"
+        />
       </ml-fieldset-group>
 
       <ml-fieldset-group
         :title="t('dialog.exportPdfDlg.textModeSection')"
         class="ml-export-pdf-dlg__section"
       >
-        <el-radio-group
-          v-model="form.textMode"
-          class="ml-export-pdf-dlg__card-group"
-        >
-          <label
-            class="ml-export-pdf-dlg__card"
-            :class="{ 'is-selected': form.textMode === 'text' }"
-          >
-            <el-radio value="text" class="ml-export-pdf-dlg__card-radio" />
-            <span class="ml-export-pdf-dlg__card-body">
-              <span class="ml-export-pdf-dlg__card-title">{{
-                t('dialog.exportPdfDlg.textModeText')
-              }}</span>
-              <span class="ml-export-pdf-dlg__card-hint">{{
-                t('dialog.exportPdfDlg.textModeTextHint')
-              }}</span>
-            </span>
-          </label>
-          <label
-            class="ml-export-pdf-dlg__card"
-            :class="{ 'is-selected': form.textMode === 'vector' }"
-          >
-            <el-radio value="vector" class="ml-export-pdf-dlg__card-radio" />
-            <span class="ml-export-pdf-dlg__card-body">
-              <span class="ml-export-pdf-dlg__card-title">{{
-                t('dialog.exportPdfDlg.textModeVector')
-              }}</span>
-              <span class="ml-export-pdf-dlg__card-hint">{{
-                t('dialog.exportPdfDlg.textModeVectorHint')
-              }}</span>
-            </span>
-          </label>
-        </el-radio-group>
+        <ml-choice-cards v-model="form.textMode" :options="textOptions" />
       </ml-fieldset-group>
 
       <ml-fieldset-group
@@ -128,12 +67,16 @@ import type {
   AcApPdfModelSpaceFit
 } from '@mlightcad/cad-pdf-plugin'
 import { AcApDocManager } from '@mlightcad/cad-simple-viewer'
-import { ElRadio, ElRadioGroup, ElSwitch } from 'element-plus'
-import { computed, reactive } from 'vue'
+import { ElSwitch } from 'element-plus'
+import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MlBaseDialog from '../common/MlBaseDialog.vue'
 import MlFieldsetGroup from '../common/MlFieldsetGroup.vue'
+import { canvasFitOptions } from './exportCanvas'
+import { createExportSheetForm, exportSheetOptions } from './exportSheet'
+import MlChoiceCards from './MlChoiceCards.vue'
+import MlExportSheetFields from './MlExportSheetFields.vue'
 
 /**
  * Public props for {@link MlExportPdfDlg}.
@@ -154,7 +97,8 @@ export interface MlExportPdfDlgProps {
  */
 export interface MlExportPdfDlgForm {
   /**
-   * Model-space framing: live viewport (`display`) or drawable extents.
+   * Model-space framing: live viewport (`display`), drawable extents or a
+   * paper size at a scale (`sheet`).
    */
   modelSpaceFit: AcApPdfModelSpaceFit
   /**
@@ -193,10 +137,31 @@ const form = reactive<MlExportPdfDlgForm>({
   textMode: 'text'
 })
 
+const canvasOptions = computed(() => canvasFitOptions(t))
+
+const textOptions = computed(() => [
+  {
+    value: 'text' as const,
+    title: t('dialog.exportPdfDlg.textModeText'),
+    hint: t('dialog.exportPdfDlg.textModeTextHint')
+  },
+  {
+    value: 'vector' as const,
+    title: t('dialog.exportPdfDlg.textModeVector'),
+    hint: t('dialog.exportPdfDlg.textModeVectorHint')
+  }
+])
+
+/** Paper / orientation / scale used when {@link form} frames a sheet. */
+const sheetForm = reactive(createExportSheetForm())
+const openCount = ref(0)
+
 /**
  * Restores {@link form} to PDF export package defaults.
  */
 function resetForm() {
+  Object.assign(sheetForm, createExportSheetForm())
+  openCount.value++
   form.modelSpaceFit = 'extents'
   form.exportLayouts = true
   form.textMode = 'text'
@@ -217,7 +182,8 @@ async function handleOk() {
   const options: AcApPdfExportOptions = {
     modelSpaceFit: form.modelSpaceFit,
     exportLayouts: form.exportLayouts,
-    textMode: form.textMode
+    textMode: form.textMode,
+    sheet: exportSheetOptions(sheetForm)
   }
 
   try {
@@ -288,67 +254,7 @@ async function handleOk() {
   line-height: 1.35;
 }
 
-.ml-export-pdf-dlg__card-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  width: 100%;
-  align-items: stretch;
-}
-
-.ml-export-pdf-dlg__card {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  min-width: 0;
-  padding: 10px 10px 10px 8px;
-  border: 1px solid var(--el-border-color);
-  border-radius: 4px;
-  background: var(--el-fill-color-blank);
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.ml-export-pdf-dlg__card:hover {
-  border-color: var(--el-color-primary-light-5);
-}
-
-.ml-export-pdf-dlg__card.is-selected {
-  border-color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
-  box-shadow: inset 0 0 0 1px var(--el-color-primary-light-7);
-}
-
-.ml-export-pdf-dlg__card-radio {
-  flex: 0 0 auto;
-  margin-right: 0;
-  height: auto;
-}
-
-.ml-export-pdf-dlg__card-radio :deep(.el-radio__label) {
-  display: none;
-}
-
-.ml-export-pdf-dlg__card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.ml-export-pdf-dlg__card-title {
-  font-size: var(--ml-dialog-font-size, 12px);
-  font-weight: 600;
-  color: var(--el-text-color-primary);
-  line-height: 1.35;
-}
-
-.ml-export-pdf-dlg__card-hint {
-  font-size: 11px;
-  color: var(--el-text-color-secondary);
-  line-height: 1.35;
+.ml-export-pdf-dlg__sheet {
+  margin-top: 10px;
 }
 </style>

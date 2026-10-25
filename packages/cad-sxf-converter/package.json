@@ -32,6 +32,7 @@
     "@mlightcad/data-model": "1.15.14"
   },
   "dependencies": {
+    "@mlightcad/cad-export-model": "workspace:*",
     "fflate": "0.8.2",
     "utif2": "4.1.0"
   }

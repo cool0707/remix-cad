@@ -8,7 +8,9 @@ export default {
     exportHtml: 'Export to HTML',
     exportPdf: 'Export to PDF',
     exportSvg: 'Export to SVG',
+    exportAs: 'Export to {format}',
     exportImage: 'Export to Image',
+    exportImageArea: 'Export selected area as image',
     about: 'About'
   },
   ribbon: {

@@ -35,6 +35,18 @@ export default {
     cdxf: {
       description: '現在の図面を DXF に書き出します'
     },
+    cimage: {
+      description: '画像に書き出します (表示画面・オブジェクト範囲・用紙と縮尺、PNG / JPEG / BMP / TIFF)'
+    },
+    cjww: {
+      description: '現在の図面を JWW (Jw_cad) に書き出します'
+    },
+    csfc: {
+      description: '現在の図面を SXF (SFC) に書き出します'
+    },
+    cp21: {
+      description: '現在の図面を SXF (P21) に書き出します'
+    },
     cpdf: {
       description: '現在の図面を PDF に書き出します'
     },

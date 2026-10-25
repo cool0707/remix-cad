@@ -38,6 +38,11 @@
 - **导入 SXF**（日本公共工程 CAD 数据交换标准）— 示例应用可打开 `.sfc`、`.p21` 及其 ZIP 形式
   `.sfz` / `.p2z`（`@mlightcad/cad-sxf-converter`，MIT，TypeScript，移植自
   [ezsxf](https://github.com/monozukuri-ai/ezsxf)）。局部图按主视图比例以实际尺寸显示，图纸幅面作为图形界限。
+- **导出为 JWW / SXF** — 通过 文件 → 导出 可将图纸保存为 JWW（Jw_cad）、SXF SFC 或 SXF P21
+  （命令 `cjww`、`csfc`、`cp21`）。块、标注和填充图案会被分解；图纸幅面和比例取自图形界限
+  （从 JWW / SXF 读入的图纸保持原样），否则自动选择（A3、能容纳的最小标准比例）。
+  导出前会弹出选择图纸、方向和比例的对话框（默认为自动）；导出 DXF 时写入为图形界限，导出 PDF 时也可按比例将画布放到所选图纸上。
+  “导出为图像”也采用相同的方式（显示画面、对象范围或图纸与比例 + 分辨率），可选择 PNG、JPEG、BMP 或 TIFF；原有的框选区域导出保留为“导出选定区域为图像”。
 - **竖排文字（縦書き）** — 使用 Windows 竖排字体（`@ＭＳ ゴシック` 等，包括 Jw_cad 的縦字）的文字，
   以及文字样式设置了 AutoCAD“垂直”标志的 TEXT，在屏幕上和 SVG / PDF 导出中都会从上到下书写，
   直接使用内置的 BIZ UD 字体（`@mlightcad/cad-vertical-text`）。
@@ -114,6 +119,28 @@ SXF 坐标为图纸毫米，局部图带比例放置。默认按主局部图的�
 毫米测量；`scaleMode: 'paper'` 保持图纸毫米。圆、圆弧、椭圆保持为曲线，文字按 SXF 文字框尺寸显示。
 光栅图像（SXF 3.1 图像属性）在图像文件随 `.sfz` / `.p2z` 打包时显示（黑白 TIFF（G4）会转换为浏览器可显示的格式，
 JPEG 直接使用）；单独的 `.sfc` / `.p21` 会把图像框显示为缺失图像。不读取属性文件（SAF）。
+
+## 导出为 JWW / SXF
+
+`@mlightcad/cad-export-model` 先把图纸展平为以实际毫米表示的直线、圆弧／椭圆、单行文字、点和填充
+（块、标注、引线、样条和填充图案都会被分解），并确定图纸幅面和比例，然后由各写入器输出：
+
+| 格式 | 写入器 | 说明 |
+| --- | --- | --- |
+| JWW | `AcDbJwwConverter.exportDatabase()`（ezjww 写入器，在解析 Worker 中运行） | 幅面 A0–A4（横向），所有图层组使用图纸比例，`<组>-<图层> …` 形式的图层回到原位置，颜色 → 笔 1–9，线型 → Jw_cad 线型，`@` 字体 → 竖排，填充 → 实体 |
+| SFC / P21 | `exportSxf(db, 'sfc' \| 'p21' \| 'sfz' \| 'p2z')`（TypeScript） | 按图纸比例放置一个局部图；预定义颜色＋用户 RGB 颜色、预定义线型和线宽；SFC 为 Shift_JIS，P21 为 AP202 表示图（已用 ezsxf 校验） |
+
+```ts
+import { registerJwwConverter } from '@mlightcad/cad-jww-converter'
+import { exportSxf } from '@mlightcad/cad-sxf-converter'
+
+const jww = registerJwwConverter('./assets/jww-parser-worker.js')
+const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
+const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
+```
+
+示例应用通过 `acapRegisterDrawingExporter()`（`cad-simple-viewer`）注册了这两种格式。
+光栅图像会嵌入 JWW（尚不写入 SXF）；尚不支持导出 DWG（读取所用的 LibreDWG npm 构建关闭了写入功能）。
 
 ## 许可证
 

@@ -50,6 +50,14 @@
   `.sfc`・`.p21` と ZIP 版の `.sfz`・`.p2z` を開けます（`@mlightcad/cad-sxf-converter`、
   MIT、TypeScript。[ezsxf](https://github.com/monozukuri-ai/ezsxf) から移植）。
   部分図は主となる部分図の縮尺で実寸表示し、用紙を図面範囲にします。
+- **JWW / SXF への書き出し** — ファイル → 書き出し から JWW（Jw_cad）・SXF（SFC）・SXF（P21）に
+  保存できます（コマンド `cjww`・`csfc`・`cp21`）。ブロック・寸法・ハッチングは分解して書き出します。
+  用紙と縮尺は図面範囲から決め（JWW / SXF から読んだ図面は元の用紙・縮尺のまま）、無ければ
+  A3 に収まる最小の標準縮尺を自動で選びます。
+  書き出す前に用紙・向き・縮尺を選ぶダイアログが出ます（既定は自動）。DXF への書き出しでは図面範囲として書き込み、
+  PDF への書き出しでもキャンバスを用紙サイズに縮尺どおり配置できます。
+  「画像に書き出し」も同じ選び方（表示画面・オブジェクト範囲・用紙と縮尺 + 解像度）で、PNG・JPEG・BMP・TIFF を選べます。
+  範囲を指定する従来の書き出しは「選択範囲を画像に書き出し」として残しています。
 - **縦書き** — 縦書きフォント（`@ＭＳ ゴシック` など。Jw_cad の縦字を含む）の文字と、
   文字スタイルで「縦書き」を指定した TEXT を、同梱の BIZ UD フォントのまま縦に表示します。
   SVG・PDF 出力も縦書きになります（`@mlightcad/cad-vertical-text`）。
@@ -133,8 +141,9 @@ SHX フォントは同梱していません。SHX を使う文字は BIZ UD ゴ�
 | `@mlightcad/cad-html-plugin`、`cad-pdf-plugin`、`cad-svg-plugin` | HTML / PDF / SVG 書き出し |
 | `@mlightcad/cad-diff-viewer` | 図面の左右比較 |
 | `@mlightcad/three-renderer` | Three.js による描画 |
-| `@mlightcad/cad-jww-converter` | JWW / JWC（Jw_cad）の読み込み（ezjww、WebAssembly） |
-| `@mlightcad/cad-sxf-converter` | SXF（SFC / P21 / SFZ / P2Z）の読み込み（TypeScript） |
+| `@mlightcad/cad-jww-converter` | JWW / JWC（Jw_cad）の読み込みと JWW の書き出し（ezjww、WebAssembly） |
+| `@mlightcad/cad-sxf-converter` | SXF（SFC / P21 / SFZ / P2Z）の読み込みと書き出し（TypeScript） |
+| `@mlightcad/cad-export-model` | JWW / SXF 書き出し用に図面を 2D の図形と用紙に平坦化 |
 | `@mlightcad/cad-vertical-text` | 縦書きの組み方（画面・SVG・PDF で共通） |
 
 パッケージ名はフォーク元の `@mlightcad/` スコープのままです。このフォークは npm には
@@ -191,6 +200,30 @@ SXF の座標は図寸（用紙上の mm）で、部分図は縮尺（倍率）�
 `.sfz`・`.p2z` に同梱されていれば表示します（白黒 TIFF（G4）はブラウザで表示できる形式に変換し、
 JPEG はそのまま使います）。`.sfc`・`.p21` 単体では画像の枠を「見つからない画像」として表示します。
 属性ファイル（SAF）は読み込みません。
+
+## JWW / SXF への書き出し
+
+まず `@mlightcad/cad-export-model` が図面を実寸 mm の線・円弧／楕円・1 行の文字・点・塗りつぶしに
+平坦化し（ブロック・寸法・引出線・スプライン・ハッチングの模様は分解）、用紙と縮尺を決めます。
+そのうえで各形式に書き出します。
+
+| 形式 | 書き出し | 内容 |
+| --- | --- | --- |
+| JWW | `AcDbJwwConverter.exportDatabase()`（ezjww の writer、読み込みと同じ Worker） | 用紙 A0–A4（横）、全レイヤグループに図面の縮尺、`<グループ>-<レイヤ> …` の画層は元のレイヤに戻す、色 → 線色 1–9、線種 → Jw_cad の線種、`@` フォント → 縦字、塗りつぶし → ソリッド |
+| SFC / P21 | `exportSxf(db, 'sfc' \| 'p21' \| 'sfz' \| 'p2z')`（TypeScript） | 図面の縮尺の部分図 1 つに配置。既定色＋ユーザ定義色（RGB）、既定線種・線幅。SFC は Shift_JIS、P21 は AP202 の表現グラフ（ezsxf で検証） |
+
+```ts
+import { registerJwwConverter } from '@mlightcad/cad-jww-converter'
+import { exportSxf } from '@mlightcad/cad-sxf-converter'
+
+const jww = registerJwwConverter('./assets/jww-parser-worker.js')
+const { bytes } = await jww.exportDatabase(db, { title: '平面図' })
+const sfc = exportSxf(db, 'sfc', { title: '平面図', paper: 'A1', scale: 100 })
+```
+
+サンプルアプリは `acapRegisterDrawingExporter()`（`cad-simple-viewer`）で両方を登録しています。
+ラスター画像は JWW には同梱して書き出します（SXF にはまだ書き出しません）。DWG への書き出しは未対応です（読み込みに使っている
+LibreDWG の npm ビルドは書き込み機能を外してあります）。
 
 ## ライセンス
 

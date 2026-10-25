@@ -231,6 +231,12 @@ importers:
         specifier: ^0.186.1
         version: 0.186.1
 
+  packages/cad-export-model:
+    devDependencies:
+      '@mlightcad/data-model':
+        specifier: 1.15.14
+        version: 1.15.14(patch_hash=5f379fa93af7ea2afeed779881601591f28b8ac7feb6747239e9ddc18d2e556f)
+
   packages/cad-google-drive-plugin:
     devDependencies:
       '@mlightcad/cad-simple-viewer':
@@ -349,6 +355,9 @@ importers:
 
   packages/cad-jww-converter:
     dependencies:
+      '@mlightcad/cad-export-model':
+        specifier: workspace:*
+        version: link:../cad-export-model
       ezjww:
         specifier: 0.7.3
         version: 0.7.3(patch_hash=b0f1a6d5ff3af15261eeaccd15fd95661ca43329d99fb10facb7a015cc722bb3)
@@ -447,6 +456,10 @@ importers:
         version: 1.15.14(patch_hash=5f379fa93af7ea2afeed779881601591f28b8ac7feb6747239e9ddc18d2e556f)
 
   packages/cad-simple-viewer:
+    dependencies:
+      '@mlightcad/cad-export-model':
+        specifier: workspace:*
+        version: link:../cad-export-model
     devDependencies:
       '@mlightcad/data-model':
         specifier: 1.15.14
@@ -631,6 +644,9 @@ importers:
 
   packages/cad-sxf-converter:
     dependencies:
+      '@mlightcad/cad-export-model':
+        specifier: workspace:*
+        version: link:../cad-export-model
       fflate:
         specifier: 0.8.2
         version: 0.8.2

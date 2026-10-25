@@ -37,6 +37,18 @@ export default {
     cdxf: {
       description: 'Exports current drawing to DXF'
     },
+    cimage: {
+      description: 'Exports the drawing to an image (view, extents or paper and scale; PNG / JPEG / BMP / TIFF)'
+    },
+    cjww: {
+      description: 'Exports current drawing to JWW (Jw_cad)'
+    },
+    csfc: {
+      description: 'Exports current drawing to SXF SFC'
+    },
+    cp21: {
+      description: 'Exports current drawing to SXF P21'
+    },
     cpdf: {
       description: 'Exports current drawing to PDF'
     },

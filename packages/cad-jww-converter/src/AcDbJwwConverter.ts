@@ -1,4 +1,10 @@
 import {
+  collectExportDrawing,
+  type CollectOptions,
+  type ExportDrawing,
+  resolveExportImages
+} from '@mlightcad/cad-export-model'
+import {
   AcDbDatabase,
   AcDbDatabaseConverter,
   type AcDbDatabaseConverterConfig,
@@ -10,6 +16,7 @@ import {
   log
 } from '@mlightcad/data-model'
 
+import { type JwwWriteOptions, writeJwwBytes } from './jwwExport'
 import { imageMimeType, type JwwImageFile, jwwImageKey } from './jwwImage'
 import {
   convertJwwToDxf,
@@ -17,7 +24,11 @@ import {
   type JwwConversionResult,
   type JwwScaleMode
 } from './jwwToDxf'
-import type { JwwWorkerRequest, JwwWorkerResponse } from './jwwWorkerProtocol'
+import type {
+  JwwWorkerRequest,
+  JwwWorkerResponse,
+  JwwWriteResult
+} from './jwwWorkerProtocol'
 
 /** Configuration of {@link AcDbJwwConverter}. */
 export interface AcDbJwwConverterConfig extends AcDbDatabaseConverterConfig {
@@ -57,7 +68,7 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
   private readonly pending = new Map<
     number,
     {
-      resolve: (result: JwwConversionResult) => void
+      resolve: (response: JwwWorkerResponse & { ok: true }) => void
       reject: (error: Error) => void
     }
   >()
@@ -108,9 +119,74 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
     timeout = 30000
   ): Promise<JwwConversionResult> {
     const config = this.config as AcDbJwwConverterConfig
-    if (config.useWorker !== false && config.parserWorkerUrl) {
-      return this.toDxfInWorker(data, timeout)
+    if (this.usesWorker) {
+      // Copy so the caller's buffer is not detached by the transfer.
+      const copy = data.slice(0)
+      const response = await this.postToWorker(
+        { id: 0, data: copy, scaleMode: config.scaleMode },
+        [copy],
+        timeout,
+        'JWW parsing'
+      )
+      if (response.kind === 'write') throw new Error('Unexpected response')
+      return {
+        dxf: response.dxf,
+        unsupportedEntities: response.unsupportedEntities,
+        images: response.images,
+        warnings: response.warnings
+      }
     }
+    const ezjww = await this.loadEzjww()
+    return cropJwwImages(
+      convertJwwToDxf(ezjww, new Uint8Array(data), {
+        scaleMode: config.scaleMode
+      })
+    )
+  }
+
+  /**
+   * Writes an exported drawing (see `collectExportDrawing` in
+   * `@mlightcad/cad-export-model`) as a JWW file with ezjww's writer, in the
+   * worker when configured.
+   */
+  async writeJww(
+    drawing: ExportDrawing,
+    options?: JwwWriteOptions,
+    timeout = 60000
+  ): Promise<JwwWriteResult> {
+    if (this.usesWorker) {
+      const response = await this.postToWorker(
+        { id: 0, kind: 'write', drawing, options },
+        [],
+        timeout,
+        'JWW writing'
+      )
+      if (response.kind !== 'write') throw new Error('Unexpected response')
+      return { bytes: response.bytes, warnings: response.warnings }
+    }
+    return writeJwwBytes(await this.loadEzjww(), drawing, options)
+  }
+
+  /**
+   * Writes a drawing database as a JWW file: flattens it on this thread and
+   * writes it with {@link writeJww}. Jw_cad sheets are landscape.
+   */
+  async exportDatabase(
+    db: AcDbDatabase,
+    options: Omit<CollectOptions, 'portrait'> & JwwWriteOptions = {}
+  ): Promise<JwwWriteResult> {
+    const { colorMode, memo, ...collect } = options
+    const drawing = collectExportDrawing(db, { ...collect, portrait: false })
+    await resolveExportImages(drawing)
+    return this.writeJww(drawing, { colorMode, memo })
+  }
+
+  private get usesWorker() {
+    return this.config.useWorker !== false && !!this.config.parserWorkerUrl
+  }
+
+  private async loadEzjww() {
+    const config = this.config as AcDbJwwConverterConfig
     const ezjww = await import('ezjww')
     if (!ezjww.isInitialized()) {
       if (!config.wasmUrl) {
@@ -126,11 +202,7 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
       }
       await ezjww.initAsync(await response.arrayBuffer())
     }
-    return cropJwwImages(
-      convertJwwToDxf(ezjww, new Uint8Array(data), {
-        scaleMode: config.scaleMode
-      })
-    )
+    return ezjww
   }
 
   /** Stops the parser worker. A later read starts a new one. */
@@ -143,15 +215,20 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
     this.pending.clear()
   }
 
-  private toDxfInWorker(data: ArrayBuffer, timeout: number) {
+  private postToWorker(
+    request: JwwWorkerRequest,
+    transfer: Transferable[],
+    timeout: number,
+    label: string
+  ) {
     const config = this.config as AcDbJwwConverterConfig
     const worker = this.ensureWorker()
     const id = this.nextRequestId++
-    return new Promise<JwwConversionResult>((resolve, reject) => {
+    return new Promise<JwwWorkerResponse & { ok: true }>((resolve, reject) => {
       const timer = setTimeout(() => {
         // The wasm call cannot be interrupted; drop the worker instead.
         this.dispose()
-        reject(new Error(`JWW parsing timed out after ${timeout} ms`))
+        reject(new Error(`${label} timed out after ${timeout} ms`))
       }, timeout)
       this.pending.set(id, {
         resolve: result => {
@@ -163,17 +240,14 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
           reject(error)
         }
       })
-      // Copy so the caller's buffer is not detached by the transfer.
-      const copy = data.slice(0)
-      const request: JwwWorkerRequest = {
+      const message: JwwWorkerRequest = {
+        ...request,
         id,
-        data: copy,
-        scaleMode: config.scaleMode,
         wasmUrl: config.wasmUrl
           ? new URL(String(config.wasmUrl), globalThis.location?.href).href
           : undefined
       }
-      worker.postMessage(request, [copy])
+      worker.postMessage(message, transfer)
     })
   }
 
@@ -186,12 +260,7 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
         if (!request) return
         this.pending.delete(response.id)
         if (response.ok) {
-          request.resolve({
-            dxf: response.dxf,
-            unsupportedEntities: response.unsupportedEntities,
-            images: response.images,
-            warnings: response.warnings
-          })
+          request.resolve(response)
         } else {
           request.reject(new Error(response.error))
         }

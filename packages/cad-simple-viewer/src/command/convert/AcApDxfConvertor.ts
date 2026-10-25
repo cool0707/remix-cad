@@ -1,4 +1,10 @@
 import { AcApDocManager } from '../../app'
+import {
+  acapHasSheetOptions,
+  acapResolveDrawingSheet,
+  acapSetDxfLimits,
+  type AcApSheetOptions
+} from '../../app/AcApDrawingSheet'
 
 /**
  * Utility class for exporting the current CAD drawing to DXF format.
@@ -6,10 +12,17 @@ import { AcApDocManager } from '../../app'
 export class AcApDxfConvertor {
   /**
    * Exports the current drawing database to a DXF file and downloads it.
+   *
+   * @param sheet - Paper / orientation / scale to write as the drawing limits
+   *   (`$LIMMIN` / `$LIMMAX`). When nothing is set the limits are not written.
    */
-  convert() {
+  convert(sheet?: AcApSheetOptions) {
     const document = AcApDocManager.instance.curDocument
-    const dxfContent = document.database.dxfOut(undefined, 6)
+    let dxfContent = document.database.dxfOut(undefined, 6)
+    if (typeof dxfContent === 'string' && acapHasSheetOptions(sheet)) {
+      const { min, max } = acapResolveDrawingSheet(document.database, sheet)
+      dxfContent = acapSetDxfLimits(dxfContent, min, max)
+    }
     const baseName = this.getBaseName(document.fileName || document.docTitle)
     this.createFileAndDownloadIt(dxfContent, `${baseName}.dxf`)
   }
@@ -38,3 +51,4 @@ export class AcApDxfConvertor {
     return normalizedName.replace(/\.[^.]+$/, '') || 'drawing'
   }
 }
+

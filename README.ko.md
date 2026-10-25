@@ -44,6 +44,13 @@
   `.sfz` / `.p2z`를 열 수 있습니다(`@mlightcad/cad-sxf-converter`, MIT, TypeScript,
   [ezsxf](https://github.com/monozukuri-ai/ezsxf)에서 이식). 부분도는 주 뷰의 축척으로 실제 크기로
   표시하고, 용지를 도면 한계로 설정합니다.
+- **JWW / SXF로 내보내기** — 파일 → 내보내기에서 도면을 JWW(Jw_cad), SXF SFC, SXF P21로 저장할 수
+  있습니다(명령 `cjww`, `csfc`, `cp21`). 블록·치수·해치는 분해됩니다. 용지와 축척은 도면 한계에서
+  정하며(JWW / SXF에서 읽은 도면은 원래 값 유지), 없으면 자동으로 정합니다(A3, 들어가는 가장 작은 표준 축척).
+  내보내기 전에 용지·방향·축척을 고르는 대화 상자가 나옵니다(기본값은 자동). DXF 내보내기에서는 도면 한계로 기록하고,
+  PDF 내보내기에서도 캔버스를 용지 크기에 축척대로 배치할 수 있습니다.
+  「이미지로 내보내기」도 같은 방식(표시 화면·객체 범위·용지와 축척 + 해상도)으로 PNG·JPEG·BMP·TIFF를 고를 수 있으며,
+  범위를 지정하는 기존 방식은 「선택 영역을 이미지로 내보내기」로 남아 있습니다.
 - **세로쓰기(縦書き)** — Windows 세로쓰기 글꼴(`@ＭＳ ゴシック` 등, Jw_cad 縦字 포함)의 문자와
   문자 스타일에 AutoCAD "세로" 플래그가 있는 TEXT를 화면과 SVG / PDF 내보내기에서 위에서 아래로
   씁니다. 번들된 BIZ UD 글꼴을 그대로 사용합니다(`@mlightcad/cad-vertical-text`).
@@ -124,6 +131,29 @@ SXF 좌표는 용지 mm이며 부분도는 축척 비율로 배치됩니다. 기
 이미지 파일이 `.sfz` / `.p2z`에 포함되어 있으면 표시합니다(흑백 TIFF(G4)는 브라우저용으로 변환하고
 JPEG는 그대로 사용). `.sfc` / `.p21` 단독으로는 이미지 테두리를 누락된 이미지로 표시합니다.
 속성 파일(SAF)은 읽지 않습니다.
+
+## JWW / SXF로 내보내기
+
+먼저 `@mlightcad/cad-export-model`이 도면을 실제 mm 단위의 선, 호/타원, 한 줄 문자, 점, 채우기로
+평탄화하고(블록, 치수, 지시선, 스플라인, 해치 패턴은 분해) 용지와 축척을 정합니다. 그다음 각 형식으로 씁니다.
+
+| 형식 | 작성기 | 비고 |
+| --- | --- | --- |
+| JWW | `AcDbJwwConverter.exportDatabase()` (ezjww 작성기, 파서 Worker에서 실행) | 용지 A0–A4(가로), 모든 레이어 그룹에 도면 축척, `<그룹>-<레이어> …` 이름의 레이어는 원래 위치로, 색 → 펜 1–9, 선종류 → Jw_cad 선종류, `@` 글꼴 → 세로 쓰기, 채우기 → 솔리드 |
+| SFC / P21 | `exportSxf(db, 'sfc' \| 'p21' \| 'sfz' \| 'p2z')` (TypeScript) | 도면 축척의 부분도 하나에 배치. 기본 색 + 사용자 RGB 색, 기본 선종류·선폭. SFC는 Shift_JIS, P21은 AP202 표현 그래프(ezsxf로 검증) |
+
+```ts
+import { registerJwwConverter } from '@mlightcad/cad-jww-converter'
+import { exportSxf } from '@mlightcad/cad-sxf-converter'
+
+const jww = registerJwwConverter('./assets/jww-parser-worker.js')
+const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
+const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
+```
+
+예제 앱은 `acapRegisterDrawingExporter()`(`cad-simple-viewer`)로 둘 다 등록합니다.
+래스터 이미지는 JWW에 포함해 내보내며(SXF에는 아직 쓰지 않음), DWG 내보내기는 지원하지 않습니다(읽기에 쓰는 LibreDWG npm 빌드는
+쓰기 기능이 빠져 있습니다).
 
 ## 라이선스
 

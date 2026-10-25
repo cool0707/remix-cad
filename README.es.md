@@ -55,6 +55,14 @@ del dispositivo del usuario.
   `.sfc`, `.p21` y sus versiones ZIP `.sfz` / `.p2z` con `@mlightcad/cad-sxf-converter` (MIT, TypeScript,
   portado de [ezsxf](https://github.com/monozukuri-ai/ezsxf)). Los dibujos parciales se muestran a tamaño
   real de la vista principal y la hoja se usa como límites del dibujo.
+- **Exportación a JWW / SXF** — Archivo → Exportar guarda el dibujo como JWW (Jw_cad), SXF SFC o
+  SXF P21 (comandos `cjww`, `csfc`, `cp21`). Los bloques, cotas y sombreados se descomponen; el
+  formato de hoja y la escala salen de los límites del dibujo (los dibujos leídos de JWW / SXF
+  conservan los suyos) o se eligen automáticamente (A3, la menor escala normalizada que cabe).
+  Antes de exportar, un diálogo pregunta la hoja, la orientación y la escala (Auto por defecto); la exportación a DXF
+  la escribe como límites del dibujo y la exportación a PDF puede imprimir el espacio modelo en una hoja a escala.
+  Exportar a imagen usa el mismo encuadre (vista, extensión u hoja y escala con ppp) y escribe PNG, JPEG, BMP o TIFF;
+  la exportación de una ventana elegida sigue disponible aparte.
 - **Escritura vertical (縦書き)** — el texto con una fuente vertical de Windows (`@ＭＳ ゴシック`,
   p. ej. el 縦字 de Jw_cad) y el TEXT cuyo estilo tiene el indicador «vertical» de AutoCAD se
   escriben de arriba abajo en pantalla y al exportar a SVG / PDF, con las fuentes BIZ UD
@@ -141,6 +149,30 @@ arcos y elipses siguen siendo curvas y el texto se ajusta a su caja SXF. Las im�
 imagen de SXF 3.1) se muestran si el archivo de imagen va incluido en el `.sfz` / `.p2z`; el TIFF monocromo
 (G4) se convierte para el navegador y el JPEG se usa tal cual. Un `.sfc` / `.p21` suelto muestra el marco de
 la imagen como imagen faltante. No se cargan los archivos de atributos (SAF).
+
+## Exportación a JWW / SXF
+
+Primero `@mlightcad/cad-export-model` convierte el dibujo en líneas, arcos / elipses, texto de una
+línea, puntos y rellenos en milímetros reales (bloques, cotas, directrices, splines y patrones de
+sombreado se descomponen) y determina la hoja (formato + escala). Después los escritores generan:
+
+| Formato | Escritor | Notas |
+| --- | --- | --- |
+| JWW | `AcDbJwwConverter.exportDatabase()` (escritor de ezjww, en el worker del analizador) | Hoja A0–A4 (horizontal), todos los grupos de capas a la escala de la hoja, las capas `<grupo>-<capa> …` vuelven a su posición, colores → plumas 1–9, tipos de línea → tipos de Jw_cad, fuentes `@` → texto vertical, rellenos → sólidos |
+| SFC / P21 | `exportSxf(db, 'sfc' \| 'p21' \| 'sfz' \| 'p2z')` (TypeScript) | Un dibujo parcial (部分図) a la escala de la hoja; colores predefinidos y RGB de usuario, tipos y grosores de línea predefinidos; SFC en Shift_JIS, P21 como grafo AP202 (verificado con ezsxf) |
+
+```ts
+import { registerJwwConverter } from '@mlightcad/cad-jww-converter'
+import { exportSxf } from '@mlightcad/cad-sxf-converter'
+
+const jww = registerJwwConverter('./assets/jww-parser-worker.js')
+const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
+const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
+```
+
+La aplicación de ejemplo registra ambos con `acapRegisterDrawingExporter()` (`cad-simple-viewer`).
+Las imágenes ráster se incrustan en JWW (aún no en SXF) y la exportación a DWG no está disponible (la compilación
+npm de LibreDWG usada para leer tiene la escritura desactivada).
 
 ## Licencia
 

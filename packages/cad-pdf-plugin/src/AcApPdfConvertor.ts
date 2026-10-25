@@ -2,6 +2,7 @@ import {
   type AcApContext,
   AcApDocManager,
   AcApI18n,
+  acapResolveDrawingSheet,
   AcApSettingManager,
   type AcEdBaseView,
   resolveExportDownloadName
@@ -69,6 +70,15 @@ export class AcApPdfConvertor {
         if (inModelSpace || !resolved.exportLayouts) {
           pdfOptions.fitBox = this.captureFitBox(context.view)
         }
+      }
+
+      if (resolved.modelSpaceFit === 'sheet') {
+        // The sheet rectangle fills the paper exactly: 1 paper mm = scale
+        // model mm.
+        const { sheet, min, max } = acapResolveDrawingSheet(db, resolved.sheet)
+        pdfOptions.paper = { widthMm: sheet.width, heightMm: sheet.height }
+        pdfOptions.fitBox = { min, max }
+        pdfOptions.pagePadding = 0
       }
 
       const bytes = await exportDatabaseToPdf(db, pdfOptions)

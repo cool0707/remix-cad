@@ -31,6 +31,8 @@ const config: Config = {
       '<rootDir>/packages/cad-html-core/src/index.ts',
     '^@mlightcad/cad-agent-core$':
       '<rootDir>/packages/cad-agent-core/src/index.ts',
+    '^@mlightcad/cad-export-model$':
+      '<rootDir>/packages/cad-export-model/src/index.ts',
     '^@mlightcad/cad-vertical-text$':
       '<rootDir>/packages/cad-vertical-text/src/index.ts',
     '^@mlightcad/cad-simple-viewer$':
