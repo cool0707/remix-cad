@@ -72,6 +72,11 @@ export default {
         'تصدير الرسم الحالي إلى DXF'
     },
 
+    cimage: {
+      ...enCommand.ACAD.cimage,
+      description: 'تصدير الرسم إلى صورة (العرض أو النطاق أو الورق والمقياس؛ PNG / JPEG / BMP)'
+    },
+
     cjww: {
       ...enCommand.ACAD.cjww,
       description: 'تصدير الرسم الحالي إلى JWW (Jw_cad)'

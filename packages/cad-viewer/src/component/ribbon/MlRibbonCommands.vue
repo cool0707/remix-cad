@@ -2749,8 +2749,12 @@ const fileMenuItems = computed<FileMenuItemModel[]>(() => {
           label: t('main.mainMenu.exportSvg')
         },
         {
-          id: 'PngOut',
+          id: 'ExportImage',
           label: t('main.mainMenu.exportImage')
+        },
+        {
+          id: 'PngOut',
+          label: t('main.mainMenu.exportImageArea')
         }
       ]
     })
@@ -2830,6 +2834,7 @@ const handleFileMenuSelect = async (command: string) => {
       command === 'ExportHtml' ||
       command === 'ExportPdf' ||
       command === 'ExportSvg' ||
+      command === 'ExportImage' ||
       command === 'PngOut' ||
       command.startsWith('ExportFormat:'))
   ) {
@@ -2846,6 +2851,8 @@ const handleFileMenuSelect = async (command: string) => {
     AcApDocManager.instance.sendStringToExecute('cpdf')
   } else if (command === 'ExportSvg') {
     AcApDocManager.instance.sendStringToExecute('csvg')
+  } else if (command === 'ExportImage') {
+    AcApDocManager.instance.sendStringToExecute('cimage')
   } else if (command === 'PngOut') {
     AcApDocManager.instance.sendStringToExecute('pngout')
   } else if (command.startsWith('ExportFormat:')) {

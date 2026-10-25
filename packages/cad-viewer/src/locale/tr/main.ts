@@ -10,6 +10,7 @@ export default {
     exportSvg: 'SVG\'e Dışa Aktar',
     exportAs: '{format} olarak dışa aktar',
     exportImage: 'Görüntüye Dışa Aktar',
+    exportImageArea: 'Seçili alanı görüntü olarak dışa aktar',
     about: 'Hakkında'
   },
   ribbon: {

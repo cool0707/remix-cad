@@ -248,6 +248,11 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   印刷ページのページには用紙指定を適用しない)。`-cpdf` のコマンドライン版には未追加。
   e2e で PDF を試すと、開発サーバーが初回に pdf-lib を最適化してページを再読み込みする (example の `optimizeDeps.include` の
   pdf-lib が解決できていない既存の問題) ので、PDF の e2e は入れていない。
+- 画像に書き出し (2026-10-25): `cimage` → `MlExportImageDlg`。キャンバスの選び方は PDF と同じ 3 択 (表示画面・オブジェクト範囲・用紙と縮尺、
+  カードは共通部品 `MlChoiceCards` + `exportCanvas.ts`、PDF ダイアログもこれに置き換え)、形式 PNG / JPEG / BMP、
+  長辺 px (用紙と縮尺のときは解像度 dpi から計算)。描画は既存の `AcApRasterImageConvertor` (画面の背景色のまま)。
+  長辺は GPU のテクスチャ上限と 8192 px の小さい方で頭打ち (`AcApRasterImageConvertor.maxLongSide()`、ダイアログに表示)。
+  範囲を 2 点で指定する従来の `pngout` はメニュー「選択範囲を画像に書き出し」として残した。
 - 未対応・やり残し: ブロックを JWW / SXF のブロック・複合図形として残す、
   寸法を寸法要素として残す、SXF の画像、Jw_cad 実機での確認 (Wine / Windows)。
 - **DWG 書き出し — 方針 (2026-10-24 決定)**: CADcraft の DWG 対応がまともになったら、それを取り込む (ライセンスは MPL-2.0)。

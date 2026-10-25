@@ -131,6 +131,15 @@ export default {
     copyPasswordSuccess: 'Parola panoya kopyalandı.',
     copyPasswordFailed: 'Parola panoya kopyalanamadı.'
   },
+  exportImageDlg: {
+    title: 'Görüntüye Dışa Aktar',
+    imageSection: 'Görüntü',
+    format: 'Biçim',
+    resolution: 'Çözünürlük',
+    longSide: 'Uzun kenar (px)',
+    pixelSize: 'Görüntü boyutu: {width} × {height} px',
+    limited: '({max} px sınırına küçültüldü)'
+  },
   exportDrawingDlg: {
     title: '{format} olarak dışa aktar'
   },

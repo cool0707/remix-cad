@@ -59,6 +59,8 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   automaticamente (A3, a menor escala padrão em que o desenho cabe).
   Antes de exportar, um diálogo pergunta a folha, a orientação e a escala (Auto por padrão); a exportação para DXF
   grava a escolha como limites do desenho e a exportação para PDF pode imprimir o espaço do modelo numa folha em escala.
+  Exportar para imagem usa o mesmo enquadramento (vista, extensão ou folha e escala com dpi) e grava PNG, JPEG ou BMP;
+  a exportação de uma janela escolhida continua disponível separadamente.
 - **Escrita vertical (縦書き)** — texto com uma fonte vertical do Windows (`@ＭＳ ゴシック`,
   p. ex. o 縦字 do Jw_cad) e TEXT cujo estilo tem o sinalizador "vertical" do AutoCAD são
   escritos de cima para baixo na tela e na exportação SVG / PDF, com as fontes BIZ UD

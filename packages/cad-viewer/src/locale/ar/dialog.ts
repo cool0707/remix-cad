@@ -168,6 +168,24 @@ export default {
     copyPasswordFailed: 'تعذر نسخ كلمة المرور إلى الحافظة.'
   },
 
+  exportImageDlg: {
+
+    title: 'تصدير إلى صورة',
+
+    imageSection: 'الصورة',
+
+    format: 'التنسيق',
+
+    resolution: 'الدقة',
+
+    longSide: 'الضلع الأطول (بكسل)',
+
+    pixelSize: 'حجم الصورة: {width} × {height} بكسل',
+
+    limited: '(تم التصغير إلى الحد {max} بكسل)'
+
+  },
+
   exportDrawingDlg: {
 
     title: 'تصدير إلى {format}'

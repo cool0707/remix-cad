@@ -128,6 +128,15 @@ export default {
     copyPasswordSuccess: 'Password copied to the clipboard.',
     copyPasswordFailed: 'Unable to copy the password to the clipboard.'
   },
+  exportImageDlg: {
+    title: 'Export to Image',
+    imageSection: 'Image',
+    format: 'Format',
+    resolution: 'Resolution',
+    longSide: 'Long side (px)',
+    pixelSize: 'Image size: {width} × {height} px',
+    limited: '(reduced to the {max} px limit)'
+  },
   exportDrawingDlg: {
     title: 'Export to {format}'
   },

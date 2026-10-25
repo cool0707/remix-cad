@@ -18,6 +18,7 @@ import {
   AcApCountListCmd,
   AcApDrawingUnitsCmd,
   AcApExportHtmlDlgCmd,
+  AcApExportImageDlgCmd,
   AcApExportPdfDlgCmd,
   AcApFindCmd,
   AcApInsertPaletteCmd,
@@ -41,6 +42,7 @@ import {
   MlDrawingUnitsDlg,
   MlExportDrawingDlg,
   MlExportHtmlDlg,
+  MlExportImageDlg,
   MlExportPdfDlg,
   MlPointStyleDlg,
   MlQuickSelectDlg,
@@ -104,6 +106,12 @@ export const registerCmds = () => {
         'cpdf',
         'cpdf',
         new AcApExportPdfDlgCmd()
+      )
+      register.addCommand(
+        AcEdCommandStack.SYSTEMT_COMMAND_GROUP_NAME,
+        'cimage',
+        'cimage',
+        new AcApExportImageDlgCmd()
       )
     }
     register.addCommand(
@@ -212,6 +220,11 @@ export const registerDialogs = () => {
       registerDialog({
         name: 'ExportPdfDlg',
         component: markRaw(MlExportPdfDlg),
+        props: {}
+      })
+      registerDialog({
+        name: 'ExportImageDlg',
+        component: markRaw(MlExportImageDlg),
         props: {}
       })
       registerDialog({

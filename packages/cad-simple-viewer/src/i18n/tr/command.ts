@@ -36,6 +36,9 @@ export default {
     cdxf: {
       description: 'Geçerli çizimi DXF olarak dışa aktarır'
     },
+    cimage: {
+      description: 'Çizimi görüntüye aktarır (görünüm, kapsam veya kağıt ve ölçek; PNG / JPEG / BMP)'
+    },
     cjww: {
       description: 'Geçerli çizimi JWW (Jw_cad) olarak dışa aktarır'
     },

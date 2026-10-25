@@ -81,3 +81,24 @@ test('writes the chosen paper and scale as DXF limits', async ({ page }) => {
   expect(x1 - x0).toBeCloseTo(594 * 200, 3)
   expect(y1 - y0).toBeCloseTo(420 * 200, 3)
 })
+
+test('exports an image of a paper size in the chosen format', async ({
+  page
+}) => {
+  await page.goto('/')
+  await uploadFixture(page, path.join(samples, 'jww-sample.jww'))
+  await expect(page.getByText('jww-sample.jww').first()).toBeVisible()
+
+  await openExport(page, 'Export to Image')
+  await page.getByText('Paper and scale', { exact: true }).first().click()
+  await page.locator('.ml-export-image-dlg__form .el-select').first().click()
+  await page.getByRole('option', { name: 'JPEG', exact: true }).click()
+  // A3 (from the drawing limits) at 150 dpi.
+  await expect(page.getByText('Image size: 2480 × 1754 px')).toBeVisible()
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'OK' }).click()
+  const file = await download
+  expect(file.suggestedFilename()).toBe('jww-sample.jpg')
+  const bytes = await readFile(await file.path())
+  expect([...bytes.subarray(0, 3)]).toEqual([0xff, 0xd8, 0xff])
+})

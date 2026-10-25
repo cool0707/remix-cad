@@ -145,6 +145,15 @@ export default {
     copyPasswordSuccess: 'パスワードをクリップボードにコピーしました。',
     copyPasswordFailed: 'パスワードをクリップボードにコピーできませんでした。'
   },
+  exportImageDlg: {
+    title: '画像に書き出し',
+    imageSection: '画像',
+    format: '形式',
+    resolution: '解像度',
+    longSide: '長辺 (px)',
+    pixelSize: '出力サイズ: {width} × {height} px',
+    limited: '(上限 {max} px に縮小)'
+  },
   exportDrawingDlg: {
     title: '{format} に書き出し'
   },

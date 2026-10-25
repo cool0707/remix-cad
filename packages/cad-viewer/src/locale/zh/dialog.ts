@@ -124,6 +124,15 @@ export default {
     copyPasswordSuccess: '密码已复制到剪贴板。',
     copyPasswordFailed: '无法复制密码到剪贴板。'
   },
+  exportImageDlg: {
+    title: '导出为图像',
+    imageSection: '图像',
+    format: '格式',
+    resolution: '分辨率',
+    longSide: '长边 (像素)',
+    pixelSize: '输出尺寸：{width} × {height} 像素',
+    limited: '（已缩小到上限 {max} 像素）'
+  },
   exportDrawingDlg: {
     title: '导出为 {format}'
   },

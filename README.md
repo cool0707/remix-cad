@@ -61,6 +61,8 @@ drawings never leave the user's device.
   automatically (A3, smallest standard scale that fits).
   Before export a dialog asks for paper, orientation and scale (Auto by default); DXF export writes
   the choice as the drawing limits and PDF export can print model space on a paper size at a scale.
+  Export → Image uses the same framing (view, extents, or paper and scale with a dpi) and writes PNG, JPEG or BMP;
+  picking a window is still there as "Export selected area as image".
 - **Vertical text (縦書き)** — text in a Windows vertical font (`@ＭＳ ゴシック`, e.g. Jw_cad
   縦字) and TEXT whose text style has the AutoCAD "vertical" flag are written top to bottom
   on screen and in SVG / PDF export, with the bundled BIZ UD fonts

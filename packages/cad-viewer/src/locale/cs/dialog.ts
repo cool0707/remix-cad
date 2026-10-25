@@ -128,6 +128,15 @@ export default {
     copyPasswordSuccess: 'Heslo bylo zkopírováno do schránky.',
     copyPasswordFailed: 'Heslo se nepodařilo zkopírovat do schránky.'
   },
+  exportImageDlg: {
+    title: 'Exportovat do obrázku',
+    imageSection: 'Obrázek',
+    format: 'Formát',
+    resolution: 'Rozlišení',
+    longSide: 'Delší strana (px)',
+    pixelSize: 'Velikost obrázku: {width} × {height} px',
+    limited: '(zmenšeno na limit {max} px)'
+  },
   exportDrawingDlg: {
     title: 'Exportovat do {format}'
   },

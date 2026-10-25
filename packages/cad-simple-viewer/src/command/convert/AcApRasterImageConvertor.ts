@@ -5,6 +5,13 @@ import { AcApDocManager } from '../../app'
 import { resolveExportDownloadName } from '../../util/AcApExportFileNameUtil'
 import { AcTrView2d } from '../../view'
 
+/**
+ * Upper bound of the long side of an exported image in pixels. 8192 × 5793
+ * (A-series aspect) already needs several hundred megabytes for the pixel
+ * copies made while encoding.
+ */
+export const MAX_EXPORT_LONG_SIDE = 8192
+
 /** Supported raster export formats. */
 export type AcApRasterImageFormat = 'png' | 'jpeg' | 'bmp'
 
@@ -29,6 +36,18 @@ export class AcApRasterImageConvertor {
 
   get format(): AcApRasterImageFormat {
     return this._format
+  }
+
+  /**
+   * Largest image side this viewer exports: the GPU texture limit, capped at
+   * {@link MAX_EXPORT_LONG_SIDE} to keep the pixel buffers in memory.
+   */
+  static maxLongSide(): number {
+    const view = AcApDocManager.instance.curView as AcTrView2d | undefined
+    const gpuLimit =
+      view?.renderer?.internalRenderer?.capabilities?.maxTextureSize ??
+      MAX_EXPORT_LONG_SIDE
+    return Math.min(MAX_EXPORT_LONG_SIDE, gpuLimit)
   }
 
   /**
@@ -100,7 +119,10 @@ export class AcApRasterImageConvertor {
     let outputHeight = Math.max(1, Math.round(view.height))
 
     if (longSide && longSide > 0) {
-      const outputSize = this.resolveOutputSize(longSide, targetAspect)
+      const outputSize = this.resolveOutputSize(
+        Math.min(longSide, AcApRasterImageConvertor.maxLongSide()),
+        targetAspect
+      )
       outputWidth = outputSize.width
       outputHeight = outputSize.height
     }

@@ -10,6 +10,7 @@ export default {
     exportSvg: 'Exportovat do SVG',
     exportAs: 'Exportovat do {format}',
     exportImage: 'Exportovat do obrázku',
+    exportImageArea: 'Exportovat vybranou oblast jako obrázek',
     about: 'O aplikaci'
   },
   ribbon: {
