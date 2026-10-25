@@ -69,10 +69,17 @@ import ellipseCenterSvg from '../../svg/ellipse/ellipseCenter.svg?raw'
 import hatchSvg from '../../svg/hatch/hatch.svg?raw'
 import insertBlockSvg from '../../svg/insertBlock.svg?raw'
 import lineSvg from '../../svg/line.svg?raw'
+import mlineSvg from '../../svg/mline.svg?raw'
 import moveSvg from '../../svg/move.svg?raw'
+import multiPointsSvg from '../../svg/multiPoints.svg?raw'
 import offsetSvg from '../../svg/offset.svg?raw'
+import polygonSvg from '../../svg/polygon.svg?raw'
 import polylineSvg from '../../svg/polyline.svg?raw'
+import raySvg from '../../svg/ray.svg?raw'
 import rectSvg from '../../svg/rect.svg?raw'
+import revFreeDrawSvg from '../../svg/revFreeDraw.svg?raw'
+import splineFitPointsSvg from '../../svg/spline/splineFitPoints.svg?raw'
+import xlineSvg from '../../svg/xline.svg?raw'
 
 const features = useSettings()
 const { isDocumentOpening, openMode: docOpenMode } = useDocument()
@@ -189,10 +196,17 @@ const circleCenterRadius = tinted(circleCenterRadiusSvg)
 const ellipseCenter = tinted(ellipseCenterSvg)
 const hatch = tinted(hatchSvg)
 const line = tinted(lineSvg)
+const mline = tinted(mlineSvg)
 const move = tinted(moveSvg)
+const multiPoints = tinted(multiPointsSvg)
 const offset = tinted(offsetSvg)
+const polygon = tinted(polygonSvg)
 const polyline = tinted(polylineSvg)
+const ray = tinted(raySvg)
 const rect = tinted(rectSvg)
+const revFreeDraw = tinted(revFreeDrawSvg)
+const splineFitPoints = tinted(splineFitPointsSvg)
+const xline = tinted(xlineSvg)
 
 /** Element Plus glyph (1024 viewBox) as markup, matching the ribbon icons. */
 const epIcon = (d: string) =>
@@ -267,6 +281,12 @@ const buildItems = (): AcUiToolbarItem[] => {
           command: 'rectang'
         },
         {
+          id: 'draw-polygon',
+          label: 'main.ribbon.command.polygon',
+          icon: polygon,
+          command: 'polygon'
+        },
+        {
           id: 'draw-ellipse',
           label: 'main.ribbon.command.ellipse',
           icon: ellipseCenter,
@@ -277,6 +297,49 @@ const buildItems = (): AcUiToolbarItem[] => {
           label: 'main.ribbon.command.hatch',
           icon: hatch,
           command: 'hatch'
+        },
+        // The ones the ribbon keeps in the Draw group's overflow menu.
+        {
+          id: 'draw-spline',
+          label: 'main.ribbon.command.spline',
+          icon: splineFitPoints,
+          command: 'spline'
+        },
+        {
+          id: 'draw-sketch',
+          label: 'main.ribbon.command.sketch',
+          icon: revFreeDraw,
+          command: 'sketch'
+        },
+        {
+          id: 'draw-revcloud',
+          label: 'main.ribbon.command.revcloud',
+          icon: ICON_REV_CLOUD,
+          command: 'revcloud'
+        },
+        {
+          id: 'draw-mline',
+          label: 'main.ribbon.command.mline',
+          icon: mline,
+          command: 'mline'
+        },
+        {
+          id: 'draw-ray',
+          label: 'main.ribbon.command.ray',
+          icon: ray,
+          command: 'ray'
+        },
+        {
+          id: 'draw-xline',
+          label: 'main.ribbon.command.xline',
+          icon: xline,
+          command: 'xline'
+        },
+        {
+          id: 'draw-point',
+          label: 'main.ribbon.command.point',
+          icon: multiPoints,
+          command: 'point'
         }
       ]
     },
