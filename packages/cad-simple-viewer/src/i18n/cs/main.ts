@@ -20,6 +20,21 @@ export default {
   prompt: {
     orConnector: 'nebo'
   },
+  tool: {
+    select: 'Výběr',
+    pan: 'Posun',
+    line: 'Úsečka',
+    pline: 'Křivka',
+    circle: 'Kružnice',
+    arc: 'Oblouk',
+    rectang: 'Obdélník',
+    polygon: 'Mnohoúhelník',
+    ellipse: 'Elipsa',
+    spline: 'Spline',
+    mtext: 'Text',
+    hatch: 'Vzorová výplň',
+    point: 'Bod'
+  },
   mobileCommand: {
     length: 'Délka',
     angle: 'Úhel',

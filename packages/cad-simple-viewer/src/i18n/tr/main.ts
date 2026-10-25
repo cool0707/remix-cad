@@ -20,6 +20,21 @@ export default {
   prompt: {
     orConnector: 'veya'
   },
+  tool: {
+    select: 'Seç',
+    pan: 'Kaydır',
+    line: 'Çizgi',
+    pline: 'Çoklu çizgi',
+    circle: 'Daire',
+    arc: 'Yay',
+    rectang: 'Dikdörtgen',
+    polygon: 'Çokgen',
+    ellipse: 'Elips',
+    spline: 'Eğri',
+    mtext: 'Metin',
+    hatch: 'Desen dolgusu',
+    point: 'Nokta'
+  },
   mobileCommand: {
     length: 'Uzunluk',
     angle: 'Açı',

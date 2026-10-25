@@ -49,6 +49,23 @@ export interface AcEdCommandEventArgs {
   command: AcEdCommand
 }
 
+/**
+ * Event arguments fired when an input prompt (point, distance, selection, ...)
+ * starts waiting for the user.
+ */
+export interface AcEdPromptStartedEventArgs {
+  /** The prompt message shown to the user */
+  message: string
+}
+
+/**
+ * Event arguments fired when an input prompt settles.
+ */
+export interface AcEdPromptEndedEventArgs {
+  /** How the prompt ended (OK, Cancel, Keyword, None, ...) */
+  status: AcEdPromptStatus
+}
+
 /** Re-export of session-accessory event payload for editor consumers. */
 export type { AcEdSessionAccessoryEventArgs }
 
@@ -104,6 +121,10 @@ export class AcEditor {
     commandWillStart: new AcCmEventManager<AcEdCommandEventArgs>(),
     /** Fired after the command finishes executing */
     commandEnded: new AcCmEventManager<AcEdCommandEventArgs>(),
+    /** Fired when an input prompt starts waiting for the user */
+    promptStarted: new AcCmEventManager<AcEdPromptStartedEventArgs>(),
+    /** Fired when an input prompt settles (picked, typed, cancelled, ...) */
+    promptEnded: new AcCmEventManager<AcEdPromptEndedEventArgs>(),
     /** Fired just before a session accessory is mounted */
     beforeMountSessionAccessory:
       new AcCmEventManager<AcEdSessionAccessoryEventArgs>(),

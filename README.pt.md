@@ -36,9 +36,13 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   alterna entre vertical e horizontal ou a devolve à posição inicial: a borda esquerda da área de desenho, ou a
   direita quando o painel flutuante (camadas etc.) cobre a esquerda. Se o painel a cobrir, ela volta para lá sozinha. Os submenus
   abrem em direção ao centro da tela e a posição é lembrada.
-- **Troca do modo de seleção** — um botão da barra de status alterna entre o estilo CAD
-  (cada clique adiciona) e substituir ao clicar (Shift + clique adiciona ou remove, clicar no vazio
-  limpa a seleção). Por enquanto o estilo CAD continua sendo o padrão.
+- **Perfis de uso: Simples (padrão) / CAD** — um botão da barra de status alterna entre eles.
+  Simples: um clique substitui a seleção (Shift + clique adiciona ou remove, clicar no vazio limpa a seleção),
+  ferramentas de uma tecla (V Selecionar / H Deslocar / L Linha / R Retângulo / T Texto; segure Espaço e arraste para deslocar),
+  a ferramenta em uso aparece no formato do cursor, ao lado do cursor e na barra de status, volta-se a Selecionar
+  após cada desenho (uma linha é um segmento; "Continuar desenhando" no menu de configurações mantém a ferramenta)
+  e o Esc age em etapas (cancelar a operação → voltar a Selecionar → limpar a seleção).
+  CAD mantém o uso clássico (cada clique adiciona, LINHA continua até Enter).
 - **Inspetor de propriedades** — a aba Propriedades agrupa os valores em seções (Geral, Posicionamento,
   Símbolo…) e os edita diretamente (um passo de desfazer por alteração). Com vários objetos selecionados,
   uma seção Seleção mostra X / Y / L / A com um ponto de referência de 9 posições, a contagem por tipo

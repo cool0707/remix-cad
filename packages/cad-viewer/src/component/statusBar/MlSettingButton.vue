@@ -47,6 +47,20 @@
           >
             {{ t('main.statusBar.setting.toolbar') }}
           </el-dropdown-item>
+          <el-dropdown-item
+            divided
+            :icon="features.selectionStyle === 'simple' ? Check : ''"
+            command="selectionStyle"
+          >
+            {{ t('main.statusBar.setting.replaceOnClick') }}
+          </el-dropdown-item>
+          <el-dropdown-item
+            v-if="features.operationProfile === 'simple'"
+            :icon="features.continuousDraw ? Check : ''"
+            command="continuousDraw"
+          >
+            {{ t('main.statusBar.setting.continuousDraw') }}
+          </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -91,6 +105,11 @@ const handleCommand = (command: keyof AcApSettings) => {
   } else if (command == 'isShowToolbar') {
     features.isShowToolbar = !features.isShowToolbar
     AcApSettingManager.instance.isShowToolbar = features.isShowToolbar
+  } else if (command == 'selectionStyle') {
+    AcApSettingManager.instance.selectionStyle =
+      features.selectionStyle === 'simple' ? 'cad' : 'simple'
+  } else if (command == 'continuousDraw') {
+    AcApSettingManager.instance.continuousDraw = !features.continuousDraw
   } else if (command == 'isShowStats') {
     features.isShowStats = !features.isShowStats
     AcApSettingManager.instance.isShowStats = features.isShowStats

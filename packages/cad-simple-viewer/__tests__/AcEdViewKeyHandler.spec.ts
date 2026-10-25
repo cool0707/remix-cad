@@ -50,10 +50,12 @@ function createMockView(
     hasSelection?: boolean
     deleted?: boolean
     groups?: { id: string; layer: string }[]
-  } = {}
+  } = {},
+  toolManager: Record<string, unknown> = { isSimple: false }
 ): AcTrView2d {
   return {
     editor: { isActive: isEditorActive },
+    toolManager,
     selectionSet: { clear: jest.fn() },
     htmlTransientManager: {
       hasSelection: jest.fn(() => htmlSelection.hasSelection ?? false),
@@ -211,5 +213,122 @@ describe('AcEdViewKeyHandler', () => {
     expect(sendCommand).not.toHaveBeenCalled()
     expect(lookup).not.toHaveBeenCalled()
     expect(event.preventDefault).toHaveBeenCalled()
+  })
+
+  describe('simple profile', () => {
+    beforeEach(() => {
+      ;(AcApDocManager.instance.lookupGlobalCmd as jest.Mock).mockReturnValue(
+        {}
+      )
+    })
+
+    const tools = (overrides: Record<string, unknown> = {}) => ({
+      isSimple: true,
+      isCommandRunning: false,
+      isSpacePanning: false,
+      activate: jest.fn(),
+      handleEscape: jest.fn(() => false),
+      beginSpacePan: jest.fn(() => true),
+      endSpacePan: jest.fn(),
+      ...overrides
+    })
+
+    const commandLine = (value = '', userFocus = false) =>
+      ({
+        tagName: 'INPUT',
+        classList: { contains: (name: string) => name === 'ml-cli-text' },
+        value,
+        readOnly: false,
+        dataset: userFocus ? { userFocus: 'true' } : {}
+      }) as unknown as EventTarget
+
+    test('single keys start tools', () => {
+      const toolManager = tools()
+      const handler = new AcEdViewKeyHandler(
+        createMockView(false, {}, toolManager)
+      )
+      const event = keyboardEvent({ code: 'KeyL' })
+
+      expect(handler.handleKeyDown(event)).toBe(true)
+      expect(toolManager.activate).toHaveBeenCalledWith('line')
+      expect(event.preventDefault).toHaveBeenCalled()
+
+      // Also when a prompt left the focus in the empty command line.
+      handler.handleKeyDown(
+        keyboardEvent({ code: 'KeyV', target: commandLine() })
+      )
+      expect(toolManager.activate).toHaveBeenLastCalledWith('select')
+    })
+
+    test('single keys are ignored while typing, with modifiers or during a command', () => {
+      const toolManager = tools()
+      const handler = new AcEdViewKeyHandler(
+        createMockView(false, {}, toolManager)
+      )
+      handler.handleKeyDown(
+        keyboardEvent({ code: 'KeyL', target: commandLine('LI') })
+      )
+      handler.handleKeyDown(
+        keyboardEvent({ code: 'KeyL', target: commandLine('', true) })
+      )
+      handler.handleKeyDown(keyboardEvent({ code: 'KeyL', ctrlKey: true }))
+      handler.handleKeyDown(keyboardEvent({ code: 'KeyL', shiftKey: true }))
+
+      const busy = tools({ isCommandRunning: true })
+      new AcEdViewKeyHandler(createMockView(false, {}, busy)).handleKeyDown(
+        keyboardEvent({ code: 'KeyL' })
+      )
+
+      expect(toolManager.activate).not.toHaveBeenCalled()
+      expect(busy.activate).not.toHaveBeenCalled()
+    })
+
+    test('single keys skip tools the document cannot run', () => {
+      const lookup = AcApDocManager.instance.lookupGlobalCmd as jest.Mock
+      lookup.mockReturnValue(undefined)
+      const toolManager = tools()
+      const handler = new AcEdViewKeyHandler(
+        createMockView(false, {}, toolManager)
+      )
+      expect(handler.handleKeyDown(keyboardEvent({ code: 'KeyL' }))).toBe(false)
+      expect(toolManager.activate).not.toHaveBeenCalled()
+    })
+
+    test('Esc keeps the selection while a command runs or the pan tool is left', () => {
+      const running = createMockView(true, {}, tools())
+      new AcEdViewKeyHandler(running).handleKeyDown(
+        keyboardEvent({ code: 'Escape' })
+      )
+      expect(running.selectionSet.clear).not.toHaveBeenCalled()
+
+      const panning = createMockView(
+        false,
+        {},
+        tools({ handleEscape: jest.fn(() => true) })
+      )
+      new AcEdViewKeyHandler(panning).handleKeyDown(
+        keyboardEvent({ code: 'Escape' })
+      )
+      expect(panning.selectionSet.clear).not.toHaveBeenCalled()
+
+      const idle = createMockView(false, {}, tools())
+      new AcEdViewKeyHandler(idle).handleKeyDown(
+        keyboardEvent({ code: 'Escape', target: commandLine() })
+      )
+      expect(idle.selectionSet.clear).toHaveBeenCalled()
+    })
+
+    test('Space pans while held', () => {
+      const toolManager = tools()
+      const handler = new AcEdViewKeyHandler(
+        createMockView(false, {}, toolManager)
+      )
+      expect(handler.handleKeyDown(keyboardEvent({ code: 'Space' }))).toBe(true)
+      expect(toolManager.beginSpacePan).toHaveBeenCalled()
+
+      toolManager.isSpacePanning = true
+      handler.handleKeyUp(keyboardEvent({ code: 'Space' }))
+      expect(toolManager.endSpacePan).toHaveBeenCalled()
+    })
   })
 })

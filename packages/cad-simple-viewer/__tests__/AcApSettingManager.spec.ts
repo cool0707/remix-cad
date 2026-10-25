@@ -58,6 +58,22 @@ describe('migrateStoredSettings', () => {
       migrated: true
     })
   })
+
+  it('takes the operation profile from a selection style chosen earlier', () => {
+    expect(migrateStoredSettings({ selectionStyle: 'cad' })).toEqual({
+      settings: { selectionStyle: 'cad', operationProfile: 'cad' },
+      migrated: true
+    })
+    expect(
+      migrateStoredSettings({
+        selectionStyle: 'cad',
+        operationProfile: 'simple'
+      })
+    ).toEqual({
+      settings: { selectionStyle: 'cad', operationProfile: 'simple' },
+      migrated: false
+    })
+  })
 })
 
 describe('AcApSettingManager layers', () => {
@@ -183,5 +199,19 @@ describe('AcApSettingManager layers', () => {
   it('property setters persist by default', () => {
     AcApSettingManager.instance.isShowCommandLine = false
     expect(JSON.parse(ls.getItem('settings')!).isShowCommandLine).toBe(false)
+  })
+
+  it('defaults to the simple profile and switches the selection style with it', () => {
+    const settings = AcApSettingManager.instance
+    expect(settings.operationProfile).toBe('simple')
+    expect(settings.selectionStyle).toBe('simple')
+    expect(settings.continuousDraw).toBe(false)
+
+    settings.operationProfile = 'cad'
+    expect(settings.selectionStyle).toBe('cad')
+
+    // The selection style can still be changed on its own.
+    settings.selectionStyle = 'simple'
+    expect(settings.operationProfile).toBe('cad')
   })
 })

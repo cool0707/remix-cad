@@ -20,6 +20,21 @@ export default {
   prompt: {
     orConnector: 'または'
   },
+  tool: {
+    select: '選択',
+    pan: 'パン',
+    line: '線',
+    pline: 'ポリライン',
+    circle: '円',
+    arc: '円弧',
+    rectang: '矩形',
+    polygon: '多角形',
+    ellipse: '楕円',
+    spline: 'スプライン',
+    mtext: '文字',
+    hatch: '塗りつぶし',
+    point: '点'
+  },
   mobileCommand: {
     length: '長さ',
     angle: '角度',

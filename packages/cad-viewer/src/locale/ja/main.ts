@@ -609,7 +609,9 @@ export default {
       languageSelector: '言語の選択',
       ribbon: 'リボン',
       toolbar: 'ツールバー',
-      stats: '統計'
+      stats: '統計',
+      replaceOnClick: 'クリックで選択を置き換える',
+      continuousDraw: '作図を続ける (選択ツールに戻らない)'
     },
     osnap: {
       tooltip: 'オブジェクトスナップ',
@@ -637,10 +639,13 @@ export default {
       on: '線の太さを非表示',
       off: '線の太さを表示'
     },
-    selectionStyle: {
-      simple:
-        'クリックで選択を置き換えます (Shift+クリックで追加・解除)。押すと CAD 式に切り替え',
-      cad: 'CAD 式: クリックするたびに選択に追加します。押すと「クリックで置き換え」に切り替え'
+    operationProfile: {
+      simple: 'シンプル',
+      cad: 'CAD',
+      simpleTooltip:
+        'シンプル操作: クリックで選択を置き換え、作図のあとは選択ツールに戻ります。キー 1 つでツールを切り替え (V 選択 / H パン / L 線 / R 矩形 / T 文字、Space を押しながらドラッグでパン)。押すと CAD (従来) の操作に切り替え',
+      cadTooltip:
+        'CAD (従来) の操作: クリックするたびに選択に追加し、作図コマンドは Enter / Esc まで続きます。押すとシンプル操作に切り替え'
     },
     orthoMode: {
       on: '直交モードをオフにする',

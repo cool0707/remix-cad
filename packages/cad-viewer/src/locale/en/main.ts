@@ -628,7 +628,9 @@ export default {
       languageSelector: 'Language Selector',
       ribbon: 'Ribbon',
       toolbar: 'Toolbar',
-      stats: 'Statistics'
+      stats: 'Statistics',
+      replaceOnClick: 'Click replaces the selection',
+      continuousDraw: 'Keep drawing (stay in the drawing tool)'
     },
     osnap: {
       tooltip: 'Object Snap',
@@ -656,10 +658,13 @@ export default {
       on: 'Hide line widths',
       off: 'Show line widths'
     },
-    selectionStyle: {
-      simple:
-        'Click replaces the selection (Shift+click adds or removes). Click to switch to CAD style',
-      cad: 'CAD style: every click adds to the selection. Click to switch to replace on click'
+    operationProfile: {
+      simple: 'Simple',
+      cad: 'CAD',
+      simpleTooltip:
+        'Simple operation: a click replaces the selection, and each drawing goes back to the Select tool. Single-key tools (V Select / H Pan / L Line / R Rectangle / T Text; hold Space and drag to pan). Click to switch to CAD (classic) operation',
+      cadTooltip:
+        'CAD (classic) operation: every click adds to the selection, and drawing commands go on until Enter / Esc. Click to switch to simple operation'
     },
     orthoMode: {
       on: 'Turn off ortho mode',

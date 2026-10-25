@@ -68,23 +68,24 @@ async function shiftClickAt(page: Page, point: { x: number; y: number }) {
   await page.keyboard.up('Shift')
 }
 
-test('CAD style adds every clicked entity to the selection', async ({
+test('CAD profile adds every clicked entity to the selection', async ({
   page
 }) => {
   await loadFixture(page)
+  const toggle = page.locator('.ml-operation-profile-button')
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+  await toggle.click()
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false')
 
   await clickAt(page, LOWER)
   await clickAt(page, UPPER)
   await expect.poll(() => selectedCount(page)).toBe(2)
 })
 
-test('simple style replaces on click and toggles on Shift + click', async ({
+test('simple profile (default) replaces on click and toggles on Shift + click', async ({
   page
 }) => {
   await loadFixture(page)
-  const toggle = page.locator('.ml-selection-style-button')
-  await toggle.click()
-  await expect(toggle).toHaveAttribute('aria-pressed', 'true')
 
   await clickAt(page, LOWER)
   await expect.poll(() => selectedCount(page)).toBe(1)

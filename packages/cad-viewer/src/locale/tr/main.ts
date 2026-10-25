@@ -628,7 +628,9 @@ export default {
       languageSelector: 'Dil Seçici',
       ribbon: 'Şerit',
       toolbar: 'Araç Çubuğu',
-      stats: 'İstatistikler'
+      stats: 'İstatistikler',
+      replaceOnClick: 'Tıklama seçimi değiştirir',
+      continuousDraw: 'Çizmeye devam et (çizim aracında kal)'
     },
     osnap: {
       tooltip: 'Nesne Yakalama',
@@ -656,10 +658,13 @@ export default {
       on: 'Çizgi genişliklerini gizle',
       off: 'Çizgi genişliklerini göster'
     },
-    selectionStyle: {
-      simple:
-        'Tıklama seçimi değiştirir (Shift+tıklama ekler veya kaldırır). CAD stiline geçmek için tıklayın',
-      cad: 'CAD stili: her tıklama seçime ekler. Tıklamayla değiştirmeye geçmek için tıklayın'
+    operationProfile: {
+      simple: 'Basit',
+      cad: 'CAD',
+      simpleTooltip:
+        'Basit kullanım: tıklama seçimi değiştirir ve her çizimden sonra Seç aracına dönülür. Tek tuşla araçlar (V Seç / H Kaydır / L Çizgi / R Dikdörtgen / T Metin; kaydırmak için Space basılıyken sürükleyin). CAD (klasik) kullanıma geçmek için tıklayın',
+      cadTooltip:
+        'CAD (klasik) kullanım: her tıklama seçime ekler ve çizim komutları Enter / Esc tuşuna kadar sürer. Basit kullanıma geçmek için tıklayın'
     },
     orthoMode: {
       on: 'Ortogonal modu kapat',

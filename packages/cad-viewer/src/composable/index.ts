@@ -1,3 +1,4 @@
+export * from './useActiveTool'
 export * from './useAttEdit'
 export * from './useCommands'
 export * from './useCurrentPos'

@@ -23,6 +23,17 @@ import type { AcEdSelectionStyle } from '../editor/view/AcEdSelectionAction'
 export type AcApFontMapping = Record<string, string>
 
 /**
+ * Operation profile of the viewer.
+ *
+ * - `'cad'`: AutoCAD-style operation (every click adds to the selection, Esc
+ *   clears the selection, the view stays in the mode a command leaves it in).
+ * - `'simple'`: operation for people new to CAD (a click replaces the
+ *   selection, single-key tool shortcuts, staged Esc, back to the select tool
+ *   after each drawing).
+ */
+export type AcApOperationProfile = 'cad' | 'simple'
+
+/**
  * Configuration settings for the CAD application.
  *
  * Contains various UI and rendering preferences that can be persisted
@@ -51,6 +62,17 @@ export interface AcApSettings {
   fontMapping: AcApFontMapping
   /** Object snap modes */
   osnapModes: number
+  /**
+   * Operation profile. Setting it through
+   * {@link AcApSettingManager.operationProfile} also switches
+   * {@link AcApSettings.selectionStyle} to the profile's style.
+   */
+  operationProfile: AcApOperationProfile
+  /**
+   * Simple profile only: keep the drawing tool after each drawing instead of
+   * going back to the select tool.
+   */
+  continuousDraw: boolean
   /**
    * How plain clicks on the canvas update the selection set: `'cad'` adds on
    * every click, `'simple'` replaces (Shift + click toggles).
@@ -117,7 +139,9 @@ const DEFAULT_VALUES: AcApSettings = {
     AcDbOsnapMode.Intersection,
     AcDbOsnapMode.Nearest
   ]),
-  selectionStyle: 'cad',
+  operationProfile: 'simple',
+  continuousDraw: false,
+  selectionStyle: 'simple',
   hideTouchPointTutorial: false,
   touchPointTutorialSnoozeDate: null,
   useSimulatedMouseOnTouch: true
@@ -130,6 +154,9 @@ const DEFAULT_SETTINGS_LS_KEY = 'settings'
  * Maps the pre-ribbon `isShowMainMenu` key onto `isShowRibbon`, and drops
  * obsolete keys such as `isShowFileName` (filename is always shown on the
  * ribbon header now).
+ *
+ * Builds before operation profiles stored only `selectionStyle` (and only when
+ * the user toggled it); the profile follows that choice.
  *
  * Older builds persisted `isShowMainMenu`. After the main menu was replaced
  * by the command ribbon, that preference should keep hiding (or showing)
@@ -153,6 +180,13 @@ export function migrateStoredSettings(
   }
   if ('isShowFileName' in next) {
     delete next.isShowFileName
+    migrated = true
+  }
+  if (
+    !('operationProfile' in next) &&
+    (next.selectionStyle === 'cad' || next.selectionStyle === 'simple')
+  ) {
+    next.operationProfile = next.selectionStyle
     migrated = true
   }
   return { settings: next, migrated }
@@ -676,6 +710,41 @@ export class AcApSettingManager<T extends AcApSettings = AcApSettings> {
    */
   set selectionStyle(value: AcEdSelectionStyle) {
     this.set('selectionStyle', value)
+  }
+
+  /**
+   * Gets the operation profile.
+   *
+   * @returns `'cad'` or `'simple'`.
+   */
+  get operationProfile() {
+    return this.get('operationProfile')
+  }
+
+  /**
+   * Sets the operation profile and switches the selection style with it.
+   *
+   * @param value - The new operation profile.
+   */
+  set operationProfile(value: AcApOperationProfile) {
+    this.set('operationProfile', value)
+    this.set('selectionStyle', value)
+  }
+
+  /**
+   * Gets whether drawing tools stay active after each drawing (simple profile).
+   */
+  get continuousDraw() {
+    return this.get('continuousDraw')
+  }
+
+  /**
+   * Sets whether drawing tools stay active after each drawing (simple profile).
+   *
+   * @param value - `true` to keep drawing, `false` to go back to the select tool.
+   */
+  set continuousDraw(value: boolean) {
+    this.set('continuousDraw', value)
   }
 
   /**

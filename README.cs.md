@@ -35,9 +35,12 @@ takže výkresy nikdy neopustí zařízení uživatele.
   ho přepne na svislý nebo vodorovný nebo vrátí na výchozí místo: k levému okraji plochy výkresu, nebo k pravému,
   když plovoucí panel (vrstvy apod.) zakrývá levý okraj. Pokud by ho panel zakryl, vrátí se tam sám. Podnabídky se otevírají směrem ke
   středu obrazovky a poloha se pamatuje.
-- **Přepínání způsobu výběru** — tlačítko ve stavovém řádku přepíná mezi stylem CAD
-  (každé kliknutí přidá) a nahrazením kliknutím (Shift + kliknutí přidá nebo odebere,
-  kliknutí do prázdna výběr zruší). Výchozí je zatím styl CAD.
+- **Profily ovládání: Jednoduchý (výchozí) / CAD** — přepínají se tlačítkem ve stavovém řádku.
+  Jednoduchý: kliknutí nahradí výběr (Shift + kliknutí přidá nebo odebere, kliknutí do prázdna výběr zruší),
+  nástroje jednou klávesou (V Výběr / H Posun / L Úsečka / R Obdélník / T Text; posun tažením s podrženým mezerníkem),
+  použitý nástroj ukazuje tvar kurzoru, popisek u kurzoru i stavový řádek, po každém kreslení se vrátí nástroj Výběr
+  (úsečka je jedna; „Pokračovat v kreslení“ v nabídce nastavení nástroj ponechá) a Esc funguje postupně
+  (zrušit operaci → zpět na Výběr → zrušit výběr). CAD zachovává klasické ovládání (každé kliknutí přidá, úsečka pokračuje do Enter).
 - **Panel vlastností** — karta Vlastnosti dělí hodnoty do skupin (Obecné, Umístění, Symbol…)
   a upravuje je přímo (jedna změna = jeden krok zpět). Při výběru více objektů ukazuje sekce Výběr
   X / Y / Š / V s 9bodovým referenčním bodem, počty podle typu (kliknutím ponecháte jen daný typ)

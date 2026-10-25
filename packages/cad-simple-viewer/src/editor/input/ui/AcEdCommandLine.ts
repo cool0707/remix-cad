@@ -709,6 +709,22 @@ export class AcEdCommandLine {
       () => this.handleInputChange(),
       { signal: domSignal }
     )
+    // Tells the view's key handler that the user chose to type here (prompts
+    // also focus the input on their own; single-key tools still work then).
+    this.cliContainer.addEventListener(
+      'pointerdown',
+      () => {
+        this.textInput.dataset.userFocus = 'true'
+      },
+      { signal: domSignal }
+    )
+    this.textInput.addEventListener(
+      'blur',
+      () => {
+        delete this.textInput.dataset.userFocus
+      },
+      { signal: domSignal }
+    )
     this.centerEl.addEventListener(
       'focus',
       () => this.updatePopups({ showCmd: false, showMsg: false }),
@@ -757,6 +773,15 @@ export class AcEdCommandLine {
       }
 
       case 'Escape': {
+        // Simple profile: with nothing typed and no prompt, Esc belongs to the
+        // view (back to the select tool, then clear the selection).
+        if (
+          !this.activeSession &&
+          this.getInputText() === '' &&
+          AcApSettingManager.instance.operationProfile === 'simple'
+        ) {
+          return
+        }
         e.preventDefault()
         e.stopImmediatePropagation()
 
