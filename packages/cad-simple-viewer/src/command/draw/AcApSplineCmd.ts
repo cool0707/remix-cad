@@ -299,6 +299,9 @@ export class AcApSplineCmd extends AcEdCommand {
       prompt.jig = createPreviewJig()
       // AutoCAD SPLINE: Enter at "next point" ends the command without adding a fit/CV point.
       prompt.allowNone = true
+      // Double-click ends the spline; right-click removes the last point.
+      prompt.finishOnDoubleClick = true
+      prompt.rightClickKeyword = 'Undo'
     }
 
     /**

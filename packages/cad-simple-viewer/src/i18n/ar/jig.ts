@@ -828,7 +828,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'إغلاق(C)',
+        display: 'إغلاق المنحنى(J)',
         local: 'إغلاق',
         global: 'Close'
       },

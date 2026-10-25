@@ -1156,7 +1156,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Kapat(K)',
+        display: 'Eğriyi kapat(K)',
         local: 'Kapat',
         global: 'Close'
       },

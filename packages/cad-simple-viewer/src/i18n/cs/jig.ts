@@ -1153,7 +1153,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Uzavřít(C)',
+        display: 'Uzavřít spline(J)',
         local: 'Uzavřít',
         global: 'Close'
       },

@@ -780,7 +780,11 @@ export default {
       knots: { display: 'ノット(K)', local: 'ノット', global: 'Knots' },
       degree: { display: '次数(D)', local: '次数', global: 'Degree' },
       undo: { display: '元に戻す(U)', local: '元に戻す', global: 'Undo' },
-      close: { display: '閉じる(C)', local: '閉じる', global: 'Close' },
+      close: {
+        display: 'スプラインを閉じる(J)',
+        local: '閉じる',
+        global: 'Close'
+      },
       chord: { display: '弦長(C)', local: '弦長', global: 'Chord' },
       sqrtChord: {
         display: '弦長の平方根(S)',

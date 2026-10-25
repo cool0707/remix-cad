@@ -1144,7 +1144,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: '闭合(C)',
+        display: '闭合样条曲线(J)',
         local: '闭合',
         global: 'Close'
       },

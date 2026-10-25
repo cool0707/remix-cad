@@ -1156,7 +1156,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Close(C)',
+        display: 'Close spline(J)',
         local: 'Close',
         global: 'Close'
       },
