@@ -33,6 +33,15 @@ async function loadFixture(page: Page) {
     timeout: 30000
   })
   await page.waitForTimeout(2500)
+  // Under load the drawing can still be converting after the fixed wait.
+  await expect
+    .poll(() =>
+      page.evaluate(async url => {
+        const mod = await import(/* @vite-ignore */ url)
+        return mod.AcApDocManager.instance.curView.isProcessingEntities as boolean
+      }, viewerModuleUrl!)
+    )
+    .toBe(false)
 }
 
 /** Reads view / document state through the viewer module. */
