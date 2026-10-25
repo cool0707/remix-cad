@@ -397,6 +397,9 @@ Figma / Illustrator 風の「先に選ぶ → ドラッグ / 右サイドバー�
   - シンプルでは、選択中で動かせる図形の上でカーソルを移動のカーソル (`move`) にする (`AcEdSelectionTransformer.setHoveredId`、
     ホバーの判定をそのまま使う)。
   - テスト: e2e `hover.spec.ts`。
+  - 枠の大きさは描画済みの範囲 (空間インデックス、`AcTrScene.getEntityBox`) を使う。`geometricExtents` は文字の幅を
+    文字数からの概算で返すので、文字を選ぶと枠が実際の文字と合わなかった (描画前の図形だけ `geometricExtents` に戻る)。
+    図形を描き直したあと (`updateEntity` の再変換が終わったとき) にも枠を計算し直す。e2e `selection-frame-text.spec.ts` (fixture `texts.dxf`)。
 - **未実施 / 残り**:
   - ビューを回転させた図面 (VIEWTWIST) では枠のハンドルのカーソルの向きが合わない (枠はワールド座標の軸に沿う)。
   - 拡大縮小・回転のときは整列ガイドもスナップも使わない (Shift の 15° 刻みだけ)。

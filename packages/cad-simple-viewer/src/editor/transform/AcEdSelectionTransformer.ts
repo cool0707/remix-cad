@@ -67,6 +67,11 @@ export interface AcEdSelectionTransformerOptions {
   activeSpaceId: () => AcDbObjectId | undefined
   /** True while one entity shows its CAD grips instead of the frame. */
   isGripMode: () => boolean
+  /**
+   * Bounds of an entity as drawn (`undefined`: not drawn yet). Preferred over
+   * `geometricExtents`, which only estimates the width of text.
+   */
+  drawnBox?: (id: AcDbObjectId) => AcEdBox | undefined
 }
 
 type AcEdTransformSession =
@@ -226,7 +231,7 @@ export class AcEdSelectionTransformer {
   refresh() {
     if (this._session) return
     this._entities = this.canShowFrame() ? this.collectEditableEntities() : []
-    this._box = unionBox(this._entities)
+    this._box = unionBox(this._entities, this._options.drawnBox)
     if (!this._box) {
       this._entities = []
       this.hideFrame()
@@ -751,10 +756,13 @@ export class AcEdSelectionTransformer {
   }
 }
 
-function unionBox(entities: AcDbEntity[]): AcEdBox | undefined {
+function unionBox(
+  entities: AcDbEntity[],
+  drawnBox?: (id: AcDbObjectId) => AcEdBox | undefined
+): AcEdBox | undefined {
   let box: AcEdBox | undefined
   for (const entity of entities) {
-    const extents = finiteExtents(entity)
+    const extents = drawnBox?.(entity.objectId) ?? finiteExtents(entity)
     if (!extents) continue
     box = box
       ? {

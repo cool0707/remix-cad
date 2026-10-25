@@ -408,6 +408,15 @@ export class AcTrScene {
     return activeLayout ? activeLayout.search(box, options) : []
   }
 
+  /**
+   * Drawn bounds of one entity in the active layout.
+   * @param id Entity object id
+   * @returns The world XY box, or `undefined` when it is not drawn there
+   */
+  getEntityBox(id: AcDbObjectId) {
+    return this.activeLayout?.getEntityBox(id)
+  }
+
   addLayer(layer: AcEdLayerInfo) {
     const updatedLayers: AcTrLayer[] = []
     this._layers.set(layer.name, layer)
