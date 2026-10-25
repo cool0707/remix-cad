@@ -19,7 +19,7 @@ export interface AcApDrawingExporter {
   command: string
   /** File extension without the dot. */
   extension: string
-  /** Format name shown in menus (`JWW (Jw_cad)`). */
+  /** Format name shown in menus (`JWW`, `SFC`). */
   formatName: string
   /** MIME type of the download. @default 'application/octet-stream' */
   mimeType?: string

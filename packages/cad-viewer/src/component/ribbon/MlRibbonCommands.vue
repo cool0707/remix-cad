@@ -2730,6 +2730,12 @@ const fileMenuItems = computed<FileMenuItemModel[]>(() => {
           id: 'Convert',
           label: t('main.mainMenu.export')
         },
+        // CAD formats registered by the application (JWW, SFC, P21) follow
+        // DXF.
+        ...acapDrawingExporters().map(exporter => ({
+          id: `ExportFormat:${exporter.command}`,
+          label: t('main.mainMenu.exportAs', { format: exporter.formatName })
+        })),
         {
           id: 'ExportHtml',
           label: t('main.mainMenu.exportHtml')
@@ -2745,12 +2751,7 @@ const fileMenuItems = computed<FileMenuItemModel[]>(() => {
         {
           id: 'PngOut',
           label: t('main.mainMenu.exportImage')
-        },
-        // JWW, SXF, … registered by the application.
-        ...acapDrawingExporters().map(exporter => ({
-          id: `ExportFormat:${exporter.command}`,
-          label: t('main.mainMenu.exportAs', { format: exporter.formatName })
-        }))
+        }
       ]
     })
   }

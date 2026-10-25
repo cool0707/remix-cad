@@ -19,9 +19,9 @@ async function exportAs(page: Page, label: string, target: string) {
 }
 
 for (const [label, extension] of [
-  ['Export to JWW (Jw_cad)', 'jww'],
-  ['Export to SXF (SFC)', 'sfc'],
-  ['Export to SXF (P21)', 'p21']
+  ['Export to JWW', 'jww'],
+  ['Export to SFC', 'sfc'],
+  ['Export to P21', 'p21']
 ] as const) {
   test(`exports a drawing as ${extension} and opens it again`, async ({
     page

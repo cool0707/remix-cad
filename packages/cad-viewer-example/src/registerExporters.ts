@@ -10,20 +10,20 @@ export function registerDrawingExporters(jww: AcDbJwwConverter): void {
   acapRegisterDrawingExporter({
     command: 'cjww',
     extension: 'jww',
-    formatName: 'JWW (Jw_cad)',
+    formatName: 'JWW',
     export: (db, title) => jww.exportDatabase(db, { title })
   })
   acapRegisterDrawingExporter({
     command: 'csfc',
     extension: 'sfc',
-    formatName: 'SXF (SFC)',
+    formatName: 'SFC',
     export: async (db, title) =>
       exportSxf(db, 'sfc', { title, fileName: `${title}.sfc` })
   })
   acapRegisterDrawingExporter({
     command: 'cp21',
     extension: 'p21',
-    formatName: 'SXF (P21)',
+    formatName: 'P21',
     export: async (db, title) =>
       exportSxf(db, 'p21', { title, fileName: `${title}.p21` })
   })
