@@ -6,6 +6,7 @@ import {
 } from '@mlightcad/data-model'
 
 import {
+  acapDrawingHatchScale,
   acapHasSheetOptions,
   acapResolveDrawingSheet,
   acapSetDxfLimits
@@ -52,6 +53,34 @@ describe('acapResolveDrawingSheet', () => {
   it('reports whether anything is set', () => {
     expect(acapHasSheetOptions({})).toBe(false)
     expect(acapHasSheetOptions({ scale: 10 })).toBe(true)
+  })
+})
+
+describe('acapDrawingHatchScale', () => {
+  it('uses the scale of the sheet the limits describe (JWW / SXF)', () => {
+    const db = drawing()
+    // A3 at 1/100, centred on the origin like a JWW drawing.
+    db.limmin = { x: -21000, y: -14850 }
+    db.limmax = { x: 21000, y: 14850 }
+    expect(acapDrawingHatchScale(db)).toBe(100)
+  })
+
+  it('converts the scale to drawing units', () => {
+    const db = drawing()
+    db.insunits = 6 // metres
+    db.limmin = { x: 0, y: 0 }
+    db.limmax = { x: 42, y: 29.7 }
+    expect(acapDrawingHatchScale(db)).toBeCloseTo(0.1, 12)
+  })
+
+  it('is 1 without limits that are a sheet at a standard scale', () => {
+    const db = drawing()
+    expect(acapDrawingHatchScale(db)).toBe(1)
+    db.limmin = { x: 0, y: 0 }
+    db.limmax = { x: 12, y: 9 }
+    expect(acapDrawingHatchScale(db)).toBe(1)
+    db.limmax = { x: 420 * 37, y: 297 * 37 }
+    expect(acapDrawingHatchScale(db)).toBe(1)
   })
 })
 

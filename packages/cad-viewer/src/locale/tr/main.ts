@@ -69,7 +69,8 @@ export default {
         pickPoints: 'Desen dolgusu bölgeleri oluşturmak için iç noktalar seçin.',
         selectObjects: 'Taranacak kapalı sınır nesnelerini seçin.',
         pattern: 'Dolgu deseni adını seçin.',
-        scale: 'Dolgu deseni ölçeğini ayarlayın.',
+        scale:
+          'Dolgu deseninin boyutunu (ölçek) ayarlayın. Çizim açıldığında pafta ölçeğine ayarlanır (1:100 için 100).',
         angle: 'Dolgu deseni açısını derece cinsinden ayarlayın.',
         style: 'Desen dolgusu oluşturma için ada tespit stilini kontrol edin.',
         associative: 'İlişkisel desen dolgusu modunu aç/kapat.',

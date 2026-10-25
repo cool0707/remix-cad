@@ -69,7 +69,8 @@ export default {
         pickPoints: 'Určete vnitřní body pro vytvoření vyplněných oblastí.',
         selectObjects: 'Vyberte uzavřené hraniční objekty k vyplnění.',
         pattern: 'Zvolte název vzoru výplně.',
-        scale: 'Nastavte měřítko vzoru výplně.',
+        scale:
+          'Nastavte velikost vzoru výplně (měřítko). Při otevření výkresu se nastaví na měřítko listu (100 pro 1:100).',
         angle: 'Nastavte úhel vzoru výplně ve stupních.',
         style: 'Určuje způsob detekce ostrůvků při vytváření vzorové výplně.',
         associative: 'Přepne asociativní režim vzorové výplně.',

@@ -11,7 +11,6 @@ import {
 import {
   AcCmColor,
   AcCmTransparency,
-  type AcDbEntityEventArgs,
   type AcDbGradientName,
   AcDbHatch,
   AcDbHatchObjectType,
@@ -85,7 +84,11 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
     | ((args: AcDbSysVarEventArgs) => void)
     | undefined
   private _settingsProxy: HatchSettings | undefined
-  private readonly _activeHatchIds = new Set<string>()
+  /**
+   * Hatches created by the running command. Tracked directly: while a command
+   * runs, `entityAppended` is only dispatched after it ends.
+   */
+  private readonly _activeHatches = new Set<AcDbHatch>()
 
   constructor() {
     super()
@@ -354,10 +357,16 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
     if (!db || !view) return []
 
     const blockTable = db.tables.blockTable
-    const ids = new Set([...view.selectionSet.ids, ...this._activeHatchIds])
-    return [...ids]
-      .map(id => blockTable.getEntityById(id))
-      .filter((entity): entity is AcDbHatch => entity instanceof AcDbHatch)
+    const hatches = new Set(
+      [...view.selectionSet.ids]
+        .map(id => blockTable.getEntityById(id))
+        .filter((entity): entity is AcDbHatch => entity instanceof AcDbHatch)
+    )
+    for (const hatch of this._activeHatches) {
+      // Skip hatches undone while the command runs.
+      if (blockTable.getEntityById(hatch.objectId) === hatch) hatches.add(hatch)
+    }
+    return [...hatches]
   }
 
   private getFillPatternName() {
@@ -402,13 +411,20 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
     const hatches = this.getSelectedHatches()
     if (hatches.length === 0) return
 
+    const edited: AcDbHatch[] = []
     acapRunDatabaseEdit(db, 'Hatch Properties', () => {
       hatches.forEach(hatch => {
         const opened = db.openEntityForWrite(hatch)
         if (!opened || !(opened instanceof AcDbHatch)) return
         this.applyStateToHatch(opened)
+        edited.push(opened)
       })
     })
+    // Inside the running command, `entityModified` waits for the command to
+    // end: redraw now so the change shows while picking more boundaries.
+    if (this._isActive && edited.length > 0) {
+      docManager.curView.updateEntity(edited)
+    }
   }
 
   private applyStateToHatch(hatch: AcDbHatch) {
@@ -630,23 +646,13 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
 
   protected override configureHatch(hatch: AcDbHatch) {
     this.applyStateToHatch(hatch)
+    if (this._isActive) this._activeHatches.add(hatch)
   }
 
   async execute(context: AcApContext) {
     this.syncStateFromSysVars()
     this._isActive = true
-    this._activeHatchIds.clear()
-    const entityAppendedListener = (args: AcDbEntityEventArgs) => {
-      const entities = Array.isArray(args.entity) ? args.entity : [args.entity]
-      for (const entity of entities) {
-        if (entity instanceof AcDbHatch) {
-          this._activeHatchIds.add(entity.objectId)
-        }
-      }
-    }
-    context.doc.database.events.entityAppended.addEventListener(
-      entityAppendedListener
-    )
+    this._activeHatches.clear()
     try {
       let running = true
       while (running) {
@@ -681,10 +687,7 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
         running = false
       }
     } finally {
-      context.doc.database.events.entityAppended.removeEventListener(
-        entityAppendedListener
-      )
-      this._activeHatchIds.clear()
+      this._activeHatches.clear()
       this._queuedAction = undefined
       this._isActive = false
     }
@@ -728,6 +731,16 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
     } else if (keyword === 'SelectObjects') {
       await this.doSelectObjects(context)
       return true
+    } else if (keyword === 'Scale' || keyword === 'Angle') {
+      if (keyword === 'Scale') {
+        await this.promptPatternScale()
+      } else {
+        await this.promptPatternAngle()
+      }
+      // Like the ribbon inputs: the hatches of this run follow the change.
+      this.syncStateFromSysVars()
+      this.applyStateToSelectedHatches()
+      return true
     } else if (keyword === 'Cancel') {
       return false
     }
@@ -751,6 +764,16 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
       AcApI18n.t('jig.hatch.keywords.select.display'),
       AcApI18n.t('jig.hatch.keywords.select.global'),
       AcApI18n.t('jig.hatch.keywords.select.local')
+    )
+    options.keywords.add(
+      AcApI18n.t('jig.hatch.keywords.scale.display'),
+      AcApI18n.t('jig.hatch.keywords.scale.global'),
+      AcApI18n.t('jig.hatch.keywords.scale.local')
+    )
+    options.keywords.add(
+      AcApI18n.t('jig.hatch.keywords.angle.display'),
+      AcApI18n.t('jig.hatch.keywords.angle.global'),
+      AcApI18n.t('jig.hatch.keywords.angle.local')
     )
     options.keywords.add(
       AcApI18n.t('jig.hatch.keywords.cancel.display'),

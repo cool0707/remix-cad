@@ -188,12 +188,12 @@ export default {
         global: 'Cancel'
       },
       pattern: {
-        display: '图案(P)',
+        display: '图案(PA)',
         local: '图案',
         global: 'Pattern'
       },
       scale: {
-        display: '比例(S)',
+        display: '比例(SC)',
         local: '比例',
         global: 'Scale'
       },

@@ -286,12 +286,12 @@ export default {
         global: 'Cancel'
       },
       pattern: {
-        display: 'نمط(P)',
+        display: 'نمط(PA)',
         local: 'نمط',
         global: 'Pattern'
       },
       scale: {
-        display: 'مقياس(S)',
+        display: 'مقياس(SC)',
         local: 'مقياس',
         global: 'Scale'
       },

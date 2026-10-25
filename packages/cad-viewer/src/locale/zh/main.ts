@@ -69,7 +69,8 @@ export default {
         pickPoints: '拾取内部点来创建填充区域。',
         selectObjects: '选择闭合边界对象进行填充。',
         pattern: '设置填充图案名称。',
-        scale: '设置填充图案比例。',
+        scale:
+          '设置填充图案的大小（比例）。打开图纸时设为图纸比例（1:100 时为 100）。',
         angle: '设置填充图案角度（度）。',
         style: '控制填充时的岛屿检测样式。',
         associative: '切换关联填充模式。',

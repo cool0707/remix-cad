@@ -48,6 +48,16 @@ const toColorValue = (value: unknown) => {
 }
 
 /**
+ * Step of the hatch scale input: half of the scale's order of magnitude, so
+ * a 1/100 drawing (scale 100) steps by 50 and a 1/1 drawing by 0.5.
+ *
+ * @param scale Current hatch pattern scale.
+ * @returns Increment for the scale input's +/- buttons.
+ */
+const hatchScaleStep = (scale: number) =>
+  scale > 0 ? 10 ** Math.floor(Math.log10(scale)) / 2 : 0.5
+
+/**
  * Options required to coordinate the hatch contextual ribbon with the shared
  * ribbon tab state.
  */
@@ -452,7 +462,8 @@ export function useHatchContextualRibbon({
                   tooltip: t('main.ribbon.hatch.tooltip.opacity'),
                   size: 'small',
                   props: {
-                    width: '108px',
+                    width: '150px',
+                    prefixLabel: t('main.ribbon.hatch.field.opacity'),
                     modelValue: hatchState.opacity,
                     min: 0,
                     max: 90,
@@ -468,7 +479,8 @@ export function useHatchContextualRibbon({
                   tooltip: t('main.ribbon.hatch.tooltip.angle'),
                   size: 'small',
                   props: {
-                    width: '108px',
+                    width: '150px',
+                    prefixLabel: t('main.ribbon.hatch.field.angle'),
                     modelValue: hatchState.patternAngle,
                     step: 15,
                     emitValueOnChange: true,
@@ -482,10 +494,11 @@ export function useHatchContextualRibbon({
                   tooltip: t('main.ribbon.hatch.tooltip.scale'),
                   size: 'small',
                   props: {
-                    width: '108px',
+                    width: '150px',
+                    prefixLabel: t('main.ribbon.hatch.field.scale'),
                     modelValue: hatchState.patternScale,
-                    min: 0.1,
-                    step: 0.5,
+                    min: 0.001,
+                    step: hatchScaleStep(hatchState.patternScale),
                     emitValueOnChange: true,
                     valuePrefix: 'hatch-scale:'
                   }
