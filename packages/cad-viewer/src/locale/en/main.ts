@@ -11,6 +11,7 @@ export default {
     exportAs: 'Export to {format}',
     exportImage: 'Export to Image',
     exportImageArea: 'Export selected area as image',
+    settings: 'Settings',
     about: 'About'
   },
   ribbon: {
@@ -621,7 +622,6 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: 'Display Settings',
       commandLine: 'Command Line',
       coordinate: 'Coordinate',
       entityInfo: 'Entity Info',

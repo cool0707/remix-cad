@@ -65,6 +65,9 @@ export default {
         'إنشاء مجموعة تحديد عن طريق تصفية العناصر وفق النوع وشروط الخصائص'
     },
 
+    options: {
+      description: 'يفتح الإعدادات (ملف التشغيل، التحديد، العرض)'
+    },
     units: {
       ...enCommand.ACAD.units,
       description:

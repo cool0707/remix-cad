@@ -11,6 +11,7 @@ export default {
     exportAs: '{format} olarak dışa aktar',
     exportImage: 'Görüntüye Dışa Aktar',
     exportImageArea: 'Seçili alanı görüntü olarak dışa aktar',
+    settings: 'Ayarlar',
     about: 'Hakkında'
   },
   ribbon: {
@@ -621,7 +622,6 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: 'Görüntü Ayarları',
       commandLine: 'Komut Satırı',
       coordinate: 'Koordinat',
       entityInfo: 'Varlık Bilgisi',

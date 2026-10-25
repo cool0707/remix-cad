@@ -11,6 +11,7 @@ export default {
     exportAs: '{format} に書き出し',
     exportImage: '画像に書き出し',
     exportImageArea: '選択範囲を画像に書き出し',
+    settings: '環境設定',
     about: 'バージョン情報'
   },
   ribbon: {
@@ -602,7 +603,6 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: '表示設定',
       commandLine: 'コマンドライン',
       coordinate: '座標',
       entityInfo: 'オブジェクト情報',

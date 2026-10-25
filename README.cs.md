@@ -39,8 +39,11 @@ takže výkresy nikdy neopustí zařízení uživatele.
   Jednoduchý: kliknutí nahradí výběr (Shift + kliknutí přidá nebo odebere, kliknutí do prázdna výběr zruší),
   nástroje jednou klávesou (V Výběr / H Posun / L Úsečka / R Obdélník / T Text; posun tažením s podrženým mezerníkem),
   použitý nástroj ukazuje tvar kurzoru, popisek u kurzoru i stavový řádek, po každém kreslení se vrátí nástroj Výběr
-  (úsečka je jedna; „Pokračovat v kreslení“ v nabídce nastavení nástroj ponechá) a Esc funguje postupně
+  (úsečka je jedna; „Pokračovat v kreslení“ v Nastavení nástroj ponechá) a Esc funguje postupně
   (zrušit operaci → zpět na Výběr → zrušit výběr). CAD zachovává klasické ovládání (každé kliknutí přidá, úsečka pokračuje do Enter).
+- **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
+  otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
+  (pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).
 - **Panel vlastností** — karta Vlastnosti dělí hodnoty do skupin (Obecné, Umístění, Symbol…)
   a upravuje je přímo (jedna změna = jeden krok zpět). Při výběru více objektů ukazuje sekce Výběr
   X / Y / Š / V s 9bodovým referenčním bodem, počty podle typu (kliknutím ponecháte jen daný typ)

@@ -40,9 +40,12 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   Simples: um clique substitui a seleção (Shift + clique adiciona ou remove, clicar no vazio limpa a seleção),
   ferramentas de uma tecla (V Selecionar / H Deslocar / L Linha / R Retângulo / T Texto; segure Espaço e arraste para deslocar),
   a ferramenta em uso aparece no formato do cursor, ao lado do cursor e na barra de status, volta-se a Selecionar
-  após cada desenho (uma linha é um segmento; "Continuar desenhando" no menu de configurações mantém a ferramenta)
+  após cada desenho (uma linha é um segmento; "Continuar desenhando" em Configurações mantém a ferramenta)
   e o Esc age em etapas (cancelar a operação → voltar a Selecionar → limpar a seleção).
   CAD mantém o uso clássico (cada clique adiciona, LINHA continua até Enter).
+- **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
+  abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
+  (faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).
 - **Inspetor de propriedades** — a aba Propriedades agrupa os valores em seções (Geral, Posicionamento,
   Símbolo…) e os edita diretamente (um passo de desfazer por alteração). Com vários objetos selecionados,
   uma seção Seleção mostra X / Y / L / A com um ponto de referência de 9 posições, a contagem por tipo

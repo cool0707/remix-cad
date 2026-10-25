@@ -31,6 +31,7 @@ import {
   AcApPointStyleCmd,
   AcApPropertiesCmd,
   AcApQSelectCmd,
+  AcApSettingsCmd,
   AcApTextStyleCmd,
   AcApXrefCmd,
   hatchRibbonCommand
@@ -46,6 +47,7 @@ import {
   MlExportPdfDlg,
   MlPointStyleDlg,
   MlQuickSelectDlg,
+  MlSettingsDlg,
   MlTextStyleDlg
 } from '../component'
 import { installExportSheetPrompt } from '../component/dialog/exportSheet'
@@ -119,6 +121,12 @@ export const registerCmds = () => {
       'units',
       'units',
       new AcApDrawingUnitsCmd()
+    )
+    register.addCommand(
+      AcEdCommandStack.SYSTEMT_COMMAND_GROUP_NAME,
+      'options',
+      'options',
+      new AcApSettingsCmd()
     )
     register.addCommand(
       AcEdCommandStack.SYSTEMT_COMMAND_GROUP_NAME,
@@ -235,6 +243,11 @@ export const registerDialogs = () => {
       // DXF / JWW / SXF exports ask for the paper and scale in this dialog.
       installExportSheetPrompt(() => toggleDialog('ExportDrawingDlg', true))
     }
+    registerDialog({
+      name: 'SettingsDlg',
+      component: markRaw(MlSettingsDlg),
+      props: {}
+    })
     registerDialog({
       name: 'DrawingUnitsDlg',
       component: markRaw(MlDrawingUnitsDlg),

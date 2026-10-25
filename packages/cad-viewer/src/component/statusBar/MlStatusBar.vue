@@ -62,7 +62,6 @@
           off-color="var(--el-text-color-regular)"
           remember-last-enabled
         />
-        <ml-setting-button />
       </el-button-group>
     </template>
   </ml-status-bar>
@@ -87,7 +86,6 @@ import MlOsnapButton from './MlOsnapButton.vue'
 import MlPointStyleButton from './MlPointStyleButton.vue'
 import MlPolarTrackingButton from './MlPolarTrackingButton.vue'
 import MlProgress from './MlProgress.vue'
-import MlSettingButton from './MlSettingButton.vue'
 import MlThemeButton from './MlThemeButton.vue'
 import MlToolStatus from './MlToolStatus.vue'
 import MlWarningButton from './MlWarningButton.vue'

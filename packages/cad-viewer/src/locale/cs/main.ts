@@ -11,6 +11,7 @@ export default {
     exportAs: 'Exportovat do {format}',
     exportImage: 'Exportovat do obrázku',
     exportImageArea: 'Exportovat vybranou oblast jako obrázek',
+    settings: 'Nastavení',
     about: 'O aplikaci'
   },
   ribbon: {
@@ -608,7 +609,6 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: 'Nastavení zobrazení',
       commandLine: 'Příkazový řádek',
       coordinate: 'Souřadnice',
       entityInfo: 'Informace o objektu',

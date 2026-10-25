@@ -40,9 +40,12 @@ drawings never leave the user's device.
   Simple: a click replaces the selection (Shift + click adds or removes, clicking empty space clears it),
   single-key tools (V Select / H Pan / L Line / R Rectangle / T Text; hold Space and drag to pan),
   the tool in use shown by the cursor shape, next to the cursor and in the status bar, back to the
-  Select tool after each drawing (a line is one segment; "Keep drawing" in the settings menu keeps the tool),
+  Select tool after each drawing (a line is one segment; "Keep drawing" in Settings keeps the tool),
   and a staged Esc (cancel the operation → back to the Select tool → clear the selection).
   CAD keeps the classic behavior (every click adds, LINE goes on until Enter).
+- **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
+  opens one dialog for the operation profile, selection, keep drawing and what is shown
+  (ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).
 - **Property inspector** — the Properties tab groups values into sections (General, Placement, Symbol…)
   and edits them directly (one undo step per change). With several objects selected, a Selection
   section shows X / Y / W / H with a 9-point reference point, counts per type (click to keep only

@@ -41,9 +41,12 @@ del dispositivo del usuario.
   Simple: un clic reemplaza la selección (Mayús + clic añade o quita, un clic en vacío la borra),
   herramientas de una tecla (V Seleccionar / H Desplazar / L Línea / R Rectángulo / T Texto; mantén Espacio y arrastra para desplazar),
   la herramienta en uso se ve en la forma del cursor, junto al cursor y en la barra de estado, se vuelve a Seleccionar
-  después de cada dibujo (una línea es un segmento; «Seguir dibujando» en el menú de ajustes mantiene la herramienta)
+  después de cada dibujo (una línea es un segmento; «Seguir dibujando» en Ajustes mantiene la herramienta)
   y Esc actúa por etapas (cancelar la operación → volver a Seleccionar → borrar la selección).
   CAD conserva el manejo clásico (cada clic añade, LÍNEA sigue hasta Intro).
+- **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
+  abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
+  (cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).
 - **Inspector de propiedades** — la pestaña Propiedades agrupa los valores en secciones (General,
   Ubicación, Símbolo…) y los edita directamente (un paso de deshacer por cambio). Con varios objetos
   seleccionados, una sección Selección muestra X / Y / An / Al con un punto de referencia de 9 posiciones,

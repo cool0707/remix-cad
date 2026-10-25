@@ -8,6 +8,17 @@ export default {
     title: 'Nokta Stili',
     pointSize: 'Nokta Boyutu:'
   },
+  settingsDlg: {
+    title: 'Ayarlar',
+    operationSection: 'Kullanım',
+    operationProfile: 'Kullanım profili',
+    profileSimple: 'Basit',
+    profileCad: 'CAD (klasik)',
+    profileSimpleHint: 'Tıklama seçimi değiştirir, tek tuşla araçlar (V / H / L / R / T), her çizimden sonra Seç aracına dönülür, Esc aşamalı çalışır.',
+    profileCadHint: 'AutoCAD tarzı: her tıklama seçime ekler, çizim komutları Enter / Esc tuşuna kadar sürer.',
+    displaySection: 'Görünüm',
+    ribbonHiddenHint: 'Şerit gizliyken bu pencereyi OPTIONS komutuyla açın.'
+  },
   drawingUnitsDlg: {
     title: 'Çizim Birimleri',
     lengthSection: 'Uzunluk',

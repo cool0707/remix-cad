@@ -11,6 +11,7 @@ export default {
     exportAs: '导出为 {format}',
     exportImage: '导出图片',
     exportImageArea: '导出选定区域为图像',
+    settings: '设置',
     about: '关于'
   },
   ribbon: {
@@ -577,7 +578,6 @@ export default {
   },
   statusBar: {
     setting: {
-      tooltip: '显示设置',
       commandLine: '命令行',
       coordinate: '坐标',
       entityInfo: '图元信息',

@@ -16,6 +16,7 @@ export default {
     exportAs: 'تصدير إلى {format}',
     exportImage: 'تصدير إلى صورة',
     exportImageArea: 'تصدير المنطقة المحددة كصورة',
+    settings: 'الإعدادات',
     about: 'حول'
   },
 
@@ -858,7 +859,6 @@ export default {
 
     setting: {
       ...enMain.statusBar.setting,
-      tooltip: 'إعدادات العرض',
       commandLine: 'سطر الأوامر',
       coordinate: 'الإحداثيات',
       entityInfo: 'معلومات العنصر',
