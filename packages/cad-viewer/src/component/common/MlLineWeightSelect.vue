@@ -89,6 +89,11 @@ interface LineWeightSelectProps {
   /** When true, hide ByLayer / ByBlock / Default. */
   numericOnly?: boolean
   /**
+   * Line weight of a layer: ByLayer / ByBlock are hidden (a layer has nothing
+   * to inherit from) and a stored ByLayer / ByBlock shows as Default.
+   */
+  forLayer?: boolean
+  /**
    * Narrower trigger sized for numeric weights plus a stroke preview.
    */
   compact?: boolean
@@ -176,6 +181,12 @@ const lineWeightItems = computed<LineWeightItem[]>(() => {
         if (v === AcGiLineWeight.ByDIPs) return false
         if (v === 0) return false
         if (props.numericOnly) return v > 0
+        if (
+          props.forLayer &&
+          (v === AcGiLineWeight.ByLayer || v === AcGiLineWeight.ByBlock)
+        ) {
+          return false
+        }
         return true
       })
     )
@@ -187,9 +198,15 @@ const lineWeightItems = computed<LineWeightItem[]>(() => {
   }))
 })
 
-const selectedItem = computed<LineWeightItem | undefined>(() =>
-  lineWeightItems.value.find(item => item.value === props.modelValue)
-)
+const selectedItem = computed<LineWeightItem | undefined>(() => {
+  const value =
+    props.forLayer &&
+    (props.modelValue === AcGiLineWeight.ByLayer ||
+      props.modelValue === AcGiLineWeight.ByBlock)
+      ? AcGiLineWeight.ByLineWeightDefault
+      : props.modelValue
+  return lineWeightItems.value.find(item => item.value === value)
+})
 const currentLabel = computed(
   () => selectedItem.value?.label ?? props.placeholder ?? ''
 )

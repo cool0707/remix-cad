@@ -146,6 +146,20 @@ const isCurrent = (preset: number) =>
   margin: 0 6px;
 }
 
+/*
+ * Element Plus centres the knob with vertical-align: middle on a text line,
+ * which puts it a few pixels below the thin runway. Centre it with flex.
+ */
+.ml-zoom-control__slider :deep(.el-slider__button-wrapper) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ml-zoom-control__slider :deep(.el-slider__button-wrapper::after) {
+  display: none;
+}
+
 .ml-zoom-control__value {
   border: none;
   height: 30px;

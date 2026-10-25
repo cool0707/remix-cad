@@ -250,6 +250,7 @@ export class AcApOffsetCmd extends AcEdCommand {
 
       /**
        * Validates the entered distance and advances to curve selection.
+       * Enter or right-click without a value (`None`) reuses the last distance.
        *
        * Invalid, non-finite, or non-positive distances show a warning and end
        * the command. A valid distance is stored for reuse on subsequent runs.
@@ -259,13 +260,15 @@ export class AcApOffsetCmd extends AcEdCommand {
        */
       handleResult(result: OffsetPromptResult): OffsetStep {
         if (!(result instanceof AcEdPromptDoubleResult)) return 'finish'
-        if (result.status !== AcEdPromptStatus.OK || result.value == null) {
-          return 'finish'
-        }
-        if (
-          !Number.isFinite(result.value) ||
-          AcGeTol.isNonPositive(result.value)
-        ) {
+        // Enter / right-click without a value takes the default distance.
+        const value =
+          result.status === AcEdPromptStatus.None
+            ? AcApOffsetCmd._lastDistance
+            : result.status === AcEdPromptStatus.OK
+              ? result.value
+              : undefined
+        if (value == null) return 'finish'
+        if (!Number.isFinite(value) || AcGeTol.isNonPositive(value)) {
           showCommandMessage(
             AcApI18n.t('jig.offset.invalidDistance'),
             'warning'
@@ -273,8 +276,8 @@ export class AcApOffsetCmd extends AcEdCommand {
           return 'finish'
         }
 
-        offsetDistance = result.value
-        AcApOffsetCmd._lastDistance = result.value
+        offsetDistance = value
+        AcApOffsetCmd._lastDistance = value
         this.machine.setState(new SelectCurveState(this.machine))
         return 'continue'
       }
@@ -408,6 +411,9 @@ export class AcApOffsetCmd extends AcEdCommand {
           showCommandMessage(AcApI18n.t('jig.offset.offsetFailed'), 'warning')
         } else {
           blockTable.modelSpace.appendEntity(offsetCurves)
+          // Edits inside the command's transaction reach the view only when
+          // the command ends; show each offset right away (as COPY does).
+          context.view.addEntity(offsetCurves)
         }
 
         currentCurve = undefined

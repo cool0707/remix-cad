@@ -243,6 +243,7 @@
             @click.stop
           >
             <MlLineWeightSelect
+              for-layer
               :model-value="scope.row.lineWeight"
               :placeholder="
                 t('main.toolPalette.layerManager.layerList.lineWeightDefault')
@@ -337,7 +338,7 @@ import { ElCheckbox, ElInput, ElTable, ElTableColumn } from 'element-plus'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { colorName, lineTypeName, symbolicName } from '../../locale'
+import { colorName, lineTypeName } from '../../locale'
 import {
   layerLight,
   layerLocker,
@@ -518,12 +519,14 @@ const formatLayerColorName = (row: MlLayerTableRow) => {
   return colorName(name)
 }
 
+/**
+ * Label of a layer's line weight. A layer has nothing to inherit from, so a
+ * stored ByLayer / ByBlock (some DXF writers use -1) means Default.
+ */
 const formatLineWeightLabel = (value: number) => {
   switch (value) {
     case AcGiLineWeight.ByLayer:
-      return symbolicName('byLayer')
     case AcGiLineWeight.ByBlock:
-      return symbolicName('byBlock')
     case AcGiLineWeight.ByLineWeightDefault:
       return t('main.toolPalette.layerManager.layerList.lineWeightDefault')
     default:
