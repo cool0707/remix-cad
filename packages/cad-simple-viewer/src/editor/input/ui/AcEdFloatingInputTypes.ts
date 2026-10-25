@@ -76,6 +76,13 @@ export type AcEdFloatingInputCancelCallback = () => void
 export type AcEdFloatingInputNoneCallback = () => void
 
 /**
+ * Callback invoked when Enter submits typed text that is not a valid value.
+ * Returns true when the text was consumed as a prompt keyword (e.g. `A` for
+ * PLINE Arc), the same way the command line accepts it.
+ */
+export type AcEdFloatingInputKeywordCallback = (text: string) => boolean
+
+/**
  * Callback invoked on mousemove to update the preview geometry.
  */
 export type AcEdFloatingInputDrawPreviewCallback = (
@@ -191,6 +198,12 @@ export interface AcEdFloatingInputOptions<T> {
    * Callback invoked when user enters no value and prompt allows none.
    */
   onNone?: AcEdFloatingInputNoneCallback
+
+  /**
+   * Callback invoked when Enter submits text that is not a valid value but
+   * may be a keyword.
+   */
+  onKeyword?: AcEdFloatingInputKeywordCallback
 
   /**
    * Whether pressing Enter with no manual input should submit defaultValue.

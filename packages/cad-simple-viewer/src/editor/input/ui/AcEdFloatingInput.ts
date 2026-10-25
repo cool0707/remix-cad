@@ -17,6 +17,7 @@ import {
   AcEdFloatingInputCommitCallback,
   AcEdFloatingInputDrawPreviewCallback,
   AcEdFloatingInputDynamicValueCallback,
+  AcEdFloatingInputKeywordCallback,
   AcEdFloatingInputNoneCallback,
   AcEdFloatingInputOptions,
   AcEdFloatingInputValidationCallback
@@ -87,6 +88,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   private onChange?: AcEdFloatingInputChangeCallback<T>
   private onCancel?: AcEdFloatingInputCancelCallback
   private onNone?: AcEdFloatingInputNoneCallback
+  private onKeyword?: AcEdFloatingInputKeywordCallback
 
   /** Validation and dynamic value providers */
   private validateFn: AcEdFloatingInputValidationCallback<T>
@@ -190,6 +192,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     this.onChange = options.onChange
     this.onCancel = options.onCancel
     this.onNone = options.onNone
+    this.onKeyword = options.onKeyword
 
     // -----------------------------
     // Input boxes
@@ -201,6 +204,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
         validate: this.validateFn,
         onCancel: this.onCancel,
         onNone: this.onNone,
+        onKeyword: this.onKeyword,
         onCommit: this.onCommit,
         onChange: this.onChange,
         autoFocus: this.isDynamicInputEnabled(),

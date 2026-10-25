@@ -2662,6 +2662,27 @@ export class AcEdInputManager {
   }
 
   /**
+   * Prompt text for the cursor tooltip, with the visible keywords appended
+   * (`Specify next point or [Arc(A)/Undo(U)]`) so options can be found
+   * without the command line. Typing one of them and pressing Enter in the
+   * tooltip inputs picks it.
+   */
+  private floatingPromptMessage<T>(options: AcEdPromptOptions<T>) {
+    const keywords = (options.keywords?.toArray() ?? []).filter(
+      kw => kw.visible
+    )
+    if (!options.appendKeywordsToMessage || keywords.length === 0) {
+      return options.getDisplayMessage()
+    }
+    const core = options.message.trim().replace(/[：:]\s*$/, '')
+    const list = keywords.map(kw => kw.displayName).join('/')
+    const defaultText = options.getDefaultValueDisplayText()
+    return defaultText == null
+      ? `${core} [${list}]`
+      : `${core} [${list}] <${defaultText}>`
+  }
+
+  /**
    * Runs a floating-input prompt and resolves it to a parsed value.
    *
    * This is the core interaction primitive used by most non-selection prompts.
@@ -2750,7 +2771,7 @@ export class AcEdInputManager {
       const floatingInput = new AcEdFloatingInput(this.view, {
         parent: this.view.canvas,
         inputCount: options.inputCount,
-        message: promptDefaults.message,
+        message: this.floatingPromptMessage(options.promptOptions),
         disableOSnap: options.disableOSnap,
         showBaseLineOnly: promptDefaults.showBaseLineOnly,
         basePoint,
@@ -2786,7 +2807,13 @@ export class AcEdInputManager {
           return result
         },
         onCancel: () => rejector(),
-        onNone: () => noneRejector()
+        onNone: () => noneRejector(),
+        onKeyword: text => {
+          const keyword = options.promptOptions.keywords?.findByName(text)
+          if (!keyword) return false
+          keywordRejector(keyword.globalName)
+          return true
+        }
       })
       options.onFloatingInputCreated?.(floatingInput)
       const cleanup = () => {
