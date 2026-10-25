@@ -272,6 +272,32 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   1:1 で写せる。CLI は「入力 (DXF: `dxf` crate / JWW: ezjww / SXF: ezsxf) → ExportDrawing 相当 → 出力」にし、平坦化 (`collect.ts`) と
   writer (`jwwExport.ts` / `sxfExport.ts`) を Rust に移植するのが最短。共有したくなったら逆に Rust 側を wasm にしてブラウザから使う。
 
+## 2.6 ハッチングの境界検出 (2026-10-25)
+
+HATCH (`AcApHatchCmd`、リボンの `AcApHatchRibbonCmd` も継承) を AutoCAD の -HATCH に合わせて作り直した。
+以前は「線を端点同士でつなぐだけ」(`AcGeLoop2d.buildFromEdges`) で、交差・T 字・共有辺で閉じず、
+`AcGeLoop2d.closed` が常に true なので開いた形も多角形扱いになっていた。
+
+- 境界検出は CADCraft (MIT OR Apache-2.0) の `crates/geom/src/region.rs` を TypeScript に移植
+  (`command/draw/AcApHatchBoundary.ts`、MIT の表記をファイル先頭に残している)。線を交点で分割 → 平面グラフ →
+  点から +X 方向の光線で当たった辺から最小の面をたどる → 面の内側で境界に触れない図形のまとまりを島にする。
+  追加分: 重なった同一直線上の線の分割、許容差ビンの隣接チェック、端点スナップのグリッド化、`closedOutlines` (オブジェクト選択用)。
+- 境界セット (`AcApHatchBoundarySet.ts`): モデル空間の図形のうち、オンでフリーズされていないレイヤーにあるもの (画面の外の図形も含む)。
+  非表示の図形、他のハッチ、画像、3D は除外。
+  ブロック参照は展開し、ブロック内のレイヤー 0 は参照のレイヤーとみなす。曲線は `subGetIntersectCurves()` で取り出して折れ線にする。
+  円・閉じたポリラインがそのまま境界/島になるときは元の形 (円弧) を残す。
+  線分が上限 (環境設定「境界を調べる線分の上限」= `AcApSettings.hatchMaxSegments`、既定 6 万本) を超える図面は、
+  画面の枠にかかっている図形だけで調べる (AutoCAD の既定の境界セットと同じ)。
+- 点を指定 (既定): Osnap は切る (線上に吸着すると内側にならない)。島はハッチスタイルで扱う (標準 = 全部、外側 = 一番外側だけ、無視 = なし)。
+  同じ範囲を 2 回クリックすると警告。オブジェクトを選択: 閉じた図形、または組み合わせて閉じる線のまとまりが境界、入れ子は島。
+- 失敗時は通知 (`jig.hatch.boundaryNotFound` / `tooComplex` / `alreadyHatched` / `invalidBoundary` / `selectNotClosed`)。
+- やり残し: AutoCAD はクリックした範囲を Enter でまとめて 1 つのハッチにする (HPSEPARATE=0) が、ここではクリックごとに 1 つ作る。
+  文字を島として避ける処理、自動調整 (境界の変更への追従) は未実装。
+- 隙間の許容値 HPGAPTOL (0〜5000 図面単位、既定 0): AutoCAD と同じく図面ではなくユーザーごとの値なので `AcApSettings.hatchGapTolerance`
+  (localStorage) に置き、環境設定・塗りつぶしリボンの「オプション」・コマンド `HPGAPTOL` のどれからでも変えられる。
+  線の途中に届かない端はその線上へ延ばし、端と端の隙間は直線で橋渡しする (両方の端を互いに引き寄せると角がずれるため)。
+  HPGAPTOL が 0 でも、図面サイズの 1/20000 以内の隙間 (円弧を折れ線にしたときのずれなど) は閉じる。
+
 ## 3. 既知の問題・やり残し
 
 - DWG を開く処理: NURBS 以外では、LibreDWG の `convertEx` (embind) が約 1 秒かかる。ここは手付かず。

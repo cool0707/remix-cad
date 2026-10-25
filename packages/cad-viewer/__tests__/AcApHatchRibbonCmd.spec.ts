@@ -11,6 +11,10 @@ jest.mock('@mlightcad/cad-simple-viewer', () => {
   class AcApHatchCmd {
     globalName = 'HATCH'
 
+    protected get gapTolerance() {
+      return 0
+    }
+
     protected normalizePatternName(value: string) {
       const name = value.trim().toUpperCase()
       return name.length > 0 ? name : 'SOLID'
@@ -45,6 +49,11 @@ jest.mock('@mlightcad/cad-simple-viewer', () => {
       instance: mockDocManager
     },
     AcApHatchCmd,
+    AcApSettingManager: {
+      instance: {
+        events: { modified: { addEventListener: jest.fn() } }
+      }
+    },
     AcApI18n: {
       t: (key: string) => key
     },

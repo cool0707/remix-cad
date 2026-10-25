@@ -22,7 +22,12 @@ export default {
     displaySection: 'Zobrazení',
     ribbonHiddenHint: 'Bez pásu karet otevřete toto okno příkazem OPTIONS.',
     snapSection: 'Uchopení',
-    snapHint: 'Používá se při zadávání bodů, přetahování výběru a u vodítek zarovnání. Body k uchopení:'
+    snapHint: 'Používá se při zadávání bodů, přetahování výběru a u vodítek zarovnání. Body k uchopení:',
+    hatchSection: 'Výplň',
+    hatchGapTolerance: 'Tolerance mezery (jednotky výkresu)',
+    hatchGapToleranceHint: 'Mezery mezi konci křivek do této šířky se stále považují za uzavřenou hranici (0–5000). 0 nepovoluje žádné mezery. Stejné jako HPGAPTOL v AutoCADu; lze nastavit také příkazem HPGAPTOL nebo na pásu výplně.',
+    hatchMaxSegments: 'Nejvíce úseček pro hledání hranice',
+    hatchMaxSegmentsHint: 'Hranice kolem vybraného bodu se hledá ve všech objektech v zapnutých hladinách, i mimo pohled. Ve výkresech s více úsečkami se hledá jen v objektech v pohledu. Vyšší hodnota prohledá celé velké výkresy, ale zabere více času a paměti.'
   },
   drawingUnitsDlg: {
     title: 'Jednotky výkresu',

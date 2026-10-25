@@ -31,6 +31,7 @@ import {
   AcApExportDrawingCmd,
   AcApHatchCmd,
   AcApHideObjectsCmd,
+  AcApHpGapTolCmd,
   AcApImageAttachCmd,
   AcApInsertCmd,
   AcApLayerCloseCmd,
@@ -2012,6 +2013,7 @@ export class AcApDocManager {
       commandManager: this._commandManager
     })
     addSystemCommand('-hatch', '-hatch', new AcApHatchCmd())
+    addSystemCommand('hpgaptol', 'hpgaptol', new AcApHpGapTolCmd())
     addSystemCommand('imageattach', 'imageattach', new AcApImageAttachCmd())
     addSystemCommand('-insert', '-insert', new AcApInsertCmd())
     addSystemCommand('xattach', 'xattach', new AcApXAttachCmd())

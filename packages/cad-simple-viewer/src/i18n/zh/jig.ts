@@ -162,8 +162,8 @@ export default {
     }
   },
   hatch: {
-    prompt: '选择边界对象或',
-    pickPoint: '指定内部点（或按 Enter 结束）',
+    prompt: '拾取内部点或',
+    pickPoint: '拾取内部点（或按 Enter 结束）',
     select: '选择要填充的对象',
     patternName: '输入填充图案名称',
     scale: '指定填充图案比例',
@@ -171,6 +171,13 @@ export default {
     style: '输入填充样式',
     associative: '指定关联性',
     invalidBoundary: '所选对象无法构成闭合边界。',
+    boundaryFound: '已找到边界并填充。',
+    boundaryFoundIslands: '已找到边界并填充（内部孤岛 {count} 个）。',
+    boundaryNotFound: '未找到有效的填充边界。请确认该点被线条完全围住且没有缺口。',
+    alreadyHatched: '此区域已填充。',
+    tooComplex: '对象过多，无法分析边界。请放大要填充的区域后再拾取，或在设置中提高“边界检测的线段上限”。',
+    selectFound: '找到 {count} 个闭合边界。',
+    selectNotClosed: '{count} 个对象未闭合，未用作边界。',
     keywords: {
       pick: {
         display: '拾取点(P)',
@@ -1165,6 +1172,10 @@ export default {
         global: 'Uniform'
       }
     }
+  },
+  hpgaptol: {
+    prompt: '输入填充间隙公差（0–5000，图形单位）',
+    outOfRange: '间隙公差必须在 0 到 5000 之间。'
   },
   sysvar: {
     prompt: '请输入新的值'

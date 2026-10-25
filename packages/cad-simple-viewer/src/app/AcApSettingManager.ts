@@ -80,6 +80,17 @@ export interface AcApSettings {
    */
   continuousDraw: boolean
   /**
+   * HATCH: the widest gap between curve ends, in drawing units, that still
+   * closes a boundary (AutoCAD HPGAPTOL, 0–5000). Kept per user, like AutoCAD
+   * keeps HPGAPTOL in the registry rather than in the drawing.
+   */
+  hatchGapTolerance: number
+  /**
+   * HATCH: the most line segments the boundary search traces through. Past
+   * this, only the objects in the current view are searched.
+   */
+  hatchMaxSegments: number
+  /**
    * How plain clicks on the canvas update the selection set: `'cad'` adds on
    * every click, `'simple'` replaces (Shift + click toggles).
    */
@@ -148,6 +159,8 @@ const DEFAULT_VALUES: AcApSettings = {
   osnapEnabled: true,
   operationProfile: 'simple',
   continuousDraw: false,
+  hatchGapTolerance: 0,
+  hatchMaxSegments: 60_000,
   selectionStyle: 'simple',
   hideTouchPointTutorial: false,
   touchPointTutorialSnoozeDate: null,
@@ -172,9 +185,10 @@ const DEFAULT_SETTINGS_LS_KEY = 'settings'
  * @param stored - Parsed localStorage object; not mutated.
  * @returns A copy with `isShowRibbon` filled in and obsolete keys removed.
  */
-export function migrateStoredSettings(
-  stored: Record<string, unknown>
-): { settings: Record<string, unknown>; migrated: boolean } {
+export function migrateStoredSettings(stored: Record<string, unknown>): {
+  settings: Record<string, unknown>
+  migrated: boolean
+} {
   const next = { ...stored }
   let migrated = false
   if (!('isShowRibbon' in next) && typeof next.isShowMainMenu === 'boolean') {
@@ -768,6 +782,46 @@ export class AcApSettingManager<T extends AcApSettings = AcApSettings> {
    */
   set continuousDraw(value: boolean) {
     this.set('continuousDraw', value)
+  }
+
+  /**
+   * Gets the HATCH gap tolerance (see {@link AcApSettings.hatchGapTolerance}).
+   */
+  get hatchGapTolerance() {
+    return this.get('hatchGapTolerance')
+  }
+
+  /**
+   * Sets the HATCH gap tolerance, clamped to 0–5000 drawing units.
+   *
+   * @param value - Widest gap that still closes a boundary.
+   */
+  set hatchGapTolerance(value: number) {
+    this.set(
+      'hatchGapTolerance',
+      Number.isFinite(value) ? Math.min(5000, Math.max(0, value)) : 0
+    )
+  }
+
+  /**
+   * Gets the HATCH segment limit (see {@link AcApSettings.hatchMaxSegments}).
+   */
+  get hatchMaxSegments() {
+    return this.get('hatchMaxSegments')
+  }
+
+  /**
+   * Sets the HATCH segment limit, clamped to 1,000–2,000,000.
+   *
+   * @param value - Most line segments the boundary search traces through.
+   */
+  set hatchMaxSegments(value: number) {
+    this.set(
+      'hatchMaxSegments',
+      Number.isFinite(value)
+        ? Math.round(Math.min(2_000_000, Math.max(1000, value)))
+        : 60_000
+    )
   }
 
   /**

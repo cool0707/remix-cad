@@ -71,6 +71,38 @@
         </div>
       </ml-fieldset-group>
 
+      <ml-fieldset-group :title="t('dialog.settingsDlg.hatchSection')">
+        <el-form label-position="top" class="ml-settings-dlg__form">
+          <el-form-item :label="t('dialog.settingsDlg.hatchGapTolerance')">
+            <el-input-number
+              v-model="form.hatchGapTolerance"
+              :min="0"
+              :max="5000"
+              :step="1"
+              controls-position="right"
+              data-testid="settings-hatch-gap-tolerance"
+            />
+            <div class="ml-settings-dlg__hint">
+              {{ t('dialog.settingsDlg.hatchGapToleranceHint') }}
+            </div>
+          </el-form-item>
+          <el-form-item :label="t('dialog.settingsDlg.hatchMaxSegments')">
+            <el-input-number
+              v-model="form.hatchMaxSegments"
+              :min="1000"
+              :max="2000000"
+              :step="10000"
+              :precision="0"
+              controls-position="right"
+              data-testid="settings-hatch-max-segments"
+            />
+            <div class="ml-settings-dlg__hint">
+              {{ t('dialog.settingsDlg.hatchMaxSegmentsHint') }}
+            </div>
+          </el-form-item>
+        </el-form>
+      </ml-fieldset-group>
+
       <ml-fieldset-group :title="t('dialog.settingsDlg.displaySection')">
         <el-form label-position="left" class="ml-settings-dlg__form">
           <el-form-item :label="t('dialog.settingsDlg.theme')">
@@ -116,6 +148,7 @@ import {
   ElCheckbox,
   ElForm,
   ElFormItem,
+  ElInputNumber,
   ElRadio,
   ElRadioGroup
 } from 'element-plus'
@@ -151,6 +184,8 @@ type SettingsForm = Pick<
   | 'continuousDraw'
   | 'osnapEnabled'
   | 'osnapModes'
+  | 'hatchGapTolerance'
+  | 'hatchMaxSegments'
   | 'isShowRibbon'
   | 'isShowToolbar'
   | 'isShowCommandLine'
@@ -167,6 +202,8 @@ type DisplayKey = Exclude<
   | 'continuousDraw'
   | 'osnapEnabled'
   | 'osnapModes'
+  | 'hatchGapTolerance'
+  | 'hatchMaxSegments'
 >
 
 const readSettings = (): SettingsForm => {
@@ -177,6 +214,8 @@ const readSettings = (): SettingsForm => {
     continuousDraw: s.continuousDraw,
     osnapEnabled: s.osnapEnabled,
     osnapModes: s.osnapModes,
+    hatchGapTolerance: s.hatchGapTolerance,
+    hatchMaxSegments: s.hatchMaxSegments,
     isShowRibbon: s.isShowRibbon,
     isShowToolbar: s.isShowToolbar,
     isShowCommandLine: s.isShowCommandLine,
@@ -222,7 +261,10 @@ const displayItems = computed(() => {
   const items: { key: DisplayKey; label: string }[] = [
     { key: 'isShowRibbon', label: t('main.statusBar.setting.ribbon') },
     { key: 'isShowToolbar', label: t('main.statusBar.setting.toolbar') },
-    { key: 'isShowCommandLine', label: t('main.statusBar.setting.commandLine') },
+    {
+      key: 'isShowCommandLine',
+      label: t('main.statusBar.setting.commandLine')
+    },
     { key: 'isShowCoordinate', label: t('main.statusBar.setting.coordinate') },
     {
       key: 'isShowLanguageSelector',
@@ -245,6 +287,13 @@ const handleOpen = () => {
 
 const apply = () => {
   const settings = AcApSettingManager.instance
+  // An emptied number box gives null: keep the stored value.
+  if (form.hatchGapTolerance == null) {
+    form.hatchGapTolerance = settings.hatchGapTolerance
+  }
+  if (form.hatchMaxSegments == null) {
+    form.hatchMaxSegments = settings.hatchMaxSegments
+  }
   for (const key of Object.keys(form) as (keyof SettingsForm)[]) {
     if (form[key] !== settings.get(key)) {
       settings.set(key, form[key])

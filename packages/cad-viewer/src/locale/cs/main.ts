@@ -49,6 +49,7 @@ export default {
         backgroundColor: 'Barva pozadí',
         gradient2Color: 'Barva přechodu 2',
         opacity: 'Průhlednost',
+        gapTolerance: 'Mezera',
         imageScale: 'Měřítko obrázku'
       },
       style: {
@@ -67,7 +68,7 @@ export default {
       },
       tooltip: {
         pickPoints: 'Určete vnitřní body pro vytvoření vyplněných oblastí.',
-        selectObjects: 'Vyberte uzavřené hraniční objekty k vyplnění.',
+        selectObjects: 'Vyberte objekty ohraničující oblast k vyplnění (uzavřené objekty nebo čáry, které ji společně uzavírají).',
         pattern: 'Zvolte název vzoru výplně.',
         scale: 'Nastavte měřítko vzoru výplně.',
         angle: 'Nastavte úhel vzoru výplně ve stupních.',
@@ -80,6 +81,7 @@ export default {
         backgroundColor: 'Zvolte barvu pozadí výplně vzorem.',
         gradient2Color: 'Zvolte druhou barvu přechodu.',
         opacity: 'Nastavte průhlednost vzorové výplně (0–90).',
+        gapTolerance: 'Mezery mezi konci křivek do této šířky (jednotky výkresu) se stále považují za uzavřenou hranici (HPGAPTOL, 0–5000).',
         imageScale: 'Nastavte měřítko obrázkové výplně.',
         close: 'Ukončí vytváření vzorové výplně a zavře tuto kontextovou kartu.'
       }

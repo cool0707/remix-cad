@@ -205,6 +205,9 @@ export default {
       description:
         'Řídí, zda jsou uživatelsky definované vzory výplně zdvojené'
     },
+    hpgaptol: {
+      description: 'Nastaví nejširší mezeru (v jednotkách výkresu), kterou hranice šrafování ještě považuje za uzavřenou'
+    },
     hpislanddetection: {
       description:
         'Řídí, jak se nakládá s ostrůvky uvnitř hranic nově vytvářených vzorových výplní'

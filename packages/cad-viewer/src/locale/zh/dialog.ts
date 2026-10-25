@@ -22,7 +22,12 @@ export default {
     displaySection: '显示',
     ribbonHiddenHint: '隐藏功能区后，请用 OPTIONS 命令打开此对话框。',
     snapSection: '捕捉',
-    snapHint: '在指定点、拖动所选对象和对齐参考线时使用。捕捉到的点：'
+    snapHint: '在指定点、拖动所选对象和对齐参考线时使用。捕捉到的点：',
+    hatchSection: '填充',
+    hatchGapTolerance: '间隙公差（图形单位）',
+    hatchGapToleranceHint: '线端之间的间隙不超过此宽度时仍视为闭合边界（0–5000）。0 表示不允许间隙。与 AutoCAD 的 HPGAPTOL 相同，也可通过 HPGAPTOL 命令或填充功能区设置。',
+    hatchMaxSegments: '边界检测的线段上限',
+    hatchMaxSegmentsHint: '拾取点的边界会在所有已打开图层的对象（包括视图外的对象）中查找。线段数超过此值的图形只在当前视图内的对象中查找。调大后可在大图形中全图查找，但会耗费更多时间和内存。'
   },
   drawingUnitsDlg: {
     title: '图形单位',

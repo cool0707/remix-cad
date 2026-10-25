@@ -4,7 +4,7 @@ import {
   AcApHatchCmd,
   AcApI18n,
   acapRunDatabaseEdit,
-  AcEdPromptEntityOptions,
+  AcApSettingManager,
   AcEdPromptStatus,
   type HatchSettings
 } from '@mlightcad/cad-simple-viewer'
@@ -40,6 +40,8 @@ export interface HatchRibbonState {
   backgroundColor: string
   gradient2Color: string
   opacity: number
+  /** HPGAPTOL, kept in the settings (see `AcApSettings.hatchGapTolerance`). */
+  gapTolerance: number
 }
 
 type HatchRibbonAction = 'pickPoints' | 'selectObjects' | 'close'
@@ -76,7 +78,8 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
     fillColor: DEFAULT_HATCH_FILL_COLOR,
     backgroundColor: DEFAULT_HATCH_BACKGROUND_COLOR,
     gradient2Color: DEFAULT_HATCH_GRADIENT_COLOR,
-    opacity: 0
+    opacity: 0,
+    gapTolerance: 0
   })
 
   private _isActive = false
@@ -91,9 +94,16 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
     super()
     this.initializeSettingsProxy()
     this.initializeSysVarListener()
+    // HPGAPTOL can also change from the settings dialog or the command line.
+    AcApSettingManager.instance.events.modified.addEventListener(args => {
+      if (args.key === 'hatchGapTolerance') {
+        this._state.gapTolerance = this.gapTolerance
+      }
+    })
   }
 
   syncStateFromSysVars() {
+    this._state.gapTolerance = this.gapTolerance
     const database = AcApDocManager.instance.curDocument?.database
     if (!database) return
 
@@ -491,6 +501,16 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
     this.applyStateToSelectedHatches()
   }
 
+  /**
+   * Sets HPGAPTOL: the widest gap between curve ends that still closes a
+   * boundary (0–5000 drawing units). The next pick traces with it.
+   */
+  setGapTolerance(value: number) {
+    if (!Number.isFinite(value) || value < 0) return
+    AcApSettingManager.instance.hatchGapTolerance = value
+    this._state.gapTolerance = this.gapTolerance
+  }
+
   setPatternAngle(value: number) {
     if (!Number.isFinite(value)) return
 
@@ -634,6 +654,7 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
 
   async execute(context: AcApContext) {
     this.syncStateFromSysVars()
+    this.resetBoundaryState()
     this._isActive = true
     this._activeHatchIds.clear()
     const entityAppendedListener = (args: AcDbEntityEventArgs) => {
@@ -656,7 +677,7 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
           continue
         }
 
-        const result = await AcApDocManager.instance.editor.getEntity(
+        const result = await AcApDocManager.instance.editor.getPoint(
           this.createBoundaryPrompt()
         )
         const actionAfterPrompt = this.consumeQueuedAction()
@@ -665,11 +686,8 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
           continue
         }
 
-        if (result.status === AcEdPromptStatus.OK && result.objectId) {
-          const loops = this.collectLoopsFromIds(context, [result.objectId])
-          if (loops.length) {
-            this.appendHatch(context, loops)
-          }
+        if (result.status === AcEdPromptStatus.OK && result.value) {
+          this.hatchAtPoint(context, result.value)
           continue
         }
 
@@ -735,18 +753,10 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
   }
 
   private createBoundaryPrompt() {
-    const options = new AcEdPromptEntityOptions(AcApI18n.t('jig.hatch.prompt'))
-    options.allowNone = true
-    options.setRejectMessage(AcApI18n.t('jig.hatch.invalidBoundary'))
-    options.addAllowedClass('Polyline')
-    options.addAllowedClass('Circle')
-    options.addAllowedClass('Arc')
-    options.addAllowedClass('Line')
-    options.keywords.add(
-      AcApI18n.t('jig.hatch.keywords.pick.display'),
-      AcApI18n.t('jig.hatch.keywords.pick.global'),
-      AcApI18n.t('jig.hatch.keywords.pick.local')
+    const options = this.createInternalPointOptions(
+      AcApI18n.t('jig.hatch.prompt')
     )
+    options.allowNone = true
     options.keywords.add(
       AcApI18n.t('jig.hatch.keywords.select.display'),
       AcApI18n.t('jig.hatch.keywords.select.global'),

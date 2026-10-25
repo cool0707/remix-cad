@@ -370,6 +370,12 @@ export default {
         'التحكم في مضاعفة أنماط التعبئة المعرفة بواسطة المستخدم'
     },
 
+    hpgaptol: {
+      ...enCommand.ACAD.hpgaptol,
+      description:
+        'يضبط أوسع فجوة (بوحدات الرسم) لا تزال حدود التهشير تعتبرها مغلقة'
+    },
+
     hpislanddetection: {
       ...enCommand.ACAD.hpislanddetection,
       description:
