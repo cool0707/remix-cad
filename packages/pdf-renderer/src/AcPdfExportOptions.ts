@@ -21,6 +21,12 @@ export interface AcPdfExportOptions {
   /** Margin around extents, in millimetres. Defaults to 0 (2% padding is still applied). */
   marginMm?: number
   /**
+   * Padding on each page edge as a fraction of the page. Defaults to 0.02.
+   * Use 0 with {@link paper} and a {@link fitBox} of the sheet to print the
+   * model page at an exact scale.
+   */
+  pagePadding?: number
+  /**
    * Page background. `'none'` leaves white paper (default). A 24-bit RGB
    * paints a full-page rectangle first.
    */

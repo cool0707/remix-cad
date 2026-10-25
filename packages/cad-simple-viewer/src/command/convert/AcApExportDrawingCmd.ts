@@ -2,6 +2,7 @@ import { log } from '@mlightcad/data-model'
 
 import { AcApContext } from '../../app'
 import type { AcApDrawingExporter } from '../../app/AcApDrawingExporters'
+import { acapPromptExportSheet } from '../../app/AcApDrawingSheet'
 import { AcEdCommand } from '../../editor'
 import {
   getDrawingExportBaseName,
@@ -21,12 +22,18 @@ export class AcApExportDrawingCmd extends AcEdCommand {
   async execute(context: AcApContext) {
     const exporter = this.exporter
     const sourceName = context.doc.fileName || context.doc.docTitle
+    const sheet = await acapPromptExportSheet({
+      formatName: exporter.formatName,
+      landscapeOnly: exporter.landscapeOnly
+    })
+    if (!sheet) return
     try {
       const result = await this.withBusyIndicator(
         () =>
           exporter.export(
             context.doc.database,
-            getDrawingExportBaseName(sourceName)
+            getDrawingExportBaseName(sourceName),
+            sheet
           ),
         acapI18nTranslate('main.message.exportingDrawing', {
           format: exporter.formatName

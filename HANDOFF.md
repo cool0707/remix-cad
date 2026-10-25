@@ -238,7 +238,17 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   (`main.mainMenu.exportAs`) ができる。example は `src/registerExporters.ts` で登録。警告は詳細をコンソール、通知は i18n の定型文。
 - テスト: `cad-export-model/__tests__`、`cad-jww-converter/__tests__/jwwExport.spec.ts`、`cad-sxf-converter/__tests__/sxfExport.spec.ts`、e2e `export.spec.ts`。
   e2e をこの環境で回すときは channel を外し `launchOptions.executablePath` を `/opt/pw-browsers/chromium-*/chrome-linux64/chrome` にした一時設定を使った。
-- 未対応・やり残し: 用紙・縮尺を選ぶダイアログ (API の `paper` / `scale` はある)、ブロックを JWW / SXF のブロック・複合図形として残す、
+- 用紙・縮尺ダイアログ (2026-10-25): DXF / JWW / SFC / P21 の書き出し前に `MlExportDrawingDlg` が開く。
+  cad-simple-viewer の `acapSetExportSheetPrompt()` に cad-viewer がダイアログを差し込み、コマンド (`cdxf` / `cjww` …) は
+  `acapPromptExportSheet()` で聞く (差し込みが無ければ自動)。入力部品 `MlExportSheetFields` (用紙・向き・縮尺、1:N は自由入力可、
+  選んだ結果を「書き出す用紙: A3 横 1:100」と表示) は PDF ダイアログの 3 枚目のカード「用紙と縮尺」でも使う。
+  用紙の決め方は全形式で `acapResolveDrawingSheet()` / `chooseSheet()` (図面範囲 → 無ければ A3 に収まる最小の標準縮尺)。
+  DXF: すべて自動なら今までどおり、指定があれば `$LIMMIN/$LIMMAX` を HEADER に書き込む (`acapSetDxfLimits`、dxfOut は書かない)。
+  PDF: モデルのページを用紙サイズにし、用紙の範囲を `fitBox`、`pagePadding: 0` で縮尺どおり (pdf-renderer に `pagePadding` を追加。
+  印刷ページのページには用紙指定を適用しない)。`-cpdf` のコマンドライン版には未追加。
+  e2e で PDF を試すと、開発サーバーが初回に pdf-lib を最適化してページを再読み込みする (example の `optimizeDeps.include` の
+  pdf-lib が解決できていない既存の問題) ので、PDF の e2e は入れていない。
+- 未対応・やり残し: ブロックを JWW / SXF のブロック・複合図形として残す、
   寸法を寸法要素として残す、SXF の画像、Jw_cad 実機での確認 (Wine / Windows)。
 - **DWG 書き出し — 方針 (2026-10-24 決定)**: CADcraft の DWG 対応がまともになったら、それを取り込む (ライセンスは MPL-2.0)。
   MPL-2.0 はファイル単位のコピーレフトなので MIT の本体と組み合わせてよいが、取り込んだファイルは MPL-2.0 のまま

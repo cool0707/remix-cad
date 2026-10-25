@@ -168,6 +168,42 @@ export default {
     copyPasswordFailed: 'تعذر نسخ كلمة المرور إلى الحافظة.'
   },
 
+  exportDrawingDlg: {
+
+    title: 'تصدير إلى {format}'
+
+  },
+
+  exportSheet: {
+
+    section: 'الورق والمقياس',
+
+    paper: 'الورق',
+
+    orientation: 'الاتجاه',
+
+    scale: 'المقياس',
+
+    auto: 'تلقائي',
+
+    landscape: 'أفقي',
+
+    portrait: 'عمودي',
+
+    sheetValue: '{paper} {orientation} {scale}',
+
+    result: 'الورقة: {value}',
+
+    keepDrawing: 'لا تتغير حدود الرسم',
+
+    invalidScale: 'أدخل مقياسًا مثل 1:100',
+
+    dxfHint: 'تُكتب الورقة والمقياس المحددان كحدود للرسم (LIMITS). إذا كان كل شيء تلقائيًا فلا تتغير.',
+
+    jwwHint: 'أوراق Jw_cad أفقية فقط.'
+
+  },
+
   exportPdfDlg: {
     ...enDialog.exportPdfDlg,
     title: 'تصدير إلى PDF',
@@ -176,6 +212,8 @@ export default {
     modelSpaceDisplayHint: 'تصدير المحتوى المعروض حاليًا في نافذة العرض',
     modelSpaceExtents: 'الامتدادات',
     modelSpaceExtentsHint: 'تصدير امتدادات جميع الكائنات في المساحة الحالية',
+    modelSpaceSheet: 'الورق والمقياس',
+    modelSpaceSheetHint: 'يضع الرسم على حجم الورق المحدد بمقياس ثابت',
     paperSpaceSection: 'صفحة الطباعة',
     exportLayouts: 'تصدير صفحات الطباعة',
     exportLayoutsHint: 'تضمين صفحات الطباعة كصفحات PDF إضافية',

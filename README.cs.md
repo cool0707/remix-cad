@@ -56,6 +56,8 @@ takže výkresy nikdy neopustí zařízení uživatele.
   (příkazy `cjww`, `csfc`, `cp21`). Bloky, kóty a šrafy se rozloží; formát listu a měřítko se berou
   z limitů výkresu (výkresy načtené z JWW / SXF si je ponechají), jinak se zvolí automaticky
   (A3, nejmenší standardní měřítko, do kterého se výkres vejde).
+  Před exportem se dialog zeptá na papír, orientaci a měřítko (výchozí Automaticky); export do DXF je zapíše jako
+  limity výkresu a export do PDF umí vytisknout modelový prostor na daný papír v měřítku.
 - **Svislé písmo (縦書き)** — text ve svislém písmu Windows (`@ＭＳ ゴシック`, např. 縦字 z Jw_cad)
   a TEXT se stylem s příznakem AutoCAD „svislý“ se píše shora dolů na obrazovce i v exportu
   SVG / PDF, s přibalenými písmy BIZ UD (`@mlightcad/cad-vertical-text`).

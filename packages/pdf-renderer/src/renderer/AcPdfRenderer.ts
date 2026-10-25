@@ -105,6 +105,7 @@ export class AcPdfRenderer implements AcGiRenderer<AcPdfEntity> {
   private _title?: string
   private _paper: AcPdfExportOptions['paper']
   private _marginMm?: number
+  private _pagePadding?: number
   private _pageBackground: 'none' | number = 'none'
   private _glyphProvider?: AcPdfGlyphProvider
   private _fitBox?: AcPdfExportOptions['fitBox']
@@ -235,6 +236,7 @@ export class AcPdfRenderer implements AcGiRenderer<AcPdfEntity> {
     this._title = options.title
     this._paper = options.paper
     this._marginMm = options.marginMm
+    this._pagePadding = options.pagePadding
     this._pageBackground = options.background ?? 'none'
     this._glyphProvider = options.glyphProvider
     this._fitBox = options.fitBox
@@ -1158,6 +1160,7 @@ export class AcPdfRenderer implements AcGiRenderer<AcPdfEntity> {
       title: this._title,
       paper: this._paper,
       marginMm: this._marginMm,
+      pagePadding: this._pagePadding,
       fitBox: this._fitBox,
       embedTextActualText: this._embedTextActualText,
       embedEntityMarkedContent: this._embedEntityMarkedContent,

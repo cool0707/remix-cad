@@ -11,20 +11,23 @@ export function registerDrawingExporters(jww: AcDbJwwConverter): void {
     command: 'cjww',
     extension: 'jww',
     formatName: 'JWW',
-    export: (db, title) => jww.exportDatabase(db, { title })
+    // Jw_cad sheets are landscape.
+    landscapeOnly: true,
+    export: (db, title, { portrait: _portrait, ...sheet }) =>
+      jww.exportDatabase(db, { ...sheet, title })
   })
   acapRegisterDrawingExporter({
     command: 'csfc',
     extension: 'sfc',
     formatName: 'SFC',
-    export: async (db, title) =>
-      exportSxf(db, 'sfc', { title, fileName: `${title}.sfc` })
+    export: async (db, title, sheet) =>
+      exportSxf(db, 'sfc', { ...sheet, title, fileName: `${title}.sfc` })
   })
   acapRegisterDrawingExporter({
     command: 'cp21',
     extension: 'p21',
     formatName: 'P21',
-    export: async (db, title) =>
-      exportSxf(db, 'p21', { title, fileName: `${title}.p21` })
+    export: async (db, title, sheet) =>
+      exportSxf(db, 'p21', { ...sheet, title, fileName: `${title}.p21` })
   })
 }

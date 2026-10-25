@@ -456,6 +456,10 @@ importers:
         version: 1.15.14(patch_hash=5f379fa93af7ea2afeed779881601591f28b8ac7feb6747239e9ddc18d2e556f)
 
   packages/cad-simple-viewer:
+    dependencies:
+      '@mlightcad/cad-export-model':
+        specifier: workspace:*
+        version: link:../cad-export-model
     devDependencies:
       '@mlightcad/data-model':
         specifier: 1.15.14

@@ -145,6 +145,24 @@ export default {
     copyPasswordSuccess: 'パスワードをクリップボードにコピーしました。',
     copyPasswordFailed: 'パスワードをクリップボードにコピーできませんでした。'
   },
+  exportDrawingDlg: {
+    title: '{format} に書き出し'
+  },
+  exportSheet: {
+    section: '用紙と縮尺',
+    paper: '用紙',
+    orientation: '向き',
+    scale: '縮尺',
+    auto: '自動',
+    landscape: '横',
+    portrait: '縦',
+    sheetValue: '{paper} {orientation} {scale}',
+    result: '書き出す用紙: {value}',
+    keepDrawing: '図面範囲は変更しません',
+    invalidScale: '1:100 のように入力してください',
+    dxfHint: '選んだ用紙と縮尺は図面範囲 (LIMITS) として書き込みます。すべて「自動」なら変更しません。',
+    jwwHint: 'Jw_cad の用紙は横向きのみです。'
+  },
   exportPdfDlg: {
     title: 'PDF に書き出し',
     modelSpaceSection: 'キャンバス',
@@ -153,6 +171,8 @@ export default {
     modelSpaceExtents: 'オブジェクト範囲',
     modelSpaceExtentsHint:
       '現在の空間のすべてのオブジェクトの範囲を書き出します',
+    modelSpaceSheet: '用紙と縮尺',
+    modelSpaceSheetHint: '用紙サイズに縮尺どおりに配置して書き出します',
     paperSpaceSection: '印刷ページ',
     exportLayouts: '印刷ページを書き出す',
     exportLayoutsHint: '印刷ページを PDF のページとして追加します',

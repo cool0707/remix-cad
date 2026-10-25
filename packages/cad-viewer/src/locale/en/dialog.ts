@@ -128,6 +128,24 @@ export default {
     copyPasswordSuccess: 'Password copied to the clipboard.',
     copyPasswordFailed: 'Unable to copy the password to the clipboard.'
   },
+  exportDrawingDlg: {
+    title: 'Export to {format}'
+  },
+  exportSheet: {
+    section: 'Paper and scale',
+    paper: 'Paper',
+    orientation: 'Orientation',
+    scale: 'Scale',
+    auto: 'Auto',
+    landscape: 'Landscape',
+    portrait: 'Portrait',
+    sheetValue: '{paper} {orientation} {scale}',
+    result: 'Sheet: {value}',
+    keepDrawing: 'The drawing limits are left unchanged',
+    invalidScale: 'Enter a scale such as 1:100',
+    dxfHint: 'The paper and scale are written as the drawing limits (LIMITS). With everything on Auto they are left unchanged.',
+    jwwHint: 'Jw_cad sheets are landscape only.'
+  },
   exportPdfDlg: {
     title: 'Export to PDF',
     modelSpaceSection: 'Canvas',
@@ -136,6 +154,8 @@ export default {
     modelSpaceExtents: 'Extents',
     modelSpaceExtentsHint:
       'Export the extents of all objects in the current space',
+    modelSpaceSheet: 'Paper and scale',
+    modelSpaceSheetHint: 'Places the drawing on a paper size at a set scale',
     paperSpaceSection: 'Print page',
     exportLayouts: 'Export print pages',
     exportLayoutsHint: 'Include print pages as additional PDF pages',

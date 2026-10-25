@@ -128,6 +128,24 @@ export default {
     copyPasswordSuccess: 'Heslo bylo zkopírováno do schránky.',
     copyPasswordFailed: 'Heslo se nepodařilo zkopírovat do schránky.'
   },
+  exportDrawingDlg: {
+    title: 'Exportovat do {format}'
+  },
+  exportSheet: {
+    section: 'Papír a měřítko',
+    paper: 'Papír',
+    orientation: 'Orientace',
+    scale: 'Měřítko',
+    auto: 'Automaticky',
+    landscape: 'Na šířku',
+    portrait: 'Na výšku',
+    sheetValue: '{paper} {orientation} {scale}',
+    result: 'List: {value}',
+    keepDrawing: 'Limity výkresu se nemění',
+    invalidScale: 'Zadejte měřítko, např. 1:100',
+    dxfHint: 'Zvolený papír a měřítko se zapíšou jako limity výkresu (LIMITS). Když je vše na Automaticky, nemění se.',
+    jwwHint: 'Listy Jw_cad jsou pouze na šířku.'
+  },
   exportPdfDlg: {
     title: 'Exportovat do PDF',
     modelSpaceSection: 'Plátno',
@@ -136,6 +154,8 @@ export default {
     modelSpaceExtents: 'Rozsah',
     modelSpaceExtentsHint:
       'Exportovat rozsah všech objektů v aktuálním prostoru',
+    modelSpaceSheet: 'Papír a měřítko',
+    modelSpaceSheetHint: 'Umístí výkres na zvolený papír v daném měřítku',
     paperSpaceSection: 'Výkresový prostor',
     exportLayouts: 'Exportovat tiskové stránky',
     exportLayoutsHint:

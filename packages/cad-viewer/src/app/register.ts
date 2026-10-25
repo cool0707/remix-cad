@@ -39,12 +39,14 @@ import {
   MlAttDefDlg,
   MlAttEditDlg,
   MlDrawingUnitsDlg,
+  MlExportDrawingDlg,
   MlExportHtmlDlg,
   MlExportPdfDlg,
   MlPointStyleDlg,
   MlQuickSelectDlg,
   MlTextStyleDlg
 } from '../component'
+import { installExportSheetPrompt } from '../component/dialog/exportSheet'
 import { useDialogManager } from '../composable'
 import { i18n } from '../locale'
 import { store } from './store'
@@ -189,7 +191,7 @@ export const registerCmds = () => {
 let isDialogRegistered = false
 export const registerDialogs = () => {
   if (!isDialogRegistered) {
-    const { registerDialog } = useDialogManager()
+    const { registerDialog, toggleDialog } = useDialogManager()
     const disableExport = AcApDocManager.instance.disableExport
     registerDialog({
       name: 'PointStyleDlg',
@@ -212,6 +214,13 @@ export const registerDialogs = () => {
         component: markRaw(MlExportPdfDlg),
         props: {}
       })
+      registerDialog({
+        name: 'ExportDrawingDlg',
+        component: markRaw(MlExportDrawingDlg),
+        props: {}
+      })
+      // DXF / JWW / SXF exports ask for the paper and scale in this dialog.
+      installExportSheetPrompt(() => toggleDialog('ExportDrawingDlg', true))
     }
     registerDialog({
       name: 'DrawingUnitsDlg',

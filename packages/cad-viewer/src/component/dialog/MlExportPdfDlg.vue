@@ -2,7 +2,7 @@
   <ml-base-dialog
     v-model:modelValue="visible"
     :title="t('dialog.exportPdfDlg.title')"
-    :width="480"
+    :width="560"
     :auto-close="false"
     @open="handleOpen"
     @ok="handleOk"
@@ -50,7 +50,27 @@
               }}</span>
             </span>
           </label>
+          <label
+            class="ml-export-pdf-dlg__card"
+            :class="{ 'is-selected': form.modelSpaceFit === 'sheet' }"
+          >
+            <el-radio value="sheet" class="ml-export-pdf-dlg__card-radio" />
+            <span class="ml-export-pdf-dlg__card-body">
+              <span class="ml-export-pdf-dlg__card-title">{{
+                t('dialog.exportPdfDlg.modelSpaceSheet')
+              }}</span>
+              <span class="ml-export-pdf-dlg__card-hint">{{
+                t('dialog.exportPdfDlg.modelSpaceSheetHint')
+              }}</span>
+            </span>
+          </label>
         </el-radio-group>
+        <ml-export-sheet-fields
+          v-if="form.modelSpaceFit === 'sheet'"
+          class="ml-export-pdf-dlg__sheet"
+          v-model:form="sheetForm"
+          :refresh-key="openCount"
+        />
       </ml-fieldset-group>
 
       <ml-fieldset-group
@@ -129,11 +149,13 @@ import type {
 } from '@mlightcad/cad-pdf-plugin'
 import { AcApDocManager } from '@mlightcad/cad-simple-viewer'
 import { ElRadio, ElRadioGroup, ElSwitch } from 'element-plus'
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MlBaseDialog from '../common/MlBaseDialog.vue'
 import MlFieldsetGroup from '../common/MlFieldsetGroup.vue'
+import { createExportSheetForm, exportSheetOptions } from './exportSheet'
+import MlExportSheetFields from './MlExportSheetFields.vue'
 
 /**
  * Public props for {@link MlExportPdfDlg}.
@@ -154,7 +176,8 @@ export interface MlExportPdfDlgProps {
  */
 export interface MlExportPdfDlgForm {
   /**
-   * Model-space framing: live viewport (`display`) or drawable extents.
+   * Model-space framing: live viewport (`display`), drawable extents or a
+   * paper size at a scale (`sheet`).
    */
   modelSpaceFit: AcApPdfModelSpaceFit
   /**
@@ -193,10 +216,16 @@ const form = reactive<MlExportPdfDlgForm>({
   textMode: 'text'
 })
 
+/** Paper / orientation / scale used when {@link form} frames a sheet. */
+const sheetForm = reactive(createExportSheetForm())
+const openCount = ref(0)
+
 /**
  * Restores {@link form} to PDF export package defaults.
  */
 function resetForm() {
+  Object.assign(sheetForm, createExportSheetForm())
+  openCount.value++
   form.modelSpaceFit = 'extents'
   form.exportLayouts = true
   form.textMode = 'text'
@@ -217,7 +246,8 @@ async function handleOk() {
   const options: AcApPdfExportOptions = {
     modelSpaceFit: form.modelSpaceFit,
     exportLayouts: form.exportLayouts,
-    textMode: form.textMode
+    textMode: form.textMode,
+    sheet: exportSheetOptions(sheetForm)
   }
 
   try {
@@ -288,9 +318,14 @@ async function handleOk() {
   line-height: 1.35;
 }
 
+.ml-export-pdf-dlg__sheet {
+  margin-top: 10px;
+}
+
 .ml-export-pdf-dlg__card-group {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 8px;
   width: 100%;
   align-items: stretch;

@@ -124,6 +124,24 @@ export default {
     copyPasswordSuccess: '密码已复制到剪贴板。',
     copyPasswordFailed: '无法复制密码到剪贴板。'
   },
+  exportDrawingDlg: {
+    title: '导出为 {format}'
+  },
+  exportSheet: {
+    section: '图纸与比例',
+    paper: '图纸',
+    orientation: '方向',
+    scale: '比例',
+    auto: '自动',
+    landscape: '横向',
+    portrait: '纵向',
+    sheetValue: '{paper} {orientation} {scale}',
+    result: '导出图纸：{value}',
+    keepDrawing: '不更改图形界限',
+    invalidScale: '请输入类似 1:100 的比例',
+    dxfHint: '所选图纸和比例将写入为图形界限 (LIMITS)。全部为“自动”时不作更改。',
+    jwwHint: 'Jw_cad 的图纸仅支持横向。'
+  },
   exportPdfDlg: {
     title: '导出为 PDF',
     modelSpaceSection: '画布',
@@ -131,6 +149,8 @@ export default {
     modelSpaceDisplayHint: '导出当前视口中显示的内容',
     modelSpaceExtents: '范围',
     modelSpaceExtentsHint: '导出当前空间中所有对象的范围',
+    modelSpaceSheet: '图纸与比例',
+    modelSpaceSheetHint: '按比例将图形放置在所选图纸上导出',
     paperSpaceSection: '打印页',
     exportLayouts: '导出打印页',
     exportLayoutsHint: '将打印页作为额外的 PDF 页面导出',

@@ -1,5 +1,7 @@
 import type { AcDbDatabase } from '@mlightcad/data-model'
 
+import type { AcApSheetOptions } from './AcApDrawingSheet'
+
 /** Result of {@link AcApDrawingExporter.export}. */
 export interface AcApDrawingExportResult {
   /** File contents. */
@@ -23,15 +25,20 @@ export interface AcApDrawingExporter {
   formatName: string
   /** MIME type of the download. @default 'application/octet-stream' */
   mimeType?: string
+  /** The format has landscape sheets only (Jw_cad). */
+  landscapeOnly?: boolean
   /**
    * Writes the drawing.
    *
    * @param database - Drawing to write
    * @param title - Drawing title (file name without extension)
+   * @param sheet - Paper, orientation and scale chosen by the user; unset
+   *   fields are chosen automatically
    */
   export(
     database: AcDbDatabase,
-    title: string
+    title: string,
+    sheet: AcApSheetOptions
   ): Promise<AcApDrawingExportResult>
 }
 

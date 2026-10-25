@@ -59,6 +59,8 @@ del dispositivo del usuario.
   SXF P21 (comandos `cjww`, `csfc`, `cp21`). Los bloques, cotas y sombreados se descomponen; el
   formato de hoja y la escala salen de los límites del dibujo (los dibujos leídos de JWW / SXF
   conservan los suyos) o se eligen automáticamente (A3, la menor escala normalizada que cabe).
+  Antes de exportar, un diálogo pregunta la hoja, la orientación y la escala (Auto por defecto); la exportación a DXF
+  la escribe como límites del dibujo y la exportación a PDF puede imprimir el espacio modelo en una hoja a escala.
 - **Escritura vertical (縦書き)** — el texto con una fuente vertical de Windows (`@ＭＳ ゴシック`,
   p. ej. el 縦字 de Jw_cad) y el TEXT cuyo estilo tiene el indicador «vertical» de AutoCAD se
   escriben de arriba abajo en pantalla y al exportar a SVG / PDF, con las fuentes BIZ UD

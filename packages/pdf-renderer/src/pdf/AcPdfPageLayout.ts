@@ -71,6 +71,12 @@ export interface AcPdfPageLayoutInput {
   insunits: number
   paper?: 'extents' | { widthMm: number; heightMm: number }
   marginMm?: number
+  /**
+   * Padding on each page edge as a fraction of the page (default
+   * {@link PDF_PAGE_PADDING_FRACTION}). 0 with a paper size and a fit box of
+   * the sheet prints at an exact scale.
+   */
+  pagePadding?: number
 }
 
 export interface AcPdfPageLayout {
@@ -166,7 +172,8 @@ export function computePageLayout(
       pageHeight,
       marginPt,
       naturalScale,
-      false
+      false,
+      options.pagePadding
     )
   }
 
@@ -201,16 +208,11 @@ function fitToPage(
   pageHeight: number,
   marginPt: number,
   naturalScale: number,
-  allowUpscale: boolean
+  allowUpscale: boolean,
+  padding = PDF_PAGE_PADDING_FRACTION
 ): AcPdfPageLayout {
-  const padX = Math.max(
-    marginPt,
-    (pageWidth - marginPt * 2) * PDF_PAGE_PADDING_FRACTION
-  )
-  const padY = Math.max(
-    marginPt,
-    (pageHeight - marginPt * 2) * PDF_PAGE_PADDING_FRACTION
-  )
+  const padX = Math.max(marginPt, (pageWidth - marginPt * 2) * padding)
+  const padY = Math.max(marginPt, (pageHeight - marginPt * 2) * padding)
   const usableW = Math.max(pageWidth - padX * 2, 1e-6)
   const usableH = Math.max(pageHeight - padY * 2, 1e-6)
   let usedScale = Math.min(usableW / width, usableH / height)

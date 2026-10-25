@@ -305,8 +305,12 @@ async function exportLayoutsToPdf(
       ocg,
       imageCache,
       formRegistry,
-      // Model-space “Display” framing must not clip paper-space pages.
-      fitBox: isModel ? options.fitBox : undefined
+      // Model-space “Display” framing and the model sheet (paper size,
+      // padding) must not apply to paper-space pages.
+      fitBox: isModel ? options.fitBox : undefined,
+      ...(isModel
+        ? {}
+        : { paper: undefined, pagePadding: undefined })
     })
     // Explicit roots were handed to the page; release renderer-side
     // drawables so only the page's pdf-lib objects stay resident.
