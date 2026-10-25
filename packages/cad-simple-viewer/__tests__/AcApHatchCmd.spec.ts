@@ -222,7 +222,12 @@ describe('AcApHatchCmd', () => {
     expect(hatch.isSolidFill).toBe(false)
     expect(hatch.definitionLines.length).toBeGreaterThan(0)
     expect(hatch.definitionLines[0].angle).toBeCloseTo(Math.PI / 4)
-    expect(hatch.definitionLines[0].offset.y).toBeCloseTo(3.175 * 2)
+    // ANSI31 lines are 3.175 apart (x2 here), measured across the 45° lines:
+    // the offset is stored in WCS, perpendicular to them (45° + 90° = 135°).
+    const { offset } = hatch.definitionLines[0]
+    expect(offset.x).toBeCloseTo(-3.175 * 2 * Math.SQRT1_2)
+    expect(offset.y).toBeCloseTo(3.175 * 2 * Math.SQRT1_2)
+    expect(Math.hypot(offset.x, offset.y)).toBeCloseTo(3.175 * 2)
   })
 
   test('keeps SOLID hatches as solid fills without pattern definition lines', () => {
