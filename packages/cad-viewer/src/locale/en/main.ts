@@ -674,6 +674,13 @@ export default {
       on: 'Turn off polar tracking',
       off: 'Turn on polar tracking'
     },
+    zoom: {
+      zoomIn: 'Zoom in',
+      zoomOut: 'Zoom out',
+      fitAll: 'Zoom extents',
+      tooltip:
+        'Display scale (length on screen : real length). Click for a list'
+    },
     theme: {
       toLight: 'Switch to light theme',
       toDark: 'Switch to dark theme'

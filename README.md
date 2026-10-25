@@ -46,6 +46,9 @@ drawings never leave the user's device.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).
+- **Display scale** — the status bar shows the view as a drawing scale (`1/100` = 1 mm on screen shows
+  100 mm of the drawing, from the drawing units at 96 px per inch), with −/+ buttons and a slider.
+  Click it for Zoom extents and 1/1 … 1/5000.
 - **Property inspector** — the Properties tab groups values into sections (General, Placement, Symbol…)
   and edits them directly (one undo step per change). With several objects selected, a Selection
   section shows X / Y / W / H with a 9-point reference point, counts per type (click to keep only

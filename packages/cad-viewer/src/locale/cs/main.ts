@@ -661,6 +661,13 @@ export default {
       on: 'Vypnout polární trasování',
       off: 'Zapnout polární trasování'
     },
+    zoom: {
+      zoomIn: 'Přiblížit',
+      zoomOut: 'Oddálit',
+      fitAll: 'Zobrazit vše',
+      tooltip:
+        'Měřítko zobrazení (délka na obrazovce : skutečná délka). Kliknutím zvolíte ze seznamu'
+    },
     theme: {
       toLight: 'Přepnout na světlý motiv',
       toDark: 'Přepnout na tmavý motiv'

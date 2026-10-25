@@ -62,7 +62,11 @@ const ACAD_UNIT_SYMBOLS: Readonly<Record<number, string>> = {
   10: 'yd'
 }
 
-function acapUnitToMm(unit: number): number {
+/**
+ * Millimetres per drawing unit for an `INSUNITS` code (unitless counts as
+ * millimetres).
+ */
+export function acapUnitToMm(unit: number): number {
   if (!Number.isFinite(unit)) return 1
   return ACAD_UNIT_TO_MM[Math.trunc(unit)] ?? 1
 }

@@ -46,6 +46,8 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).
+- **Escala de exibição** — a barra de status mostra a vista como escala de desenho (`1/100` = 1 mm na tela mostra 100 mm do desenho,
+  pelas unidades do desenho e 96 px por polegada), com botões −/+ e um controle deslizante. Clique para escolher Mostrar tudo ou 1/1 … 1/5000.
 - **Inspetor de propriedades** — a aba Propriedades agrupa os valores em seções (Geral, Posicionamento,
   Símbolo…) e os edita diretamente (um passo de desfazer por alteração). Com vários objetos selecionados,
   uma seção Seleção mostra X / Y / L / A com um ponto de referência de 9 posições, a contagem por tipo

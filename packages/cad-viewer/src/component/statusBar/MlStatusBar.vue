@@ -26,6 +26,7 @@
         <ml-warning-button />
         <ml-notification-button @click="toggleNotificationCenter" />
         <ml-full-screen-button />
+        <ml-zoom-control />
         <ml-point-style-button />
         <ml-osnap-button />
         <ml-sys-var-toggle-button
@@ -84,6 +85,7 @@ import MlPolarTrackingButton from './MlPolarTrackingButton.vue'
 import MlProgress from './MlProgress.vue'
 import MlToolStatus from './MlToolStatus.vue'
 import MlWarningButton from './MlWarningButton.vue'
+import MlZoomControl from './MlZoomControl.vue'
 
 /** Room kept free for longer coordinates while the mouse moves. */
 const COORDINATE_RESERVED_WIDTH = 220

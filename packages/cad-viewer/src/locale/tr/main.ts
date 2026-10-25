@@ -674,6 +674,13 @@ export default {
       on: 'Kutupsal izlemeyi kapat',
       off: 'Kutupsal izlemeyi aç'
     },
+    zoom: {
+      zoomIn: 'Yakınlaştır',
+      zoomOut: 'Uzaklaştır',
+      fitAll: 'Tümünü göster',
+      tooltip:
+        'Görüntü ölçeği (ekrandaki uzunluk : gerçek uzunluk). Liste için tıklayın'
+    },
     theme: {
       toLight: 'Açık temaya geç',
       toDark: 'Koyu temaya geç'

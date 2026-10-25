@@ -630,6 +630,13 @@ export default {
       on: '关闭极轴追踪',
       off: '打开极轴追踪'
     },
+    zoom: {
+      zoomIn: '放大',
+      zoomOut: '缩小',
+      fitAll: '全部显示',
+      tooltip:
+        '显示比例 (屏幕上的长度 : 实际长度)。点击可从列表选择'
+    },
     theme: {
       toLight: '切换到明亮主题',
       toDark: '切换到暗黑主题'

@@ -655,6 +655,13 @@ export default {
       on: '極トラッキングをオフにする',
       off: '極トラッキングをオンにする'
     },
+    zoom: {
+      zoomIn: '拡大',
+      zoomOut: '縮小',
+      fitAll: '全体表示',
+      tooltip:
+        '表示倍率 (画面上の長さ : 実際の長さ)。クリックで一覧から選べます'
+    },
     theme: {
       toLight: 'ライトテーマに切り替え',
       toDark: 'ダークテーマに切り替え'
