@@ -542,7 +542,9 @@ describe('AcApLayerService', () => {
       },
       tables: {
         layerTable: {
-          getAt: (name: string) => (name === 'PLATE' ? plateLayer : undefined)
+          getAt: (name: string) => (name === 'PLATE' ? plateLayer : undefined),
+          // Inside a command transaction layer edits snapshot the table.
+          newIterator: () => [][Symbol.iterator]()
         }
       },
       openObjectForWrite: jest.fn(() => conflictingRecord),
