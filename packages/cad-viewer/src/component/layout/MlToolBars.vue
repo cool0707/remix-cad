@@ -309,12 +309,6 @@ const buildItems = (): AcUiToolbarItem[] => {
           icon: ellipseCenter,
           command: 'ellipse'
         },
-        {
-          id: 'draw-hatch',
-          label: 'main.ribbon.command.hatch',
-          icon: hatch,
-          command: 'hatch'
-        },
         // The ones the ribbon keeps in the Draw group's overflow menu.
         {
           id: 'draw-spline',
@@ -359,6 +353,13 @@ const buildItems = (): AcUiToolbarItem[] => {
           command: 'point'
         }
       ]
+    },
+    {
+      id: 'hatch',
+      label: 'main.ribbon.command.hatch',
+      icon: hatch,
+      command: 'hatch',
+      minOpenMode: AcEdOpenMode.Write
     },
     {
       id: 'insert',

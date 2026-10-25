@@ -151,13 +151,15 @@ const createContext = () => {
       if (item instanceof AcDbHatch) appended.push(item)
     })
   })
+  const addEntity = jest.fn()
   const context = {
     doc: {
       database
-    }
+    },
+    view: { addEntity }
   }
 
-  return { appended, context, database }
+  return { addEntity, appended, context, database }
 }
 
 const createSettings = (
@@ -173,7 +175,7 @@ const createSettings = (
 
 describe('AcApHatchCmd', () => {
   test('creates SOLID hatches by default', () => {
-    const { appended, context, database } = createContext()
+    const { addEntity, appended, context, database } = createContext()
     AcDbSysVarManager.instance().setVar(
       AcDbSystemVariables.HPNAME,
       HATCH_PATTERN_SOLID,
@@ -184,6 +186,8 @@ describe('AcApHatchCmd', () => {
     expect(cmd.appendForTest(context as never, [createSquareLoop()])).toBe(true)
 
     const hatch = appended[0]
+    // Shown right away, while HATCH goes on asking for boundaries.
+    expect(addEntity).toHaveBeenCalledWith(hatch)
     expect(hatch.patternName).toBe(HATCH_PATTERN_SOLID)
     expect(hatch.isSolidFill).toBe(true)
     expect(hatch.definitionLines).toHaveLength(0)

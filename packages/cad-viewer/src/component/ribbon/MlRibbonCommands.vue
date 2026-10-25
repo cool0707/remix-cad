@@ -2072,14 +2072,27 @@ const buildBaseTabs = (
                       }
                     ]
                   }
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          // Its own group: filling an area is not drawing a shape.
+          id: 'home-hatch',
+          title: t('main.ribbon.command.hatch'),
+          orientation: 'row',
+          collections: [
+            {
+              id: 'home-hatch-main',
+              layout: 'row',
+              items: [
                 {
                   id: 'cmd-hatch',
                   type: 'button',
                   label: t('main.ribbon.command.hatch'),
                   tooltip: ribbonTooltips.hatch,
-                  hideLabel: true,
-                  size: 'small',
+                  size: 'large',
                   props: { icon: hatch }
                 }
               ]
