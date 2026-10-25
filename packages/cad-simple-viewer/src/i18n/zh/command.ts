@@ -184,6 +184,9 @@ export default {
     hpdouble: {
       description: '控制用户定义的填充图案是否加倍'
     },
+    hpgaptol: {
+      description: '设置填充边界中仍视为闭合的最大间隙（图形单位）'
+    },
     hpislanddetection: {
       description: '控制新创建填充边界内孤岛的处理方式'
     },

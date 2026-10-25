@@ -22,7 +22,12 @@ export default {
     displaySection: 'Görünüm',
     ribbonHiddenHint: 'Şerit gizliyken bu pencereyi OPTIONS komutuyla açın.',
     snapSection: 'Yakalama',
-    snapHint: 'Nokta seçerken, seçimi sürüklerken ve hizalama kılavuzlarında kullanılır. Yakalanacak noktalar:'
+    snapHint: 'Nokta seçerken, seçimi sürüklerken ve hizalama kılavuzlarında kullanılır. Yakalanacak noktalar:',
+    hatchSection: 'Dolgu',
+    hatchGapTolerance: 'Boşluk toleransı (çizim birimi)',
+    hatchGapToleranceHint: 'Eğri uçları arasındaki bu genişliğe kadar boşluklar yine kapalı sınır sayılır (0–5000). 0 boşluğa izin vermez. AutoCAD HPGAPTOL ile aynıdır; HPGAPTOL komutu veya dolgu şeridinden de ayarlanabilir.',
+    hatchMaxSegments: 'Sınır aramasında en fazla parça',
+    hatchMaxSegmentsHint: 'Seçilen noktanın sınırı, açık katmanlardaki tüm nesnelerde (görünüm dışındakiler dahil) aranır. Bundan fazla parçası olan çizimlerde yalnızca görünümdeki nesnelerde aranır. Artırmak büyük çizimlerin tamamında arar ancak daha çok zaman ve bellek kullanır.'
   },
   drawingUnitsDlg: {
     title: 'Çizim Birimleri',

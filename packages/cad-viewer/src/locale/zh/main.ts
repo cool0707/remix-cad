@@ -49,6 +49,7 @@ export default {
         backgroundColor: '背景颜色',
         gradient2Color: '渐变色2',
         opacity: '透明度',
+        gapTolerance: '间隙公差',
         imageScale: '图片比例'
       },
       style: {
@@ -80,6 +81,7 @@ export default {
         backgroundColor: '为图案填充选择背景颜色。',
         gradient2Color: '选择第二个渐变颜色。',
         opacity: '设置填充透明度（0-90）。',
+        gapTolerance: '线端之间的间隙不超过此宽度（图形单位）时仍视为闭合边界（HPGAPTOL，0–5000）。',
         imageScale: '设置填充图片比例。',
         close: '退出填充创建并关闭该上下文标签。'
       }

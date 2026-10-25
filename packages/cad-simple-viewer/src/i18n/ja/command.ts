@@ -197,6 +197,9 @@ export default {
     hpdouble: {
       description: 'ユーザー定義の塗りつぶしパターンを二重にするかを制御します'
     },
+    hpgaptol: {
+      description: '塗りつぶしの境界で、閉じているとみなす隙間の最大幅 (図面単位) を設定します'
+    },
     hpislanddetection: {
       description: '新しく作成する塗りつぶし境界内の島の扱いを制御します'
     },

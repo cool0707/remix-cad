@@ -40,7 +40,12 @@ export default {
     displaySection: '表示',
     ribbonHiddenHint: 'リボンを隠すと、この画面はコマンド OPTIONS で開きます。',
     snapSection: 'スナップ',
-    snapHint: '点の指定、選択範囲のドラッグ、整列ガイドで使います。吸着する点:'
+    snapHint: '点の指定、選択範囲のドラッグ、整列ガイドで使います。吸着する点:',
+    hatchSection: '塗りつぶし',
+    hatchGapTolerance: '隙間の許容値 (図面単位)',
+    hatchGapToleranceHint: '線の端どうしにこの幅までの隙間があっても、閉じた境界とみなして塗りつぶします (0〜5000)。0 は隙間を許しません。AutoCAD の HPGAPTOL と同じで、コマンド HPGAPTOL や塗りつぶしのリボンからも変えられます。',
+    hatchMaxSegments: '境界を調べる線分の上限',
+    hatchMaxSegmentsHint: 'クリックした点の境界は、レイヤーがオンの図形すべて (画面の外も含む) から探します。線分の数がこれを超える図面では、画面に表示している範囲の図形だけで探します。大きくすると重い図面でも全体から探せますが、時間とメモリを多く使います。'
   },
   drawingUnitsDlg: {
     title: '単位管理',

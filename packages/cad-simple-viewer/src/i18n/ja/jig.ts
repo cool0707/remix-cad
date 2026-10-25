@@ -115,7 +115,7 @@ export default {
     boundaryFoundIslands: '境界を検出して塗りつぶしました (内側の島: {count} 個)。',
     boundaryNotFound: '閉じた境界が見つかりません。クリックした位置が線で囲まれているか (途切れがないか) 確認してください。',
     alreadyHatched: 'この範囲はすでに塗りつぶしています。',
-    tooComplex: '図形が多すぎて境界を調べられません。塗りつぶしたい範囲を拡大表示してから、もう一度クリックしてください。',
+    tooComplex: '図形が多すぎて境界を調べられません。塗りつぶしたい範囲を拡大表示してからもう一度クリックするか、環境設定の「境界を調べる線分の上限」を増やしてください。',
     selectFound: '閉じた境界が {count} 個見つかりました。',
     selectNotClosed: '閉じていないオブジェクト {count} 個は境界に使いませんでした。',
     keywords: {
@@ -801,6 +801,10 @@ export default {
       },
       uniform: { display: '均等(U)', local: '均等', global: 'Uniform' }
     }
+  },
+  hpgaptol: {
+    prompt: '塗りつぶしの隙間の許容値を入力 (0〜5000、図面単位)',
+    outOfRange: '隙間の許容値は 0 から 5000 の範囲で入力してください。'
   },
   sysvar: {
     prompt: '新しい値を入力してください'

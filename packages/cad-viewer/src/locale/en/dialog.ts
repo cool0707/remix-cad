@@ -22,7 +22,12 @@ export default {
     displaySection: 'Display',
     ribbonHiddenHint: 'Without the ribbon, open this dialog with the OPTIONS command.',
     snapSection: 'Snap',
-    snapHint: 'Snapping is used when picking points, dragging the selection and for alignment guides. Points to snap to:'
+    snapHint: 'Snapping is used when picking points, dragging the selection and for alignment guides. Points to snap to:',
+    hatchSection: 'Fill',
+    hatchGapTolerance: 'Gap tolerance (drawing units)',
+    hatchGapToleranceHint: 'Gaps between curve ends up to this width still count as a closed boundary (0–5000). 0 allows no gaps. Same as AutoCAD HPGAPTOL; also set with the HPGAPTOL command or the fill ribbon.',
+    hatchMaxSegments: 'Most segments for boundary search',
+    hatchMaxSegmentsHint: 'The boundary around a picked point is searched in every object on layers that are on, including objects outside the view. In drawings with more segments than this, only the objects in the view are searched. Raising it searches whole large drawings but takes more time and memory.'
   },
   drawingUnitsDlg: {
     title: 'Drawing Units',

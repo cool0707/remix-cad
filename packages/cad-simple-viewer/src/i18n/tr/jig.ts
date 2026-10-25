@@ -181,7 +181,7 @@ export default {
     boundaryFoundIslands: 'Sınır bulundu ve dolduruldu (içinde {count} ada).',
     boundaryNotFound: 'Geçerli bir tarama sınırı bulunamadı. Noktanın çizgilerle boşluksuz çevrili olduğunu kontrol edin.',
     alreadyHatched: 'Bu alan zaten dolduruldu.',
-    tooComplex: 'Sınırı analiz etmek için çok fazla nesne var. Doldurulacak alanı yakınlaştırıp yeniden seçin.',
+    tooComplex: 'Sınırı analiz etmek için çok fazla nesne var. Doldurulacak alanı yakınlaştırıp yeniden seçin veya Ayarlar\'da "Sınır aramasında en fazla parça" değerini artırın.',
     selectFound: '{count} kapalı sınır bulundu.',
     selectNotClosed: '{count} nesne kapalı değil ve sınır olarak kullanılmadı.',
     keywords: {
@@ -1184,6 +1184,10 @@ export default {
         global: 'Uniform'
       }
     }
+  },
+  hpgaptol: {
+    prompt: 'Tarama boşluk toleransını girin (0–5000, çizim birimi)',
+    outOfRange: 'Boşluk toleransı 0 ile 5000 arasında olmalıdır.'
   },
   sysvar: {
     prompt: 'Lütfen yeni değeri girin'

@@ -1,4 +1,11 @@
+const mockSettings = { hatchGapTolerance: 0, hatchMaxSegments: 60_000 }
+
 jest.mock('../src/app', () => ({
+  AcApSettingManager: {
+    get instance() {
+      return mockSettings
+    }
+  },
   AcApDocManager: {
     instance: {
       editor: {
@@ -427,6 +434,85 @@ describe('AcApHatchCmd boundary detection', () => {
       expect(loopArea(hatchLoops(appended[0])[0])).toBeCloseTo(400)
     } finally {
       services._workingDatabase = previous
+    }
+  })
+
+  test('closes gaps up to the gap tolerance (HPGAPTOL)', () => {
+    // A square whose right side stops 0.5 short of the bottom corner.
+    const square = () => [
+      segment(0, 0, 10, 0),
+      segment(10, 0.5, 10, 10),
+      segment(10, 10, 0, 10),
+      segment(0, 10, 0, 0)
+    ]
+    try {
+      const strict = createDrawing(square())
+      const strictCmd = new TestHatchCmd(createSettings())
+      expect(strictCmd.pickForTest(strict.context, 5, 5)).toBe(false)
+
+      mockSettings.hatchGapTolerance = 1
+      const loose = createDrawing(square())
+      const looseCmd = new TestHatchCmd(createSettings())
+      expect(looseCmd.pickForTest(loose.context, 5, 5)).toBe(true)
+      expect(loopArea(hatchLoops(loose.appended[0])[0])).toBeCloseTo(100, 0)
+
+      // A divider that stops 0.5 short of the top wall closes on it too.
+      const divided = createDrawing([
+        segment(0, 0, 10, 0),
+        segment(10, 0, 10, 10),
+        segment(10, 10, 0, 10),
+        segment(0, 10, 0, 0),
+        segment(4, 0, 4, 9.5)
+      ])
+      const dividedCmd = new TestHatchCmd(createSettings())
+      expect(dividedCmd.pickForTest(divided.context, 2, 5)).toBe(true)
+      expect(loopArea(hatchLoops(divided.appended[0])[0])).toBeCloseTo(40)
+    } finally {
+      mockSettings.hatchGapTolerance = 0
+    }
+  })
+
+  test('falls back to the objects in view past the segment limit', () => {
+    const { appended, context } = createDrawing([
+      segment(0, 0, 10, 0),
+      segment(10, 0, 10, 10),
+      segment(10, 10, 0, 10),
+      segment(0, 10, 0, 0),
+      // Far away, outside the view.
+      segment(1000, 0, 1010, 0),
+      segment(1000, 5, 1010, 5)
+    ])
+    const view = context as unknown as {
+      view: Record<string, unknown>
+      doc: { database: AcDbDatabase }
+    }
+    const ids = [
+      ...view.doc.database.tables.blockTable.modelSpace.newIterator()
+    ].map(e => e.objectId)
+    const search = jest.fn(() => ids.slice(0, 4).map(id => ({ id })))
+    Object.assign(view.view, {
+      width: 100,
+      height: 100,
+      screenToWorld: (p: { x: number; y: number }) => p,
+      search
+    })
+    try {
+      mockSettings.hatchMaxSegments = 5
+      const cmd = new TestHatchCmd(createSettings())
+      expect(cmd.pickForTest(context, 5, 5)).toBe(true)
+      expect(search).toHaveBeenCalled()
+      expect(loopArea(hatchLoops(appended[0])[0])).toBeCloseTo(100)
+
+      // Still too many in view.
+      mockSettings.hatchMaxSegments = 3
+      const tight = new TestHatchCmd(createSettings())
+      expect(tight.pickForTest(context, 5, 5)).toBe(false)
+      expect(spies(tight).notify).toHaveBeenLastCalledWith(
+        'jig.hatch.tooComplex',
+        'warning'
+      )
+    } finally {
+      mockSettings.hatchMaxSegments = 60_000
     }
   })
 

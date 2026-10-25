@@ -139,3 +139,52 @@ test('HATCH fills the room around a clicked point, leaving the circle as an isla
   expect(disc.width).toBeCloseTo(circle.r * 2, 3)
   expect(pageErrors).toEqual([])
 })
+
+async function gapTolerance(page: Page) {
+  return page.evaluate(async url => {
+    const mod = await import(/* @vite-ignore */ url)
+    return mod.AcApSettingManager.instance.hatchGapTolerance as number
+  }, viewerModuleUrl!)
+}
+
+test('the gap tolerance is set from the settings dialog, the ribbon and HPGAPTOL', async ({
+  page
+}) => {
+  await loadSample(page)
+  const run = (command: string) =>
+    page.evaluate(
+      async ({ url, command }) => {
+        const mod = await import(/* @vite-ignore */ url)
+        mod.AcApDocManager.instance.sendStringToExecute(command)
+      },
+      { url: viewerModuleUrl!, command }
+    )
+
+  // Settings dialog.
+  await run('options')
+  const dialogInput = page
+    .getByTestId('settings-hatch-gap-tolerance')
+    .locator('input')
+  await expect(dialogInput).toHaveValue('0')
+  await expect(
+    page.getByTestId('settings-hatch-max-segments').locator('input')
+  ).toHaveValue('60000')
+  await dialogInput.fill('3')
+  await dialogInput.blur()
+  await page.getByRole('button', { name: /^OK$/ }).click()
+  await expect.poll(() => gapTolerance(page)).toBe(3)
+
+  // The hatch ribbon shows it and changes it.
+  await run('hatch')
+  const ribbonInput = page.getByRole('spinbutton', { name: 'Gap' })
+  await expect(ribbonInput).toHaveValue('3')
+  await ribbonInput.fill('5')
+  await ribbonInput.press('Enter')
+  await expect.poll(() => gapTolerance(page)).toBe(5)
+  await page.keyboard.press('Escape')
+
+  // HPGAPTOL on the command line.
+  await page.waitForTimeout(500)
+  await run('hpgaptol\n0.5\n')
+  await expect.poll(() => gapTolerance(page)).toBe(0.5)
+})

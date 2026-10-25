@@ -146,6 +146,7 @@ export default {
         backgroundColor: 'لون الخلفية',
         gradient2Color: 'لون التدرج 2',
         opacity: 'الشفافية',
+        gapTolerance: 'الفجوة',
         imageScale: 'مقياس الصورة'
       },
 
@@ -185,6 +186,7 @@ export default {
         backgroundColor: 'اختر لون خلفية تعبئة النمط.',
         gradient2Color: 'اختر اللون الثاني للتدرج.',
         opacity: 'حدد شفافية التعبئة من 0 إلى 90.',
+        gapTolerance: 'تُعتبر الفجوات بين أطراف المنحنيات حتى هذا العرض (بوحدات الرسم) حدودًا مغلقة (HPGAPTOL، 0–5000).',
         imageScale: 'حدد مقياس صورة التعبئة.',
         close: 'إنهاء إنشاء التعبئة بالنمط وإغلاق هذا التبويب.'
       }

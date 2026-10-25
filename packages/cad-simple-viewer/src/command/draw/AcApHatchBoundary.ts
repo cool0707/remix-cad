@@ -52,7 +52,10 @@ export interface AcApHatchPoint {
 /** A curve flattened to a polyline. */
 export type AcApHatchPolyline = AcApHatchPoint[]
 
-/** Upper bound on input segments (keeps the split bounded on huge input). */
+/**
+ * Default upper bound on input segments (keeps the split bounded on huge
+ * input); the HATCH command takes its limit from the settings.
+ */
 export const ACAP_HATCH_MAX_SEGMENTS = 60_000
 
 /** Upper bound on islands reported for one boundary. */
@@ -62,8 +65,11 @@ const MAX_ISLANDS = 4096
 const MAX_GAP_ENDS = 50_000
 const MAX_GAP_PAIRS = 5_000_000
 
-/** Upper bound on candidate segment pairs visited while splitting. */
-const MAX_PAIR_VISITS = 60_000_000
+/**
+ * Upper bound on candidate segment pairs visited while splitting, per allowed
+ * segment (a raised segment limit raises it too).
+ */
+const PAIR_VISITS_PER_SEGMENT = 1000
 
 /** Upper bound on edges traced for one face. */
 const MAX_TRACE_STEPS = 2_000_000
@@ -244,7 +250,8 @@ function splitPair(
 /** Planar graph of the curves: segments split at crossings, vertices merged within `tol`. */
 function build(
   polys: ReadonlyArray<AcApHatchPolyline>,
-  tol: number
+  tol: number,
+  maxSegments: number
 ): Graph | undefined {
   const segs: Array<[AcApHatchPoint, AcApHatchPoint]> = []
   const owner: number[] = []
@@ -258,7 +265,7 @@ function build(
         owner.push(k)
       }
     }
-    if (segs.length > ACAP_HATCH_MAX_SEGMENTS) return undefined
+    if (segs.length > maxSegments) return undefined
   }
   if (segs.length === 0) return undefined
 
@@ -294,13 +301,14 @@ function build(
       }
     }
   }
+  const maxPairVisits = maxSegments * PAIR_VISITS_PER_SEGMENT
   const splits: number[][] = Array.from({ length: n }, () => [0, 1])
   const tested = new Set<number>()
   let visits = 0
   for (const list of grid.values()) {
     for (let a = 0; a < list.length; a++) {
       for (let b = a + 1; b < list.length; b++) {
-        if (++visits > MAX_PAIR_VISITS) return undefined
+        if (++visits > maxPairVisits) return undefined
         const i = list[a]
         const j = list[b]
         const key = Math.min(i, j) * n + Math.max(i, j)
@@ -312,7 +320,7 @@ function build(
   }
   for (const i of long) {
     for (let j = 0; j < n; j++) {
-      if (++visits > MAX_PAIR_VISITS) return undefined
+      if (++visits > maxPairVisits) return undefined
       const key = Math.min(i, j) * n + Math.max(i, j)
       if (i === j || tested.has(key)) continue
       tested.add(key)
@@ -376,9 +384,10 @@ function build(
 function buildGap(
   polys: ReadonlyArray<AcApHatchPolyline>,
   tol: number,
-  gap: number
+  gap: number,
+  maxSegments: number
 ): Graph | undefined {
-  const g = build(polys, Math.max(tol, 1e-12))
+  const g = build(polys, Math.max(tol, 1e-12), maxSegments)
   if (!g || !(Number.isFinite(gap) && gap > tol)) return g
   const ends: Array<[AcApHatchPoint, number]> = []
   for (let u = 0; u < g.adj.length && ends.length < MAX_GAP_ENDS; u++) {
@@ -613,17 +622,23 @@ function islands(g: Graph, outer: ReadonlyArray<number>, p: AcApHatchPoint) {
  * A curve that is flattened into chords (an arc, an ellipse) lies up to the
  * flattening tolerance off the true curve, so a line that ends on the true
  * curve can stop just short of the chords.
+ *
+ * An end is moved onto another curve's own end only within `endSnap`: two
+ * ends facing each other across a wider gap are left for the finder to bridge
+ * with a straight segment, instead of both being pulled onto each other.
  */
 export function acapHatchSnapEnds(
   polys: ReadonlyArray<AcApHatchPolyline>,
   snap: number,
-  tol: number
+  tol: number,
+  maxSegments = ACAP_HATCH_MAX_SEGMENTS,
+  endSnap = snap
 ): AcApHatchPolyline[] {
   const out = polys.map(p => p.slice())
   if (!(Number.isFinite(snap) && snap > tol)) return out
   let total = 0
   for (const p of polys) total += Math.max(0, p.length - 1)
-  if (total > ACAP_HATCH_MAX_SEGMENTS || total === 0) return out
+  if (total > maxSegments || total === 0) return out
 
   // Segments in a grid of `snap`-sized (at least) cells.
   const all = polys.flat()
@@ -679,8 +694,11 @@ export function acapHatchSnapEnds(
         const t = Math.min(1, Math.max(0, paramOf(a, b, e)))
         const q = pointAt(a, b, t)
         const d = dist(q, e)
+        const atCurveEnd =
+          (k === 0 && t === 0) || (k === polys[j].length - 2 && t === 1)
+        const reach = atCurveEnd ? Math.min(snap, endSnap) : snap
         if (d <= tol) touching = true
-        else if (d <= snap && (!best || d < best[0])) best = [d, j, k, t, q]
+        else if (d <= reach && (!best || d < best[0])) best = [d, j, k, t, q]
       }
       if (!best || touching) continue
       const [, j, k, t, q] = best
@@ -709,11 +727,13 @@ export class AcApHatchBoundaryFinder {
    * @param polys - The curves, flattened to polylines.
    * @param tol - Vertex merge tolerance.
    * @param gap - Widest gap between open ends that still closes a boundary.
+   * @param maxSegments - Most segments the graph is built from.
    */
   constructor(
     private readonly polys: ReadonlyArray<AcApHatchPolyline>,
     private readonly tol: number,
-    private readonly gap = 0
+    private readonly gap = 0,
+    private readonly maxSegments = ACAP_HATCH_MAX_SEGMENTS
   ) {}
 
   /** False when there are too many segments to build the graph. */
@@ -723,7 +743,7 @@ export class AcApHatchBoundaryFinder {
 
   private get graph() {
     if (this._graph === null) {
-      this._graph = buildGap(this.polys, this.tol, this.gap)
+      this._graph = buildGap(this.polys, this.tol, this.gap, this.maxSegments)
     }
     return this._graph
   }

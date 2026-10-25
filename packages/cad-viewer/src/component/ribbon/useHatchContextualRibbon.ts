@@ -262,6 +262,12 @@ export function useHatchContextualRibbon({
       return true
     }
 
+    const gapTolerance = parseHatchNumberValue(itemId, 'hatch-gaptol:')
+    if (gapTolerance != null) {
+      hatchRibbonCommand.setGapTolerance(gapTolerance)
+      return true
+    }
+
     const opacity = parseHatchNumberValue(itemId, 'hatch-opacity:')
     if (opacity != null) {
       hatchRibbonCommand.setOpacity(opacity)
@@ -517,6 +523,29 @@ export function useHatchContextualRibbon({
                     inactiveLabel: t('main.ribbon.hatch.field.associative'),
                     activeValue: 'hatch-associative-on',
                     inactiveValue: 'hatch-associative-off'
+                  }
+                }
+              ]
+            },
+            {
+              id: 'hatch-options-column',
+              layout: 'column',
+              items: [
+                {
+                  id: 'hatch-gaptol',
+                  type: 'inputNumber',
+                  label: t('main.ribbon.hatch.field.gapTolerance'),
+                  tooltip: t('main.ribbon.hatch.tooltip.gapTolerance'),
+                  size: 'small',
+                  props: {
+                    width: '168px',
+                    prefixLabel: t('main.ribbon.hatch.field.gapTolerance'),
+                    modelValue: hatchState.gapTolerance,
+                    min: 0,
+                    max: 5000,
+                    step: 1,
+                    emitValueOnChange: true,
+                    valuePrefix: 'hatch-gaptol:'
                   }
                 }
               ]

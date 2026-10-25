@@ -181,7 +181,7 @@ export default {
     boundaryFoundIslands: 'Hranice nalezena a vyplněna (ostrovů uvnitř: {count}).',
     boundaryNotFound: 'Nebyla nalezena platná hranice šrafování. Zkontrolujte, zda je bod zcela uzavřen čarami bez mezer.',
     alreadyHatched: 'Tato oblast je již vyplněna.',
-    tooComplex: 'Příliš mnoho objektů pro analýzu hranice. Přibližte oblast k vyplnění a vyberte znovu.',
+    tooComplex: 'Příliš mnoho objektů pro analýzu hranice. Přibližte oblast k vyplnění a vyberte znovu, nebo v Nastavení zvyšte „Nejvíce úseček pro hledání hranice“.',
     selectFound: 'Nalezeno uzavřených hranic: {count}.',
     selectNotClosed: 'Neuzavřené objekty ({count}) nebyly použity jako hranice.',
     keywords: {
@@ -1181,6 +1181,10 @@ export default {
         global: 'Uniform'
       }
     }
+  },
+  hpgaptol: {
+    prompt: 'Zadejte toleranci mezery šrafování (0–5000, jednotky výkresu)',
+    outOfRange: 'Tolerance mezery musí být mezi 0 a 5000.'
   },
   sysvar: {
     prompt: 'Zadejte novou hodnotu'

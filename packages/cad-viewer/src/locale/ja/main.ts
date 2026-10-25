@@ -49,6 +49,7 @@ export default {
         backgroundColor: '背景色',
         gradient2Color: 'グラデーション色 2',
         opacity: '透過性',
+        gapTolerance: '隙間の許容値',
         imageScale: 'イメージの尺度'
       },
       style: {
@@ -81,6 +82,7 @@ export default {
         backgroundColor: 'パターン塗りつぶしの背景色を選択します。',
         gradient2Color: 'グラデーションの 2 つ目の色を選択します。',
         opacity: '塗りつぶしの透過性 (0～90) を設定します。',
+        gapTolerance: '線の端どうしにこの幅 (図面単位) までの隙間があっても閉じた境界とみなします (HPGAPTOL、0〜5000)。',
         imageScale: '塗りつぶしイメージの尺度を設定します。',
         close: '塗りつぶしの作成を終了し、このコンテキストタブを閉じます。'
       }

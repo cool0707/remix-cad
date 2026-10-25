@@ -49,6 +49,7 @@ export default {
         backgroundColor: 'Background Color',
         gradient2Color: 'Gradient Color 2',
         opacity: 'Transparency',
+        gapTolerance: 'Gap',
         imageScale: 'Image Scale'
       },
       style: {
@@ -80,6 +81,7 @@ export default {
         backgroundColor: 'Choose the background color for pattern fill.',
         gradient2Color: 'Choose the second gradient color.',
         opacity: 'Set the pattern fill transparency (0-90).',
+        gapTolerance: 'Gaps between curve ends up to this width (drawing units) still count as a closed boundary (HPGAPTOL, 0–5000).',
         imageScale: 'Set the fill image scale.',
         close: 'Exit pattern fill creation and close this contextual tab.'
       }

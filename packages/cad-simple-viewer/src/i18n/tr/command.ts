@@ -211,6 +211,9 @@ export default {
       description:
         'Kullanıcı tanımlı dolgu desenlerinin ikiye katlanıp katlanmayacağını denetler'
     },
+    hpgaptol: {
+      description: 'Tarama sınırının hâlâ kapalı saydığı en geniş boşluğu (çizim birimi) ayarlar'
+    },
     hpislanddetection: {
       description:
         'Yeni oluşturulan desen dolgusu sınırları içindeki adaların nasıl işleneceğini denetler'

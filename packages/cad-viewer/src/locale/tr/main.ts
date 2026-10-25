@@ -49,6 +49,7 @@ export default {
         backgroundColor: 'Arka Plan Rengi',
         gradient2Color: 'Geçiş Rengi 2',
         opacity: 'Saydamlık',
+        gapTolerance: 'Boşluk',
         imageScale: 'Görüntü Ölçeği'
       },
       style: {
@@ -80,6 +81,7 @@ export default {
         backgroundColor: 'Desen dolgusu için arka plan rengini seçin.',
         gradient2Color: 'İkinci geçiş rengini seçin.',
         opacity: 'Desen dolgusu saydamlığını ayarlayın (0-90).',
+        gapTolerance: 'Eğri uçları arasındaki bu genişliğe (çizim birimi) kadar boşluklar yine kapalı sınır sayılır (HPGAPTOL, 0–5000).',
         imageScale: 'Dolgu görüntüsü ölçeğini ayarlayın.',
         close: 'Desen dolgusu oluşturmadan çıkın ve bu bağlamsal sekmeyi kapatın.'
       }

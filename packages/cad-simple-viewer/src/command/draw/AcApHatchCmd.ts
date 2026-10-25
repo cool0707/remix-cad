@@ -13,7 +13,7 @@ import {
   HATCH_PATTERN_SOLID
 } from '@mlightcad/data-model'
 
-import { AcApContext, AcApDocManager } from '../../app'
+import { AcApContext, AcApDocManager, AcApSettingManager } from '../../app'
 import {
   AcEdCommand,
   AcEdOpenMode,
@@ -251,16 +251,44 @@ export class AcApHatchCmd extends AcEdCommand {
     this.notify(AcApI18n.t(key), 'warning')
   }
 
-  private finderFor(set: AcApHatchBoundarySet) {
-    // Line ends that stop just short of another curve (a flattened arc, a
-    // T junction drawn a hair short) are moved onto it first.
-    const polys = acapHatchSnapEnds(set.polys, set.outlineTol, set.tol)
-    return new AcApHatchBoundaryFinder(polys, set.tol)
+  /** HPGAPTOL: widest gap between curve ends that still closes a boundary. */
+  protected get gapTolerance() {
+    const value = Number(AcApSettingManager.instance.hatchGapTolerance)
+    return Number.isFinite(value) ? Math.min(5000, Math.max(0, value)) : 0
   }
 
-  /** On / frozen state of every layer, to notice layer changes during HATCH. */
+  /** Most segments the boundary search traces through (from the settings). */
+  protected get maxSegments() {
+    const value = Number(AcApSettingManager.instance.hatchMaxSegments)
+    return Number.isFinite(value) && value >= 1
+      ? Math.round(value)
+      : ACAP_HATCH_MAX_SEGMENTS
+  }
+
+  private finderFor(set: AcApHatchBoundarySet) {
+    const gap = this.gapTolerance
+    // Line ends that stop short of another curve (a flattened arc, a T
+    // junction drawn a hair short, or a gap up to HPGAPTOL) are moved onto it
+    // first; ends facing each other across a gap are joined by the finder.
+    const polys = acapHatchSnapEnds(
+      set.polys,
+      Math.max(set.outlineTol, gap),
+      set.tol,
+      this.maxSegments,
+      set.outlineTol
+    )
+    return new AcApHatchBoundaryFinder(polys, set.tol, gap, this.maxSegments)
+  }
+
+  /**
+   * On / frozen state of every layer plus the boundary settings, to notice
+   * changes during HATCH.
+   */
   private layerSignature(database: AcDbDatabase) {
-    const parts: string[] = []
+    const parts: string[] = [
+      `gap:${this.gapTolerance}`,
+      `max:${this.maxSegments}`
+    ]
     for (const layer of database.tables.layerTable.newIterator()) {
       parts.push(
         `${layer.name}:${layer.isOff ? 1 : 0}${layer.isFrozen ? 1 : 0}`
@@ -286,9 +314,10 @@ export class AcApHatchCmd extends AcEdCommand {
   }
 
   /**
-   * The boundary set pick points trace in, like AutoCAD's default boundary
-   * set: every visible object in model space. When that is too much to
-   * analyze, only the objects in the current view are used.
+   * The boundary set pick points trace in: every object in model space on a
+   * layer that is on and thawed, including objects outside the view. When
+   * that is more than the segment limit in the settings, only the objects in
+   * the current view are used (AutoCAD's default boundary set).
    *
    * @returns The set and its finder, or `undefined` when it is too complex.
    */
@@ -300,9 +329,11 @@ export class AcApHatchCmd extends AcEdCommand {
     if (this._wholeDrawingTooComplex !== signature) {
       const all = acapCollectHatchBoundarySet(
         database,
-        database.tables.blockTable.modelSpace.newIterator()
+        database.tables.blockTable.modelSpace.newIterator(),
+        true,
+        this.maxSegments
       )
-      if (all.segmentCount <= ACAP_HATCH_MAX_SEGMENTS) {
+      if (all.segmentCount <= this.maxSegments) {
         const finder = this.finderFor(all)
         if (finder.usable) {
           this._pickBoundary = { set: all, finder, signature }
@@ -315,9 +346,11 @@ export class AcApHatchCmd extends AcEdCommand {
     this._pickBoundary = undefined
     const inView = acapCollectHatchBoundarySet(
       database,
-      this.entitiesInView(context)
+      this.entitiesInView(context),
+      true,
+      this.maxSegments
     )
-    if (inView.segmentCount > ACAP_HATCH_MAX_SEGMENTS) return undefined
+    if (inView.segmentCount > this.maxSegments) return undefined
     const finder = this.finderFor(inView)
     return finder.usable ? { set: inView, finder, signature } : undefined
   }
@@ -426,8 +459,13 @@ export class AcApHatchCmd extends AcEdCommand {
       const entity = modelSpace.getIdAt(id)
       if (entity) entities.push(entity)
     })
-    const set = acapCollectHatchBoundarySet(database, entities, false)
-    if (set.segmentCount > ACAP_HATCH_MAX_SEGMENTS) {
+    const set = acapCollectHatchBoundarySet(
+      database,
+      entities,
+      false,
+      this.maxSegments
+    )
+    if (set.segmentCount > this.maxSegments) {
       this.warn('jig.hatch.tooComplex')
       return false
     }

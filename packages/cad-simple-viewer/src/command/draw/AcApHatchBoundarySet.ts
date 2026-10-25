@@ -256,11 +256,14 @@ function entityBounds(entities: ReadonlyArray<AcDbEntity>): AcApHatchBounds {
  *
  * @param checkVisibility - Skip hidden objects and objects on layers that are
  *   off or frozen (pick points); selected objects are used as they are.
+ * @param maxSegments - Flattening stops once the set has more segments than
+ *   this (the set is then too large to trace).
  */
 export function acapCollectHatchBoundarySet(
   db: AcDbDatabase,
   entities: Iterable<AcDbEntity>,
-  checkVisibility = true
+  checkVisibility = true,
+  maxSegments = ACAP_HATCH_MAX_SEGMENTS
 ): AcApHatchBoundarySet {
   const pieces: Piece[] = []
   const tops: AcDbEntity[] = []
@@ -295,7 +298,7 @@ export function acapCollectHatchBoundarySet(
     owners.push(piece.owner)
     segmentCount += pl.length - 1
     // Past the limit the set is unusable anyway: stop flattening.
-    if (segmentCount > ACAP_HATCH_MAX_SEGMENTS) break
+    if (segmentCount > maxSegments) break
   }
   return { polys, owners, tol, outlineTol, segmentCount }
 }

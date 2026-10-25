@@ -202,6 +202,9 @@ export default {
     hpdouble: {
       description: 'Controls whether user-defined fill patterns are doubled'
     },
+    hpgaptol: {
+      description: 'Sets the widest gap, in drawing units, that a hatch boundary still treats as closed'
+    },
     hpislanddetection: {
       description:
         'Controls how islands within newly created pattern fill boundaries are treated'
