@@ -12,6 +12,7 @@ title: İşlem Yöntemleri
 | Sol sürükle | Pencere seçimi / varlığı sürükle |
 | Tekerlek | Görünümü yakınlaştır |
 | Orta veya Shift + Orta sürükle | Görünümü kaydır |
+| Space + sol tuşla sürükle | Görünümü kaydır (komut sırasında da çalışır) |
 | Sağ tık | Komut dışında: bağlam menüsü açar; komut sırasında: Enter yerine geçer |
 | Esc | Geçerli komutu iptal et |
 | Enter / Boşluk | Geçerli adımı onayla veya son komutu tekrarla |
