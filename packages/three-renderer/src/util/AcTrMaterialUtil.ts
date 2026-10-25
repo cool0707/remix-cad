@@ -17,6 +17,16 @@ export const HIGHLIGHT_SELECT_COLOR = new THREE.Color(0x08e8de)
 export const HIGHLIGHT_HOVER_COLOR = new THREE.Color(0x66fff8)
 
 /**
+ * Sets the hover highlight color. Call it before drawings are shown: hover
+ * materials are created (and cached) the first time an entity is hovered.
+ *
+ * @param color - Any color three.js accepts (`'#af61da'`, `0xaf61da`, ...).
+ */
+export function setHoverHighlightColor(color: THREE.ColorRepresentation) {
+  HIGHLIGHT_HOVER_COLOR.set(color)
+}
+
+/**
  * @deprecated Use {@link HIGHLIGHT_SELECT_COLOR} instead.
  */
 export const HIGHLIGHT_COLOR = HIGHLIGHT_SELECT_COLOR

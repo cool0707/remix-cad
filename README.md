@@ -48,6 +48,7 @@ drawings never leave the user's device.
   horizontal or vertical); the grabbed point snaps to object snaps, otherwise edges and centers line up with nearby objects
   (alignment guides). Arrow keys nudge the selection by a round step of about one screen pixel (Shift: ×10). Double-click an object
   to edit its vertices with the CAD grips. Snapping is one on/off button in the status bar; the snap modes are in Settings.
+  Objects you can select light up in the theme color under the cursor (both profiles); over a selected object the cursor shows that it can be dragged.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).

@@ -49,6 +49,7 @@ del dispositivo del usuario.
   limita a horizontal o vertical); el punto agarrado se ajusta a las referencias a objetos y, si no hay ninguna, los bordes y centros se alinean con
   objetos cercanos (guías de alineación). Las flechas desplazan la selección un paso redondo de aproximadamente un píxel (Mayús: ×10). Doble clic en
   un objeto para editar sus vértices con los pinzamientos de CAD. El ajuste es un único botón de activar/desactivar en la barra de estado; los modos están en Configuración.
+  Los objetos seleccionables se resaltan con el color del tema bajo el cursor (en ambos perfiles); sobre un objeto seleccionado, el cursor indica que se puede arrastrar.
 - **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
   abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
   (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).

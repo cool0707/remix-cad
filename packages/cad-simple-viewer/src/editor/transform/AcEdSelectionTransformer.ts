@@ -17,6 +17,7 @@ import { AcEdMarkerManager } from '../input/marker'
 import { AcEdMTextEditor } from '../input/ui/AcEdMTextEditor'
 import type { AcEdBaseView } from '../view/AcEdBaseView'
 import { AcEdOpenMode } from '../view/AcEdOpenMode'
+import { AcEdViewMode } from '../view/AcEdViewMode'
 import { AcEdMatrixPreviewJig } from './AcEdMatrixPreviewJig'
 import {
   type AcEdBox,
@@ -130,6 +131,10 @@ export class AcEdSelectionTransformer {
   private _session?: AcEdTransformSession
   private _altKey = false
   private _refreshQueued = false
+  /** Entity under the cursor, as reported by the view's hover. */
+  private _hoveredId: AcDbObjectId | null = null
+  /** Canvas cursor before the move cursor was shown, while it is shown. */
+  private _savedCursor?: string
 
   private readonly _boundRefresh = () => this.queueRefresh()
   private readonly _boundReposition = () => this.reposition()
@@ -225,9 +230,40 @@ export class AcEdSelectionTransformer {
     if (!this._box) {
       this._entities = []
       this.hideFrame()
+    } else {
+      this.reposition()
+    }
+    this.syncMoveCursor()
+  }
+
+  /**
+   * Tells which entity the cursor is over (`null`: none). Over a selected
+   * entity that a drag would move, the canvas shows the move cursor.
+   */
+  setHoveredId(id: AcDbObjectId | null) {
+    this._hoveredId = id
+    this.syncMoveCursor()
+  }
+
+  private syncMoveCursor() {
+    const id = this._hoveredId
+    // Only for the select tool: the pan tool keeps its hand.
+    const canMove =
+      !this._session &&
+      this._view.mode === AcEdViewMode.SELECTION &&
+      id != null &&
+      this._box != null &&
+      this._entities.some(entity => entity.objectId === id)
+    const canvas = this._view.canvas
+    if (canMove) {
+      if (this._savedCursor == null) this._savedCursor = canvas.style.cursor
+      canvas.style.cursor = 'move'
       return
     }
-    this.reposition()
+    if (this._savedCursor == null) return
+    // Leave a cursor someone else set meanwhile (a tool's crosshair...).
+    if (canvas.style.cursor === 'move') canvas.style.cursor = this._savedCursor
+    this._savedCursor = undefined
   }
 
   /**

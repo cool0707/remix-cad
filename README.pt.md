@@ -48,6 +48,7 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   horizontal ou vertical); o ponto agarrado se prende aos snaps de objeto e, sem nenhum, bordas e centros se alinham a objetos próximos
   (guias de alinhamento). As setas deslocam a seleção um passo redondo de cerca de um pixel da tela (Shift: ×10). Clique duas vezes em um
   objeto para editar seus vértices com os grips do CAD. O snap é um único botão liga/desliga na barra de status; os modos ficam nas Configurações.
+  Objetos selecionáveis são destacados na cor do tema sob o cursor (nos dois perfis); sobre um objeto selecionado, o cursor indica que ele pode ser arrastado.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).

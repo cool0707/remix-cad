@@ -103,7 +103,7 @@ export class AcEdHoverController {
     private readonly host: AcEdHoverHost,
     private readonly hoverEvent: AcCmEventManager<AcEdViewHoverEventArgs>,
     private readonly unhoverEvent: AcCmEventManager<AcEdViewHoverEventArgs>,
-    private readonly hoverDelay = 500,
+    private readonly hoverDelay = 50,
     private readonly pauseDelay = 500
   ) {}
 

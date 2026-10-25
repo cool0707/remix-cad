@@ -388,6 +388,15 @@ Figma / Illustrator 風の「先に選ぶ → ドラッグ / 右サイドバー�
   - テスト: jest `AcEdTransformMath.spec.ts`・`AcEdViewKeyHandler.spec.ts` (矢印キー)、
     e2e `direct-edit.spec.ts` (fixture `two-lines.dxf`: ドラッグ移動 → Undo、Alt で複製、押しただけはクリック、矢印キー、四隅の拡大縮小、
     ダブルクリックでグリップ、スナップの切り替え)。
+- **追加 (ステップ 7 のあと、ユーザーの依頼)**:
+  - ホバー: 選択できる図形 (ロックされたレイヤーは除く) にカーソルを重ねるとテーマカラーで表示する (両プロファイル)。
+    色は `theme.config.ts` の一色に白を 4 割混ぜたもの (そのままでは 1px の線が暗く見えた)。three-renderer の
+    `setHoverHighlightColor()` でビューを作るときに設定 (選択の水色 `HIGHLIGHT_SELECT_COLOR` は変えていない)。
+    反応までの待ちを 500ms → 50ms にした (`AcEdHoverController` の `hoverDelay`。止まってからの hover イベント = 情報カードは 500ms のまま)。
+    コマンドの「オブジェクトを選択」の入力待ち (`editor.isEntitySelectionActive`) でもホバーする。点・距離などの入力待ちではしない。
+  - シンプルでは、選択中で動かせる図形の上でカーソルを移動のカーソル (`move`) にする (`AcEdSelectionTransformer.setHoveredId`、
+    ホバーの判定をそのまま使う)。
+  - テスト: e2e `hover.spec.ts`。
 - **未実施 / 残り**:
   - ビューを回転させた図面 (VIEWTWIST) では枠のハンドルのカーソルの向きが合わない (枠はワールド座標の軸に沿う)。
   - 拡大縮小・回転のときは整列ガイドもスナップも使わない (Shift の 15° 刻みだけ)。

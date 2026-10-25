@@ -39,7 +39,8 @@ import {
   AcTrRenderer,
   AcTrViewportView,
   hasPendingComplexLineTypeGlyphs,
-  setAcTrDrawOrderZAllocator
+  setAcTrDrawOrderZAllocator,
+  setHoverHighlightColor
 } from '@mlightcad/three-renderer'
 import { AcTrMatrixUtil } from '@mlightcad/three-renderer'
 import * as THREE from 'three'
@@ -86,8 +87,10 @@ import {
   acedNeedsCrossingGeometryRefine
 } from '../editor/view/AcEdSelectionBoxIntersect'
 import { isEffectiveSpatialQueryHit } from '../editor/view/AcEdSpatialQueryResult'
+import { excludeLockedLayerIds } from '../service/AcApLockedLayer'
 import type { AcTrLazySpatialChildren } from '../spatialIndex'
 import type { AcTrSpatialSearchOptions } from '../spatialIndex/AcTrSpatialIndex'
+import { acedGetBrandColors } from '../theme/AcEdBrandTheme'
 import { AcTrGeometryUtil } from '../util'
 import { acapRunDatabaseEdit } from '../util/AcApDatabaseEdit'
 import {
@@ -635,6 +638,14 @@ export class AcTrView2d extends AcEdBaseView {
         capture: true
       })
     }
+    // Hover in the theme color, unlike the cyan of the selection. Lightened:
+    // thin lines in the plain theme color look dim on the dark canvas.
+    setHoverHighlightColor(
+      new THREE.Color(acedGetBrandColors().primary).lerp(
+        new THREE.Color(0xffffff),
+        0.4
+      )
+    )
     this._gripManager = new AcEdGripManager(this)
     this._selectionTransformer = new AcEdSelectionTransformer(this, {
       activeSpaceId: () => this._scene.activeLayoutBtrId,
@@ -3688,7 +3699,13 @@ export class AcTrView2d extends AcEdBaseView {
    */
   onHover(id: AcDbObjectId) {
     if (!this.entitySelectionEnabled) return
+    // Only what a click could select: not entities on locked layers.
+    if (!this.allowSelectOnLockedLayer) {
+      const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
+      if (excludeLockedLayerIds(db, [id]).lockedCount > 0) return
+    }
     this._isDirty = this._scene.hover([id])
+    this._selectionTransformer.setHoveredId(id)
   }
 
   /**
@@ -3696,6 +3713,7 @@ export class AcTrView2d extends AcEdBaseView {
    */
   onUnhover(id: AcDbObjectId) {
     this._isDirty = this._scene.unhover([id])
+    this._selectionTransformer.setHoveredId(null)
   }
 
   protected createScene() {
