@@ -151,8 +151,14 @@ export class AcEdInputManager {
    */
   private _confirmedPointMarks: AcEdMarkerManager | null = null
   private _confirmedPointPositions: AcGePoint2dLike[] = []
-  /** Last live readout pushed to the session panel (fills untyped fields). */
+  /** Last readout pushed to the session panel (fills untyped fields). */
   private _lastMobileMetrics: AcEdMobileSessionMetrics | null = null
+  /**
+   * Phone/pad: a canvas tap that confirmed the previous pending point. It
+   * becomes the next point prompt's pending point (or is committed by a
+   * prompt without one), so one tap both confirms and picks.
+   */
+  private _carriedTapPoint: AcGePoint2dLike | null = null
   private readonly _boundRepositionConfirmedPointMarks: () => void
 
   /** Command line UI component */
@@ -171,6 +177,7 @@ export class AcEdInputManager {
   }
   /** Clears leftover mobile chrome when a command ends. */
   private readonly _onCommandEnded = () => {
+    this._carriedTapPoint = null
     this.clearConfirmedPointMarks()
     if (this._mobileChrome.isOpen) {
       this.endMobilePrompt()
@@ -417,8 +424,10 @@ export class AcEdInputManager {
     onConfirm: () => void
     onCancel: () => void
     onKeyword: (globalName: string) => void
-    onMetricsSubmit?: AcEdMobileCommandChromeCallbacks['onMetricsSubmit']
+    editableMetrics?: boolean
+    onMetricsInput?: AcEdMobileCommandChromeCallbacks['onMetricsInput']
   }): void {
+    this._carriedTapPoint = null
     this.syncDesktopCommandLineVisibility()
     if (!acedInteractionStrategy().point.usesSessionChrome) return
     this._mobileChrome.show(
@@ -429,13 +438,14 @@ export class AcEdInputManager {
         showMetrics: args.showMetrics,
         showStringInput: args.showStringInput,
         stringValue: args.stringValue,
-        stringPlaceholder: args.stringPlaceholder
+        stringPlaceholder: args.stringPlaceholder,
+        editableMetrics: args.editableMetrics
       },
       {
         onConfirm: args.onConfirm,
         onCancel: args.onCancel,
         onKeyword: args.onKeyword,
-        onMetricsSubmit: args.onMetricsSubmit
+        onMetricsInput: args.onMetricsInput
       }
     )
     this._sessionAccessoryController.remountActiveSessionAccessory()
@@ -2675,32 +2685,25 @@ export class AcEdInputManager {
 
   /**
    * Turns a pair typed on the session panel into a command-line point token
-   * (`x,y`, `@dx,dy` or `@length<angle`). An empty field keeps the last live
-   * value, so typing only the length keeps the rubber-band direction.
+   * (`x,y`, `@dx,dy` or `@length<angle`). An empty field keeps the current
+   * readout (the pending point, or zero), so typing only the length keeps
+   * the direction.
    */
   private mobileMetricsToken(
     mode: AcUiMobileSessionMetricMode,
     first: string,
     second: string
-  ): string | null {
+  ): string {
     const live = this._lastMobileMetrics
-    const pick = (text: string, liveValue: number | undefined) =>
-      text !== '' ? text : liveValue != null ? String(liveValue) : null
-    let a: string | null
-    let b: string | null
+    const pick = (text: string, value: number | undefined) =>
+      text !== '' ? text : String(value ?? 0)
     switch (mode) {
       case 'absolute':
-        a = pick(first, live?.x)
-        b = pick(second, live?.y)
-        return a != null && b != null ? `${a},${b}` : null
+        return `${pick(first, live?.x)},${pick(second, live?.y)}`
       case 'delta':
-        a = pick(first, live?.hasBasePoint ? live.dx : undefined)
-        b = pick(second, live?.hasBasePoint ? live.dy : undefined)
-        return a != null && b != null ? `@${a},${b}` : null
+        return `@${pick(first, live?.dx)},${pick(second, live?.dy)}`
       case 'polar':
-        a = pick(first, live?.hasBasePoint ? live.length : undefined)
-        b = pick(second, live?.hasBasePoint ? live.angleDeg : undefined)
-        return a != null && b != null ? `@${a}<${b}` : null
+        return `@${pick(first, live?.length)}<${pick(second, live?.angleDeg)}`
     }
   }
 
@@ -2800,9 +2803,26 @@ export class AcEdInputManager {
         : (options.showMetrics ??
           (options.inputCount === 2 || basePoint != null))
       const allowPickCommit = options.allowPickCommit !== false
+      const usesSessionChrome =
+        acedInteractionStrategy().point.usesSessionChrome
+      // Phone/pad point prompts: a tap (or the panel fields) only proposes a
+      // point; ✓ or the next tap confirms it. The panel shows the pending
+      // point, or empty fields when there is none.
+      const pendingMode =
+        usesSessionChrome &&
+        allowPickCommit &&
+        !showStringInput &&
+        options.handler instanceof AcEdPointHandler
+      const carriedTap = this._carriedTapPoint
+      this._carriedTapPoint = null
+      let pending: AcGePoint3dLike | undefined
+      let pendingMark: AcEdMarkerManager | null = null
+      const repositionPendingMark = () => {
+        if (pending) pendingMark?.repositionTop(pending)
+      }
 
       const getDynamicValue: AcEdFloatingInputDynamicValueCallback<T> = pos => {
-        if (!showStringInput) {
+        if (!showStringInput && !pendingMode) {
           this.pushMobileMetrics(
             pos,
             basePoint ?? floatingInput.sessionBasePoint
@@ -2836,6 +2856,17 @@ export class AcEdInputManager {
           options.drawPreview?.(pos)
         },
         onCommit: (val: T, pos?: AcGePoint2dLike) => {
+          if (pendingMode) {
+            const point = val as unknown as AcGePoint3dLike
+            if (pending) {
+              // Confirm the pending point; this tap proposes the next one.
+              const tap = { x: point.x, y: point.y }
+              if (commitPending()) this._carriedTapPoint = tap
+            } else {
+              setPending(point, false)
+            }
+            return false
+          }
           let result = false
           if (!options.onCommit || options.onCommit(val, pos)) {
             resolver(val)
@@ -2868,6 +2899,9 @@ export class AcEdInputManager {
           this._activeRejector = null
         }
         options.cleanup?.()
+        pendingMark?.clear()
+        pendingMark = null
+        this.view.events.viewChanged.removeEventListener(repositionPendingMark)
         promptDefaults.jig?.end()
         document.removeEventListener('keydown', escHandler)
         document.removeEventListener('keydown', modifierHandler)
@@ -2897,6 +2931,32 @@ export class AcEdInputManager {
 
       const keywordRejector = (keyword: string) => {
         rejector(new AcEdKeywordInputError(keyword))
+      }
+
+      const pendingBasePoint = () => basePoint ?? floatingInput.sessionBasePoint
+
+      /**
+       * Proposes `point` without committing: marks it, fills the panel
+       * fields and (for typed points) moves the preview there.
+       */
+      const setPending = (point: AcGePoint2dLike, typed: boolean) => {
+        pending = { x: point.x, y: point.y, z: 0 }
+        pendingMark ??= new AcEdMarkerManager(this.view)
+        pendingMark.showOrRepositionMarker(pending, 'x')
+        if (typed) floatingInput.previewAt(pending)
+        this.showMobileMetrics(
+          acedComputeSessionMetrics(pending, pendingBasePoint())
+        )
+      }
+
+      /** Commits the pending point; false when the prompt rejected it. */
+      const commitPending = () => {
+        if (!pending) return false
+        const value = pending as unknown as T
+        if (options.onCommit && !options.onCommit(value)) return false
+        this.lastPoint = { x: pending.x, y: pending.y }
+        resolver(value)
+        return true
       }
 
       const commitMobileString = () => {
@@ -2930,43 +2990,33 @@ export class AcEdInputManager {
         onConfirm: () => {
           if (showStringInput) {
             commitMobileString()
-          } else {
+          } else if (pending) {
+            commitPending()
+          } else if (allowNone || !pendingMode) {
             noneRejector()
           }
         },
         onCancel: () => rejector(),
         onKeyword: keywordRejector,
-        onMetricsSubmit:
-          options.handler instanceof AcEdPointHandler && !showStringInput
-            ? (mode, first, second) => {
-                const pointHandler = options.handler as AcEdPointHandler
-                const token = this.mobileMetricsToken(mode, first, second)
-                const referencePoint =
-                  basePoint ?? floatingInput.sessionBasePoint
-                const point = token
-                  ? pointHandler.parseCommandLine(token, { referencePoint })
-                  : null
-                if (!point) return false
-                const value = point as unknown as T
-                if (options.onCommit && !options.onCommit(value)) return false
-                this.lastPoint = { x: point.x, y: point.y }
-                resolver(value)
+        editableMetrics: pendingMode,
+        onMetricsInput: pendingMode
+          ? (mode, first, second) => {
+              if (!first && !second) {
+                pending = undefined
+                pendingMark?.clear()
                 return true
               }
-            : undefined
+              const point = (
+                options.handler as AcEdPointHandler
+              ).parseCommandLine(this.mobileMetricsToken(mode, first, second), {
+                referencePoint: pendingBasePoint()
+              })
+              if (!point) return false
+              setPending(point, true)
+              return true
+            }
+          : undefined
       })
-
-      // A point typed on the panel leaves no live sample against the new base
-      // point; switch the readout to length / angle so the next one can be
-      // typed relative to it.
-      if (
-        showMetrics &&
-        basePoint &&
-        this._mobileChrome.isOpen &&
-        !this._lastMobileMetrics?.hasBasePoint
-      ) {
-        this.showMobileMetrics(acedComputeSessionMetrics(basePoint, basePoint))
-      }
 
       const escHandler = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
@@ -3007,6 +3057,27 @@ export class AcEdInputManager {
         floatingInput.showAt(this.view.canvasToViewport(this.view.curMousePos))
       } else {
         floatingInput.showAt({ x: 0, y: 0 })
+      }
+
+      if (pendingMode) {
+        // Fields start empty; the readout layout follows the prompt and
+        // untyped fields fall back to zero rather than an earlier point.
+        const base = pendingBasePoint()
+        this._lastMobileMetrics = acedComputeSessionMetrics(
+          base ?? { x: 0, y: 0 },
+          base
+        )
+        this._mobileChrome.setMetricLayout(base != null)
+        this.view.events.viewChanged.addEventListener(repositionPendingMark)
+        if (carriedTap) {
+          setPending(carriedTap, true)
+        } else if (base) {
+          // No hover on touch: draw what is confirmed so far (zero-length
+          // rubber band) until a point is proposed.
+          floatingInput.previewAt(base)
+        }
+      } else if (carriedTap && usesSessionChrome && allowPickCommit) {
+        floatingInput.commitAt(carriedTap)
       }
 
       promptInputSession.promise.then(result => {

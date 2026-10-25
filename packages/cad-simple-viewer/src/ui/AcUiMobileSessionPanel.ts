@@ -54,12 +54,12 @@ export interface AcUiMobileSessionPanelCallbacks {
   onCancel: () => void
   onKeyword: (id: string) => void
   /**
-   * When set, tapping a metric turns its pair into number fields and ✓
-   * submits them. `first` / `second` are the raw field texts (X/Y,
-   * length/angle, ΔX/ΔY); an empty field means "keep the live value".
-   * Return false to keep editing (the fields are marked invalid).
+   * Typing in a metric field (sessions shown with `editableMetrics`).
+   * `first` / `second` are the pair's raw texts (X/Y, length/angle, ΔX/ΔY);
+   * an empty field means "keep the current value". Return false to mark the
+   * pair invalid.
    */
-  onMetricsSubmit?: (
+  onMetricsInput?: (
     mode: AcUiMobileSessionMetricMode,
     first: string,
     second: string
@@ -82,6 +82,13 @@ export interface AcUiMobileSessionPanelState {
   stringValue?: string
   /** Placeholder for the string field. */
   stringPlaceholder?: string
+  /**
+   * When true, the metrics are number fields (empty on show). Live values
+   * pushed with {@link AcUiMobileSessionPanel.setMetrics} fill them, except
+   * the pair being typed in; typing calls `onMetricsInput`; Enter / ✓ call
+   * `onConfirm` (✓ stays enabled).
+   */
+  editableMetrics?: boolean
 }
 
 /** Construction options for {@link AcUiMobileSessionPanel}. */
@@ -198,8 +205,7 @@ export class AcUiMobileSessionPanel {
   private collapsed = false
   private showMetrics = false
   private showStringInput = false
-  private allowNone = false
-  private editingMode: AcUiMobileSessionMetricMode | null = null
+  private editableMetrics = false
   private hasBasePoint = false
   private frozenTexts: AcUiMobileSessionMetricTexts | null = null
   private frozenHasBasePoint = false
@@ -324,10 +330,6 @@ export class AcUiMobileSessionPanel {
     this.cancelBtn.addEventListener('click', e => {
       e.preventDefault()
       e.stopPropagation()
-      if (this.editingMode) {
-        this.endMetricEdit()
-        return
-      }
       this.callbacks?.onCancel()
     })
     this.sinkPointer(this.cancelBtn)
@@ -339,10 +341,6 @@ export class AcUiMobileSessionPanel {
     this.confirmBtn.addEventListener('click', e => {
       e.preventDefault()
       e.stopPropagation()
-      if (this.editingMode) {
-        this.submitMetricEdit()
-        return
-      }
       if (this.confirmBtn.disabled) return
       this.callbacks?.onConfirm()
     })
@@ -443,11 +441,12 @@ export class AcUiMobileSessionPanel {
     state: AcUiMobileSessionPanelState,
     callbacks: AcUiMobileSessionPanelCallbacks
   ): void {
-    this.endMetricEdit()
     this.callbacks = callbacks
     this.open = true
-    this.allowNone = state.allowNone
     this.showStringInput = state.showStringInput === true
+    this.setMetricsEditable(
+      state.editableMetrics === true && !this.showStringInput
+    )
     this.showMetrics = this.showStringInput ? false : state.showMetrics
     this.root.hidden = false
     this.root.setAttribute('aria-hidden', 'false')
@@ -455,7 +454,8 @@ export class AcUiMobileSessionPanel {
     this.promptEl.textContent = stripPromptColon(state.prompt)
     // String mode: ✓ commits typed text (always enabled). Point / actions:
     // ✓ is empty-Enter / allowNone.
-    this.confirmBtn.disabled = this.showStringInput ? false : !state.allowNone
+    this.confirmBtn.disabled =
+      this.showStringInput || this.editableMetrics ? false : !state.allowNone
     this.stringInput.value = state.stringValue ?? ''
     this.stringInput.placeholder = state.stringPlaceholder ?? ''
     this.prepareAccessory()
@@ -510,9 +510,12 @@ export class AcUiMobileSessionPanel {
           : this.confirmBtn.disabled
       this.applyMetricVisibility()
     }
-    if (partial.allowNone != null) this.allowNone = partial.allowNone
-    if (partial.allowNone != null && !this.showStringInput) {
-      this.confirmBtn.disabled = !partial.allowNone && !this.editingMode
+    if (
+      partial.allowNone != null &&
+      !this.showStringInput &&
+      !this.editableMetrics
+    ) {
+      this.confirmBtn.disabled = !partial.allowNone
     }
     if (partial.stringValue != null) {
       this.stringInput.value = partial.stringValue
@@ -572,8 +575,8 @@ export class AcUiMobileSessionPanel {
   }
 
   /**
-   * Pushes live metric values. A pair being typed in keeps its fields; the
-   * readout behind them still updates (it becomes the placeholder next time).
+   * Pushes live metric values (also into the number fields when editable,
+   * except the pair being typed in).
    *
    * @param hasBasePoint - Whether relative metrics apply.
    * @param texts - Formatted strings for display.
@@ -584,13 +587,23 @@ export class AcUiMobileSessionPanel {
     this.frozenTexts = { ...texts }
     this.frozenHasBasePoint = hasBasePoint
     this.setMetricTexts(texts, hasBasePoint)
+    if (this.editableMetrics) this.setMetricFields(texts)
+    this.applyMetricVisibility()
+  }
+
+  /**
+   * Switches between relative and absolute metrics without changing values
+   * (e.g. a point prompt with a base point whose fields start empty).
+   */
+  setMetricLayout(hasBasePoint: boolean): void {
+    if (!this.open) return
+    this.hasBasePoint = hasBasePoint
     this.applyMetricVisibility()
   }
 
   /** Expands or collapses the panel into compact mode. */
   setCollapsed(collapsed: boolean): void {
     if (this.collapsed === collapsed) return
-    if (collapsed) this.endMetricEdit()
     this.collapsed = collapsed
     this.panel.classList.toggle('is-collapsed', collapsed)
     this.collapseBtn.innerHTML = collapsed ? expandIcon() : collapseIcon()
@@ -621,7 +634,7 @@ export class AcUiMobileSessionPanel {
    * ({@link clearAccessory} via the session-accessory controller).
    */
   hide(): void {
-    this.endMetricEdit()
+    this.setMetricsEditable(false)
     this.open = false
     this.callbacks = null
     this.showStringInput = false
@@ -926,92 +939,87 @@ export class AcUiMobileSessionPanel {
     input.autocomplete = 'off'
     input.spellcheck = false
     input.addEventListener('input', () => {
-      btn.classList.remove('is-invalid')
+      input.dataset.typed = '1'
+      this.handleMetricInput(id)
     })
     input.addEventListener('keydown', e => {
       if (e.isComposing) return
       if (e.key === 'Enter') {
         e.preventDefault()
         e.stopPropagation()
-        this.submitMetricEdit()
+        input.blur()
+        this.callbacks?.onConfirm()
       } else if (e.key === 'Escape') {
         e.preventDefault()
         e.stopPropagation()
-        this.endMetricEdit()
+        this.callbacks?.onCancel()
       }
     })
     this.metricInputs[id] = input
     btn.append(label, value, input)
     btn.addEventListener('click', e => {
-      if (e.target === input) return
-      this.beginMetricEdit(id)
+      if (e.target === input || !this.editableMetrics) return
+      input.focus()
     })
     return btn
   }
 
-  /** Whether the current session accepts typed metrics. */
-  private canEditMetrics(): boolean {
-    return (
-      this.open &&
-      !this.collapsed &&
-      this.showMetrics &&
-      !this.showStringInput &&
-      this.callbacks?.onMetricsSubmit != null
-    )
+  /** Switches the metrics between read-only text and (empty) number fields. */
+  private setMetricsEditable(editable: boolean): void {
+    this.editableMetrics = editable
+    this.panel.classList.toggle('is-metrics-editable', editable)
+    for (const key of Object.keys(
+      this.metricButtons
+    ) as (keyof AcUiMobileSessionMetricTexts)[]) {
+      const input = this.metricInputs[key]!
+      if (!editable && document.activeElement === input) input.blur()
+      input.value = ''
+      delete input.dataset.typed
+      this.metricButtons[key].classList.toggle('is-editing', editable)
+      this.metricButtons[key].classList.remove('is-invalid')
+    }
   }
 
   /**
-   * Turns the tapped metric's pair into number fields. Fields start empty
-   * with the live value as placeholder, so only what is typed changes.
+   * Forwards typing in one field together with its pair partner. A partner
+   * holding a pushed (formatted) value is sent empty so the caller keeps the
+   * exact current value instead of re-parsing display text.
    */
-  private beginMetricEdit(id: keyof AcUiMobileSessionMetricTexts): void {
-    if (!this.canEditMetrics()) return
+  private handleMetricInput(id: keyof AcUiMobileSessionMetricTexts): void {
     const mode = metricMode(id)
-    if (this.editingMode !== mode) {
-      this.endMetricEdit()
-      this.editingMode = mode
-      for (const key of METRIC_PAIRS[mode]) {
-        const input = this.metricInputs[key]!
-        input.value = ''
-        input.placeholder =
-          this.metricButtons[key].querySelector('.ml-mobile-cmd-metric-value')
-            ?.textContent ?? ''
-        this.metricButtons[key].classList.add('is-editing')
-      }
-      this.panel.classList.add('is-editing-metrics')
-      this.confirmBtn.disabled = false
-    }
-    this.metricInputs[id]!.focus()
-  }
-
-  /** Leaves metric editing without submitting. */
-  private endMetricEdit(): void {
-    if (!this.editingMode) return
-    for (const key of METRIC_PAIRS[this.editingMode]) {
-      this.metricButtons[key].classList.remove('is-editing', 'is-invalid')
-      this.metricInputs[key]!.blur()
-    }
-    this.editingMode = null
-    this.panel.classList.remove('is-editing-metrics')
-    this.confirmBtn.disabled = this.showStringInput ? false : !this.allowNone
-  }
-
-  /** Sends the edited pair; an empty pair just leaves editing. */
-  private submitMetricEdit(): void {
-    const mode = this.editingMode
-    if (!mode) return
     const [a, b] = METRIC_PAIRS[mode]
-    const first = this.metricInputs[a]!.value.trim()
-    const second = this.metricInputs[b]!.value.trim()
-    if (!first && !second) {
-      this.endMetricEdit()
-      return
+    const typedText = (key: keyof AcUiMobileSessionMetricTexts) => {
+      const input = this.metricInputs[key]!
+      return input.dataset.typed ? input.value.trim() : ''
     }
     const accepted =
-      this.callbacks?.onMetricsSubmit?.(mode, first, second) ?? false
-    if (!accepted && this.editingMode === mode) {
-      this.metricButtons[a].classList.add('is-invalid')
-      this.metricButtons[b].classList.add('is-invalid')
+      this.callbacks?.onMetricsInput?.(mode, typedText(a), typedText(b)) ?? true
+    this.metricButtons[a].classList.toggle('is-invalid', !accepted)
+    this.metricButtons[b].classList.toggle('is-invalid', !accepted)
+  }
+
+  /** Pair whose field has focus (the user is typing there). */
+  private focusedMetricMode(): AcUiMobileSessionMetricMode | null {
+    for (const key of Object.keys(
+      this.metricInputs
+    ) as (keyof AcUiMobileSessionMetricTexts)[]) {
+      if (document.activeElement === this.metricInputs[key]) {
+        return metricMode(key)
+      }
+    }
+    return null
+  }
+
+  /** Fills the number fields from live values, leaving the typed pair alone. */
+  private setMetricFields(texts: AcUiMobileSessionMetricTexts): void {
+    const typing = this.focusedMetricMode()
+    for (const key of Object.keys(
+      this.metricInputs
+    ) as (keyof AcUiMobileSessionMetricTexts)[]) {
+      if (typing && metricMode(key) === typing) continue
+      this.metricInputs[key]!.value = texts[key]
+      delete this.metricInputs[key]!.dataset.typed
+      this.metricButtons[key].classList.remove('is-invalid')
     }
   }
 
@@ -1053,13 +1061,6 @@ export class AcUiMobileSessionPanel {
     this.metricButtons.dy.hidden = !relative
     this.metricButtons.x.hidden = !absolute
     this.metricButtons.y.hidden = !absolute
-    if (
-      this.editingMode &&
-      this.metricButtons[METRIC_PAIRS[this.editingMode][0]].hidden
-    ) {
-      this.endMetricEdit()
-    }
-    this.panel.classList.toggle('is-metrics-editable', this.canEditMetrics())
 
     this.panel.classList.toggle('is-relative', relative && !collapsed)
     this.panel.classList.toggle('is-absolute', absolute && !collapsed)
@@ -1409,13 +1410,6 @@ const MOBILE_CMD_CSS = `
     flex: 0 0 auto;
     color: var(--ml-ui-muted, #9aa0a6);
     font-size: 12px;
-  }
-  .ml-mobile-cmd-panel.is-metrics-editable .ml-mobile-cmd-metric {
-    cursor: pointer;
-  }
-  .ml-mobile-cmd-panel.is-metrics-editable .ml-mobile-cmd-metric-value {
-    text-decoration: underline dotted;
-    text-underline-offset: 3px;
   }
   .ml-mobile-cmd-metric-input {
     display: none;

@@ -354,15 +354,14 @@ describe('AcEdMobileCommandChrome', () => {
     media.restore()
   })
 
-  it('lets a tapped metric pair be typed and submits it with ✓', () => {
+  it('shows editable metrics as empty fields filled by pushed values', () => {
     const media = installMatchMedia(
       query =>
         query === ML_UI_MOBILE_MEDIA_QUERY ||
         query === ML_UI_COMPACT_MEDIA_QUERY
     )
     const onConfirm = jest.fn()
-    const onCancel = jest.fn()
-    const onMetricsSubmit = jest
+    const onMetricsInput = jest
       .fn<boolean, [string, string, string]>()
       .mockReturnValueOnce(false)
       .mockReturnValue(true)
@@ -371,14 +370,12 @@ describe('AcEdMobileCommandChrome', () => {
         prompt: 'Specify next point:',
         keywords: [],
         allowNone: false,
-        showMetrics: true
+        showMetrics: true,
+        editableMetrics: true
       },
-      { onConfirm, onCancel, onKeyword: jest.fn(), onMetricsSubmit }
+      { onConfirm, onCancel: jest.fn(), onKeyword: jest.fn(), onMetricsInput }
     )
-    chrome.setMetrics(
-      { hasBasePoint: true, length: 5, angleDeg: 0, dx: 5, dy: 0, x: 5, y: 0 },
-      { length: '5', angle: '0', dx: '5', dy: '0', x: '5', y: '0' }
-    )
+    chrome.setMetricLayout(true)
     const panel = host.querySelector('.ml-mobile-cmd-panel') as HTMLElement
     const metric = (id: string) =>
       panel.querySelector(`[data-metric="${id}"]`) as HTMLElement
@@ -389,41 +386,70 @@ describe('AcEdMobileCommandChrome', () => {
     const confirm = panel.querySelector(
       '.ml-mobile-cmd-confirm'
     ) as HTMLButtonElement
-    const cancel = panel.querySelector(
-      '.ml-mobile-cmd-cancel'
-    ) as HTMLButtonElement
 
-    expect(panel.classList.contains('is-metrics-editable')).toBe(true)
-    expect(confirm.disabled).toBe(true)
-
-    metric('length').click()
+    // No pending point yet: relative fields, all empty; ✓ stays usable.
+    expect(metric('length').hidden).toBe(false)
     expect(metric('length').classList.contains('is-editing')).toBe(true)
-    expect(metric('angle').classList.contains('is-editing')).toBe(true)
-    expect(metric('dx').classList.contains('is-editing')).toBe(false)
-    expect(input('length').placeholder).toBe('5')
+    expect(input('length').value).toBe('')
+    expect(input('dx').value).toBe('')
     expect(confirm.disabled).toBe(false)
 
-    input('length').value = 'abc'
-    confirm.click()
-    expect(onMetricsSubmit).toHaveBeenLastCalledWith('polar', 'abc', '')
-    expect(metric('length').classList.contains('is-invalid')).toBe(true)
+    // A tap pushes the pending point into every field.
+    const texts = { length: '5', angle: '0', dx: '5', dy: '0', x: '5', y: '0' }
+    chrome.setMetrics(
+      { hasBasePoint: true, length: 5, angleDeg: 0, dx: 5, dy: 0, x: 5, y: 0 },
+      texts
+    )
+    expect(input('length').value).toBe('5')
+    expect(input('dx').value).toBe('5')
 
+    // Typing reports the pair; the typed pair is not overwritten by pushes.
+    input('length').focus()
+    input('length').value = 'abc'
+    input('length').dispatchEvent(new Event('input'))
+    expect(onMetricsInput).toHaveBeenLastCalledWith('polar', 'abc', '')
+    expect(metric('length').classList.contains('is-invalid')).toBe(true)
     input('length').value = '100'
+    input('length').dispatchEvent(new Event('input'))
+    expect(metric('length').classList.contains('is-invalid')).toBe(false)
+    chrome.setMetrics(
+      {
+        hasBasePoint: true,
+        length: 100,
+        angleDeg: 0,
+        dx: 100,
+        dy: 0,
+        x: 100,
+        y: 0
+      },
+      { ...texts, length: '100.000', dx: '100' }
+    )
+    expect(input('length').value).toBe('100')
+    expect(input('dx').value).toBe('100')
+
+    // Enter confirms like ✓.
     input('length').dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Enter' })
     )
-    expect(onMetricsSubmit).toHaveBeenLastCalledWith('polar', '100', '')
-    expect(onConfirm).not.toHaveBeenCalled()
+    expect(onConfirm).toHaveBeenCalledTimes(1)
 
-    // × while typing only leaves editing; it does not cancel the command.
-    cancel.click()
-    expect(onCancel).not.toHaveBeenCalled()
-    expect(metric('length').classList.contains('is-editing')).toBe(false)
-    expect(confirm.disabled).toBe(true)
+    // The next prompt starts with empty fields again.
+    chrome.show(
+      {
+        prompt: 'Specify next point:',
+        keywords: [],
+        allowNone: true,
+        showMetrics: true,
+        editableMetrics: true
+      },
+      { onConfirm, onCancel: jest.fn(), onKeyword: jest.fn(), onMetricsInput }
+    )
+    expect(input('length').value).toBe('')
+    expect(input('dx').value).toBe('')
     media.restore()
   })
 
-  it('keeps metrics read-only without onMetricsSubmit', () => {
+  it('keeps metrics read-only without editableMetrics', () => {
     const media = installMatchMedia(query => query === ML_UI_MOBILE_MEDIA_QUERY)
     chrome.show(
       {
@@ -439,6 +465,10 @@ describe('AcEdMobileCommandChrome', () => {
     x.click()
     expect(panel.classList.contains('is-metrics-editable')).toBe(false)
     expect(x.classList.contains('is-editing')).toBe(false)
+    expect(
+      (panel.querySelector('.ml-mobile-cmd-confirm') as HTMLButtonElement)
+        .disabled
+    ).toBe(true)
     media.restore()
   })
 

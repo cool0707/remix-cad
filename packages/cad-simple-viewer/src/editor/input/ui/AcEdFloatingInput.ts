@@ -339,7 +339,11 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     )
     this.parent.removeEventListener('pointermove', this.boundOnPointerMove)
     this.parent.removeEventListener('touchstart', this.boundOnTouchStart, true)
-    this.parent.removeEventListener('contextmenu', this.boundOnContextMenu, true)
+    this.parent.removeEventListener(
+      'contextmenu',
+      this.boundOnContextMenu,
+      true
+    )
     window.removeEventListener('pointerup', this.boundOnPointerUp)
     window.removeEventListener('pointercancel', this.boundOnPointerCancel)
     window.removeEventListener('touchmove', this.boundOnTouchMove)
@@ -372,6 +376,29 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
 
     const wcsPos = this.getPosition({ x: e.clientX, y: e.clientY })
     this.updateDynamicPreview(wcsPos)
+  }
+
+  /**
+   * Moves the preview (rubber band, jig) to a world point without OSNAP or
+   * tracking, e.g. a point typed on the phone/pad session panel.
+   */
+  previewAt(wcsPos: AcGePoint2dLike) {
+    if (!this.visible) return
+    this.updateDynamicPreview(wcsPos)
+  }
+
+  /**
+   * Commits a world point as if it had been picked there (used to replay a
+   * phone/pad tap that confirmed the previous prompt's pending point).
+   */
+  commitAt(wcsPos: AcGePoint2dLike) {
+    if (!this.visible || !this.allowPickCommit) return
+    this.updateDynamicPreview(wcsPos)
+    const defaults = this.getDynamicValue(wcsPos)
+    const committed = this.onCommit?.(defaults.value, wcsPos) ?? true
+    if (committed) {
+      this.lastPoint = new AcGePoint2d(wcsPos.x, wcsPos.y)
+    }
   }
 
   /**
