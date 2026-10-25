@@ -14,6 +14,10 @@ import {
   AcEdPromptStatus
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
+import {
+  acapAddUndoOnRightClick,
+  acapUndoLastEntity
+} from './AcApRepeatDrawUtil'
 
 const ACAP_XLINE_HALF_LENGTH = 1_000_000
 
@@ -27,6 +31,10 @@ type XLineMode = 'point' | 'hor' | 'ver' | 'ang'
  * - `Hor`: horizontal xline through a point.
  * - `Ver`: vertical xline through a point.
  * - `Ang`: xline at a user-specified angle through a point.
+ *
+ * Each xline is shown as soon as it is placed. Double-click (or Enter) ends
+ * the command. Right-click (`Undo`) removes the last xline at the first
+ * prompt, and goes back to the first prompt from the later ones.
  */
 export class AcApXLineCmd extends AcEdCommand {
   constructor() {
@@ -36,6 +44,7 @@ export class AcApXLineCmd extends AcEdCommand {
 
   async execute(context: AcApContext) {
     let currentMode: XLineMode = 'point'
+    const created: AcDbLine[] = []
 
     while (true) {
       const startPrompt = new AcEdPromptPointOptions(
@@ -56,9 +65,14 @@ export class AcApXLineCmd extends AcEdCommand {
         AcApI18n.t('jig.xline.keywords.ang.global'),
         AcApI18n.t('jig.xline.keywords.ang.local')
       )
+      acapAddUndoOnRightClick(startPrompt)
       const startResult =
         await AcApDocManager.instance.editor.getPoint(startPrompt)
       if (startResult.status === AcEdPromptStatus.Keyword) {
+        if (startResult.stringResult === 'Undo') {
+          acapUndoLastEntity(context, created)
+          continue
+        }
         if (startResult.stringResult === 'Hor') {
           currentMode = 'hor'
         } else if (startResult.stringResult === 'Ver') {
@@ -77,8 +91,10 @@ export class AcApXLineCmd extends AcEdCommand {
         secondPrompt.useBasePoint = true
         secondPrompt.useDashedLine = true
         secondPrompt.basePoint = new AcGePoint3d(startResult.value)
+        acapAddUndoOnRightClick(secondPrompt)
         const secondResult =
           await AcApDocManager.instance.editor.getPoint(secondPrompt)
+        if (secondResult.status === AcEdPromptStatus.Keyword) continue
         if (secondResult.status !== AcEdPromptStatus.OK || !secondResult.value)
           return
 
@@ -87,7 +103,9 @@ export class AcApXLineCmd extends AcEdCommand {
           y: secondResult.value.y - startResult.value.y,
           z: secondResult.value.z - startResult.value.z
         }
-        if (!this.appendFiniteXLine(context, startResult.value, direction)) {
+        if (
+          !this.appendFiniteXLine(context, created, startResult.value, direction)
+        ) {
           this.showMessage(AcApI18n.t('jig.xline.invalidDirection'), 'warning')
         }
         continue
@@ -99,14 +117,16 @@ export class AcApXLineCmd extends AcEdCommand {
         const throughPrompt = new AcEdPromptPointOptions(
           AcApI18n.t('jig.xline.throughPoint')
         )
+        acapAddUndoOnRightClick(throughPrompt)
         const throughResult =
           await AcApDocManager.instance.editor.getPoint(throughPrompt)
+        if (throughResult.status === AcEdPromptStatus.Keyword) continue
         if (
           throughResult.status !== AcEdPromptStatus.OK ||
           !throughResult.value
         )
           return
-        this.appendFiniteXLine(context, throughResult.value, {
+        this.appendFiniteXLine(context, created, throughResult.value, {
           x: 1,
           y: 0,
           z: 0
@@ -117,14 +137,16 @@ export class AcApXLineCmd extends AcEdCommand {
         const throughPrompt = new AcEdPromptPointOptions(
           AcApI18n.t('jig.xline.throughPoint')
         )
+        acapAddUndoOnRightClick(throughPrompt)
         const throughResult =
           await AcApDocManager.instance.editor.getPoint(throughPrompt)
+        if (throughResult.status === AcEdPromptStatus.Keyword) continue
         if (
           throughResult.status !== AcEdPromptStatus.OK ||
           !throughResult.value
         )
           return
-        this.appendFiniteXLine(context, throughResult.value, {
+        this.appendFiniteXLine(context, created, throughResult.value, {
           x: 0,
           y: 1,
           z: 0
@@ -146,13 +168,15 @@ export class AcApXLineCmd extends AcEdCommand {
       const throughPrompt = new AcEdPromptPointOptions(
         AcApI18n.t('jig.xline.throughPoint')
       )
+      acapAddUndoOnRightClick(throughPrompt)
       const throughResult =
         await AcApDocManager.instance.editor.getPoint(throughPrompt)
+      if (throughResult.status === AcEdPromptStatus.Keyword) continue
       if (throughResult.status !== AcEdPromptStatus.OK || !throughResult.value)
         return
 
       const angleRad = (angleResult.value * Math.PI) / 180
-      this.appendFiniteXLine(context, throughResult.value, {
+      this.appendFiniteXLine(context, created, throughResult.value, {
         x: Math.cos(angleRad),
         y: Math.sin(angleRad),
         z: 0
@@ -169,6 +193,7 @@ export class AcApXLineCmd extends AcEdCommand {
    */
   private appendFiniteXLine(
     context: AcApContext,
+    created: AcDbLine[],
     throughPoint: AcGePoint3dLike,
     direction: AcGePoint3dLike
   ) {
@@ -185,9 +210,10 @@ export class AcApXLineCmd extends AcEdCommand {
       throughPoint.y + unit.y * ACAP_XLINE_HALF_LENGTH,
       throughPoint.z + unit.z * ACAP_XLINE_HALF_LENGTH
     )
-    context.doc.database.tables.blockTable.modelSpace.appendEntity(
-      new AcDbLine(start, end)
-    )
+    const line = new AcDbLine(start, end)
+    context.doc.database.tables.blockTable.modelSpace.appendEntity(line)
+    context.view.addEntity(line)
+    created.push(line)
     return true
   }
 
