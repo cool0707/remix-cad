@@ -23,6 +23,9 @@ export class AcEdFloatingInputBox {
     this.parent = parent
     this.input = document.createElement('input')
     this.input.type = 'text'
+    // Coordinates never contain spaces: let Space + drag pan while this box
+    // keeps focus during point prompts (see AcTrView2d.installSpacePan).
+    this.input.dataset.mlSpacePan = ''
 
     // Track user input
     this.boundOnInput = () => {

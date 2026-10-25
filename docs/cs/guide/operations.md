@@ -12,6 +12,7 @@ title: Způsoby ovládání
 | Tažení levým tlačítkem | výběr oknem / přesun entity |
 | Kolečko | přiblížení pohledu |
 | Tažení prostředním tlačítkem nebo Shift + prostřední tlačítko | posun pohledu |
+| Mezerník + tažení levým tlačítkem | posun pohledu (funguje i během příkazu) |
 | Pravé tlačítko | mimo příkaz: kontextová nabídka; během příkazu: odpovídá Enter (potvrzení) |
 | Esc | zrušení aktuálního příkazu |
 | Enter / mezerník | potvrzení aktuálního kroku nebo opakování předchozího příkazu |
