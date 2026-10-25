@@ -17,6 +17,9 @@ export default {
     invalidInput: 'Neplatný vstup.',
     close: 'Zavřít příkazový řádek'
   },
+  prompt: {
+    orConnector: 'nebo'
+  },
   mobileCommand: {
     length: 'Délka',
     angle: 'Úhel',

@@ -7,7 +7,10 @@ import {
 
 import { AcEdBaseView } from '../../view'
 import { AcEdOsnapPoint, AcEdOsnapResolver } from '../AcEdOsnapResolver'
-import { constrainToTracking } from '../AcEdPolarTracking'
+import {
+  constrainToAngleStep,
+  constrainToTracking
+} from '../AcEdPolarTracking'
 import { AcEdMarkerManager } from '../marker'
 import { acedClearDomSelection } from './AcEdCanvasTouchCalloutGuard'
 import { AcEdFloatingInputBoxes } from './AcEdFloatingInputBoxes'
@@ -17,6 +20,7 @@ import {
   AcEdFloatingInputCommitCallback,
   AcEdFloatingInputDrawPreviewCallback,
   AcEdFloatingInputDynamicValueCallback,
+  AcEdFloatingInputKeywordCallback,
   AcEdFloatingInputNoneCallback,
   AcEdFloatingInputOptions,
   AcEdFloatingInputValidationCallback
@@ -41,6 +45,19 @@ import {
   acedSinkFollowingClick,
   AcEdTouchPointSession
 } from './AcEdTouchPointSession'
+
+/**
+ * Swallows the native `dblclick` that follows a double-click consumed by a
+ * prompt (removed after it fires, or shortly after if none comes).
+ */
+function sinkFollowingDblClick() {
+  const sink = (e: Event) => {
+    e.preventDefault()
+    e.stopImmediatePropagation()
+  }
+  window.addEventListener('dblclick', sink, { capture: true, once: true })
+  setTimeout(() => window.removeEventListener('dblclick', sink, true), 500)
+}
 
 /**
  * A UI component providing a small floating input box used inside CAD editing
@@ -78,6 +95,10 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   private lastOsnapPoint?: AcEdOsnapPoint
   /** Stores last dynamic WCS point used for preview updates */
   private lastDynamicPoint?: AcGePoint2dLike
+  /** Last mouse position (client px), to re-run the pick when Shift toggles. */
+  private lastMouseClientPos?: AcGePoint2dLike
+  /** Shift held: snap the direction from the base point to 45° steps. */
+  private shiftAngleSnap = false
 
   /** Reference point for ORTHOMODE cursor locking */
   private orthoReferencePoint?: AcGePoint2dLike
@@ -87,6 +108,8 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   private onChange?: AcEdFloatingInputChangeCallback<T>
   private onCancel?: AcEdFloatingInputCancelCallback
   private onNone?: AcEdFloatingInputNoneCallback
+  private onKeyword?: AcEdFloatingInputKeywordCallback
+  private onDoubleClick?: () => void
 
   /** Validation and dynamic value providers */
   private validateFn: AcEdFloatingInputValidationCallback<T>
@@ -190,6 +213,8 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     this.onChange = options.onChange
     this.onCancel = options.onCancel
     this.onNone = options.onNone
+    this.onKeyword = options.onKeyword
+    this.onDoubleClick = options.onDoubleClick
 
     // -----------------------------
     // Input boxes
@@ -201,6 +226,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
         validate: this.validateFn,
         onCancel: this.onCancel,
         onNone: this.onNone,
+        onKeyword: this.onKeyword,
         onCommit: this.onCommit,
         onChange: this.onChange,
         autoFocus: this.isDynamicInputEnabled(),
@@ -335,7 +361,11 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     )
     this.parent.removeEventListener('pointermove', this.boundOnPointerMove)
     this.parent.removeEventListener('touchstart', this.boundOnTouchStart, true)
-    this.parent.removeEventListener('contextmenu', this.boundOnContextMenu, true)
+    this.parent.removeEventListener(
+      'contextmenu',
+      this.boundOnContextMenu,
+      true
+    )
     window.removeEventListener('pointerup', this.boundOnPointerUp)
     window.removeEventListener('pointercancel', this.boundOnPointerCancel)
     window.removeEventListener('touchmove', this.boundOnTouchMove)
@@ -366,8 +396,46 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     if (acedShouldIgnoreCompatMouse()) return
     if (acedIsGhostClientOrigin(e) || acedIsTouchDerivedMouseEvent(e)) return
 
+    this.shiftAngleSnap = e.shiftKey
+    this.lastMouseClientPos = { x: e.clientX, y: e.clientY }
     const wcsPos = this.getPosition({ x: e.clientX, y: e.clientY })
     this.updateDynamicPreview(wcsPos)
+  }
+
+  /**
+   * Turns the Shift 45° direction snap on or off (Shift pressed / released
+   * without moving the mouse) and re-runs the pick at the last mouse spot.
+   */
+  setShiftAngleSnap(on: boolean) {
+    if (this.shiftAngleSnap === on) return
+    this.shiftAngleSnap = on
+    if (!this.visible || !this.lastMouseClientPos || !this.orthoReferencePoint) {
+      return
+    }
+    this.updateDynamicPreview(this.getPosition(this.lastMouseClientPos))
+  }
+
+  /**
+   * Moves the preview (rubber band, jig) to a world point without OSNAP or
+   * tracking, e.g. a point typed on the phone/pad session panel.
+   */
+  previewAt(wcsPos: AcGePoint2dLike) {
+    if (!this.visible) return
+    this.updateDynamicPreview(wcsPos)
+  }
+
+  /**
+   * Commits a world point as if it had been picked there (used to replay a
+   * phone/pad tap that confirmed the previous prompt's pending point).
+   */
+  commitAt(wcsPos: AcGePoint2dLike) {
+    if (!this.visible || !this.allowPickCommit) return
+    this.updateDynamicPreview(wcsPos)
+    const defaults = this.getDynamicValue(wcsPos)
+    const committed = this.onCommit?.(defaults.value, wcsPos) ?? true
+    if (committed) {
+      this.lastPoint = new AcGePoint2d(wcsPos.x, wcsPos.y)
+    }
   }
 
   /**
@@ -405,6 +473,15 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     this.mouseClickArmed = false
     if (acedIsGhostClientOrigin(e) || acedIsTouchDerivedMouseEvent(e)) return
 
+    if (e.detail >= 2 && this.onDoubleClick) {
+      // The native dblclick that follows must not open an entity editor on
+      // what was just drawn.
+      sinkFollowingDblClick()
+      this.onDoubleClick()
+      return
+    }
+
+    this.shiftAngleSnap = e.shiftKey
     const wcsPos = this.getPosition({ x: e.clientX, y: e.clientY })
     const defaults = this.getDynamicValue(wcsPos)
     const committed = this.onCommit?.(defaults.value, wcsPos) ?? true
@@ -801,7 +878,9 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     }
 
     if (this.orthoReferencePoint) {
-      const constrained = constrainToTracking(wcsPos, this.orthoReferencePoint)
+      const constrained = this.shiftAngleSnap
+        ? constrainToAngleStep(wcsPos, this.orthoReferencePoint)
+        : constrainToTracking(wcsPos, this.orthoReferencePoint)
       wcsPos.x = constrained.x
       wcsPos.y = constrained.y
     }

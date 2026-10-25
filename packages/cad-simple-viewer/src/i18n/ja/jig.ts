@@ -606,11 +606,16 @@ export default {
     firstPoint: '1 点目を指定',
     nextPoint: '次の点を指定 (Enter で終了)',
     nextPointWithOptions: '次の点を指定 または',
+    flipArcHint: '弧を反対側に',
     nextPointWithArcOptions: '次の点を指定 または',
     keywords: {
       arc: { display: '円弧(A)', local: '円弧', global: 'Arc' },
       undo: { display: '元に戻す(U)', local: '元に戻す', global: 'Undo' },
-      close: { display: '閉じる(C)', local: '閉じる', global: 'Close' },
+      close: {
+        display: 'ポリラインを閉じる(J)',
+        local: '閉じる',
+        global: 'Close'
+      },
       line: { display: '線分(L)', local: '線分', global: 'Line' },
       angle: { display: '角度(A)', local: '角度', global: 'Angle' },
       center: { display: '中心(C)', local: '中心', global: 'Center' },
@@ -776,7 +781,11 @@ export default {
       knots: { display: 'ノット(K)', local: 'ノット', global: 'Knots' },
       degree: { display: '次数(D)', local: '次数', global: 'Degree' },
       undo: { display: '元に戻す(U)', local: '元に戻す', global: 'Undo' },
-      close: { display: '閉じる(C)', local: '閉じる', global: 'Close' },
+      close: {
+        display: 'スプラインを閉じる(J)',
+        local: '閉じる',
+        global: 'Close'
+      },
       chord: { display: '弦長(C)', local: '弦長', global: 'Chord' },
       sqrtChord: {
         display: '弦長の平方根(S)',

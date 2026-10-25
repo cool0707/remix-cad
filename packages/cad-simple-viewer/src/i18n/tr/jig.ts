@@ -848,6 +848,7 @@ export default {
     firstPoint: 'İlk noktayı belirtin',
     nextPoint: 'Sonraki noktayı belirtin (bitirmek için Enter\'a basın)',
     nextPointWithOptions: 'Sonraki noktayı belirtin veya',
+    flipArcHint: 'Yayı diğer tarafa',
     nextPointWithArcOptions: 'Sonraki noktayı belirtin veya',
     keywords: {
       arc: {
@@ -861,7 +862,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Kapat(K)',
+        display: 'Çoklu çizgiyi kapat(K)',
         local: 'Kapat',
         global: 'Close'
       },
@@ -1156,7 +1157,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Kapat(K)',
+        display: 'Eğriyi kapat(K)',
         local: 'Kapat',
         global: 'Close'
       },

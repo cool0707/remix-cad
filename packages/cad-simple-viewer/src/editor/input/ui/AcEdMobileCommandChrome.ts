@@ -1,9 +1,7 @@
-import {
-  ACAP_DOCS_PATH_MAGNIFIER,
-  acapDocsUrl
-} from '../../../app/AcApDocsUrl'
+import { ACAP_DOCS_PATH_MAGNIFIER, acapDocsUrl } from '../../../app/AcApDocsUrl'
 import { AcApI18n } from '../../../i18n/AcApI18n'
 import {
+  type AcUiMobileSessionMetricMode,
   type AcUiMobileSessionMetricTexts,
   AcUiMobileSessionPanel,
   type AcUiMobileSessionPanelLabels
@@ -32,8 +30,7 @@ export type AcEdMobileMetricTexts = AcUiMobileSessionMetricTexts
  * Callbacks for the mobile command chrome.
  *
  * For point / actions sessions, `onConfirm` is empty-Enter / `allowNone`
- * (panel ✓). Typed coordinate commit is a separate future path (numeric
- * keypad) and must not use `onConfirm`.
+ * (panel ✓), or commits the pending point when the metrics are editable.
  *
  * For string sessions (`showStringInput`), `onConfirm` commits the typed
  * value from {@link AcEdMobileCommandChrome.getStringValue}.
@@ -45,6 +42,15 @@ export interface AcEdMobileCommandChromeCallbacks {
   onCancel: () => void
   /** Keyword chip tap. */
   onKeyword: (globalName: string) => void
+  /**
+   * Typing in a metric field (`editableMetrics`). Empty texts keep the
+   * current value; return false if invalid.
+   */
+  onMetricsInput?: (
+    mode: AcUiMobileSessionMetricMode,
+    first: string,
+    second: string
+  ) => boolean
 }
 
 /** Session content pushed into {@link AcEdMobileCommandChrome.show}. */
@@ -63,6 +69,8 @@ export interface AcEdMobileCommandChromeState {
   stringValue?: string
   /** Placeholder for the string field. */
   stringPlaceholder?: string
+  /** Metrics are number fields that set the pending point (point prompts). */
+  editableMetrics?: boolean
 }
 
 /**
@@ -121,6 +129,7 @@ export class AcEdMobileCommandChrome {
         showStringInput: state.showStringInput,
         stringValue: state.stringValue,
         stringPlaceholder: state.stringPlaceholder,
+        editableMetrics: state.editableMetrics,
         keywords: state.keywords.map(kw => ({
           displayName: kw.displayName,
           id: kw.globalName,
@@ -130,7 +139,8 @@ export class AcEdMobileCommandChrome {
       {
         onConfirm: callbacks.onConfirm,
         onCancel: callbacks.onCancel,
-        onKeyword: callbacks.onKeyword
+        onKeyword: callbacks.onKeyword,
+        onMetricsInput: callbacks.onMetricsInput
       }
     )
   }
@@ -157,14 +167,21 @@ export class AcEdMobileCommandChrome {
   }
 
   /**
-   * Pushes live metric values. Phase 1 displays them read-only; the metric
-   * buttons stay disabled as a hook for the numeric keypad.
+   * Pushes live metric values (also into the fields when editable).
    *
    * @param metrics - Live numeric metrics including base-point state.
    * @param texts - Formatted strings for display.
    */
   setMetrics(metrics: AcEdMobileSessionMetrics, texts: AcEdMobileMetricTexts) {
     this.panel.setMetrics(metrics.hasBasePoint, texts)
+  }
+
+  /**
+   * Shows relative (length / angle / Δ) or absolute (X / Y) metrics without
+   * pushing values.
+   */
+  setMetricLayout(hasBasePoint: boolean) {
+    this.panel.setMetricLayout(hasBasePoint)
   }
 
   /** Current session string field value. */

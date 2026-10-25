@@ -838,6 +838,7 @@ export default {
     firstPoint: '指定第一个点',
     nextPoint: '指定下一个点（或按 Enter 完成）',
     nextPointWithOptions: '请指定下一个点或',
+    flipArcHint: '另一侧圆弧',
     nextPointWithArcOptions: '请指定下一个点或',
     keywords: {
       arc: {
@@ -851,7 +852,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: '闭合(C)',
+        display: '闭合多段线(J)',
         local: '闭合',
         global: 'Close'
       },
@@ -1144,7 +1145,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: '闭合(C)',
+        display: '闭合样条曲线(J)',
         local: '闭合',
         global: 'Close'
       },

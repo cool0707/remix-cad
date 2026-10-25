@@ -326,6 +326,10 @@ export class AcTrView2d extends AcEdBaseView {
    * document open.
    */
   private _convertEpoch = 0
+  /** Bumped by every {@link removeTransientEntity}. */
+  private _transientRemoveSeq = 0
+  /** Sequence number of the latest removal per transient object id. */
+  private readonly _transientRemovedAt = new Map<AcDbObjectId, number>()
   /** Last time progressive open actually painted mid-convert. */
   private _lastProgressivePaintAt = 0
   /**
@@ -2496,6 +2500,7 @@ export class AcTrView2d extends AcEdBaseView {
   addTransientEntity(entity: AcDbEntity | AcDbEntity[]) {
     const entities = Array.isArray(entity) ? entity : [entity]
     const epoch = this._convertEpoch
+    const removeSeq = this._transientRemoveSeq
     // Overlay transients (markup / measurement / jigs) must honor entity
     // lineweight even when LWDISPLAY is off; otherwise ribbon style is a no-op.
     const previousForce = this._renderer.forceShowLineWeight
@@ -2514,6 +2519,14 @@ export class AcTrView2d extends AcEdBaseView {
                 threeEntity.dispose()
                 return
               }
+              // Removed while its geometry was building (a jig ended right
+              // after its last render): do not bring it back.
+              const removedAt = this._transientRemovedAt.get(entity.objectId)
+              if (removedAt != null && removedAt >= removeSeq) {
+                threeEntity.dispose()
+                return
+              }
+              this._transientRemovedAt.delete(entity.objectId)
               this._scene.addTransientEntity(threeEntity)
               this._isDirty = true
             })
@@ -2533,6 +2546,14 @@ export class AcTrView2d extends AcEdBaseView {
    * @param objectId Input the object id of the transient entity to remove
    */
   removeTransientEntity(objectId: AcDbObjectId) {
+    this._transientRemovedAt.set(objectId, this._transientRemoveSeq++)
+    if (this._transientRemovedAt.size > 256) {
+      // Only adds still building can need old entries; keep recent ones.
+      const keepFrom = this._transientRemoveSeq - 64
+      this._transientRemovedAt.forEach((seq, id) => {
+        if (seq < keepFrom) this._transientRemovedAt.delete(id)
+      })
+    }
     this._scene.removeTransientEntity(objectId)
     this._isDirty = true
   }

@@ -599,6 +599,9 @@ export class AcApPolylineCmd extends AcEdCommand {
         prompt.jig = createPreviewJig(undefined)
         // AutoCAD PLINE: Enter at "next point" ends the command without adding a vertex.
         prompt.allowNone = true
+        // Double-click ends the polyline; right-click removes the last vertex.
+        prompt.finishOnDoubleClick = true
+        prompt.rightClickKeyword = 'Undo'
         return prompt
       }
 
@@ -679,6 +682,12 @@ export class AcApPolylineCmd extends AcEdCommand {
           applyArcDirection(computeDefaultArcBulge(end))
         )
         prompt.allowNone = true
+        prompt.finishOnDoubleClick = true
+        prompt.rightClickKeyword = 'Undo'
+        // Ctrl toggles the arc to the other side (see flipArcBulgeForCtrl).
+        prompt.keyHints = [
+          { label: AcApI18n.t('jig.polyline.flipArcHint'), key: 'Ctrl' }
+        ]
         return prompt
       }
 

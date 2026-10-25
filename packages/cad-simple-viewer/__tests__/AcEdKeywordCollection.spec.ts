@@ -43,3 +43,41 @@ describe('AcEdKeywordCollection prompt format', () => {
     expect(options.valueDefaultDisplayText).toBe('10.5')
   })
 })
+
+describe('AcEdKeywordCollection.findByName shortcuts', () => {
+  const pline = () => {
+    const keywords = new AcEdKeywordCollection()
+    keywords.add('角度(A)', 'Angle', '角度')
+    keywords.add('中心(CE)', 'Center', '中心')
+    keywords.add('線分(L)', 'Line', '線分')
+    keywords.add('閉じる(C)', 'Close', '閉じる')
+    return keywords
+  }
+
+  test('parses the display shortcut', () => {
+    const keywords = pline()
+    expect(keywords.findByName('Center')?.shortcut).toBe('CE')
+    expect(keywords.findByName('Line')?.shortcut).toBe('L')
+  })
+
+  test('prefers a display shortcut over another keyword alias', () => {
+    const keywords = pline()
+    // Center's alias is also "C"; Close shows C, Center shows CE.
+    expect(keywords.findByName('C')?.globalName).toBe('Close')
+    expect(keywords.findByName('ce')?.globalName).toBe('Center')
+    expect(keywords.findByName('a')?.globalName).toBe('Angle')
+  })
+
+  test('still matches global, local and alias names', () => {
+    const keywords = pline()
+    expect(keywords.findByName('center')?.globalName).toBe('Center')
+    expect(keywords.findByName('中心')?.globalName).toBe('Center')
+    expect(keywords.findByName('_Close')?.globalName).toBe('Close')
+    expect(keywords.findByName('_C')).toBeUndefined()
+
+    const plain = new AcEdKeywordCollection()
+    plain.add('Merkez(M)', 'Center', 'Merkez')
+    expect(plain.findByName('M')?.globalName).toBe('Center')
+    expect(plain.findByName('C')?.globalName).toBe('Center')
+  })
+})

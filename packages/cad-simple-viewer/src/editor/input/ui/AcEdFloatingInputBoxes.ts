@@ -3,6 +3,7 @@ import {
   AcEdFloatingInputCancelCallback,
   AcEdFloatingInputChangeCallback,
   AcEdFloatingInputCommitCallback,
+  AcEdFloatingInputKeywordCallback,
   AcEdFloatingInputNoneCallback,
   AcEdFloatingInputRawData,
   AcEdFloatingInputValidationCallback,
@@ -50,6 +51,11 @@ export interface AcEdFloatingInputBoxesOptions<T> {
    * Callback invoked when Enter submits "none" (AllowNone + empty typed input).
    */
   onNone?: AcEdFloatingInputNoneCallback
+
+  /**
+   * Callback invoked when Enter submits typed text that is not a valid value.
+   */
+  onKeyword?: AcEdFloatingInputKeywordCallback
 
   /**
    * Whether to autofocus/select inputs after mount.
@@ -113,6 +119,7 @@ export class AcEdFloatingInputBoxes<T> {
   private onChange?: AcEdFloatingInputChangeCallback<T>
   private onCancel?: AcEdFloatingInputCancelCallback
   private onNone?: AcEdFloatingInputNoneCallback
+  private onKeyword?: AcEdFloatingInputKeywordCallback
   private validateFn: AcEdFloatingInputValidationCallback<T>
   private allowNone: boolean
   private useDefaultValue: boolean
@@ -145,6 +152,7 @@ export class AcEdFloatingInputBoxes<T> {
     this.onChange = options.onChange
     this.onCancel = options.onCancel
     this.onNone = options.onNone
+    this.onKeyword = options.onKeyword
     this.allowNone = options.allowNone ?? false
     this.useDefaultValue = options.useDefaultValue ?? false
     this.defaultValue = options.defaultValue
@@ -230,6 +238,24 @@ export class AcEdFloatingInputBoxes<T> {
       nextInput = this.xInput
     }
 
+    // A letter that is an option's shortcut picks it at once (A = Arc), the
+    // way the pills above the prompt suggest. Coordinates never need
+    // letters; other text still waits for Enter.
+    if (
+      this.onKeyword &&
+      !e.isComposing &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey &&
+      e.key.length === 1 &&
+      e.key.toLowerCase() !== e.key.toUpperCase() &&
+      this.onKeyword(e.key, true)
+    ) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+
     if (e.key === 'Enter') {
       if (this.useDefaultValue && !this.userTyped) {
         const committed =
@@ -257,7 +283,7 @@ export class AcEdFloatingInputBoxes<T> {
         if (state.isValid && state.value != null) {
           this.onCommit?.(state.value)
           currentInput.markValid()
-        } else {
+        } else if (!this.onKeyword?.(currentInput.value.trim())) {
           currentInput.markInvalid()
         }
       }

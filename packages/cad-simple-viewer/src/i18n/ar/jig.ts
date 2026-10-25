@@ -542,6 +542,7 @@ export default {
     nextPointWithOptions:
       'حدد النقطة التالية أو',
 
+    flipArcHint: 'القوس من الجهة الأخرى',
     nextPointWithArcOptions:
       'حدد النقطة التالية أو',
 
@@ -573,7 +574,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'إغلاق(C)',
+        display: 'إغلاق الخط المتعدد(J)',
         local: 'إغلاق',
         global: 'Close'
       },
@@ -828,7 +829,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'إغلاق(C)',
+        display: 'إغلاق المنحنى(J)',
         local: 'إغلاق',
         global: 'Close'
       },

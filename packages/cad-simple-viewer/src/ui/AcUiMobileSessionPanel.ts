@@ -25,6 +25,9 @@ export interface AcUiMobileSessionMetricTexts {
   y: string
 }
 
+/** Metric pair typed in by the user: X/Y, length/angle, or ΔX/ΔY. */
+export type AcUiMobileSessionMetricMode = 'absolute' | 'polar' | 'delta'
+
 /** Localized chrome strings for the session panel. */
 export interface AcUiMobileSessionPanelLabels {
   length: string
@@ -50,6 +53,17 @@ export interface AcUiMobileSessionPanelCallbacks {
   onConfirm: () => void
   onCancel: () => void
   onKeyword: (id: string) => void
+  /**
+   * Typing in a metric field (sessions shown with `editableMetrics`).
+   * `first` / `second` are the pair's raw texts (X/Y, length/angle, ΔX/ΔY);
+   * an empty field means "keep the current value". Return false to mark the
+   * pair invalid.
+   */
+  onMetricsInput?: (
+    mode: AcUiMobileSessionMetricMode,
+    first: string,
+    second: string
+  ) => boolean
 }
 
 /** Session content pushed into {@link AcUiMobileSessionPanel.show}. */
@@ -68,6 +82,13 @@ export interface AcUiMobileSessionPanelState {
   stringValue?: string
   /** Placeholder for the string field. */
   stringPlaceholder?: string
+  /**
+   * When true, the metrics are number fields (empty on show). Live values
+   * pushed with {@link AcUiMobileSessionPanel.setMetrics} fill them, except
+   * the pair being typed in; typing calls `onMetricsInput`; Enter / ✓ call
+   * `onConfirm` (✓ stays enabled).
+   */
+  editableMetrics?: boolean
 }
 
 /** Construction options for {@link AcUiMobileSessionPanel}. */
@@ -86,6 +107,31 @@ export interface AcUiMobileSessionPanelOptions {
   helpHost?: HTMLElement | (() => HTMLElement | null)
   /** Supplies localized labels (called on show / refreshLabels). */
   labels: () => AcUiMobileSessionPanelLabels
+}
+
+/**
+ * Narrowest panel (px) kept when insetting to the host; below this the panel
+ * spans the viewport again.
+ */
+const MIN_INSET_PANEL_WIDTH = 280
+
+/** Metric keys edited together, in submit order. */
+const METRIC_PAIRS: Record<
+  AcUiMobileSessionMetricMode,
+  [keyof AcUiMobileSessionMetricTexts, keyof AcUiMobileSessionMetricTexts]
+> = {
+  absolute: ['x', 'y'],
+  polar: ['length', 'angle'],
+  delta: ['dx', 'dy']
+}
+
+/** Pair a metric belongs to. */
+function metricMode(
+  id: keyof AcUiMobileSessionMetricTexts
+): AcUiMobileSessionMetricMode {
+  if (id === 'x' || id === 'y') return 'absolute'
+  if (id === 'length' || id === 'angle') return 'polar'
+  return 'delta'
 }
 
 /** DOM id of the injected stylesheet. */
@@ -147,8 +193,11 @@ export class AcUiMobileSessionPanel {
   private readonly confirmBtn: HTMLButtonElement
   private readonly metricButtons: Record<
     keyof AcUiMobileSessionMetricTexts,
-    HTMLButtonElement
+    HTMLDivElement
   >
+  private readonly metricInputs: Partial<
+    Record<keyof AcUiMobileSessionMetricTexts, HTMLInputElement>
+  > = {}
 
   private helpPanel: AcUiHelpPanel | null = null
   private callbacks: AcUiMobileSessionPanelCallbacks | null = null
@@ -156,6 +205,7 @@ export class AcUiMobileSessionPanel {
   private collapsed = false
   private showMetrics = false
   private showStringInput = false
+  private editableMetrics = false
   private hasBasePoint = false
   private frozenTexts: AcUiMobileSessionMetricTexts | null = null
   private frozenHasBasePoint = false
@@ -163,6 +213,8 @@ export class AcUiMobileSessionPanel {
   private accessoryObserver?: MutationObserver
   private compactPromptObserver?: ResizeObserver
   private compactPromptRaf = 0
+  private hostInsetObserver?: ResizeObserver
+  private readonly boundSyncHostInsets = () => this.syncHostInsets()
 
   constructor(options: AcUiMobileSessionPanelOptions) {
     this.host = options.host
@@ -343,7 +395,8 @@ export class AcUiMobileSessionPanel {
     this.stringActions.className = 'ml-mobile-cmd-actions'
 
     this.stringGroup = document.createElement('div')
-    this.stringGroup.className = 'ml-mobile-cmd-group ml-mobile-cmd-group-string'
+    this.stringGroup.className =
+      'ml-mobile-cmd-group ml-mobile-cmd-group-string'
     this.stringGroup.hidden = true
     this.stringGroup.append(this.stringInput, this.stringActions)
 
@@ -391,6 +444,9 @@ export class AcUiMobileSessionPanel {
     this.callbacks = callbacks
     this.open = true
     this.showStringInput = state.showStringInput === true
+    this.setMetricsEditable(
+      state.editableMetrics === true && !this.showStringInput
+    )
     this.showMetrics = this.showStringInput ? false : state.showMetrics
     this.root.hidden = false
     this.root.setAttribute('aria-hidden', 'false')
@@ -398,7 +454,8 @@ export class AcUiMobileSessionPanel {
     this.promptEl.textContent = stripPromptColon(state.prompt)
     // String mode: ✓ commits typed text (always enabled). Point / actions:
     // ✓ is empty-Enter / allowNone.
-    this.confirmBtn.disabled = this.showStringInput ? false : !state.allowNone
+    this.confirmBtn.disabled =
+      this.showStringInput || this.editableMetrics ? false : !state.allowNone
     this.stringInput.value = state.stringValue ?? ''
     this.stringInput.placeholder = state.stringPlaceholder ?? ''
     this.prepareAccessory()
@@ -409,8 +466,11 @@ export class AcUiMobileSessionPanel {
       this.setMetricTexts(ZERO_TEXTS, false)
     }
     this.layoutUnsub?.()
+    this.syncHostInsets()
+    this.watchHostInsets(true)
     this.layoutUnsub = this.subscribeLayout?.(() => {
       if (this.open) {
+        this.syncHostInsets()
         this.applyMetricVisibility()
         if (this.showStringInput) this.syncStringInputHeight()
       }
@@ -450,7 +510,11 @@ export class AcUiMobileSessionPanel {
           : this.confirmBtn.disabled
       this.applyMetricVisibility()
     }
-    if (partial.allowNone != null && !this.showStringInput) {
+    if (
+      partial.allowNone != null &&
+      !this.showStringInput &&
+      !this.editableMetrics
+    ) {
       this.confirmBtn.disabled = !partial.allowNone
     }
     if (partial.stringValue != null) {
@@ -511,7 +575,8 @@ export class AcUiMobileSessionPanel {
   }
 
   /**
-   * Pushes live metric values (read-only; buttons stay disabled for keypad hook).
+   * Pushes live metric values (also into the number fields when editable,
+   * except the pair being typed in).
    *
    * @param hasBasePoint - Whether relative metrics apply.
    * @param texts - Formatted strings for display.
@@ -522,6 +587,17 @@ export class AcUiMobileSessionPanel {
     this.frozenTexts = { ...texts }
     this.frozenHasBasePoint = hasBasePoint
     this.setMetricTexts(texts, hasBasePoint)
+    if (this.editableMetrics) this.setMetricFields(texts)
+    this.applyMetricVisibility()
+  }
+
+  /**
+   * Switches between relative and absolute metrics without changing values
+   * (e.g. a point prompt with a base point whose fields start empty).
+   */
+  setMetricLayout(hasBasePoint: boolean): void {
+    if (!this.open) return
+    this.hasBasePoint = hasBasePoint
     this.applyMetricVisibility()
   }
 
@@ -558,6 +634,7 @@ export class AcUiMobileSessionPanel {
    * ({@link clearAccessory} via the session-accessory controller).
    */
   hide(): void {
+    this.setMetricsEditable(false)
     this.open = false
     this.callbacks = null
     this.showStringInput = false
@@ -571,6 +648,7 @@ export class AcUiMobileSessionPanel {
       this.compactPromptRaf = 0
     }
     this.setCollapsed(false)
+    this.watchHostInsets(false)
     this.layoutUnsub?.()
     this.layoutUnsub = undefined
     this.root.hidden = true
@@ -604,6 +682,44 @@ export class AcUiMobileSessionPanel {
     this.helpBtn.setAttribute('aria-label', t.help)
     this.refreshCollapseLabel()
     this.helpPanel?.setLabels({ title: t.help, back: t.back })
+  }
+
+  /**
+   * Keeps the panel within the host's horizontal extent.
+   *
+   * The panel is `position: fixed`, but the host (view container) sits in a
+   * low stacking context, so a palette docked beside the canvas (even
+   * collapsed to its title strip) paints over the panel's edge and hides the
+   * prompt or ✓ / ×. Insetting to the host keeps the panel next to it.
+   */
+  private syncHostInsets(): void {
+    const viewportWidth = document.documentElement.clientWidth
+    const rect = this.host.getBoundingClientRect()
+    let left = Math.max(0, Math.round(rect.left))
+    let right = Math.max(0, Math.round(viewportWidth - rect.right))
+    // An expanded palette leaves too little room; overlap beats a sliver.
+    if (viewportWidth - left - right < MIN_INSET_PANEL_WIDTH) {
+      left = 0
+      right = 0
+    }
+    this.panel.style.setProperty('--ml-mobile-cmd-left', `${left}px`)
+    this.panel.style.setProperty('--ml-mobile-cmd-right', `${right}px`)
+  }
+
+  /** Follows host resizes (palette dock / collapse) while the panel is open. */
+  private watchHostInsets(on: boolean): void {
+    if (!on) {
+      this.hostInsetObserver?.disconnect()
+      this.hostInsetObserver = undefined
+      window.removeEventListener('resize', this.boundSyncHostInsets)
+      return
+    }
+    if (this.hostInsetObserver) return
+    if (typeof ResizeObserver !== 'undefined') {
+      this.hostInsetObserver = new ResizeObserver(this.boundSyncHostInsets)
+      this.hostInsetObserver.observe(this.host)
+    }
+    window.addEventListener('resize', this.boundSyncHostInsets)
   }
 
   /** Removes DOM. */
@@ -757,7 +873,8 @@ export class AcUiMobileSessionPanel {
     const rowStyle = getComputedStyle(this.accessoryEl)
     const gap = parseFloat(rowStyle.columnGap || rowStyle.gap || '0') || 0
     const siblings = Array.from(this.accessoryEl.children).filter(
-      (el): el is HTMLElement => el !== this.promptEl && !(el as HTMLElement).hidden
+      (el): el is HTMLElement =>
+        el !== this.promptEl && !(el as HTMLElement).hidden
     )
     let used = 0
     for (const el of siblings) {
@@ -802,19 +919,108 @@ export class AcUiMobileSessionPanel {
 
   private makeMetricButton(
     id: keyof AcUiMobileSessionMetricTexts
-  ): HTMLButtonElement {
-    const btn = document.createElement('button')
-    btn.type = 'button'
+  ): HTMLDivElement {
+    const btn = document.createElement('div')
     btn.className = 'ml-mobile-cmd-metric'
     btn.dataset.metric = id
-    btn.disabled = true
     const label = document.createElement('span')
     label.className = 'ml-mobile-cmd-metric-label'
     const value = document.createElement('span')
     value.className = 'ml-mobile-cmd-metric-value'
     value.textContent = '0'
-    btn.append(label, value)
+    const input = document.createElement('input')
+    input.className = 'ml-mobile-cmd-metric-input'
+    input.type = 'text'
+    input.inputMode =
+      id === 'x' || id === 'y' || id === 'dx' || id === 'dy'
+        ? 'text'
+        : 'decimal'
+    input.enterKeyHint = 'done'
+    input.autocomplete = 'off'
+    input.spellcheck = false
+    input.addEventListener('input', () => {
+      input.dataset.typed = '1'
+      this.handleMetricInput(id)
+    })
+    input.addEventListener('keydown', e => {
+      if (e.isComposing) return
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        e.stopPropagation()
+        input.blur()
+        this.callbacks?.onConfirm()
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
+        this.callbacks?.onCancel()
+      }
+    })
+    this.metricInputs[id] = input
+    btn.append(label, value, input)
+    btn.addEventListener('click', e => {
+      if (e.target === input || !this.editableMetrics) return
+      input.focus()
+    })
     return btn
+  }
+
+  /** Switches the metrics between read-only text and (empty) number fields. */
+  private setMetricsEditable(editable: boolean): void {
+    this.editableMetrics = editable
+    this.panel.classList.toggle('is-metrics-editable', editable)
+    for (const key of Object.keys(
+      this.metricButtons
+    ) as (keyof AcUiMobileSessionMetricTexts)[]) {
+      const input = this.metricInputs[key]!
+      if (!editable && document.activeElement === input) input.blur()
+      input.value = ''
+      delete input.dataset.typed
+      this.metricButtons[key].classList.toggle('is-editing', editable)
+      this.metricButtons[key].classList.remove('is-invalid')
+    }
+  }
+
+  /**
+   * Forwards typing in one field together with its pair partner. A partner
+   * holding a pushed (formatted) value is sent empty so the caller keeps the
+   * exact current value instead of re-parsing display text.
+   */
+  private handleMetricInput(id: keyof AcUiMobileSessionMetricTexts): void {
+    const mode = metricMode(id)
+    const [a, b] = METRIC_PAIRS[mode]
+    const typedText = (key: keyof AcUiMobileSessionMetricTexts) => {
+      const input = this.metricInputs[key]!
+      return input.dataset.typed ? input.value.trim() : ''
+    }
+    const accepted =
+      this.callbacks?.onMetricsInput?.(mode, typedText(a), typedText(b)) ?? true
+    this.metricButtons[a].classList.toggle('is-invalid', !accepted)
+    this.metricButtons[b].classList.toggle('is-invalid', !accepted)
+  }
+
+  /** Pair whose field has focus (the user is typing there). */
+  private focusedMetricMode(): AcUiMobileSessionMetricMode | null {
+    for (const key of Object.keys(
+      this.metricInputs
+    ) as (keyof AcUiMobileSessionMetricTexts)[]) {
+      if (document.activeElement === this.metricInputs[key]) {
+        return metricMode(key)
+      }
+    }
+    return null
+  }
+
+  /** Fills the number fields from live values, leaving the typed pair alone. */
+  private setMetricFields(texts: AcUiMobileSessionMetricTexts): void {
+    const typing = this.focusedMetricMode()
+    for (const key of Object.keys(
+      this.metricInputs
+    ) as (keyof AcUiMobileSessionMetricTexts)[]) {
+      if (typing && metricMode(key) === typing) continue
+      this.metricInputs[key]!.value = texts[key]
+      delete this.metricInputs[key]!.dataset.typed
+      this.metricButtons[key].classList.remove('is-invalid')
+    }
   }
 
   private setMetricTexts(
@@ -858,10 +1064,7 @@ export class AcUiMobileSessionPanel {
 
     this.panel.classList.toggle('is-relative', relative && !collapsed)
     this.panel.classList.toggle('is-absolute', absolute && !collapsed)
-    this.panel.classList.toggle(
-      'is-string-input',
-      stringMode && !collapsed
-    )
+    this.panel.classList.toggle('is-string-input', stringMode && !collapsed)
     this.panel.classList.toggle(
       'is-actions-only',
       !collapsed && !relative && !absolute && !stringMode
@@ -986,8 +1189,8 @@ const MOBILE_CMD_CSS = `
   .ml-mobile-cmd-panel {
     pointer-events: auto;
     position: fixed;
-    left: 0;
-    right: 0;
+    left: var(--ml-mobile-cmd-left, 0px);
+    right: var(--ml-mobile-cmd-right, 0px);
     bottom: 0;
     z-index: 40;
     display: flex;
@@ -1208,6 +1411,34 @@ const MOBILE_CMD_CSS = `
     color: var(--ml-ui-muted, #9aa0a6);
     font-size: 12px;
   }
+  .ml-mobile-cmd-metric-input {
+    display: none;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 2px 6px;
+    border: 1px solid var(--ml-brand, #af61da);
+    border-radius: 6px;
+    background: var(--ml-ui-input-bg, rgba(255, 255, 255, 0.06));
+    color: inherit;
+    font: inherit;
+    /* 16px keeps iOS from zooming the page on focus. */
+    font-size: 16px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+  }
+  .ml-mobile-cmd-metric.is-editing .ml-mobile-cmd-metric-value {
+    display: none;
+  }
+  .ml-mobile-cmd-metric.is-editing .ml-mobile-cmd-metric-input {
+    display: block;
+  }
+  .ml-mobile-cmd-metric.is-invalid .ml-mobile-cmd-metric-input {
+    border-color: var(--el-color-danger, #f56c6c);
+  }
   .ml-mobile-cmd-metric-value {
     min-width: 0;
     overflow: hidden;
@@ -1357,10 +1588,16 @@ const MOBILE_CMD_CSS = `
   }
   @media (min-width: ${ML_UI_MOBILE_MAX_WIDTH + 1}px) {
     .ml-mobile-cmd-panel {
-      left: 50%;
+      /* Centered over the host (between docked palettes). */
+      left: calc(
+        (var(--ml-mobile-cmd-left, 0px) + 100vw - var(--ml-mobile-cmd-right, 0px)) / 2
+      );
       right: auto;
       width: ${ML_UI_SESSION_PANEL_WIDTH}px;
-      max-width: ${ML_UI_SESSION_PANEL_MAX_WIDTH};
+      max-width: calc(
+        ${ML_UI_SESSION_PANEL_MAX_WIDTH} - var(--ml-mobile-cmd-left, 0px) -
+          var(--ml-mobile-cmd-right, 0px)
+      );
       transform: translateX(-50%);
       border-radius: 12px 12px 0 0;
       border: 1px solid var(--ml-ui-border, rgba(255, 255, 255, 0.12));
@@ -1368,7 +1605,6 @@ const MOBILE_CMD_CSS = `
     }
     .ml-mobile-cmd-panel.is-collapsed {
       width: ${ML_UI_SESSION_PANEL_WIDTH}px;
-      max-width: ${ML_UI_SESSION_PANEL_MAX_WIDTH};
     }
     .ml-mobile-cmd-group .ml-mobile-cmd-actions {
       display: none;

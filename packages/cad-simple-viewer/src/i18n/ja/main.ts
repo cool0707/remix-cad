@@ -17,6 +17,9 @@ export default {
     invalidInput: '入力が無効です。',
     close: 'コマンドラインを閉じる'
   },
+  prompt: {
+    orConnector: 'または'
+  },
   mobileCommand: {
     length: '長さ',
     angle: '角度',

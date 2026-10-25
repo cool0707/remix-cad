@@ -847,6 +847,7 @@ export default {
     firstPoint: 'Zadejte první bod',
     nextPoint: 'Zadejte další bod (nebo stiskněte Enter pro dokončení)',
     nextPointWithOptions: 'Zadejte další bod nebo',
+    flipArcHint: 'Oblouk na druhou stranu',
     nextPointWithArcOptions: 'Zadejte další bod nebo',
     keywords: {
       arc: {
@@ -860,7 +861,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Uzavřít(C)',
+        display: 'Uzavřít křivku(J)',
         local: 'Uzavřít',
         global: 'Close'
       },
@@ -1153,7 +1154,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Uzavřít(C)',
+        display: 'Uzavřít spline(J)',
         local: 'Uzavřít',
         global: 'Close'
       },

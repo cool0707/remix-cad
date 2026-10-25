@@ -17,6 +17,9 @@ export default {
     invalidInput: 'Invalid input.',
     close: 'Close command line'
   },
+  prompt: {
+    orConnector: 'or'
+  },
   mobileCommand: {
     length: 'Length',
     angle: 'Angle',

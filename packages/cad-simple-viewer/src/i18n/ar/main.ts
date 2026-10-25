@@ -17,6 +17,9 @@ export default {
     invalidInput: 'إدخال غير صالح.',
     close: 'إغلاق سطر الأوامر'
   },
+  prompt: {
+    orConnector: 'أو'
+  },
   mobileCommand: {
     length: 'الطول',
     angle: 'الزاوية',

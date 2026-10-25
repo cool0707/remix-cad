@@ -401,3 +401,29 @@ export function togglePolarTracking(database?: AcDbDatabase): number {
   AcDbSysVarManager.instance().setVar(AcDbSystemVariables.POLARMODE, next, db)
   return next
 }
+
+/**
+ * Shift-drag style constraint (Illustrator / Figma): projects `point` onto the
+ * nearest ray from `reference` at a multiple of `stepRadians` (default 45°,
+ * measured in WCS from +X, counter-clockwise). Independent of ORTHOMODE /
+ * POLARMODE.
+ *
+ * @param point - Current cursor position in WCS (typically after OSNAP).
+ * @param reference - Base point the direction is measured from.
+ * @param stepRadians - Angle increment; 45° by default.
+ * @returns The projected point, or `point` when it sits on `reference`.
+ */
+export function constrainToAngleStep(
+  point: AcGePoint2dLike,
+  reference: AcGePoint2dLike,
+  stepRadians: number = Math.PI / 4
+): AcGePoint2dLike {
+  const dx = point.x - reference.x
+  const dy = point.y - reference.y
+  if (Math.hypot(dx, dy) < 1e-10) return point
+  const angle = Math.round(Math.atan2(dy, dx) / stepRadians) * stepRadians
+  const ux = Math.cos(angle)
+  const uy = Math.sin(angle)
+  const along = dx * ux + dy * uy
+  return { x: reference.x + along * ux, y: reference.y + along * uy }
+}

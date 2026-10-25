@@ -1,5 +1,7 @@
 import { AcGePoint2dLike } from '@mlightcad/data-model'
 
+import type { AcEdFloatingKeyword } from './AcEdFloatingMessage'
+
 /**
  * Describes the raw text values from the X and Y fields in {@link AcEdFloatingInput}.
  */
@@ -76,6 +78,16 @@ export type AcEdFloatingInputCancelCallback = () => void
 export type AcEdFloatingInputNoneCallback = () => void
 
 /**
+ * Callback invoked when Enter submits typed text that is not a valid value,
+ * or (`instant`) when a single letter key is pressed. Returns true when the
+ * text was consumed as a prompt keyword (e.g. `A` for PLINE Arc).
+ */
+export type AcEdFloatingInputKeywordCallback = (
+  text: string,
+  instant?: boolean
+) => boolean
+
+/**
  * Callback invoked on mousemove to update the preview geometry.
  */
 export type AcEdFloatingInputDrawPreviewCallback = (
@@ -119,6 +131,11 @@ export interface AcEdFloatingInputOptions<T> {
    * Useful for describing expected input (e.g., "Specify next point").
    */
   message?: string
+
+  /**
+   * Keyword pills shown above the prompt (pressing the key picks it).
+   */
+  keywords?: AcEdFloatingKeyword[]
 
   /**
    * Whether the prompt label is allowed to be shown at all.
@@ -191,6 +208,18 @@ export interface AcEdFloatingInputOptions<T> {
    * Callback invoked when user enters no value and prompt allows none.
    */
   onNone?: AcEdFloatingInputNoneCallback
+
+  /**
+   * When set, the second click of a mouse double-click calls this instead
+   * of picking the same point again (the first click still picks).
+   */
+  onDoubleClick?: () => void
+
+  /**
+   * Callback invoked when Enter submits text that is not a valid value but
+   * may be a keyword.
+   */
+  onKeyword?: AcEdFloatingInputKeywordCallback
 
   /**
    * Whether pressing Enter with no manual input should submit defaultValue.

@@ -849,6 +849,7 @@ export default {
     firstPoint: 'Specify the first point',
     nextPoint: 'Specify the next point (or press Enter to finish)',
     nextPointWithOptions: 'Specify next point or',
+    flipArcHint: 'Other-side arc',
     nextPointWithArcOptions: 'Specify next point or',
     keywords: {
       arc: {
@@ -862,7 +863,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Close(C)',
+        display: 'Close polyline(J)',
         local: 'Close',
         global: 'Close'
       },
@@ -1156,7 +1157,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Close(C)',
+        display: 'Close spline(J)',
         local: 'Close',
         global: 'Close'
       },
