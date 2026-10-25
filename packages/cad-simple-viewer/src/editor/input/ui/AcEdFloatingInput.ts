@@ -7,7 +7,10 @@ import {
 
 import { AcEdBaseView } from '../../view'
 import { AcEdOsnapPoint, AcEdOsnapResolver } from '../AcEdOsnapResolver'
-import { constrainToTracking } from '../AcEdPolarTracking'
+import {
+  constrainToAngleStep,
+  constrainToTracking
+} from '../AcEdPolarTracking'
 import { AcEdMarkerManager } from '../marker'
 import { acedClearDomSelection } from './AcEdCanvasTouchCalloutGuard'
 import { AcEdFloatingInputBoxes } from './AcEdFloatingInputBoxes'
@@ -92,6 +95,10 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   private lastOsnapPoint?: AcEdOsnapPoint
   /** Stores last dynamic WCS point used for preview updates */
   private lastDynamicPoint?: AcGePoint2dLike
+  /** Last mouse position (client px), to re-run the pick when Shift toggles. */
+  private lastMouseClientPos?: AcGePoint2dLike
+  /** Shift held: snap the direction from the base point to 45° steps. */
+  private shiftAngleSnap = false
 
   /** Reference point for ORTHOMODE cursor locking */
   private orthoReferencePoint?: AcGePoint2dLike
@@ -389,8 +396,23 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     if (acedShouldIgnoreCompatMouse()) return
     if (acedIsGhostClientOrigin(e) || acedIsTouchDerivedMouseEvent(e)) return
 
+    this.shiftAngleSnap = e.shiftKey
+    this.lastMouseClientPos = { x: e.clientX, y: e.clientY }
     const wcsPos = this.getPosition({ x: e.clientX, y: e.clientY })
     this.updateDynamicPreview(wcsPos)
+  }
+
+  /**
+   * Turns the Shift 45° direction snap on or off (Shift pressed / released
+   * without moving the mouse) and re-runs the pick at the last mouse spot.
+   */
+  setShiftAngleSnap(on: boolean) {
+    if (this.shiftAngleSnap === on) return
+    this.shiftAngleSnap = on
+    if (!this.visible || !this.lastMouseClientPos || !this.orthoReferencePoint) {
+      return
+    }
+    this.updateDynamicPreview(this.getPosition(this.lastMouseClientPos))
   }
 
   /**
@@ -459,6 +481,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
       return
     }
 
+    this.shiftAngleSnap = e.shiftKey
     const wcsPos = this.getPosition({ x: e.clientX, y: e.clientY })
     const defaults = this.getDynamicValue(wcsPos)
     const committed = this.onCommit?.(defaults.value, wcsPos) ?? true
@@ -855,7 +878,9 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     }
 
     if (this.orthoReferencePoint) {
-      const constrained = constrainToTracking(wcsPos, this.orthoReferencePoint)
+      const constrained = this.shiftAngleSnap
+        ? constrainToAngleStep(wcsPos, this.orthoReferencePoint)
+        : constrainToTracking(wcsPos, this.orthoReferencePoint)
       wcsPos.x = constrained.x
       wcsPos.y = constrained.y
     }

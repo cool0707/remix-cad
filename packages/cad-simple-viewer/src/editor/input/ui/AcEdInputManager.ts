@@ -3067,6 +3067,10 @@ export class AcEdInputManager {
       const modifierHandler = (e: KeyboardEvent) => {
         const toggled = this.handleCtrlToggleKey(e)
         const changed = this.updateModifierStateFromEvent(e)
+        if (e.key === 'Shift') {
+          floatingInput.setShiftAngleSnap(e.type === 'keydown')
+          return
+        }
         if (toggled || changed) {
           floatingInput.requestPreviewRefresh()
         }
