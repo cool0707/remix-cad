@@ -1,4 +1,4 @@
-import{n as sg,V as ag,t as og}from"./cad-agent-core-B_hfBA80.js";import{h as bn,a as ig,G as lg}from"./cad-simple-viewer-oi243AeJ.js";import{log as ug}from"./data-model-q8Z-M1dd.js";/**
+import{n as sg,V as ag,t as og}from"./cad-agent-core-BFDT7-NZ.js";import{h as bn,a as ig,$ as lg}from"./cad-simple-viewer-1ftsVH19.js";import{log as ug}from"./data-model-q8Z-M1dd.js";/**
 * @vue/shared v3.5.31
 * (c) 2018-present Yuxi (Evan) You and Vue contributors
 * @license MIT
