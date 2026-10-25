@@ -573,7 +573,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'إغلاق(J)',
+        display: 'إغلاق الخط المتعدد(J)',
         local: 'إغلاق',
         global: 'Close'
       },

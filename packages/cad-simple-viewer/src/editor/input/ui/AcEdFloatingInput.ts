@@ -44,6 +44,19 @@ import {
 } from './AcEdTouchPointSession'
 
 /**
+ * Swallows the native `dblclick` that follows a double-click consumed by a
+ * prompt (removed after it fires, or shortly after if none comes).
+ */
+function sinkFollowingDblClick() {
+  const sink = (e: Event) => {
+    e.preventDefault()
+    e.stopImmediatePropagation()
+  }
+  window.addEventListener('dblclick', sink, { capture: true, once: true })
+  setTimeout(() => window.removeEventListener('dblclick', sink, true), 500)
+}
+
+/**
  * A UI component providing a small floating input box used inside CAD editing
  * workflows. It supports both single-input (distance, angle, etc.) and
  * double-input (coordinate entry) modes.
@@ -89,6 +102,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   private onCancel?: AcEdFloatingInputCancelCallback
   private onNone?: AcEdFloatingInputNoneCallback
   private onKeyword?: AcEdFloatingInputKeywordCallback
+  private onDoubleClick?: () => void
 
   /** Validation and dynamic value providers */
   private validateFn: AcEdFloatingInputValidationCallback<T>
@@ -193,6 +207,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     this.onCancel = options.onCancel
     this.onNone = options.onNone
     this.onKeyword = options.onKeyword
+    this.onDoubleClick = options.onDoubleClick
 
     // -----------------------------
     // Input boxes
@@ -435,6 +450,14 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     if (!this.mouseClickArmed) return
     this.mouseClickArmed = false
     if (acedIsGhostClientOrigin(e) || acedIsTouchDerivedMouseEvent(e)) return
+
+    if (e.detail >= 2 && this.onDoubleClick) {
+      // The native dblclick that follows must not open an entity editor on
+      // what was just drawn.
+      sinkFollowingDblClick()
+      this.onDoubleClick()
+      return
+    }
 
     const wcsPos = this.getPosition({ x: e.clientX, y: e.clientY })
     const defaults = this.getDynamicValue(wcsPos)

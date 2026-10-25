@@ -851,7 +851,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: '闭合(J)',
+        display: '闭合多段线(J)',
         local: '闭合',
         global: 'Close'
       },

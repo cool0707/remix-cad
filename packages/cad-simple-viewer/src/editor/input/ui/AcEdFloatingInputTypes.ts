@@ -210,6 +210,12 @@ export interface AcEdFloatingInputOptions<T> {
   onNone?: AcEdFloatingInputNoneCallback
 
   /**
+   * When set, the second click of a mouse double-click calls this instead
+   * of picking the same point again (the first click still picks).
+   */
+  onDoubleClick?: () => void
+
+  /**
    * Callback invoked when Enter submits text that is not a valid value but
    * may be a keyword.
    */

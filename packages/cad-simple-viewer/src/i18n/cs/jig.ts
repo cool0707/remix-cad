@@ -860,7 +860,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Uzavřít(J)',
+        display: 'Uzavřít křivku(J)',
         local: 'Uzavřít',
         global: 'Close'
       },

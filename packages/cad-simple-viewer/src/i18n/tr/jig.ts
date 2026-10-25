@@ -861,7 +861,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Kapat(K)',
+        display: 'Çoklu çizgiyi kapat(K)',
         local: 'Kapat',
         global: 'Close'
       },

@@ -862,7 +862,7 @@ export default {
         global: 'Undo'
       },
       close: {
-        display: 'Close(J)',
+        display: 'Close polyline(J)',
         local: 'Close',
         global: 'Close'
       },

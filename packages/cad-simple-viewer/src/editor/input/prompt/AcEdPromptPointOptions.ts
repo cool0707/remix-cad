@@ -15,6 +15,8 @@ export class AcEdPromptPointOptions extends AcEdPromptOptions<AcGePoint3d> {
   private _allowNone: boolean = false
   private _disableOSnap: boolean = false
   private _showConfirmedPointMark?: boolean
+  private _finishOnDoubleClick: boolean = false
+  private _rightClickKeyword?: string
   private _defaultValue?: AcGePoint3d
   private _useDefaultValue: boolean = false
 
@@ -157,6 +159,34 @@ export class AcEdPromptPointOptions extends AcEdPromptOptions<AcGePoint3d> {
   set showConfirmedPointMark(flag: boolean | undefined) {
     if (!this.isReadOnly) {
       this._showConfirmedPointMark = flag
+    }
+  }
+
+  /**
+   * Gets or sets whether a mouse double-click ends the prompt like Enter
+   * (requires {@link allowNone}). The first click of the pair still picks a
+   * point; the second one ends input instead of picking it again.
+   */
+  get finishOnDoubleClick(): boolean {
+    return this._finishOnDoubleClick
+  }
+  set finishOnDoubleClick(flag: boolean) {
+    if (!this.isReadOnly) {
+      this._finishOnDoubleClick = flag
+    }
+  }
+
+  /**
+   * Gets or sets the global name of a keyword picked by a right-click
+   * instead of the usual right-click Enter (e.g. `Undo` while drawing a
+   * polyline). Ignored when the keyword is missing or disabled.
+   */
+  get rightClickKeyword(): string | undefined {
+    return this._rightClickKeyword
+  }
+  set rightClickKeyword(globalName: string | undefined) {
+    if (!this.isReadOnly) {
+      this._rightClickKeyword = globalName
     }
   }
 }

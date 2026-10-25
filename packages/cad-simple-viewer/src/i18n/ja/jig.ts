@@ -610,7 +610,11 @@ export default {
     keywords: {
       arc: { display: '円弧(A)', local: '円弧', global: 'Arc' },
       undo: { display: '元に戻す(U)', local: '元に戻す', global: 'Undo' },
-      close: { display: '閉じる(J)', local: '閉じる', global: 'Close' },
+      close: {
+        display: 'ポリラインを閉じる(J)',
+        local: '閉じる',
+        global: 'Close'
+      },
       line: { display: '線分(L)', local: '線分', global: 'Line' },
       angle: { display: '角度(A)', local: '角度', global: 'Angle' },
       center: { display: '中心(C)', local: '中心', global: 'Center' },

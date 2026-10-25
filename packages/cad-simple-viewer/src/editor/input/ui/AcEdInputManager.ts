@@ -2913,6 +2913,12 @@ export class AcEdInputManager {
         },
         onCancel: () => rejector(),
         onNone: () => noneRejector(),
+        onDoubleClick:
+          allowNone &&
+          options.promptOptions instanceof AcEdPromptPointOptions &&
+          options.promptOptions.finishOnDoubleClick
+            ? () => noneRejector()
+            : undefined,
         onKeyword: (text, instant) => {
           // Free text (e.g. a string prompt) keeps its letters.
           if (instant && options.handler instanceof AcEdStringHandler) {
@@ -3078,6 +3084,17 @@ export class AcEdInputManager {
         }
         if (!this.shouldUseRightClickEnter()) return
         e.preventDefault()
+        const rightClickKeyword =
+          options.promptOptions instanceof AcEdPromptPointOptions
+            ? options.promptOptions.rightClickKeyword
+            : undefined
+        const keyword = rightClickKeyword
+          ? options.promptOptions.keywords?.findByGlobalName(rightClickKeyword)
+          : undefined
+        if (keyword?.enabled) {
+          keywordRejector(keyword.globalName)
+          return
+        }
         noneRejector()
       }
       document.addEventListener('keydown', escHandler)
