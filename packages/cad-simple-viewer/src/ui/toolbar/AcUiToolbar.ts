@@ -170,6 +170,12 @@ export class AcUiToolbar {
   private items: AcUiToolbarItem[]
   /** Runtime submenu selection for parents with {@link AcUiToolbarItem.childIcon} `'selected'`. */
   private selectedChildByParent = new Map<string, string>()
+  /** Tells whether an item's command is the one in use; see {@link setActiveCommand}. */
+  private activeCommandMatcher?: (command: string) => boolean
+  /** Last item whose command the user started from this toolbar. */
+  private lastCommandItemId?: string
+  /** Items drawn as the tool in use (leaf plus the parents it sits under). */
+  private activeItemIds = new Set<string>()
   /** Whether the toolbar is collapsed to show only the toggle button. */
   private collapsed: boolean
   /** Whether the toolbar root is shown. */
@@ -328,6 +334,7 @@ export class AcUiToolbar {
   updateItems(items: AcUiToolbarItem[]) {
     this.items = items
     this.seedSelectedChildren(items)
+    this.syncActiveItems()
     this.renderButtons()
   }
 
@@ -615,6 +622,61 @@ export class AcUiToolbar {
     this.ensureInParentLayout()
     this.setupResizeObserver()
     this.scheduleSyncPosition()
+  }
+
+  /**
+   * Highlights the tool in use, the way paint programs fill the current tool.
+   *
+   * The leaf whose command matches is filled with the brand colour, and so
+   * are the parents it sits under (a closed flyout still shows its tool).
+   * When several items share a command (`zoom\nall` / `zoom\nwindow`), the
+   * one last clicked here wins, then the item with the bare command name;
+   * failing both, only their parent group is lit.
+   * Hosts with DocManager should use {@link acapBindToolbarDocState}.
+   *
+   * @param matcher - Whether an item's `command` string is the one in use;
+   *   `undefined` clears the highlight.
+   */
+  setActiveCommand(matcher?: (command: string) => boolean) {
+    this.activeCommandMatcher = matcher
+    this.syncActiveItems()
+  }
+
+  /** Recomputes {@link activeItemIds} and applies it to the shown buttons. */
+  private syncActiveItems() {
+    const matcher = this.activeCommandMatcher
+    const matches: Array<{ item: AcUiToolbarItem; parents: string[] }> = []
+    const visit = (items: AcUiToolbarItem[], parents: string[]) => {
+      for (const item of items) {
+        if (acuiIsToolbarSeparatorItem(item)) continue
+        const effective = acuiResolveEffectiveToolbarItem(item)
+        if (effective.command && matcher?.(effective.command)) {
+          matches.push({ item: effective, parents })
+        }
+        // A live children getter may build items on each read; skip it.
+        if (!acuiIsDynamicToolbarChildren(item) && item.children?.length) {
+          visit(item.children, [...parents, item.id])
+        }
+      }
+    }
+    if (matcher) visit(this.items, [])
+
+    const clicked = matches.filter(m => m.item.id === this.lastCommandItemId)
+    const bare = matches.filter(m => !m.item.command?.includes('\n'))
+    const chosen = clicked.length ? clicked : bare
+    const ids = new Set<string>()
+    for (const { item, parents } of chosen.length ? chosen : matches) {
+      if (chosen.length) ids.add(item.id)
+      parents.forEach(id => ids.add(id))
+    }
+    this.activeItemIds = ids
+
+    for (const entry of this.renderedEntries) {
+      if (entry.isSeparator) continue
+      entry.element.classList.toggle('is-active', ids.has(entry.item.id))
+    }
+    this.openSubToolbar?.syncActive()
+    this.openNestedSubToolbar?.syncActive()
   }
 
   /**
@@ -1160,6 +1222,8 @@ export class AcUiToolbar {
         this.activateToolbarItem(item, button)
       })
 
+      button.classList.toggle('is-active', this.activeItemIds.has(item.id))
+
       this.root.appendChild(button)
       this.renderedEntries.push({ item, element: button, isSeparator: false })
     })
@@ -1209,6 +1273,7 @@ export class AcUiToolbar {
     } else if (effective.action) {
       effective.action()
     } else if (effective.command) {
+      this.lastCommandItemId = effective.id
       this.options.onCommand(effective.command)
     }
     if (item.toggle) {
@@ -1915,6 +1980,7 @@ export class AcUiToolbar {
         position: this.options.subToolbar?.position,
         getCrossAxisInset: () => this.getCrossAxisInset(),
         commandsDisabled: this.isDisabled || !this.hasDocument,
+        isItemActive: id => this.activeItemIds.has(id),
         onSelect: (child, childButton) =>
           this.handleSubToolbarSelect(item, child, childButton, sticky),
         onClose: () => {
@@ -2090,6 +2156,7 @@ export class AcUiToolbar {
       position: this.options.subToolbar?.position,
       getCrossAxisInset: () => this.getCrossAxisInset(),
       commandsDisabled: this.isDisabled || !this.hasDocument,
+      isItemActive: id => this.activeItemIds.has(id),
       onSelect: (child, nestedButton) =>
         this.handleSubToolbarSelect(item, child, nestedButton, nestedSticky),
       onClose: () => {
@@ -2136,6 +2203,7 @@ export class AcUiToolbar {
     if (effective.action) {
       effective.action()
     } else if (effective.command) {
+      this.lastCommandItemId = effective.id
       this.options.onCommand(effective.command)
     }
 

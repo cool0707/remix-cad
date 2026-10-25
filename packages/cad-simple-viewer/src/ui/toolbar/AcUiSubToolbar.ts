@@ -48,6 +48,11 @@ export interface AcUiSubToolbarMountOptions {
   sticky: boolean
   /** Whether command buttons should be disabled (document loading / missing). */
   commandsDisabled: boolean
+  /**
+   * Whether the item with this id is the tool in use (drawn with the brand
+   * fill, like the current tool in a paint program).
+   */
+  isItemActive?: (itemId: string) => boolean
   /** Invoked when a leaf item is activated. */
   onSelect: (item: AcUiToolbarItem, button: HTMLButtonElement) => void
   /** Invoked when the strip is closed. */
@@ -152,6 +157,20 @@ export class AcUiSubToolbar {
     this.renderButtons()
     this.applyChromeLayout()
     this.syncPosition()
+  }
+
+  /** Re-applies {@link AcUiSubToolbarMountOptions.isItemActive} to the buttons. */
+  syncActive() {
+    const isItemActive = this.options.isItemActive
+    for (const button of Array.from(
+      this.root.querySelectorAll<HTMLButtonElement>('.ml-ex-ui-toolbar-btn')
+    )) {
+      const id = button.dataset.toolbarItemId
+      button.classList.toggle(
+        'is-active',
+        Boolean(id && isItemActive?.(id))
+      )
+    }
   }
 
   /** Whether `target` lies inside this strip root. */
@@ -597,6 +616,10 @@ export class AcUiSubToolbar {
         const pressed = effective.toggle.getValue()
         button.setAttribute('aria-pressed', String(pressed))
         button.classList.toggle('is-toggled', pressed)
+      }
+
+      if (this.options.isItemActive?.(effective.id)) {
+        button.classList.add('is-active')
       }
 
       if (effective.children?.length || acuiIsDynamicToolbarChildren(item)) {
