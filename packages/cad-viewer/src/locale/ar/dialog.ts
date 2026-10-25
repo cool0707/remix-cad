@@ -28,7 +28,9 @@ export default {
     themeDark: 'داكن',
     themeLight: 'فاتح',
     displaySection: 'العرض',
-    ribbonHiddenHint: 'عند إخفاء الشريط، افتح هذه النافذة بالأمر OPTIONS.'
+    ribbonHiddenHint: 'عند إخفاء الشريط، افتح هذه النافذة بالأمر OPTIONS.',
+    snapSection: 'الالتقاط',
+    snapHint: 'يُستخدم عند تحديد النقاط وسحب التحديد ولخطوط المحاذاة. النقاط التي يُلتقط إليها:'
   },
   drawingUnitsDlg: {
     ...enDialog.drawingUnitsDlg,

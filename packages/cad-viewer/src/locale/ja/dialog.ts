@@ -38,7 +38,9 @@ export default {
     themeDark: 'ダーク',
     themeLight: 'ライト',
     displaySection: '表示',
-    ribbonHiddenHint: 'リボンを隠すと、この画面はコマンド OPTIONS で開きます。'
+    ribbonHiddenHint: 'リボンを隠すと、この画面はコマンド OPTIONS で開きます。',
+    snapSection: 'スナップ',
+    snapHint: '点の指定、選択範囲のドラッグ、整列ガイドで使います。吸着する点:'
   },
   drawingUnitsDlg: {
     title: '単位管理',

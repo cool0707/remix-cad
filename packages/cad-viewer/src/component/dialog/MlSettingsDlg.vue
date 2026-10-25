@@ -46,6 +46,31 @@
         </el-checkbox>
       </ml-fieldset-group>
 
+      <ml-fieldset-group :title="t('dialog.settingsDlg.snapSection')">
+        <el-checkbox
+          v-model="form.osnapEnabled"
+          class="ml-settings-dlg__check"
+          data-testid="settings-osnap-enabled"
+        >
+          {{ t('main.statusBar.osnap.enabled') }}
+        </el-checkbox>
+        <div class="ml-settings-dlg__hint">
+          {{ t('dialog.settingsDlg.snapHint') }}
+        </div>
+        <div class="ml-settings-dlg__grid">
+          <el-checkbox
+            v-for="mode in ML_OSNAP_MODES"
+            :key="mode.value"
+            :model-value="acdbHasOsnapMode(form.osnapModes, mode.value)"
+            :disabled="!form.osnapEnabled"
+            class="ml-settings-dlg__check"
+            @change="toggleOsnapMode(mode.value)"
+          >
+            {{ mode.label(t) }}
+          </el-checkbox>
+        </div>
+      </ml-fieldset-group>
+
       <ml-fieldset-group :title="t('dialog.settingsDlg.displaySection')">
         <el-form label-position="left" class="ml-settings-dlg__form">
           <el-form-item :label="t('dialog.settingsDlg.theme')">
@@ -83,6 +108,11 @@ import {
   type AcApSettings
 } from '@mlightcad/cad-simple-viewer'
 import {
+  acdbHasOsnapMode,
+  type AcDbOsnapMode,
+  acdbToggleOsnapMode
+} from '@mlightcad/data-model'
+import {
   ElCheckbox,
   ElForm,
   ElFormItem,
@@ -95,6 +125,7 @@ import { useI18n } from 'vue-i18n'
 import { isDark, setColorTheme, useIsMobile } from '../../composable'
 import MlBaseDialog from '../common/MlBaseDialog.vue'
 import MlFieldsetGroup from '../common/MlFieldsetGroup.vue'
+import { ML_OSNAP_MODES } from '../statusBar/osnapModes'
 
 const props = defineProps<{
   modelValue: boolean
@@ -118,6 +149,8 @@ type SettingsForm = Pick<
   | 'operationProfile'
   | 'selectionStyle'
   | 'continuousDraw'
+  | 'osnapEnabled'
+  | 'osnapModes'
   | 'isShowRibbon'
   | 'isShowToolbar'
   | 'isShowCommandLine'
@@ -129,7 +162,11 @@ type SettingsForm = Pick<
 
 type DisplayKey = Exclude<
   keyof SettingsForm,
-  'operationProfile' | 'selectionStyle' | 'continuousDraw'
+  | 'operationProfile'
+  | 'selectionStyle'
+  | 'continuousDraw'
+  | 'osnapEnabled'
+  | 'osnapModes'
 >
 
 const readSettings = (): SettingsForm => {
@@ -138,6 +175,8 @@ const readSettings = (): SettingsForm => {
     operationProfile: s.operationProfile,
     selectionStyle: s.selectionStyle,
     continuousDraw: s.continuousDraw,
+    osnapEnabled: s.osnapEnabled,
+    osnapModes: s.osnapModes,
     isShowRibbon: s.isShowRibbon,
     isShowToolbar: s.isShowToolbar,
     isShowCommandLine: s.isShowCommandLine,
@@ -169,6 +208,10 @@ const replaceOnClick = computed({
     form.selectionStyle = v ? 'simple' : 'cad'
   }
 })
+
+const toggleOsnapMode = (mode: AcDbOsnapMode) => {
+  form.osnapModes = acdbToggleOsnapMode(form.osnapModes, mode)
+}
 
 /** The profile brings its selection style, as the status bar button does. */
 const handleProfileChange = () => {

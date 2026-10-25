@@ -633,6 +633,9 @@ export default {
       continuousDraw: 'Çizmeye devam et (çizim aracında kal)'
     },
     osnap: {
+      on: 'Yakalamayı kapat',
+      off: 'Yakalamayı aç',
+      enabled: 'Yakalamayı kullan',
       tooltip: 'Nesne Yakalama',
       endpoint: 'Uç Nokta',
       midpoint: 'Orta Nokta',

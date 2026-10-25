@@ -614,6 +614,9 @@ export default {
       continuousDraw: '作図を続ける (選択ツールに戻らない)'
     },
     osnap: {
+      on: 'スナップをオフにする',
+      off: 'スナップをオンにする',
+      enabled: 'スナップを使う',
       tooltip: 'オブジェクトスナップ',
       endpoint: '端点',
       midpoint: '中点',

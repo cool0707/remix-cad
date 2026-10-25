@@ -633,6 +633,9 @@ export default {
       continuousDraw: 'Keep drawing (stay in the drawing tool)'
     },
     osnap: {
+      on: 'Turn off snapping',
+      off: 'Turn on snapping',
+      enabled: 'Use snapping',
       tooltip: 'Object Snap',
       endpoint: 'Endpoint',
       midpoint: 'Midpoint',

@@ -65,6 +65,7 @@ import {
   AcEdMTextEditor,
   AcEdOpenMode,
   AcEdSelectionAction,
+  AcEdSelectionTransformer,
   acedShouldIgnoreCompatMouse,
   AcEdSnapLoupeViewState,
   AcEdSpatialQueryResultItem,
@@ -393,6 +394,7 @@ export class AcTrView2d extends AcEdBaseView {
   private _textStyleFontPreloadPromise: Promise<void> | null = null
   /** Grip point display and drag editing (Write mode only). */
   private _gripManager: AcEdGripManager
+  private _selectionTransformer: AcEdSelectionTransformer
   /** Global keyboard shortcuts for the view (undo/redo, erase, etc.). */
   private _keyHandler: AcEdViewKeyHandler
   /** Tool in use and the simple profile's tool behavior. */
@@ -634,6 +636,10 @@ export class AcTrView2d extends AcEdBaseView {
       })
     }
     this._gripManager = new AcEdGripManager(this)
+    this._selectionTransformer = new AcEdSelectionTransformer(this, {
+      activeSpaceId: () => this._scene.activeLayoutBtrId,
+      isGripMode: () => this._gripManager.hasGripFocus
+    })
     this._toolManager = new AcApToolManager(this)
     this._keyHandler = new AcEdViewKeyHandler(this)
     if (options.calculateSizeCallback) {
@@ -728,7 +734,8 @@ export class AcTrView2d extends AcEdBaseView {
         !this.editor.isActive &&
         !AcEdMTextEditor.getActiveInputBox() &&
         !isMarkupHtmlTextEditing() &&
-        !this._gripManager.isDragging
+        !this._gripManager.isDragging &&
+        !this._selectionTransformer.isDragging
       )
     }
 
@@ -859,6 +866,9 @@ export class AcTrView2d extends AcEdBaseView {
           return
         }
 
+        // Simple profile: a press on a selected entity may become a drag
+        // move; until the pointer travels it is still a selection click.
+        this._selectionTransformer.handlePointerDown(e)
         beginSelectionPreview(e.clientX, e.clientY)
       },
       { signal: viewDomSignal }
@@ -877,6 +887,10 @@ export class AcTrView2d extends AcEdBaseView {
         if (acedIsTouchDerivedMouseEvent(e) || acedShouldIgnoreCompatMouse()) {
           return
         }
+        if (this._selectionTransformer.isDragging) {
+          clearSelectionPreview()
+          return
+        }
 
         updateSelectionPreview(
           e.clientX,
@@ -890,7 +904,10 @@ export class AcTrView2d extends AcEdBaseView {
     this.canvas.addEventListener(
       'mouseup',
       e => {
-        if (this._gripManager.isDragging) {
+        if (
+          this._gripManager.isDragging ||
+          this._selectionTransformer.isDragging
+        ) {
           resetSelectionDrag()
           return
         }
@@ -1010,6 +1027,7 @@ export class AcTrView2d extends AcEdBaseView {
       this._isDirty = true
       // Each layout view has its own mode.
       this._toolManager.syncCursor()
+      this._selectionTransformer.queueRefresh()
 
       if (isFirstVisit) {
         this.applyInitialZoom(btrId, args.layout)
@@ -1149,6 +1167,11 @@ export class AcTrView2d extends AcEdBaseView {
   /** Grip point manager for the view (Write mode only). */
   get gripManager() {
     return this._gripManager
+  }
+
+  /** Simple profile frame, drag move and nudge of the selection. */
+  get selectionTransformer() {
+    return this._selectionTransformer
   }
 
   /** Tool in use and the simple profile's tool behavior. */
@@ -2085,6 +2108,17 @@ export class AcTrView2d extends AcEdBaseView {
     if (entity instanceof AcDbText) {
       e.preventDefault()
       await this.editTextEntity(entity)
+      return
+    }
+
+    // Simple profile: other entities show their CAD grips (vertex editing)
+    // instead of the selection frame.
+    if (AcApSettingManager.instance.operationProfile === 'simple') {
+      e.preventDefault()
+      this.selectionSet.clear()
+      this.selectionSet.add(entity.objectId)
+      this._gripManager.focus(entity.objectId)
+      this._selectionTransformer.refresh()
     }
   }
 
@@ -3626,6 +3660,7 @@ export class AcTrView2d extends AcEdBaseView {
     }
 
     this._gripManager.dispose()
+    this._selectionTransformer.dispose()
     this.clearFontLoadedRedrawTimer()
     this.cancelOpenLineworkFrame()
     this.stopAnimationLoop()

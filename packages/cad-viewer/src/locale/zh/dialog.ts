@@ -20,7 +20,9 @@ export default {
     themeDark: '暗黑',
     themeLight: '明亮',
     displaySection: '显示',
-    ribbonHiddenHint: '隐藏功能区后，请用 OPTIONS 命令打开此对话框。'
+    ribbonHiddenHint: '隐藏功能区后，请用 OPTIONS 命令打开此对话框。',
+    snapSection: '捕捉',
+    snapHint: '在指定点、拖动所选对象和对齐参考线时使用。捕捉到的点：'
   },
   drawingUnitsDlg: {
     title: '图形单位',

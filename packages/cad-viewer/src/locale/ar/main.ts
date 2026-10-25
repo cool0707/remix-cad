@@ -872,6 +872,9 @@ export default {
 
     osnap: {
       ...enMain.statusBar.osnap,
+      on: 'إيقاف الالتقاط',
+      off: 'تشغيل الالتقاط',
+      enabled: 'استخدام الالتقاط',
       tooltip: 'التقاط الكائنات',
       endpoint: 'نقطة النهاية',
       midpoint: 'نقطة المنتصف',
