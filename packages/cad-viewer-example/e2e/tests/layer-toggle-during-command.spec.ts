@@ -131,3 +131,71 @@ for (const tool of ['KeyL', 'move'] as const) {
     expect(await commandRunning(page)).toBe(true)
   })
 }
+
+/** Brightest green (green minus red) in a small column around a point. */
+async function greenAt(page: Page, point: { x: number; y: number }) {
+  const client = await clientPoint(page, point)
+  const shot = await page.screenshot({
+    clip: { x: client.x - 2, y: client.y - 4, width: 5, height: 9 }
+  })
+  return page.evaluate(async base64 => {
+    const img = new Image()
+    img.src = `data:image/png;base64,${base64}`
+    await img.decode()
+    const canvas = document.createElement('canvas')
+    canvas.width = img.width
+    canvas.height = img.height
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(img, 0, 0)
+    const data = ctx.getImageData(0, 0, img.width, img.height).data
+    let best = 0
+    for (let i = 0; i < data.length; i += 4) {
+      best = Math.max(best, data[i + 1] - data[i])
+    }
+    return best
+  }, shot.toString('base64'))
+}
+
+async function setLayerColor(page: Page, layerName: string, index: number) {
+  await page.evaluate(
+    async ({ url, layerName, index }) => {
+      const mod = await import(/* @vite-ignore */ url)
+      const doc = mod.AcApDocManager.instance.curDocument
+      const color = doc.database.tables.layerTable
+        .getAt(layerName)
+        .color.clone()
+      color.colorIndex = index
+      // Through the layer store, as the layer panel does.
+      doc.layerStore.setLayerColor(layerName, color)
+    },
+    { url: viewerModuleUrl!, layerName, index }
+  )
+}
+
+/** Lower of the two plain lines on layer 0 (not inside a symbol). */
+const PLAIN_LINE = { x: 30, y: -20 }
+
+test('layer colors set while LINE runs show at once', async ({ page }) => {
+  await loadFixture(page)
+  const empty = await clientPoint(page, { x: 30, y: -10 })
+  await page.mouse.click(empty.x, empty.y)
+  await page.keyboard.press('KeyL')
+  await expect.poll(() => commandRunning(page)).toBe(true)
+
+  // A plain line on layer 0 (ByLayer).
+  await setLayerColor(page, '0', 3)
+  await expect.poll(() => greenAt(page, PLAIN_LINE)).toBeGreaterThan(100)
+
+  // Symbol contents on layer 0 take the colour of the INSERT's layer.
+  await setLayerColor(page, 'DOORS', 3)
+  await expect.poll(() => greenAt(page, DOOR_EDGE)).toBeGreaterThan(100)
+
+  expect(await commandRunning(page)).toBe(true)
+})
+
+test('a symbol follows a new colour of its layer', async ({ page }) => {
+  await loadFixture(page)
+  expect(await redAt(page, DOOR_EDGE)).toBeGreaterThan(100)
+  await setLayerColor(page, 'DOORS', 3)
+  await expect.poll(() => greenAt(page, DOOR_EDGE)).toBeGreaterThan(100)
+})

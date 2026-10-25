@@ -25,6 +25,7 @@ import {
   AcGePoint2dLike,
   AcGePoint3d,
   acgiForegroundColorForBackground,
+  AcGiLineWeight,
   AcGiViewport,
   log
 } from '@mlightcad/data-model'
@@ -2539,6 +2540,7 @@ export class AcTrView2d extends AcEdBaseView {
 
     if (this._layerAppearance.layerStyleMayHaveChanged(changes)) {
       this._layerAppearance.syncFromLiveRecord(layer)
+      this.redrawInheritingBlockReferences(layer.name)
     }
 
     if (this._entityDisplay.layerVisibilityMayHaveChanged(changes)) {
@@ -4012,6 +4014,54 @@ export class AcTrView2d extends AcEdBaseView {
    * Converts entities on the given layer that were skipped while the layer was
    * off/frozen and therefore are not yet present in the scene.
    */
+  /**
+   * Redraws the INSERTs on `layerName` whose block contents take the INSERT's
+   * layer style (entities on layer 0, or ByBlock colour / linetype /
+   * lineweight). Their materials are bound when the INSERT is drawn, so a
+   * new layer colour would otherwise not reach them.
+   */
+  private redrawInheritingBlockReferences(layerName: string) {
+    const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
+    if (!db) return
+    const inherits = new Map<AcDbObjectId, boolean>()
+    const blockInherits = (block: AcDbBlockTableRecord) => {
+      const cached = inherits.get(block.objectId)
+      if (cached != null) return cached
+      let result = false
+      for (const entity of block.newIterator()) {
+        if (
+          entity.layer === '0' ||
+          entity.color?.isByBlock ||
+          entity.lineType?.toLowerCase() === 'byblock' ||
+          entity.lineWeight === AcGiLineWeight.ByBlock
+        ) {
+          result = true
+          break
+        }
+      }
+      inherits.set(block.objectId, result)
+      return result
+    }
+
+    const spaceIds = new Set([this.activeLayoutBtrId, this.modelSpaceBtrId])
+    const pending: AcDbEntity[] = []
+    for (const spaceId of spaceIds) {
+      const space = db.tables.blockTable.getIdAt(spaceId)
+      if (!space) continue
+      for (const entity of space.newIterator()) {
+        if (
+          entity instanceof AcDbBlockReference &&
+          entity.layer === layerName &&
+          this.hasEntity(entity.objectId)
+        ) {
+          const block = entity.blockTableRecord
+          if (block && blockInherits(block)) pending.push(entity)
+        }
+      }
+    }
+    if (pending.length > 0) this.updateEntity(pending)
+  }
+
   private async convertMissingEntitiesOnLayer(layerName: string) {
     if (this._convertingLayers.has(layerName)) {
       return
