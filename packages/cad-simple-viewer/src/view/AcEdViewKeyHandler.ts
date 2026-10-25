@@ -124,18 +124,8 @@ export class AcEdViewKeyHandler {
   }
 
   /**
-   * Handles a document `keyup` event: ends the Space-held temporary pan.
-   */
-  handleKeyUp(e: KeyboardEvent) {
-    if (e.code === 'Space' && this.view.toolManager.isSpacePanning) {
-      this.view.toolManager.endSpacePan()
-      e.preventDefault()
-    }
-  }
-
-  /**
-   * Simple profile keys: single-key tools (V / H / L / R / T), Space held for
-   * a temporary pan, and the staged Esc (a running command is cancelled by
+   * Simple profile keys: single-key tools (V / H / L / R / T) and the staged
+   * Esc (a running command is cancelled by
    * its prompt; then the pan tool goes back to the select tool; only then
    * does Esc clear the selection).
    *
@@ -159,14 +149,6 @@ export class AcEdViewKeyHandler {
     }
 
     if (e.ctrlKey || e.metaKey || e.altKey || this.isTyping(e)) {
-      return false
-    }
-
-    if (e.code === 'Space') {
-      if (e.repeat ? tools.isSpacePanning : tools.beginSpacePan()) {
-        e.preventDefault()
-        return true
-      }
       return false
     }
 

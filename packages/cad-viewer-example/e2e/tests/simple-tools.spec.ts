@@ -142,18 +142,6 @@ test('Esc cancels the tool first, then clears the selection', async ({
   await expect.poll(async () => (await viewState(page)).selected).toBe(0)
 })
 
-test('Space held pans and gives the tool back', async ({ page }) => {
-  await loadFixture(page)
-  await clickAt(page, { x: 50, y: 15 })
-
-  await page.keyboard.down('Space')
-  await expect.poll(async () => (await viewState(page)).mode).toBe(1)
-  expect((await viewState(page)).cursor).toBe('grab')
-  await page.keyboard.up('Space')
-  await expect.poll(async () => (await viewState(page)).mode).toBe(0)
-  expect((await viewState(page)).cursor).toBe('default')
-})
-
 test('single-key tools are off in the CAD profile', async ({ page }) => {
   await loadFixture(page)
   await page.locator('.ml-operation-profile-button').click()

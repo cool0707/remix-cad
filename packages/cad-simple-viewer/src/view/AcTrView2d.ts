@@ -57,6 +57,7 @@ import {
   AcEdBaseView,
   AcEdCalculateSizeCallback,
   AcEdConditionWaiter,
+  AcEdCorsorType,
   AcEdGripManager,
   acedGuardCanvasTouchCallout,
   acedInteractionStrategy,
@@ -866,7 +867,11 @@ export class AcTrView2d extends AcEdBaseView {
     this.canvas.addEventListener(
       'mousemove',
       e => {
-        if (!selectionStartWcs || !selectionPreviewEl || !selectionStartCanvas) {
+        if (
+          !selectionStartWcs ||
+          !selectionPreviewEl ||
+          !selectionStartCanvas
+        ) {
           return
         }
         if (acedIsTouchDerivedMouseEvent(e) || acedShouldIgnoreCompatMouse()) {
@@ -962,14 +967,7 @@ export class AcTrView2d extends AcEdBaseView {
       },
       { signal: viewDomSignal }
     )
-    document.addEventListener(
-      'keyup',
-      (e: KeyboardEvent) => this._keyHandler.handleKeyUp(e),
-      { signal: viewDomSignal }
-    )
-    window.addEventListener('blur', () => this._toolManager.endSpacePan(), {
-      signal: viewDomSignal
-    })
+    this.installSpacePan(viewDomSignal)
     this._onLayoutSwitched = args => {
       if (!this.isActiveManagedView()) return
       const layoutDb = (args.layout as { database?: { objectId?: string } })
@@ -2067,7 +2065,10 @@ export class AcTrView2d extends AcEdBaseView {
       ) {
         eventBus.emit('focus-symbol-property', {
           objectId: attributedBlock.objectId,
-          tag: entity !== attributedBlock ? (entity as AcDbAttribute).tag : undefined
+          tag:
+            entity !== attributedBlock
+              ? (entity as AcDbAttribute).tag
+              : undefined
         })
         return
       }
@@ -2182,7 +2183,10 @@ export class AcTrView2d extends AcEdBaseView {
     const textHeight =
       Number.isFinite(height) && height > 0 ? height : this.pixelsToWorldY(24)
     const content = text.textString ?? ''
-    const width = Math.max(textHeight * Math.max(content.length, 1) * 0.6, textHeight)
+    const width = Math.max(
+      textHeight * Math.max(content.length, 1) * 0.6,
+      textHeight
+    )
 
     const editor = new AcEdMTextEditor()
     let applied = false
@@ -3184,6 +3188,96 @@ export class AcTrView2d extends AcEdBaseView {
   }
 
   /**
+   * Space + left-button drag pans the view (in addition to middle-button drag).
+   *
+   * While Space is held, the active layout view's OrbitControls map the left
+   * button to PAN, and left `mousedown` / `click` / `dblclick` on the canvas
+   * are stopped in the capture phase so selection and point prompts do not
+   * see the gesture. The `click` that ends a pan is swallowed even when Space
+   * is released before the button.
+   */
+  private installSpacePan(signal: AbortSignal) {
+    let held = false
+    let panView: AcTrLayoutView | undefined
+    let swallowClick = false
+
+    const release = () => {
+      if (!held) return
+      held = false
+      if (panView) panView.leftButtonPan = false
+      panView = undefined
+      this.editor.restoreCursor()
+    }
+
+    document.addEventListener(
+      'keydown',
+      (e: KeyboardEvent) => {
+        if (e.code !== 'Space' || e.ctrlKey || e.metaKey || e.altKey) return
+        if (!this.isActiveManagedView()) return
+        if (!this.isShortcutEventInsideViewer(e)) return
+        const target = e.target
+        if (
+          target instanceof HTMLElement &&
+          target.dataset.mlSpacePan == null &&
+          (target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.tagName === 'SELECT' ||
+            target.tagName === 'BUTTON' ||
+            target.isContentEditable)
+        ) {
+          return
+        }
+        // Keep the page from scrolling while Space is held.
+        e.preventDefault()
+        if (held) return
+        const layoutView = this.activeLayoutView
+        if (!layoutView) return
+        held = true
+        panView = layoutView
+        layoutView.leftButtonPan = true
+        this.editor.setCursor(AcEdCorsorType.Grab)
+      },
+      { signal }
+    )
+    document.addEventListener(
+      'keyup',
+      (e: KeyboardEvent) => {
+        if (e.code === 'Space') release()
+      },
+      { signal }
+    )
+    window.addEventListener('blur', release, { signal })
+
+    this.canvas.addEventListener(
+      'mousedown',
+      e => {
+        swallowClick = false
+        if (!held || e.button !== 0) return
+        swallowClick = true
+        e.stopImmediatePropagation()
+      },
+      { capture: true, signal }
+    )
+    this.canvas.addEventListener(
+      'click',
+      e => {
+        if (e.button !== 0 || (!held && !swallowClick)) return
+        swallowClick = false
+        e.stopImmediatePropagation()
+      },
+      { capture: true, signal }
+    )
+    this.canvas.addEventListener(
+      'dblclick',
+      e => {
+        if (!held || e.button !== 0) return
+        e.stopImmediatePropagation()
+      },
+      { capture: true, signal }
+    )
+  }
+
+  /**
    * True when the key event originated from (or is focused within) this view.
    */
   private isShortcutEventInsideViewer(e: KeyboardEvent): boolean {
@@ -3940,10 +4034,9 @@ export class AcTrView2d extends AcEdBaseView {
     const singleton = AcApDocManager as unknown as {
       _instance?: AcApDocManager
     }
-    const preset =
-      singleton._instance?.lastPresetFontsForOpen?.length
-        ? [...singleton._instance.lastPresetFontsForOpen]
-        : [...fallbackFonts]
+    const preset = singleton._instance?.lastPresetFontsForOpen?.length
+      ? [...singleton._instance.lastPresetFontsForOpen]
+      : [...fallbackFonts]
     this._fontPreloadDiag = {
       critical: [...plan.critical],
       workerWarm: [],
@@ -4860,7 +4953,8 @@ export class AcTrView2d extends AcEdBaseView {
       for (const [layerName, objects] of objectsGroupByLayer) {
         // Nested layer-0 may already be resolved to an inner INSERT layer during
         // flatten. Remaining "0" buckets inherit this (outermost) INSERT layer.
-        const effectiveLayerName = layerName === '0' ? groupLayerName : layerName
+        const effectiveLayerName =
+          layerName === '0' ? groupLayerName : layerName
 
         // Material remap must still treat authored layer-0 drawables as layer-0
         // ByLayer even when nest resolution already rewrote layerName.

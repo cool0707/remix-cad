@@ -105,7 +105,7 @@ interface AcApToolRun {
  *   of the prompt next to the cursor;
  * - ends LINE after one segment;
  * - single-key tools (`ACAP_TOOL_SHORTCUTS`, handled by the view's key
- *   handler) and Space held for a temporary pan;
+ *   handler);
  * - goes back to the select tool after each command, or restarts the drawing
  *   command when {@link AcApSettingManager.continuousDraw} is on;
  * - stages Esc: cancel the operation, then back to the select tool, then
@@ -124,8 +124,6 @@ export class AcApToolManager {
   private _prompt = ''
   /** Command restarted for continuous drawing, until it starts */
   private _restartTimer?: ReturnType<typeof setTimeout>
-  /** View mode to restore when the Space key is released */
-  private _spacePanRestoreMode?: AcEdViewMode
 
   /**
    * Creates the tool manager of a view and hooks it to the view's editor.
@@ -217,36 +215,8 @@ export class AcApToolManager {
     return true
   }
 
-  /**
-   * Space pressed: pan with the left button until it is released.
-   *
-   * @returns `true` when the view switched to temporary panning.
-   */
-  beginSpacePan(): boolean {
-    if (this._spacePanRestoreMode != null) return true
-    if (this._run || this.view.mode === AcEdViewMode.PAN) return false
-    this._spacePanRestoreMode = this.view.mode
-    this.view.mode = AcEdViewMode.PAN
-    this.view.setCursor(AcEdCorsorType.Grab)
-    return true
-  }
-
-  /** Space released (or focus lost): restore the mode from before the pan. */
-  endSpacePan() {
-    if (this._spacePanRestoreMode == null) return
-    this.view.mode = this._spacePanRestoreMode
-    this._spacePanRestoreMode = undefined
-    this.syncCursor()
-  }
-
-  /** Whether Space is held for a temporary pan. */
-  get isSpacePanning() {
-    return this._spacePanRestoreMode != null
-  }
-
   private readonly onCommandWillStart = ({ command }: AcEdCommandEventArgs) => {
     clearTimeout(this._restartTimer)
-    this.endSpacePan()
     const name = (command.globalName || command.localName).toLowerCase()
     this._run = {
       command,
@@ -349,7 +319,6 @@ export class AcApToolManager {
    * (and the hand of the pan tool).
    */
   syncCursor() {
-    if (this._spacePanRestoreMode != null) return
     let cursor: AcEdCorsorType
     if (this.view.mode === AcEdViewMode.PAN && !this._run) {
       cursor = AcEdCorsorType.Grab

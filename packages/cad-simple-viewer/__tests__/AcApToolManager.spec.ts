@@ -235,15 +235,6 @@ describe('AcApToolManager', () => {
     expect(sendStringToExecute).toHaveBeenCalledWith('select')
   })
 
-  it('pans while Space is held and restores the tool', () => {
-    expect(tools.beginSpacePan()).toBe(true)
-    expect(view.mode).toBe(AcEdViewMode.PAN)
-    expect(view.cursor).toBe(GRAB)
-    tools.endSpacePan()
-    expect(view.mode).toBe(AcEdViewMode.SELECTION)
-    expect(view.cursor).toBe(ARROW)
-  })
-
   it('keeps the CAD profile behavior', () => {
     AcApSettingManager.instance.operationProfile = 'cad'
     expect(view.cursor).toBe(CROSSHAIR)

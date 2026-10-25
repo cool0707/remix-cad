@@ -225,11 +225,8 @@ describe('AcEdViewKeyHandler', () => {
     const tools = (overrides: Record<string, unknown> = {}) => ({
       isSimple: true,
       isCommandRunning: false,
-      isSpacePanning: false,
       activate: jest.fn(),
       handleEscape: jest.fn(() => false),
-      beginSpacePan: jest.fn(() => true),
-      endSpacePan: jest.fn(),
       ...overrides
     })
 
@@ -316,19 +313,6 @@ describe('AcEdViewKeyHandler', () => {
         keyboardEvent({ code: 'Escape', target: commandLine() })
       )
       expect(idle.selectionSet.clear).toHaveBeenCalled()
-    })
-
-    test('Space pans while held', () => {
-      const toolManager = tools()
-      const handler = new AcEdViewKeyHandler(
-        createMockView(false, {}, toolManager)
-      )
-      expect(handler.handleKeyDown(keyboardEvent({ code: 'Space' }))).toBe(true)
-      expect(toolManager.beginSpacePan).toHaveBeenCalled()
-
-      toolManager.isSpacePanning = true
-      handler.handleKeyUp(keyboardEvent({ code: 'Space' }))
-      expect(toolManager.endSpacePan).toHaveBeenCalled()
     })
   })
 })

@@ -319,7 +319,8 @@ Figma / Illustrator 風の「先に選ぶ → ドラッグ / 右サイドバー�
     - 状態は `AcApToolManager.events.changed` (static) で `{ view, tool, label, prompt }` を通知。ツール名は i18n `main.tool.*`。
   - キー (`view/AcEdViewKeyHandler.ts`、シンプルのときだけ): V 選択 / H パン / L 線 / R 矩形 / T 文字 (`AcApToolShortcuts.ts`、`e.code` で判定)。
     コマンドの実行中・修飾キー付き・文字入力中は無効。開いている文書で使えないコマンド (読み取り専用で線など) も無視。
-    Space を押している間だけパン (コマンド実行中は無効。keyup と window の blur で戻す)。
+    Space を押しながらの左ドラッグでのパンは、別の PR (#29) で全プロファイル・作図中も効く形で入ったので、そちらに一本化した
+    (`AcTrView2d.installSpacePan`)。
     - コマンドラインは入力待ちのたびに自分でフォーカスを取るので、**空のコマンドラインで、ユーザーがクリックして入ったのでない**ときは
       「文字入力中」と見なさない (`AcEdCommandLine` がクリックで `data-user-focus` を付け、blur で外す)。
     - 空のコマンドラインでの Esc は、シンプルではビューに渡す (CAD は従来どおりコマンドラインが「*キャンセル*」で受ける)。
@@ -343,7 +344,6 @@ Figma / Illustrator 風の「先に選ぶ → ドラッグ / 右サイドバー�
 - **未実施 / 残り**:
   - プロファイル別の用語辞書 (1.2 の方式 (a)) は入れていない。今は両プロファイルとも一般用語。
   - 右クリックの挙動とコマンドラインの表示はプロファイルで変えていない (ステップ 8)。
-  - Space でのパンはコマンドの実行中には効かない (入力待ちのクリックと区別する仕組みが要る)。作図中は中ボタンのドラッグでパンできる。
   - 単キーのツールはコマンドの実行中 (連続作図で次の作図を待っているときも) は効かない。Esc で選択ツールに戻ってから押す。
 - 以下は着手前の調査メモ:
 - `editor/input/AcEdCursorManager.ts`, `editor/input/AcEditor.ts`, `editor/command/AcEdCommandStack.ts`, `view/AcEdViewKeyHandler.ts`。

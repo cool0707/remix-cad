@@ -12,6 +12,7 @@ title: Operations
 | Left-drag | Box-select / drag an entity |
 | Scroll wheel | Zoom the view |
 | Middle-button or Shift + Middle-button drag | Pan the view |
+| Space + left-button drag | Pan the view (also works during a command) |
 | Right-click | Outside a command: show the context menu; inside a command: acts as Enter to confirm |
 | Esc | Cancel the current command |
 | Enter / Space | Confirm the current step or repeat the last command |

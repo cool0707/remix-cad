@@ -52,6 +52,8 @@ export class AcTrLayoutView extends AcTrBaseView {
   private _axesGizmo: AxesGizmo
   /** The current view mode (selection, pan, etc.) */
   private _mode: AcEdViewMode
+  /** Left button pans temporarily (Space held) */
+  private _leftButtonPan = false
   /** Map of viewport views indexed by viewport ID */
   private _viewportViews: Map<string, AcTrViewportView>
   /** Screen-fixed overlay viewport (snap loupe, etc.). */
@@ -96,17 +98,39 @@ export class AcTrLayoutView extends AcTrBaseView {
     return this._mode
   }
   set mode(value: AcEdViewMode) {
-    if (value == AcEdViewMode.SELECTION) {
+    this._mode = value
+    this.applyMouseButtons()
+  }
+
+  /**
+   * Whether the left button temporarily pans regardless of {@link mode}
+   * (while Space is held). The middle button keeps panning as well.
+   */
+  get leftButtonPan() {
+    return this._leftButtonPan
+  }
+  set leftButtonPan(value: boolean) {
+    if (this._leftButtonPan === value) return
+    this._leftButtonPan = value
+    this.applyMouseButtons()
+  }
+
+  private applyMouseButtons() {
+    if (this._leftButtonPan) {
+      this._cameraControls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN,
+        MIDDLE: THREE.MOUSE.PAN
+      }
+    } else if (this._mode == AcEdViewMode.SELECTION) {
       this._cameraControls.mouseButtons = {
         MIDDLE: THREE.MOUSE.PAN
       }
-    } else if (value == AcEdViewMode.PAN) {
+    } else if (this._mode == AcEdViewMode.PAN) {
       this._cameraControls.mouseButtons = {
         LEFT: THREE.MOUSE.PAN
       }
     }
     this._cameraControls.update()
-    this._mode = value
   }
 
   /**
