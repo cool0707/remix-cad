@@ -8,6 +8,17 @@ import {
 import { AcEdBaseView } from '../../view'
 import { acedIsDynamicInputEnabled } from '../AcEdDynamicInput'
 
+
+/** Keyword pill shown above a floating prompt. */
+export interface AcEdFloatingKeyword {
+  /** Option name without the shortcut, e.g. `Arc` / `円弧`. */
+  name: string
+  /** Shortcut letter(s) typed to pick it, e.g. `A`. */
+  key?: string
+  /** When false the pill is dimmed. */
+  enabled?: boolean
+}
+
 /**
  * AcEdFloatingMessage
  * -----------------------------------------------------------------------------
@@ -59,6 +70,9 @@ export class AcEdFloatingMessage {
    */
   protected label: HTMLSpanElement
 
+  /** Keyword pills shown above the message / inputs */
+  protected keywordsEl: HTMLDivElement
+
   /** Whether the floating message is currently visible */
   protected visible = false
 
@@ -102,6 +116,7 @@ export class AcEdFloatingMessage {
       parent?: HTMLElement
       message?: string
       allowPrompt?: boolean
+      keywords?: AcEdFloatingKeyword[]
     }
   ) {
     this.view = view
@@ -131,6 +146,11 @@ export class AcEdFloatingMessage {
       this.label.style.display = 'none'
     }
     this.container.appendChild(this.label)
+
+    this.keywordsEl = document.createElement('div')
+    this.keywordsEl.className = 'ml-floating-input-keywords'
+    this.container.appendChild(this.keywordsEl)
+    this.setKeywords(options.keywords ?? [])
 
     // Mount inside view host so UI is constrained to the view canvas area.
     this.host.appendChild(this.container)
@@ -189,8 +209,84 @@ export class AcEdFloatingMessage {
         white-space: nowrap;
         color: var(--ml-ui-text, #fff);
       }
+      .ml-floating-input-keywords {
+        position: absolute;
+        left: 0;
+        bottom: calc(100% + 6px);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 4px;
+        width: max-content;
+        white-space: nowrap;
+      }
+      .ml-floating-input-keywords:empty {
+        display: none;
+      }
+      .ml-floating-input.is-keywords-below .ml-floating-input-keywords {
+        bottom: auto;
+        top: calc(100% + 6px);
+      }
+      .ml-floating-input-keyword {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 22px;
+        padding: 0 4px 0 10px;
+        border-radius: 999px;
+        border: 1px solid
+          color-mix(in srgb, var(--ml-brand, #af61da) 45%, transparent);
+        background: var(--ml-ui-bg, #444);
+        color: var(--ml-ui-text, #fff);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        font-size: 12px;
+        line-height: 1;
+      }
+      .ml-floating-input-keyword.is-disabled {
+        opacity: 0.45;
+      }
+      .ml-floating-input-keyword-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        box-sizing: border-box;
+        border-radius: 999px;
+        background: var(--ml-brand-gradient, var(--ml-brand, #af61da));
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
     `
     document.head.appendChild(style)
+  }
+
+  /**
+   * Replaces the keyword pills (e.g. `Arc [A]`) shown above the prompt.
+   * They are hints only: the tooltip follows the cursor, so the letter is
+   * typed (then Enter) rather than clicked.
+   */
+  setKeywords(keywords: AcEdFloatingKeyword[]) {
+    this.keywordsEl.replaceChildren(
+      ...keywords.map(kw => {
+        const pill = document.createElement('span')
+        pill.className = 'ml-floating-input-keyword'
+        if (kw.enabled === false) pill.classList.add('is-disabled')
+        const name = document.createElement('span')
+        name.textContent = kw.name
+        pill.appendChild(name)
+        if (kw.key) {
+          const key = document.createElement('span')
+          key.className = 'ml-floating-input-keyword-key'
+          key.textContent = kw.key
+          pill.appendChild(key)
+        }
+        return pill
+      })
+    )
   }
 
   /**
@@ -270,6 +366,14 @@ export class AcEdFloatingMessage {
     top = Math.min(top, hostRect.height - rect.height)
     left = Math.max(left, 0)
     top = Math.max(top, 0)
+
+    // Keyword pills sit above the prompt; drop them below near the top edge.
+    if (this.keywordsEl.childElementCount > 0) {
+      // Wrap instead of running past the view's right edge.
+      this.keywordsEl.style.maxWidth = `${Math.max(hostRect.width - left - 8, 160)}px`
+      const pillsHeight = this.keywordsEl.offsetHeight + 6
+      this.container.classList.toggle('is-keywords-below', top < pillsHeight)
+    }
 
     this.container.style.left = `${left}px`
     this.container.style.top = `${top}px`

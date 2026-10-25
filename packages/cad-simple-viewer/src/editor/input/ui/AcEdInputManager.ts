@@ -73,6 +73,7 @@ import {
   AcEdFloatingInputDynamicValueCallback,
   AcEdFloatingInputRawData
 } from './AcEdFloatingInputTypes'
+import type { AcEdFloatingKeyword } from './AcEdFloatingMessage'
 import { AcEdFloatingMessage } from './AcEdFloatingMessage'
 import { acedInteractionStrategy } from './AcEdInteractionStrategy'
 import { AcEdMessageType } from './AcEdMessageType'
@@ -2708,24 +2709,29 @@ export class AcEdInputManager {
   }
 
   /**
-   * Prompt text for the cursor tooltip, with the visible keywords appended
-   * (`Specify next point or [Arc(A)/Undo(U)]`) so options can be found
-   * without the command line. Typing one of them and pressing Enter in the
-   * tooltip inputs picks it.
+   * Keyword pills for the cursor tooltip (`Arc [A]`), so options can be found
+   * without the command line. Typing the key and Enter in the tooltip inputs
+   * picks it.
    */
-  private floatingPromptMessage<T>(options: AcEdPromptOptions<T>) {
-    const keywords = (options.keywords?.toArray() ?? []).filter(
-      kw => kw.visible
-    )
-    if (!options.appendKeywordsToMessage || keywords.length === 0) {
-      return options.getDisplayMessage()
-    }
-    const core = options.message.trim().replace(/[：:]\s*$/, '')
-    const list = keywords.map(kw => kw.displayName).join('/')
-    const defaultText = options.getDefaultValueDisplayText()
-    return defaultText == null
-      ? `${core} [${list}]`
-      : `${core} [${list}] <${defaultText}>`
+  private floatingPromptKeywords<T>(
+    options: AcEdPromptOptions<T>
+  ): AcEdFloatingKeyword[] {
+    if (!options.appendKeywordsToMessage) return []
+    return (options.keywords?.toArray() ?? [])
+      .filter(kw => kw.visible)
+      .map(kw => {
+        // "Arc(A)" / "円弧(A)" → name + key; otherwise the alias letter.
+        const match = /^(.*?)\s*[(（]\s*([^()（）]+?)\s*[)）]\s*$/.exec(
+          kw.displayName
+        )
+        return match
+          ? { name: match[1], key: match[2], enabled: kw.enabled }
+          : {
+              name: kw.displayName,
+              key: kw.alias || undefined,
+              enabled: kw.enabled
+            }
+      })
   }
 
   /**
@@ -2834,7 +2840,8 @@ export class AcEdInputManager {
       const floatingInput = new AcEdFloatingInput(this.view, {
         parent: this.view.canvas,
         inputCount: options.inputCount,
-        message: this.floatingPromptMessage(options.promptOptions),
+        message: promptDefaults.message,
+        keywords: this.floatingPromptKeywords(options.promptOptions),
         disableOSnap: options.disableOSnap,
         showBaseLineOnly: promptDefaults.showBaseLineOnly,
         basePoint,

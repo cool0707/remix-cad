@@ -1,5 +1,7 @@
 import { AcGePoint2dLike } from '@mlightcad/data-model'
 
+import type { AcEdFloatingKeyword } from './AcEdFloatingMessage'
+
 /**
  * Describes the raw text values from the X and Y fields in {@link AcEdFloatingInput}.
  */
@@ -126,6 +128,11 @@ export interface AcEdFloatingInputOptions<T> {
    * Useful for describing expected input (e.g., "Specify next point").
    */
   message?: string
+
+  /**
+   * Keyword pills shown above the prompt (type the key, then Enter).
+   */
+  keywords?: AcEdFloatingKeyword[]
 
   /**
    * Whether the prompt label is allowed to be shown at all.
