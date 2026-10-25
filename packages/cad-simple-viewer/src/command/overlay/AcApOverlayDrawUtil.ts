@@ -5,6 +5,7 @@
 import type { AcTrHtmlElement } from '@mlightcad/three-renderer'
 
 import type { AcEdBaseView } from '../../editor'
+import { acapMeasureBadgeOverflowsSegment } from '../../util/AcApMeasureBadgeFont'
 import type { AcTrView2d } from '../../view'
 
 /** Dataset key storing stroke width in world units for view-synced canvas pens. */
@@ -308,6 +309,36 @@ export function acapSyncLiveOverlayTextHeight(
   for (const el of elements) {
     el.scaleWithView = false
     el.baseZoom = undefined
+  }
+}
+
+/**
+ * Text height of a live badge synced by {@link acapSyncLiveOverlayTextHeight},
+ * and whether it is too wide to sit on a segment `lineLengthScreenPx` long.
+ *
+ * @returns `emWcs` (badge text height in WCS) and `offLine`
+ */
+export function acapLiveBadgeOffLine(
+  view: AcEdBaseView,
+  text: string,
+  style: {
+    fontSize: number
+    textHeightMode?: 'adaptive' | 'custom'
+    textHeightWcs?: number
+  },
+  lineLengthScreenPx: number
+): { emWcs: number; offLine: boolean } {
+  const custom =
+    style.textHeightMode === 'custom' &&
+    style.textHeightWcs != null &&
+    style.textHeightWcs > 0
+  const emWcs = custom
+    ? style.textHeightWcs!
+    : acapScreenPxToWcs(style.fontSize, view)
+  const emPx = custom ? acapWcsToScreenPx(emWcs, view) : style.fontSize
+  return {
+    emWcs,
+    offLine: acapMeasureBadgeOverflowsSegment(text, emPx, lineLengthScreenPx)
   }
 }
 
