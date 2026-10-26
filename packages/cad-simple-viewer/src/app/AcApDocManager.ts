@@ -1735,6 +1735,9 @@ export class AcApDocManager {
       : `${this.baseUrl}/`
     const templateUrl = `${baseUrl}${DEFAULT_NEW_DRAWING_TEMPLATE}`
     const openOptions = this.setOptions({
+      // Frame the template's sheet (drawing limits, A3 for acadiso) in the
+      // middle of the view, not the template's saved view of a corner.
+      openViewMode: AcApOpenViewMode.Limits,
       ...options,
       mode: AcEdOpenMode.Write
     })
