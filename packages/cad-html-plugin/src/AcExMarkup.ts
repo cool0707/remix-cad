@@ -8,7 +8,10 @@
  * @packageDocumentation
  */
 
-import type { AcExHtmlI18n } from '@mlightcad/cad-html-core'
+import type {
+  AcExHtmlI18n,
+  AcExHtmlMessageKey
+} from '@mlightcad/cad-html-core'
 import type { AcExExtents } from '@mlightcad/cad-html-core'
 import { AcExHtmlIcons } from '@mlightcad/cad-html-core'
 import * as THREE from 'three'
@@ -99,11 +102,11 @@ const BUILTIN_STAMPS = [
 
 type AcExBuiltinStampId = (typeof BUILTIN_STAMPS)[number]
 
-const STAMP_LABELS: Record<AcExBuiltinStampId, string> = {
-  approved: 'APPROVED',
-  rejected: 'REJECTED',
-  revised: 'REVISED',
-  'for-review': 'FOR REVIEW'
+const STAMP_LABEL_KEYS: Record<AcExBuiltinStampId, AcExHtmlMessageKey> = {
+  approved: 'status.markupStampApproved',
+  rejected: 'status.markupStampRejected',
+  revised: 'status.markupStampRevised',
+  'for-review': 'status.markupStampForReview'
 }
 
 interface AcExResolvedPoint {
@@ -1432,8 +1435,7 @@ export class AcExMarkupController {
         type: 'stamp',
         position: point2(point),
         stampId
-      },
-      STAMP_LABELS[stampId]
+      }
     )
     this.cancelMode()
     return true
@@ -1836,7 +1838,7 @@ export class AcExMarkupController {
         (attached ? attached.text : undefined) ||
         record.text?.trim() ||
         (g.type === 'stamp' && 'stampId' in g
-          ? (STAMP_LABELS[g.stampId as AcExBuiltinStampId] ?? g.stampId)
+          ? this._stampLabel(g.stampId)
           : this._i18n.t('status.markupDefaultLabel'))
       badge.textContent = label
       badge.style.color = color
@@ -1900,6 +1902,28 @@ export class AcExMarkupController {
       })
     )
     this._syncGripPointerEvents()
+  }
+
+  /** Localized badge text for a stamp id (unknown ids are shown as-is). */
+  private _stampLabel(stampId: string): string {
+    const key = STAMP_LABEL_KEYS[stampId as AcExBuiltinStampId]
+    return key ? this._i18n.t(key) : stampId
+  }
+
+  /**
+   * Re-apply localized stamp badges after a locale change. Only stamps without
+   * their own text use the built-in label, so only those are updated.
+   */
+  refreshLabels(): void {
+    for (const { record, parts } of this._committed) {
+      const g = record.geometry
+      if (g.type !== 'stamp' || record.text?.trim()) continue
+      for (const el of parts.dom) {
+        if (el.classList.contains('mlcad-markup-stamp')) {
+          el.textContent = this._stampLabel(g.stampId)
+        }
+      }
+    }
   }
 
   private _findRecord(id: string): AcExMarkupRecord | undefined {

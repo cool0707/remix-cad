@@ -747,9 +747,21 @@ export default {
       content: 'Enter callout text'
     },
     stamp: {
-      kind: 'Enter stamp id [approved/rejected/revised/for-review/custom]',
-      imageUrl: 'Enter custom stamp image URL (optional)',
-      caption: 'Enter stamp caption (optional)',
+      picker: {
+        title: 'Choose a stamp',
+        close: 'Close',
+        cancel: 'Cancel',
+        caption: 'Caption (optional)',
+        captionPlaceholder: 'Text shown under the stamp',
+        custom: 'From image…',
+        customHint: 'Use an image file as a stamp'
+      },
+      badges: {
+        approved: 'APPROVED',
+        rejected: 'REJECTED',
+        revised: 'REVISED',
+        forReview: 'FOR REVIEW'
+      },
       point: 'Specify stamp insertion point'
     },
     import: {

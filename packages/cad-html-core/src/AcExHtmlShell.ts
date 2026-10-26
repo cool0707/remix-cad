@@ -1489,7 +1489,7 @@ function buildAcExDrawerSheetChrome(
 }
 
 function buildAcExReviewDrawer(): string {
-  return `<div id="mlcad-review-drawer" role="dialog" data-i18n-attr="aria-label" data-i18n-key="review.title" aria-label="Review" hidden>
+  return `<div id="mlcad-review-drawer" role="dialog" data-i18n-attr="aria-label" data-i18n-key="review.title" aria-label="Comments" hidden>
         ${buildAcExDrawerSheetChrome('mlcad-review-sheet-close', 'review.close', 'Close review')}
         <div class="mlcad-drawer-header">
           <span data-i18n-key="review.title" data-i18n-text>Review</span>

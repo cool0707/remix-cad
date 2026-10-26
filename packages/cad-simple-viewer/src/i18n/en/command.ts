@@ -461,7 +461,7 @@ export default {
         'Creates a callout: pick leader tip, place text box, then enter text'
     },
     markupstamp: {
-      description: 'Places a stamp or custom symbol'
+      description: 'Picks a stamp from a gallery and places it'
     },
     markupvis: {
       description: 'Shows or hides markups'

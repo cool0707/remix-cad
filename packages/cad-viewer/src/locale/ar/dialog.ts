@@ -164,7 +164,7 @@ export default {
     viewerModeViewHint:
       'التحريك والتكبير والتحكم في الطبقات فقط',
 
-    viewerModeMeasure: 'قياس ومراجعة',
+    viewerModeMeasure: 'قياس وتعليقات',
     viewerModeMeasureHint:
       'أدوات العرض بالإضافة إلى القياسات وتعليقات المراجعة',
 

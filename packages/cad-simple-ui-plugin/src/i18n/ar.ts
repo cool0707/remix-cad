@@ -37,8 +37,8 @@ export const ar: Record<string, string> = {
   'toolbar.switchBg': 'خلفية',
   'toolbar.readingMode': 'قراءة',
 
-  'toolbar.annotation': 'أدوات المراجعة',
-  'toolbar.annotationShort': 'مراجعة',
+  'toolbar.annotation': 'أدوات التعليقات',
+  'toolbar.annotationShort': 'تعليقات',
 
   'toolbar.markupCloud': 'سحابة',
   'toolbar.markupCallout': 'وسيلة شرح',
@@ -116,7 +116,7 @@ export const ar: Record<string, string> = {
   'dockPanel.moreTabs': 'المزيد من علامات التبويب',
 
   'dockPanel.tab.layers': 'الطبقات',
-  'dockPanel.tab.review': 'المراجعة',
+  'dockPanel.tab.review': 'التعليقات',
   'dockPanel.tab.find': 'بحث',
   'dockPanel.tab.measurements': 'القياسات',
   'dockPanel.resize': 'تغيير ارتفاع اللوحة',

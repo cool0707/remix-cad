@@ -843,7 +843,7 @@ export default {
     markupstamp: {
       ...enCommand.ACAD.markupstamp,
       description:
-        'وضع ختم أو رمز مخصص'
+        'اختيار ختم من القائمة ووضعه'
     },
 
     markupvis: {

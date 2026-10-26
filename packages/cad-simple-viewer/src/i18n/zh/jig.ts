@@ -736,9 +736,21 @@ export default {
       content: '输入标注文字'
     },
     stamp: {
-      kind: '输入图章类型 [approved/rejected/revised/for-review/custom]',
-      imageUrl: '输入自定义图章图片 URL（可选）',
-      caption: '输入图章说明文字（可选）',
+      picker: {
+        title: '选择图章',
+        close: '关闭',
+        cancel: '取消',
+        caption: '说明文字（可选）',
+        captionPlaceholder: '显示在图章下方的文字',
+        custom: '从图片创建…',
+        customHint: '将图片文件用作图章'
+      },
+      badges: {
+        approved: '已批准',
+        rejected: '已驳回',
+        revised: '已修订',
+        forReview: '待审核'
+      },
       point: '指定图章插入点'
     },
     import: {

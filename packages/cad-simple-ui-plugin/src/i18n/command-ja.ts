@@ -7,7 +7,7 @@ export const commandJa = {
       description: 'レイヤー管理のドックパネルを開閉します'
     },
     markuppanel: {
-      description: 'レビューパレットのドックパネルを開きます'
+      description: 'コメントパレットのドックパネルを開きます'
     },
     measurementpanel: {
       description: '計測一覧のドックパネルを開きます'

@@ -18,7 +18,7 @@ export default {
     tab: {
       home: 'Ana Sayfa',
       insert: 'Ekle',
-      review: 'İnceleme',
+      review: 'Yorumlar',
       measurement: 'Ölçüm',
       hatchContext: 'Desen dolgusu',
       mtextEditorContext: 'Metin Düzenleyici'
@@ -221,7 +221,7 @@ export default {
       properties: 'Özellikler',
       utilities: 'Yardımcı Araçlar',
       annotation: 'Açıklama',
-      review: 'İnceleme',
+      review: 'Yorumlar',
       measurement: 'Ölçüm',
       style: 'Stil',
       lengthUnits: 'Uzunluk Birimleri',
@@ -422,9 +422,9 @@ export default {
       drawingUnits: 'Çizim\nBirimleri',
       attachDwg: 'DWG\nEkle',
       attachImage: 'Görüntü\nEkle',
-      insert: 'Ekle',
-      editAttributes: 'Özellikleri\nDüzenle',
-      defineAttribute: 'Özellik\nTanımla',
+      insert: 'Sembol',
+      editAttributes: 'Sembol Özelliklerini\nDüzenle',
+      defineAttribute: 'Sembol Özelliği\nTanımla',
       agent: 'CAD\nAjanı'
     }
   },
@@ -485,8 +485,8 @@ export default {
       description: 'Ölçümleri sidecar JSON dosyasına dışa aktarır'
     },
     annotation: {
-      text: 'İnceleme',
-      description: 'İnceleme araçları'
+      text: 'Yorumlar',
+      description: 'Yorum araçları'
     },
     layer: {
       text: 'Katman',
@@ -852,8 +852,8 @@ export default {
       }
     },
     designReview: {
-      tab: 'İnceleme',
-      title: 'İnceleme',
+      tab: 'Yorumlar',
+      title: 'Yorumlar',
       searchPlaceholder: 'İşaretlerde ara',
       empty: 'Henüz işaret yok',
       type: 'Tür',

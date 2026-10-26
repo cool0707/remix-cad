@@ -472,7 +472,7 @@ export default {
         'Çağrı notu oluşturur: önce lider ucunu, sonra metin kutusunu belirtin, ardından metni girin'
     },
     markupstamp: {
-      description: 'Damga veya özel sembol yerleştirir'
+      description: 'Listeden bir damga seçip yerleştirir'
     },
     markupvis: {
       description: 'İşaretleri gösterir veya gizler'

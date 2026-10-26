@@ -38,8 +38,8 @@ export default {
       accessMode: 'アクセスモード',
       read: '閲覧',
       readHint: '表示のみ',
-      review: 'レビュー',
-      reviewHint: '表示とレビュー',
+      review: 'コメント',
+      reviewHint: '表示とコメント',
       write: '編集',
       writeHint: 'すべての操作',
 

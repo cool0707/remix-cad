@@ -462,7 +462,7 @@ export default {
         'Vytvoří odkazovou poznámku: zadejte hrot odkazu, umístěte textové pole a zadejte text'
     },
     markupstamp: {
-      description: 'Umístí razítko nebo vlastní symbol'
+      description: 'Vybere razítko ze seznamu a umístí ho'
     },
     markupvis: {
       description: 'Zobrazí nebo skryje poznámky'

@@ -1721,18 +1721,22 @@ export default {
 
     stamp: {
       ...enJig.markup.stamp,
-
-      kind:
-        'أدخل معرّف الختم [approved/rejected/revised/for-review/custom]',
-
-      imageUrl:
-        'أدخل رابط صورة الختم المخصص (اختياري)',
-
-      caption:
-        'أدخل تسمية الختم (اختياري)',
-
-      point:
-        'حدد نقطة إدراج الختم'
+      picker: {
+        title: 'اختر ختمًا',
+        close: 'إغلاق',
+        cancel: 'إلغاء',
+        caption: 'تسمية (اختياري)',
+        captionPlaceholder: 'نص يظهر أسفل الختم',
+        custom: 'من صورة…',
+        customHint: 'استخدم ملف صورة كختم'
+      },
+      badges: {
+        approved: 'معتمد',
+        rejected: 'مرفوض',
+        revised: 'معدّل',
+        forReview: 'للمراجعة'
+      },
+      point: 'حدد نقطة إدراج الختم'
     },
 
     import: {

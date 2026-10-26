@@ -456,7 +456,7 @@ export default {
     }
   },
   markup: {
-    author: 'レビュー担当者を指定 (次回以降のために保存されます)',
+    author: 'コメントの作成者を指定 (次回以降のために保存されます)',
     text: {
       point: '文字マークアップの位置を指定',
       content: 'マークアップの文字を入力'
@@ -508,9 +508,21 @@ export default {
       content: '吹き出しの文字を入力'
     },
     stamp: {
-      kind: 'スタンプ ID を入力 [approved/rejected/revised/for-review/custom]',
-      imageUrl: 'カスタムスタンプの画像 URL を入力 (省略可)',
-      caption: 'スタンプのキャプションを入力 (省略可)',
+      picker: {
+        title: 'スタンプを選択',
+        close: '閉じる',
+        cancel: 'キャンセル',
+        caption: '添え書き (省略可)',
+        captionPlaceholder: 'スタンプの下に表示する文字',
+        custom: '画像から作成…',
+        customHint: '画像ファイルをスタンプにします'
+      },
+      badges: {
+        approved: '承認',
+        rejected: '却下',
+        revised: '修正済',
+        forReview: '要確認'
+      },
       point: 'スタンプの挿入位置を指定'
     },
     import: {
@@ -869,8 +881,8 @@ export default {
       },
       view: { display: '閲覧(V)', local: '閲覧', global: 'View' },
       measure: {
-        display: '計測とレビュー(M)',
-        local: '計測とレビュー',
+        display: '計測とコメント(M)',
+        local: '計測とコメント',
         global: 'Measure'
       }
     }

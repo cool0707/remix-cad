@@ -145,7 +145,7 @@ export default {
     viewerMode: 'ビューアのモード',
     viewerModeView: '閲覧',
     viewerModeViewHint: '画面移動、ズーム、レイヤーの操作のみ',
-    viewerModeMeasure: '計測とレビュー',
+    viewerModeMeasure: '計測とコメント',
     viewerModeMeasureHint: '閲覧ツールに加えて計測とマークアップの注釈',
     expirySection: '有効期限',
     expiry1Day: '1 日',

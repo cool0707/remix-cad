@@ -207,6 +207,10 @@ export type AcExHtmlMessageKey =
   | 'status.markupTextEditHint'
   | 'status.markupShapeCalloutHint'
   | 'status.markupDefaultLabel'
+  | 'status.markupStampApproved'
+  | 'status.markupStampRejected'
+  | 'status.markupStampRevised'
+  | 'status.markupStampForReview'
   | 'status.markupSelected'
   | 'status.markupSelectedCount'
   | 'status.markupCount'
@@ -291,7 +295,7 @@ const BASE_MESSAGES: Record<
       measureExport: 'Export',
       measurementPanel: 'Results',
       measure: 'Measure',
-      annotation: 'Review',
+      annotation: 'Comments',
       markupCloud: 'Cloud',
       markupCallout: 'Callout',
       markupText: 'Text',
@@ -376,8 +380,8 @@ const BASE_MESSAGES: Record<
       zoomTo: 'Zoom to {name}'
     },
     review: {
-      title: 'Review',
-      close: 'Close review',
+      title: 'Comments',
+      close: 'Close comments',
       searchPlaceholder: 'Search markups',
       empty: 'No markups yet',
       type: 'Type',
@@ -476,6 +480,10 @@ const BASE_MESSAGES: Record<
       markupShapeCalloutHint:
         'Click to place the text box (leader attaches to the shape). Esc cancels the callout.',
       markupDefaultLabel: 'Note',
+      markupStampApproved: 'APPROVED',
+      markupStampRejected: 'REJECTED',
+      markupStampRevised: 'REVISED',
+      markupStampForReview: 'FOR REVIEW',
       markupSelected: 'Selected markup: {type}',
       markupSelectedCount: 'Selected markups: {count}',
       markupCount: 'Markups: {count}',
@@ -560,7 +568,7 @@ const BASE_MESSAGES: Record<
       measureExport: '导出',
       measurementPanel: '看结果',
       measure: '测量',
-      annotation: '审阅',
+      annotation: '批注',
       markupCloud: '云线',
       markupCallout: '标注',
       markupText: '文字',
@@ -737,6 +745,10 @@ const BASE_MESSAGES: Record<
       markupShapeCalloutHint:
         '点击放置文本框（引线自动贴到图形）。Esc 取消引线和文本框。',
       markupDefaultLabel: '批注',
+      markupStampApproved: '已批准',
+      markupStampRejected: '已驳回',
+      markupStampRevised: '已修订',
+      markupStampForReview: '待审核',
       markupSelected: '已选批注：{type}',
       markupSelectedCount: '已选批注：{count} 个',
       markupCount: '批注数：{count}',
@@ -817,7 +829,7 @@ const BASE_MESSAGES: Record<
       measureExport: 'Export',
       measurementPanel: 'Výsledky',
       measure: 'Měření',
-      annotation: 'Kontrola',
+      annotation: 'Komentáře',
       markupCloud: 'Obláček',
       markupCallout: 'Odkaz',
       markupText: 'Text',
@@ -901,8 +913,8 @@ const BASE_MESSAGES: Record<
       zoomTo: 'Přiblížit na {name}'
     },
     review: {
-      title: 'Kontrola',
-      close: 'Zavřít kontrolu',
+      title: 'Komentáře',
+      close: 'Zavřít komentáře',
       searchPlaceholder: 'Hledat poznámky',
       empty: 'Zatím žádné poznámky',
       type: 'Typ',
@@ -1001,6 +1013,10 @@ const BASE_MESSAGES: Record<
       markupShapeCalloutHint:
         'Klikněte pro umístění textového pole (vodítko se připojí k tvaru). Esc zruší odkaz.',
       markupDefaultLabel: 'Poznámka',
+      markupStampApproved: 'SCHVÁLENO',
+      markupStampRejected: 'ZAMÍTNUTO',
+      markupStampRevised: 'REVIDOVÁNO',
+      markupStampForReview: 'KE KONTROLE',
       markupSelected: 'Vybraná poznámka: {type}',
       markupSelectedCount: 'Vybrané poznámky: {count}',
       markupCount: 'Poznámky: {count}',
@@ -1085,7 +1101,7 @@ const BASE_MESSAGES: Record<
       measureExport: 'Dışa aktar',
       measurementPanel: 'Sonuç',
       measure: 'Ölçüm',
-      annotation: 'İnceleme',
+      annotation: 'Yorumlar',
       markupCloud: 'Bulut',
       markupCallout: 'Çağrı',
       markupText: 'Metin',
@@ -1169,8 +1185,8 @@ const BASE_MESSAGES: Record<
       zoomTo: '{name} katmanına yakınlaştır'
     },
     review: {
-      title: 'İnceleme',
-      close: 'İncelemeyi kapat',
+      title: 'Yorumlar',
+      close: 'Yorumları kapat',
       searchPlaceholder: 'İşaretlerde ara',
       empty: 'Henüz işaret yok',
       type: 'Tür',
@@ -1270,6 +1286,10 @@ const BASE_MESSAGES: Record<
       markupShapeCalloutHint:
         'Metin kutusunu yerleştirmek için tıklayın (lider şekle bağlanır). Esc çağrıyı iptal eder.',
       markupDefaultLabel: 'Not',
+      markupStampApproved: 'ONAYLANDI',
+      markupStampRejected: 'REDDEDİLDİ',
+      markupStampRevised: 'DÜZELTİLDİ',
+      markupStampForReview: 'İNCELENECEK',
       markupSelected: 'Seçili işaretleme: {type}',
       markupSelectedCount: 'Seçili işaretlemeler: {count}',
       markupCount: 'İşaretlemeler: {count}',
@@ -1520,6 +1540,10 @@ const AR_MESSAGES: AcExMessageTree = {
     'markupTextEditHint': 'اكتب النص على مساحة الرسم. اضغط Enter للإنهاء أو Esc للإلغاء.',
     'markupShapeCalloutHint': 'انقر لوضع مربع النص (يتصل خط الإشارة بالشكل). اضغط Esc لإلغاء التعليق التوضيحي.',
     'markupDefaultLabel': 'ملاحظة',
+    'markupStampApproved': 'معتمد',
+    'markupStampRejected': 'مرفوض',
+    'markupStampRevised': 'معدّل',
+    'markupStampForReview': 'للمراجعة',
     'markupSelected': 'الملاحظة المحددة: {type}',
     'markupSelectedCount': 'الملاحظات المحددة: {count}',
     'markupCount': 'عدد الملاحظات: {count}',
@@ -1605,7 +1629,7 @@ const JA_MESSAGES: AcExMessageTree = {
     measureExport: '書き出し',
     measurementPanel: '結果',
     measure: '計測',
-    annotation: 'レビュー',
+    annotation: 'コメント',
     markupCloud: '雲マーク',
     markupCallout: '吹き出し',
     markupText: '文字',
@@ -1690,8 +1714,8 @@ const JA_MESSAGES: AcExMessageTree = {
     zoomTo: '{name} にズーム'
   },
   review: {
-    title: 'レビュー',
-    close: 'レビューを閉じる',
+    title: 'コメント',
+    close: 'コメントを閉じる',
     searchPlaceholder: 'マークアップを検索',
     empty: 'マークアップはまだありません',
     type: '種類',
@@ -1790,6 +1814,10 @@ const JA_MESSAGES: AcExMessageTree = {
     markupShapeCalloutHint:
       'クリックしてテキストボックスを配置します (引出線は図形に接続されます)。Esc で吹き出しをキャンセルします。',
     markupDefaultLabel: 'メモ',
+    markupStampApproved: '承認',
+    markupStampRejected: '却下',
+    markupStampRevised: '修正済',
+    markupStampForReview: '要確認',
     markupSelected: '選択中のマークアップ: {type}',
     markupSelectedCount: '選択中のマークアップ: {count} 件',
     markupCount: 'マークアップ: {count} 件',

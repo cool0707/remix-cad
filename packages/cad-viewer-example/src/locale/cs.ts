@@ -36,8 +36,8 @@ export default {
       accessMode: 'Režim přístupu',
       read: 'Čtení',
       readHint: 'Pouze zobrazení',
-      review: 'Kontrola',
-      reviewHint: 'Zobrazení a kontrola',
+      review: 'Komentáře',
+      reviewHint: 'Zobrazení a komentáře',
       write: 'Zápis',
       writeHint: 'Plný přístup',
 

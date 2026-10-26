@@ -420,7 +420,7 @@ export default {
       description: '创建标注：先指定引线尖端，再放置文字框，最后输入文字'
     },
     markupstamp: {
-      description: '放置图章或自定义符号'
+      description: '从列表中选择图章并放置'
     },
     markupvis: {
       description: '显示或隐藏批注'

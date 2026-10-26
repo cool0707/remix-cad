@@ -128,7 +128,7 @@ export default {
     viewerMode: 'Viewer mode',
     viewerModeView: 'View',
     viewerModeViewHint: 'Pan, zoom, and layer controls only',
-    viewerModeMeasure: 'Measure & Review',
+    viewerModeMeasure: 'Measure & Comment',
     viewerModeMeasureHint: 'View tools plus measurement and markup annotations',
     expirySection: 'Validity',
     expiry1Day: '1 day',

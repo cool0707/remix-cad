@@ -443,7 +443,7 @@ export default {
         '吹き出しを作成します: 引出線の先端を指定し、テキストボックスを配置して文字を入力します'
     },
     markupstamp: {
-      description: 'スタンプまたはカスタム記号を配置します'
+      description: '一覧からスタンプを選んで配置します'
     },
     markupvis: {
       description: 'マークアップを表示/非表示にします'
