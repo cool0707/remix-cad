@@ -11,6 +11,7 @@ import {
 
 import type { AcApDocManager } from '../src/app/AcApDocManager'
 import {
+  acapPrintAreaColors,
   acapPrintAreaLabel,
   AcApPrintAreaOverlay
 } from '../src/app/AcApPrintAreaOverlay'
@@ -32,11 +33,13 @@ function fakeView() {
     container: document.createElement('div'),
     width: 800,
     height: 600,
+    backgroundColor: 0x000000,
     activeLayoutBtrId: 'model',
     modelSpaceBtrId: 'model',
     events: {
       viewChanged: new AcCmEventManager<void>(),
-      viewResize: new AcCmEventManager<unknown>()
+      viewResize: new AcCmEventManager<unknown>(),
+      renderFrame: new AcCmEventManager<unknown>()
     },
     worldToScreen: (p: { x: number; y: number }) => ({
       x: p.x / 100 + 200,
@@ -85,6 +88,15 @@ describe('AcApPrintAreaOverlay', () => {
       'M-10,-10H810V610H-10Z M140.0,398.5'
     )
     expect(root.querySelector('text')!.textContent).toBe('A3 1:100')
+    expect(root.querySelector('text')!.getAttribute('fill')).toBe('#fff')
+
+    // Follows the canvas background.
+    view.backgroundColor = 0xffffff
+    view.events.renderFrame.dispatch({})
+    expect(root.querySelector('path')!.getAttribute('fill')).toBe(
+      acapPrintAreaColors(0xffffff).mask
+    )
+    expect(root.querySelector('text')!.getAttribute('fill')).toBe('#000')
 
     // Follows pan / zoom.
     view.worldToScreen = p => ({ x: p.x / 100, y: 300 - p.y / 100 })
@@ -102,6 +114,18 @@ describe('AcApPrintAreaOverlay', () => {
     view.activeLayoutBtrId = 'model'
     overlay.refresh()
     expect(root.style.display).toBe('')
+  })
+})
+
+describe('acapPrintAreaColors', () => {
+  it('keeps the mask close to the background', () => {
+    expect(acapPrintAreaColors(0xffffff).mask).toBe('rgba(217, 217, 217, 0.7)')
+    expect(acapPrintAreaColors(0x000000).mask).toBe('rgba(38, 38, 38, 0.7)')
+  })
+
+  it('labels in black on light backgrounds and white on dark ones', () => {
+    expect(acapPrintAreaColors(0xffffff).label).toBe('#000')
+    expect(acapPrintAreaColors(0x212830).label).toBe('#fff')
   })
 })
 

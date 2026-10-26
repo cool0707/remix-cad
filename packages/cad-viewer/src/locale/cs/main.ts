@@ -592,6 +592,11 @@ export default {
       disabledInReadingMode:
         'Nedostupné v režimu čtení (bílé plátno je pevné)'
     },
+    readingMode: {
+      text: 'Režim čtení',
+      description:
+        'Přepne režim čtení: černé čáry na bílém plátně pro snadnější kontrolu'
+    },
     zoom: {
       text: 'Zoom',
       description: 'Nástroje zoomu: uložený pohled, rozsah, chytrý rozsah a okno'

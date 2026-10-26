@@ -602,6 +602,11 @@ export default {
       disabledInReadingMode:
         'Okuma modundayken kullanılamaz (beyaz tuval sabittir)'
     },
+    readingMode: {
+      text: 'Okuma modu',
+      description:
+        'Okuma modunu açar/kapatır: daha kolay inceleme için beyaz tuvalde siyah çizgiler'
+    },
     zoom: {
       text: 'Yakınlaştır',
       description:

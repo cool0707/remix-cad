@@ -19,6 +19,41 @@ export function acapPrintAreaLabel(sheet: AcApDrawingSheet['sheet']) {
   return `${sheet.paper} 1:${Number(sheet.scale.toPrecision(10))}`
 }
 
+/** Colors of the print area overlay for a canvas background. */
+export interface AcApPrintAreaColors {
+  /** Fill outside the sheet. */
+  mask: string
+  /** Sheet outline. */
+  border: string
+  /** Paper / scale label and its halo. */
+  label: string
+  labelHalo: string
+}
+
+/**
+ * Overlay colors for a canvas background (24-bit RGB): the mask is the
+ * background moved a little toward mid gray, so a white canvas gets a light
+ * gray and a black canvas a dark gray, and the label is black on light
+ * backgrounds and white on dark ones.
+ */
+export function acapPrintAreaColors(background: number): AcApPrintAreaColors {
+  const channels = [
+    (background >> 16) & 0xff,
+    (background >> 8) & 0xff,
+    background & 0xff
+  ]
+  const [r, g, b] = channels.map(c => Math.round(c + (128 - c) * 0.3))
+  const luminance =
+    (0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]) / 255
+  const light = luminance > 0.5
+  return {
+    mask: `rgba(${r}, ${g}, ${b}, 0.7)`,
+    border: light ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.35)',
+    label: light ? '#000' : '#fff',
+    labelHalo: light ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.35)'
+  }
+}
+
 /**
  * Illustrator-style artboard display (`isShowPrintArea` setting): in the
  * canvas (model space), everything outside the sheet the drawing is printed /
@@ -36,6 +71,7 @@ export class AcApPrintAreaOverlay {
   private readonly label: SVGTextElement
   private sheet?: AcApDrawingSheet
   private view?: AcTrView2d
+  private background?: number
 
   constructor(private readonly docManager: AcApDocManager) {
     this.root = document.createElementNS(SVG_NS, 'svg')
@@ -52,19 +88,12 @@ export class AcApPrintAreaOverlay {
     })
     this.mask = document.createElementNS(SVG_NS, 'path')
     this.mask.setAttribute('fill-rule', 'evenodd')
-    this.mask.setAttribute(
-      'fill',
-      'var(--ml-print-area-mask, rgba(110, 110, 110, 0.6))'
-    )
     this.border = document.createElementNS(SVG_NS, 'polygon')
     this.border.setAttribute('fill', 'none')
-    this.border.setAttribute('stroke', 'rgba(0, 0, 0, 0.45)')
     this.border.setAttribute('stroke-width', '1')
     this.label = document.createElementNS(SVG_NS, 'text')
-    this.label.setAttribute('fill', '#fff')
     this.label.setAttribute('font-size', '12')
     this.label.setAttribute('paint-order', 'stroke')
-    this.label.setAttribute('stroke', 'rgba(0, 0, 0, 0.35)')
     this.label.setAttribute('stroke-width', '2')
     this.root.append(this.mask, this.border, this.label)
 
@@ -126,6 +155,23 @@ export class AcApPrintAreaOverlay {
 
   private readonly onViewChanged = () => this.refresh()
 
+  /** Background changes (white / black switch, reading mode) repaint. */
+  private readonly onRenderFrame = () => {
+    if (this.root.style.display === 'none') return
+    if (this.view && this.view.backgroundColor !== this.background) {
+      this.applyColors(this.view.backgroundColor)
+    }
+  }
+
+  private applyColors(background: number) {
+    this.background = background
+    const colors = acapPrintAreaColors(background)
+    this.mask.setAttribute('fill', colors.mask)
+    this.border.setAttribute('stroke', colors.border)
+    this.label.setAttribute('fill', colors.label)
+    this.label.setAttribute('stroke', colors.labelHalo)
+  }
+
   /** Follows the current view (the overlay lives in its container). */
   private bindView() {
     const view = this.docManager.curView
@@ -133,6 +179,7 @@ export class AcApPrintAreaOverlay {
     if (this.view) {
       this.view.events.viewChanged.removeEventListener(this.onViewChanged)
       this.view.events.viewResize.removeEventListener(this.onViewChanged)
+      this.view.events.renderFrame.removeEventListener(this.onRenderFrame)
     }
     this.view = view
     if (!view) return
@@ -145,6 +192,7 @@ export class AcApPrintAreaOverlay {
     )
     view.events.viewChanged.addEventListener(this.onViewChanged)
     view.events.viewResize.addEventListener(this.onViewChanged)
+    view.events.renderFrame.addEventListener(this.onRenderFrame)
   }
 
   private draw(drawingSheet: AcApDrawingSheet) {
@@ -175,6 +223,9 @@ export class AcApPrintAreaOverlay {
     this.label.textContent = acapPrintAreaLabel(drawingSheet.sheet)
     this.label.setAttribute('x', String(Math.max(left, 4)))
     this.label.setAttribute('y', String(Math.max(top - 6, 14)))
+    if (view.backgroundColor !== this.background) {
+      this.applyColors(view.backgroundColor)
+    }
     this.root.style.display = ''
   }
 }

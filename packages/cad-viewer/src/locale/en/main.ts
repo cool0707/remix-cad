@@ -601,7 +601,7 @@ export default {
         'Unavailable while reading mode is on (white canvas is fixed)'
     },
     readingMode: {
-      text: 'Reading',
+      text: 'Reading mode',
       description:
         'Toggles reading mode: black linework on a white canvas for easier review'
     },

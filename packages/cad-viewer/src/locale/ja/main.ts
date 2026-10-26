@@ -581,7 +581,7 @@ export default {
       disabledInReadingMode: '閲覧モード中は使用できません (背景は白で固定)'
     },
     readingMode: {
-      text: '閲覧',
+      text: '閲覧モード',
       description:
         '閲覧モードを切り替えます: 白い背景に黒い線で表示してレビューしやすくします'
     },

@@ -830,6 +830,11 @@ export default {
       description: 'التبديل بين خلفية الرسم السوداء والبيضاء',
       disabledInReadingMode: 'غير متاح أثناء وضع القراءة (اللوحة البيضاء ثابتة)'
     },
+    readingMode: {
+      text: 'وضع القراءة',
+      description:
+        'تبديل وضع القراءة: خطوط سوداء على لوحة بيضاء لتسهيل المراجعة'
+    },
 
     zoom: {
       ...enMain.verticalToolbar.zoom,

@@ -194,6 +194,7 @@ import MlRibbonPropertyColorDropdown from './MlRibbonPropertyColorDropdown.vue'
 import MlRibbonPropertyLineTypeSelect from './MlRibbonPropertyLineTypeSelect.vue'
 import MlRibbonPropertyLineWeightSelect from './MlRibbonPropertyLineWeightSelect.vue'
 import MlRibbonTextHeightButton from './MlRibbonTextHeightButton.vue'
+import MlRibbonViewButtons from './MlRibbonViewButtons.vue'
 import { classifyOverlaySelection } from './overlaySelectionKind'
 import { useHatchContextualRibbon } from './useHatchContextualRibbon'
 import { useMTextContextualRibbon } from './useMTextContextualRibbon'
@@ -2982,6 +2983,7 @@ const handleFileMenuSelect = async (command: string) => {
         </div>
       </template>
       <template #tabs-extra="{ disabled }">
+        <ml-ribbon-view-buttons :disabled="disabled" />
         <el-tooltip
           :content="
             isDark ? t('main.statusBar.theme.toLight') : t('main.statusBar.theme.toDark')
