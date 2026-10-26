@@ -52,6 +52,8 @@ drawings never leave the user's device.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).
+- **Print area** — a status bar button next to "Show line widths" grays out the canvas outside the sheet
+  the drawing is printed / exported on (the drawing limits, else A3 at a standard scale), like an Illustrator artboard, and labels it (e.g. `A3 1:100`).
 - **Display scale** — the status bar shows the view as a drawing scale (`1/100` = 1 mm on screen shows
   100 mm of the drawing, from the drawing units at 96 px per inch), with −/+ buttons and a slider.
   Click it for Zoom extents and 1/1 … 1/5000.

@@ -656,6 +656,10 @@ export default {
       on: 'Skrýt tloušťky čar',
       off: 'Zobrazit tloušťky čar'
     },
+    printArea: {
+      on: 'Skrýt tiskovou oblast',
+      off: 'Zobrazit tiskovou oblast (mimo papír šedě)'
+    },
     operationProfile: {
       simple: 'Jednoduchý',
       cad: 'CAD',

@@ -918,6 +918,11 @@ export default {
       off: 'إظهار سماكات الخطوط'
     },
 
+    printArea: {
+      on: 'إخفاء نطاق الطباعة',
+      off: 'إظهار نطاق الطباعة (تظليل ما خارج الورقة بالرمادي)'
+    },
+
     operationProfile: {
       simple: 'بسيط',
       cad: 'CAD',

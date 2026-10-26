@@ -53,6 +53,8 @@ del dispositivo del usuario.
 - **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
   abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
   (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).
+- **Área de impresión** — un botón de la barra de estado junto a «Mostrar grosores de línea» oscurece en gris el lienzo fuera de la hoja
+  en la que se imprime / exporta el plano (los límites del dibujo, o A3 a una escala estándar), como una mesa de trabajo de Illustrator, y la rotula (p. ej. `A3 1:100`).
 - **Escala de visualización** — la barra de estado muestra la vista como escala de plano (`1/100` = 1 mm en pantalla muestra 100 mm del plano,
   según las unidades del dibujo y 96 px por pulgada), con botones −/+ y un control deslizante. Al hacer clic se elige Mostrar todo o 1/1 … 1/5000.
 - **Inspector de propiedades** — la pestaña Propiedades agrupa los valores en secciones (General,

@@ -132,6 +132,7 @@ import {
 } from './AcApOpenFileDialog'
 import { AcApOpenFileProfiler } from './AcApOpenFileProfiler'
 import { AcApOpenFileProgressController } from './AcApOpenFileProgressController'
+import { AcApPrintAreaOverlay } from './AcApPrintAreaOverlay'
 import {
   checkWebworkerReadiness,
   DEFAULT_WEBWORKER_FILE_URLS,
@@ -506,6 +507,8 @@ export class AcApDocManager {
   /** HPSCALE of each drawing that is not active (see {@link syncHatchScale}). */
   private readonly _hatchScales = new WeakMap<AcDbDatabase, number>()
   private _hatchScaleDatabase?: AcDbDatabase
+  /** Gray mask outside the print sheet (`isShowPrintArea` setting). */
+  private _printAreaOverlay!: AcApPrintAreaOverlay
   /** Command manager */
   private _commandManager: AcEdCommandStack
   /** Plugin manager */
@@ -688,6 +691,7 @@ export class AcApDocManager {
     this.events.documentActivated.addEventListener(({ doc }) =>
       this.syncHatchScale(doc.database)
     )
+    this._printAreaOverlay = new AcApPrintAreaOverlay(this)
     this.bindOpenProgress(doc)
     this.events.documentCreated.dispatch({
       doc,
@@ -1118,6 +1122,11 @@ export class AcApDocManager {
    */
   get curView() {
     return this.context.view as AcTrView2d
+  }
+
+  /** Illustrator-style print area display (gray outside the sheet). */
+  get printAreaOverlay() {
+    return this._printAreaOverlay
   }
 
   /**

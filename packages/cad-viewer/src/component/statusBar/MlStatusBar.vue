@@ -48,6 +48,7 @@
           on-color="var(--el-color-primary)"
           off-color="var(--el-text-color-regular)"
         />
+        <ml-print-area-button />
         <ml-sys-var-toggle-button
           v-if="!isMobileOrPad"
           :sys-var-name="AcDbSystemVariables.DYNMODE"
@@ -82,6 +83,7 @@ import MlOperationProfileButton from './MlOperationProfileButton.vue'
 import MlOsnapButton from './MlOsnapButton.vue'
 import MlPointStyleButton from './MlPointStyleButton.vue'
 import MlPolarTrackingButton from './MlPolarTrackingButton.vue'
+import MlPrintAreaButton from './MlPrintAreaButton.vue'
 import MlProgress from './MlProgress.vue'
 import MlToolStatus from './MlToolStatus.vue'
 import MlWarningButton from './MlWarningButton.vue'

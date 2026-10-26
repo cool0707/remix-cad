@@ -650,6 +650,10 @@ export default {
       on: '線の太さを非表示',
       off: '線の太さを表示'
     },
+    printArea: {
+      on: '印刷範囲の表示をオフにする',
+      off: '印刷範囲を表示 (用紙の外を灰色にする)'
+    },
     operationProfile: {
       simple: 'シンプル',
       cad: 'CAD',

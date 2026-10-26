@@ -52,6 +52,8 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).
+- **Área de impressão** — um botão da barra de status ao lado de "Mostrar espessuras de linha" deixa cinza a tela fora da folha
+  em que o desenho é impresso / exportado (os limites do desenho, ou A3 em uma escala padrão), como uma prancheta do Illustrator, e a identifica (ex.: `A3 1:100`).
 - **Escala de exibição** — a barra de status mostra a vista como escala de desenho (`1/100` = 1 mm na tela mostra 100 mm do desenho,
   pelas unidades do desenho e 96 px por polegada), com botões −/+ e um controle deslizante. Clique para escolher Mostrar tudo ou 1/1 … 1/5000.
 - **Inspetor de propriedades** — a aba Propriedades agrupa os valores em seções (Geral, Posicionamento,

@@ -669,6 +669,10 @@ export default {
       on: 'Çizgi genişliklerini gizle',
       off: 'Çizgi genişliklerini göster'
     },
+    printArea: {
+      on: 'Baskı alanını gizle',
+      off: 'Baskı alanını göster (kağıt dışını gri yap)'
+    },
     operationProfile: {
       simple: 'Basit',
       cad: 'CAD',

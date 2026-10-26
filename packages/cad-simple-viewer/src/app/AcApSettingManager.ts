@@ -115,6 +115,11 @@ export interface AcApSettings {
    * rounded value without a marker.
    */
   measurementShowApproximate: boolean
+  /**
+   * Illustrator-style artboard: gray out the canvas outside the sheet the
+   * drawing is printed / exported on (see `AcApPrintAreaOverlay`).
+   */
+  isShowPrintArea: boolean
 }
 
 /**
@@ -171,7 +176,8 @@ const DEFAULT_VALUES: AcApSettings = {
   hideTouchPointTutorial: false,
   touchPointTutorialSnoozeDate: null,
   useSimulatedMouseOnTouch: true,
-  measurementShowApproximate: false
+  measurementShowApproximate: false,
+  isShowPrintArea: false
 }
 
 /** Default localStorage key for persisting user preferences */

@@ -118,6 +118,10 @@ jest.mock('../src/app/AcApXrefManager', () => ({
   }
 }))
 
+jest.mock('../src/app/AcApPrintAreaOverlay', () => ({
+  AcApPrintAreaOverlay: jest.fn()
+}))
+
 jest.mock('../src/app/AcApProgress', () => ({
   AcApProgress: jest.fn().mockImplementation(() => ({
     hide: jest.fn(),

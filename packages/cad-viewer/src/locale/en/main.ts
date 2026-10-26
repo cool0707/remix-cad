@@ -669,6 +669,10 @@ export default {
       on: 'Hide line widths',
       off: 'Show line widths'
     },
+    printArea: {
+      on: 'Hide the print area',
+      off: 'Show the print area: gray out the canvas outside the sheet'
+    },
     operationProfile: {
       simple: 'Simple',
       cad: 'CAD',
