@@ -88,7 +88,7 @@ export class AcTrHtmlStamp extends AcTrHtmlElement {
         `border:3px solid ${accent};color:${accent};` +
         'background:rgba(255,255,255,0.92);padding:8px 14px;' +
         'font-size:14px;font-weight:800;letter-spacing:0.06em;' +
-        'border-radius:4px;transform:rotate(-12deg);' +
+        'border-radius:4px;' +
         'box-shadow:var(--ml-ui-shadow, 0 1px 4px rgba(0,0,0,0.2));' +
         'white-space:nowrap;'
       badge.textContent =
@@ -106,7 +106,7 @@ export class AcTrHtmlStamp extends AcTrHtmlElement {
         'padding:1px 6px;border-radius:10px;' +
         // The element manager resets the root's `display` when toggling
         // visibility, so center without relying on the flex layout.
-        'width:fit-content;margin:10px auto 0;white-space:nowrap;'
+        'width:fit-content;margin:4px auto 0;white-space:nowrap;'
       caption.textContent = options.text
       el.appendChild(caption)
     }

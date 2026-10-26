@@ -98,7 +98,6 @@ const DIALOG_CSS = `
     font-weight: 800;
     letter-spacing: 0.06em;
     white-space: nowrap;
-    transform: rotate(-12deg);
   }
   .ml-ui-stamp-picker-dialog .ml-ui-stamp-custom-icon {
     display: flex;
