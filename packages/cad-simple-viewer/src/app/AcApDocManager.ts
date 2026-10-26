@@ -5,6 +5,7 @@ import {
   AcDbFileType,
   acdbHostApplicationServices,
   AcDbOpenDatabaseOptions,
+  AcDbSystemVariables,
   AcDbSysVarManager,
   log
 } from '@mlightcad/data-model'
@@ -117,6 +118,7 @@ import {
   acapDrawingExporters,
   acapOnDrawingExporterRegistered
 } from './AcApDrawingExporters'
+import { acapDrawingHatchScale } from './AcApDrawingSheet'
 import { AcApFontLoader } from './AcApFontLoader'
 import {
   AcApOpenDatabaseOptions,
@@ -501,6 +503,9 @@ export class AcApDocManager {
   private _openFileProgress: AcApOpenFileProgressController
   /** Optional OPENPROF session profiler (console stage timings) */
   private _openFileProfiler = new AcApOpenFileProfiler()
+  /** HPSCALE of each drawing that is not active (see {@link syncHatchScale}). */
+  private readonly _hatchScales = new WeakMap<AcDbDatabase, number>()
+  private _hatchScaleDatabase?: AcDbDatabase
   /** Command manager */
   private _commandManager: AcEdCommandStack
   /** Plugin manager */
@@ -680,6 +685,9 @@ export class AcApDocManager {
     this.events.documentToBeOpened.addEventListener(() => {
       this._openFileProgress.reset()
     })
+    this.events.documentActivated.addEventListener(({ doc }) =>
+      this.syncHatchScale(doc.database)
+    )
     this.bindOpenProgress(doc)
     this.events.documentCreated.dispatch({
       doc,
@@ -2399,6 +2407,31 @@ export class AcApDocManager {
   }
 
   /**
+   * Keeps HPSCALE (a session variable) per drawing: remembers the value of the
+   * drawing being left, and starts a drawing activated for the first time at
+   * its sheet scale (see {@link acapDrawingHatchScale}), so hatches drawn in
+   * a 1/100 JWW drawing are not 100 times too dense.
+   */
+  private syncHatchScale(db: AcDbDatabase) {
+    const previous = this._hatchScaleDatabase
+    if (previous === db) return
+    const sysVars = AcDbSysVarManager.instance()
+    if (previous) {
+      const value = Number(
+        sysVars.getVar(AcDbSystemVariables.HPSCALE, previous)
+      )
+      if (value > 0) this._hatchScales.set(previous, value)
+    }
+    this._hatchScaleDatabase = db
+    const scale = this._hatchScales.get(db) ?? acapDrawingHatchScale(db)
+    try {
+      sysVars.setVar(AcDbSystemVariables.HPSCALE, scale, db)
+    } catch (error) {
+      log.warn('[AcApDocManager] Failed to set HPSCALE:', error)
+    }
+  }
+
+  /**
    * Performs setup operations after a document opening attempt.
    *
    * This protected method is called automatically after any document opening operation.
@@ -2434,6 +2467,9 @@ export class AcApDocManager {
       syncCurrentSpaceFromTileMode(db)
       this.setActiveLayout(view, db)
       view.syncDisplaySysVars(db)
+      // A newly read drawing starts at its own sheet scale.
+      this._hatchScales.delete(db)
+      if (this._hatchScaleDatabase === db) this._hatchScaleDatabase = undefined
       this.events.documentActivated.dispatch({
         doc,
         mode: this.getDocumentEventMode(options)

@@ -106,7 +106,7 @@ export default {
     pickPoint: '内側の点をクリック (Enter で終了)',
     select: '塗りつぶすオブジェクトを選択',
     patternName: '塗りつぶしパターン名を入力',
-    scale: '塗りつぶしパターンの尺度を指定',
+    scale: '模様の大きさ (倍率) を指定',
     angle: '塗りつぶしパターンの角度を指定',
     style: '塗りつぶしのスタイルを入力',
     associative: '自動調整を指定',
@@ -134,8 +134,8 @@ export default {
         local: 'キャンセル',
         global: 'Cancel'
       },
-      pattern: { display: 'パターン(P)', local: 'パターン', global: 'Pattern' },
-      scale: { display: '尺度(S)', local: '尺度', global: 'Scale' },
+      pattern: { display: 'パターン(PA)', local: 'パターン', global: 'Pattern' },
+      scale: { display: '大きさ(SC)', local: '大きさ', global: 'Scale' },
       angle: { display: '角度(A)', local: '角度', global: 'Angle' },
       style: {
         display: 'スタイル(T)',

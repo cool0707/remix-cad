@@ -201,12 +201,12 @@ export default {
         global: 'Cancel'
       },
       pattern: {
-        display: 'Vzor(P)',
+        display: 'Vzor(PA)',
         local: 'Vzor',
         global: 'Pattern'
       },
       scale: {
-        display: 'Měřítko(S)',
+        display: 'Měřítko(SC)',
         local: 'Měřítko',
         global: 'Scale'
       },

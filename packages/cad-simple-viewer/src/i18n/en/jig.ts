@@ -203,12 +203,12 @@ export default {
         global: 'Cancel'
       },
       pattern: {
-        display: 'Pattern(P)',
+        display: 'Pattern(PA)',
         local: 'Pattern',
         global: 'Pattern'
       },
       scale: {
-        display: 'Scale(S)',
+        display: 'Scale(SC)',
         local: 'Scale',
         global: 'Scale'
       },

@@ -2,7 +2,9 @@ import {
   chooseSheet,
   type ExportPaperName,
   type ExportSheet,
+  sheetFromLimits,
   type SheetOptions,
+  STANDARD_SCALES,
   unitsToMillimetres
 } from '@mlightcad/cad-export-model'
 import type { AcDbDatabase } from '@mlightcad/data-model'
@@ -100,6 +102,27 @@ export function acapResolveDrawingSheet(
 }
 
 /**
+ * Hatch pattern scale (`HPSCALE`) that keeps patterns at their paper size on
+ * the drawing's sheet: the scale of the sheet the drawing limits describe
+ * (drawings read from JWW and SXF in real-world units, e.g. 100 for 1/100),
+ * in drawing units. 1 when the limits are not a sheet at a standard scale.
+ */
+export function acapDrawingHatchScale(db: AcDbDatabase) {
+  const unit = unitsToMillimetres(db.insunits)
+  const limits = db as unknown as {
+    limmin?: { x: number; y: number }
+    limmax?: { x: number; y: number }
+  }
+  if (!limits.limmin || !limits.limmax) return 1
+  const sheet = sheetFromLimits({
+    min: [limits.limmin.x * unit, limits.limmin.y * unit],
+    max: [limits.limmax.x * unit, limits.limmax.y * unit]
+  })
+  if (!sheet || !STANDARD_SCALES.includes(sheet.scale)) return 1
+  return sheet.scale / unit
+}
+
+/**
  * Writes `$LIMMIN` / `$LIMMAX` into the HEADER section of ASCII DXF text,
  * replacing existing values.
  */
@@ -126,7 +149,10 @@ export function acapSetDxfLimits(
     )
     if (i < 0) continue
     let end = i + 1
-    while (end + 1 < lines.length && ['10', '20', '30'].includes(lines[end].trim())) {
+    while (
+      end + 1 < lines.length &&
+      ['10', '20', '30'].includes(lines[end].trim())
+    ) {
       end += 2
     }
     lines.splice(i - 1, end - i + 1)

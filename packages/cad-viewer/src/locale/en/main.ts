@@ -70,7 +70,8 @@ export default {
         pickPoints: 'Pick internal points to create pattern fill regions.',
         selectObjects: 'Select the objects that enclose the area to fill (closed objects, or lines that close it together).',
         pattern: 'Choose the fill pattern name.',
-        scale: 'Set the fill pattern scale.',
+        scale:
+          'Set the size of the fill pattern (scale). Opening a drawing sets it to the sheet scale (100 for 1:100).',
         angle: 'Set the fill pattern angle in degrees.',
         style: 'Control island detection style for pattern fill creation.',
         associative: 'Toggle associative pattern fill mode.',
