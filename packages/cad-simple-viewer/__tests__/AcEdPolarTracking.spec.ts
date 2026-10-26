@@ -6,8 +6,10 @@ import {
 
 import {
   constrainToAngleStep,
+  constrainToPolarAngles,
   constrainToTracking,
   isPolarTrackingEnabled,
+  POLARMODE_ADDITIONAL_ANGLES,
   POLARMODE_POLAR_TRACKING
 } from '../src/editor/input/AcEdPolarTracking'
 
@@ -94,5 +96,65 @@ describe('constrainToAngleStep (Shift 45° snap)', () => {
 
   it('leaves a point on the base untouched', () => {
     close(constrainToAngleStep(base, base), 10, 10)
+  })
+})
+
+describe('constrainToPolarAngles (Shift snap to polar angles)', () => {
+  let database: AcDbDatabase
+  const base = { x: 10, y: 10 }
+  const close = (p: { x: number; y: number }, x: number, y: number) => {
+    expect(p.x).toBeCloseTo(x, 9)
+    expect(p.y).toBeCloseTo(y, 9)
+  }
+  const setVar = (name: string, value: number | string) =>
+    AcDbSysVarManager.instance().setVar(name, value, database)
+
+  beforeEach(() => {
+    database = new AcDbDatabase()
+    setVar(AcDbSystemVariables.POLARMODE, 0)
+    setVar(AcDbSystemVariables.POLARANG, 90)
+    setVar(AcDbSystemVariables.POLARADDANG, '')
+    database.angbase = 0
+    database.angdir = 0
+  })
+
+  it('uses POLARANG even while polar tracking is off', () => {
+    setVar(AcDbSystemVariables.POLARANG, 30)
+    // 25° → 30° ray, projected.
+    const p = constrainToPolarAngles(
+      {
+        x: 10 + Math.cos(Math.PI * (25 / 180)) * 10,
+        y: 10 + Math.sin(Math.PI * (25 / 180)) * 10
+      },
+      base,
+      database
+    )
+    const along = 10 * Math.cos(Math.PI * (5 / 180))
+    close(
+      p,
+      10 + along * Math.cos(Math.PI / 6),
+      10 + along * Math.sin(Math.PI / 6)
+    )
+  })
+
+  it('only snaps to 90° steps when POLARANG is 90', () => {
+    // Near 45° but no diagonal ray → nearest of 0° / 90°.
+    close(constrainToPolarAngles({ x: 20, y: 19 }, base, database), 20, 10)
+  })
+
+  it('adds POLARADDANG angles when POLARMODE bit 4 is set', () => {
+    setVar(AcDbSystemVariables.POLARMODE, POLARMODE_ADDITIONAL_ANGLES)
+    setVar(AcDbSystemVariables.POLARADDANG, '45')
+    close(constrainToPolarAngles({ x: 20, y: 19 }, base, database), 19.5, 19.5)
+  })
+
+  it('honors ANGBASE', () => {
+    database.angbase = Math.PI / 4
+    // Rays at 45° / 135° / ... in WCS.
+    close(constrainToPolarAngles({ x: 20, y: 19 }, base, database), 19.5, 19.5)
+  })
+
+  it('leaves a point on the base untouched', () => {
+    close(constrainToPolarAngles(base, base, database), 10, 10)
   })
 })
