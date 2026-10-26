@@ -2878,6 +2878,7 @@ async function startViewer(): Promise<void> {
       markup?.refreshIdleStatus()
     }
     layerPanel?.refreshLayerLabels()
+    markup?.refreshLabels()
     reviewPanel?.refreshLabels()
     measurePanel?.refreshLabels()
     sessionPanel?.refreshLabels()

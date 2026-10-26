@@ -1,5 +1,3 @@
-import { AC_TR_HTML_STAMP_LABELS } from '@mlightcad/three-renderer'
-
 import { AcApContext } from '../../app'
 import { AcEdPromptPointOptions, AcEdPromptStatus } from '../../editor'
 import { resolveUiTheme } from '../../editor/global/AcEdUiTheme'
@@ -12,6 +10,10 @@ import type { AcTrView2d } from '../../view'
 import { createMarkupMeta } from './AcApMarkupCmdUtil'
 import { AcApMarkupDrawCmd } from './AcApMarkupDrawCmd'
 import { commitMarkup } from './AcApMarkupPresenter'
+import {
+  MARKUP_BUILTIN_STAMPS,
+  markupStampLabel
+} from './AcApMarkupStampLabels'
 import type { AcApMarkupRecord } from './AcApMarkupTypes'
 import {
   defaultMarkupColor,
@@ -19,16 +21,8 @@ import {
   markupColorToCss
 } from './AcApMarkupUtil'
 
-/** Built-in stamps in gallery order, with their i18n name keys. */
-const BUILTIN_STAMPS = [
-  { id: 'approved', nameKey: 'approved' },
-  { id: 'rejected', nameKey: 'rejected' },
-  { id: 'revised', nameKey: 'revised' },
-  { id: 'for-review', nameKey: 'forReview' }
-] as const
-
 /** Last stamp picked in this session (highlighted next time). */
-let lastStampId: string = BUILTIN_STAMPS[0].id
+let lastStampId: string = MARKUP_BUILTIN_STAMPS[0].id
 
 /** Open the stamp gallery with localized labels. */
 function pickStamp(view: AcTrView2d): Promise<AcUiStampPickerResult | null> {
@@ -38,10 +32,9 @@ function pickStamp(view: AcTrView2d): Promise<AcUiStampPickerResult | null> {
     theme: resolveUiTheme(view.container),
     accentColor: markupColorToCss(defaultMarkupColor()),
     initialStampId: lastStampId,
-    items: BUILTIN_STAMPS.map(stamp => ({
+    items: MARKUP_BUILTIN_STAMPS.map(stamp => ({
       id: stamp.id,
-      badge: AC_TR_HTML_STAMP_LABELS[stamp.id] ?? stamp.id.toUpperCase(),
-      name: t(`names.${stamp.nameKey}`)
+      badge: markupStampLabel(stamp.id)!
     })),
     labels: {
       title: t('picker.title'),

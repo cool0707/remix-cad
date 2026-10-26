@@ -517,10 +517,10 @@ export default {
         custom: '画像から作成…',
         customHint: '画像ファイルをスタンプにします'
       },
-      names: {
+      badges: {
         approved: '承認',
         rejected: '却下',
-        revised: '修正済み',
+        revised: '修正済',
         forReview: '要確認'
       },
       point: 'スタンプの挿入位置を指定'

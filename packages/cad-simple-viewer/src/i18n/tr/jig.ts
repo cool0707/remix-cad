@@ -755,11 +755,11 @@ export default {
         custom: 'Görüntüden…',
         customHint: 'Bir görüntü dosyasını damga olarak kullanın'
       },
-      names: {
-        approved: 'Onaylandı',
-        rejected: 'Reddedildi',
-        revised: 'Düzeltildi',
-        forReview: 'İncelenecek'
+      badges: {
+        approved: 'ONAYLANDI',
+        rejected: 'REDDEDİLDİ',
+        revised: 'DÜZELTİLDİ',
+        forReview: 'İNCELENECEK'
       },
       point: 'Damga ekleme noktasını belirtin'
     },

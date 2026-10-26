@@ -1730,7 +1730,7 @@ export default {
         custom: 'من صورة…',
         customHint: 'استخدم ملف صورة كختم'
       },
-      names: {
+      badges: {
         approved: 'معتمد',
         rejected: 'مرفوض',
         revised: 'معدّل',

@@ -13,10 +13,8 @@ import { AcUiDialog } from './AcUiDialog'
 export interface AcUiStampPickerItem {
   /** Stamp id stored in the markup record (e.g. `approved`). */
   id: string
-  /** Text drawn on the stamp badge (matches the placed stamp). */
+  /** Localized text drawn on the stamp badge (matches the placed stamp). */
   badge: string
-  /** Localized name shown under the preview. */
-  name: string
 }
 
 /** Values returned when the user picks a stamp. */
@@ -72,8 +70,8 @@ const DIALOG_CSS = `
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 104px;
-    padding: 14px 8px 10px;
+    min-height: 96px;
+    padding: 14px 8px;
     border: 1px solid var(--ml-ui-border, #dcdfe6);
     border-radius: 8px;
     background: var(--ml-ui-bg, #fff);
@@ -188,13 +186,14 @@ export class AcUiStampPickerDialog extends AcUiDialog {
 
     let focusTarget: HTMLButtonElement | undefined
     for (const item of options.items) {
-      const tile = this.createTile(item.name)
+      const tile = this.createTile()
       tile.dataset.stampId = item.id
+      tile.setAttribute('aria-label', item.badge)
       const badge = document.createElement('span')
       badge.className = 'ml-ui-stamp-badge'
       badge.style.color = options.accentColor
       badge.textContent = item.badge
-      tile.prepend(badge)
+      tile.appendChild(badge)
       tile.addEventListener('click', () => this.pick({ stampId: item.id }))
       if (item.id === options.initialStampId) {
         tile.dataset.selected = 'true'
@@ -214,12 +213,15 @@ export class AcUiStampPickerDialog extends AcUiDialog {
       if (imageUrl) this.pick({ stampId: 'custom', imageUrl })
     })
 
-    const customTile = this.createTile(options.labels.custom)
+    const customTile = this.createTile()
     customTile.dataset.stampId = 'custom'
     const customIcon = document.createElement('span')
     customIcon.className = 'ml-ui-stamp-custom-icon'
     customIcon.textContent = '+'
-    customTile.prepend(customIcon)
+    const customName = document.createElement('div')
+    customName.className = 'ml-ui-stamp-name'
+    customName.textContent = options.labels.custom
+    customTile.append(customIcon, customName)
     const hint = document.createElement('div')
     hint.className = 'ml-ui-stamp-hint'
     hint.textContent = options.labels.customHint
@@ -260,14 +262,10 @@ export class AcUiStampPickerDialog extends AcUiDialog {
     return dialog.show().then(() => dialog.result)
   }
 
-  private createTile(name: string): HTMLButtonElement {
+  private createTile(): HTMLButtonElement {
     const tile = document.createElement('button')
     tile.type = 'button'
     tile.className = 'ml-ui-stamp-tile'
-    const nameEl = document.createElement('div')
-    nameEl.className = 'ml-ui-stamp-name'
-    nameEl.textContent = name
-    tile.appendChild(nameEl)
     return tile
   }
 

@@ -754,11 +754,11 @@ export default {
         custom: 'Z obrázku…',
         customHint: 'Použít soubor obrázku jako razítko'
       },
-      names: {
-        approved: 'Schváleno',
-        rejected: 'Zamítnuto',
-        revised: 'Revidováno',
-        forReview: 'Ke kontrole'
+      badges: {
+        approved: 'SCHVÁLENO',
+        rejected: 'ZAMÍTNUTO',
+        revised: 'REVIDOVÁNO',
+        forReview: 'KE KONTROLE'
       },
       point: 'Zadejte bod vložení razítka'
     },

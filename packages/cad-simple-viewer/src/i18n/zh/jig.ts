@@ -745,7 +745,7 @@ export default {
         custom: '从图片创建…',
         customHint: '将图片文件用作图章'
       },
-      names: {
+      badges: {
         approved: '已批准',
         rejected: '已驳回',
         revised: '已修订',

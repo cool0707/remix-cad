@@ -1,7 +1,9 @@
 import { AcTrHtmlStamp } from '@mlightcad/three-renderer'
 
+import { AcApI18n } from '../../../i18n'
 import type { AcTrView2d } from '../../../view'
 import type { AcApOverlayWorldDrawResult } from '../../overlay'
+import { markupStampLabel } from '../AcApMarkupStampLabels'
 import type { AcApMarkupRecord } from '../AcApMarkupTypes'
 import { AcApMarkupEntity } from './AcApMarkupEntity'
 import { bindMarkupCenterMove } from './AcApMarkupEntityGrips'
@@ -42,6 +44,7 @@ export class AcApMarkupStampEntity extends AcApMarkupEntity {
       id: `${this.record.id}-stamp`,
       color,
       stampId,
+      label: markupStampLabel(stampId),
       text: this.record.text,
       imageUrl: geom.imageUrl,
       worldPosition: geom.position,
@@ -50,6 +53,16 @@ export class AcApMarkupStampEntity extends AcApMarkupEntity {
     })
     group.add(stamp)
     this.seedOverlaySizes(view, [stamp], [])
+
+    // Built-in badges are localized at draw time; follow UI locale changes.
+    const relabel = () => {
+      const label = markupStampLabel(stampId)
+      if (label) stamp.setLabel(label)
+    }
+    AcApI18n.events.localeChanged.addEventListener(relabel)
+    cleanups.push(() =>
+      AcApI18n.events.localeChanged.removeEventListener(relabel)
+    )
 
     pendingGrips.push(() => {
       cleanups.push(

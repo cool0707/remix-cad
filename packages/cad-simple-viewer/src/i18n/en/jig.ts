@@ -756,11 +756,11 @@ export default {
         custom: 'From image…',
         customHint: 'Use an image file as a stamp'
       },
-      names: {
-        approved: 'Approved',
-        rejected: 'Rejected',
-        revised: 'Revised',
-        forReview: 'For review'
+      badges: {
+        approved: 'APPROVED',
+        rejected: 'REJECTED',
+        revised: 'REVISED',
+        forReview: 'FOR REVIEW'
       },
       point: 'Specify stamp insertion point'
     },
