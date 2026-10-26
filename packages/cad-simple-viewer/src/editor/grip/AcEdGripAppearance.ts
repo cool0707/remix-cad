@@ -6,7 +6,7 @@ import {
   AcDbSysVarManager
 } from '@mlightcad/data-model'
 
-/** CSS custom property for grip square edge length (`GRIPSIZE`). */
+/** CSS custom property for grip size (`GRIPSIZE`). */
 export const ML_UI_GRIP_SIZE_VAR = '--ml-ui-grip-size'
 /** CSS custom property for idle grip fill (`GRIPCOLOR`). */
 export const ML_UI_GRIP_NORMAL_VAR = '--ml-ui-grip-normal'
@@ -22,7 +22,7 @@ export const DEFAULT_GRIP_HOT_COLOR_CSS = '#ff0000'
 
 /** Visual appearance of grip handles derived from grip system variables. */
 export interface AcEdGripAppearance {
-  /** Grip square edge length in CSS pixels (`GRIPSIZE`). */
+  /** Grip size in CSS pixels (`GRIPSIZE`). */
   size: number
   /** CSS color for unheated grips (`GRIPCOLOR`). */
   colorCss: string
@@ -31,7 +31,7 @@ export interface AcEdGripAppearance {
 }
 
 /**
- * Writes CAD entity square-grip appearance onto a host so `.ml-grip-handle`
+ * Writes CAD entity grip appearance onto a host so `.ml-grip-handle`
  * inherits `GRIPSIZE` / `GRIPCOLOR` / `GRIPHOT`. Overlay measure/markup
  * endpoint circles keep their own colored-dot styling and ignore these vars.
  */
