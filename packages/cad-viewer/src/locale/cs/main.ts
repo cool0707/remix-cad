@@ -799,6 +799,7 @@ export default {
         transparency: 'Průhlednost',
         description: 'Popis',
         currentLayer: 'Aktuální hladina',
+        setCurrentLayer: 'Kliknutím nastavíte jako aktuální hladinu',
         newLayerPlaceholder: 'Název hladiny',
         zoomToLayer: 'Přiblíženo na zvolenou hladinu „{layer}“',
         lineWeightDefault: 'Výchozí'

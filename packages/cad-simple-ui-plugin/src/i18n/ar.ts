@@ -86,6 +86,7 @@ export const ar: Record<string, string> = {
   'layerManager.on': 'تشغيل',
   'layerManager.color': 'اللون',
   'layerManager.currentLayer': 'الطبقة الحالية',
+  'layerManager.setCurrentLayer': 'انقر لجعلها الطبقة الحالية',
 
   'layerManager.zoomToLayer':
     'تم التكبير إلى الطبقة: {layer}',

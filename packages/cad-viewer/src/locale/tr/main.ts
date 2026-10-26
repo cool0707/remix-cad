@@ -812,6 +812,7 @@ export default {
         transparency: 'Saydamlık',
         description: 'Açıklama',
         currentLayer: 'Geçerli katman',
+        setCurrentLayer: 'Geçerli katman yapmak için tıklayın',
         newLayerPlaceholder: 'Katman adı',
         zoomToLayer: 'Tıklanan "{layer}" katmanına yakınlaştırıldı',
         lineWeightDefault: 'Varsayılan'

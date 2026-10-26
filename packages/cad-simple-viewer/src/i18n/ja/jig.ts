@@ -176,8 +176,8 @@ export default {
     listSummary: 'レイヤーの一覧をブラウザのコンソールに出力しました',
     emptyInput: 'レイヤー名が入力されていません。',
     newPrompt: '新しいレイヤーの名前を入力',
-    makePrompt: '作成して現在にするレイヤーの名前を入力',
-    setPrompt: '現在にするレイヤーの名前を入力',
+    makePrompt: '作成して編集レイヤーにするレイヤーの名前を入力',
+    setPrompt: '編集レイヤーにするレイヤーの名前を入力',
     onPrompt: '表示するレイヤーの名前を入力',
     offPrompt: '非表示にするレイヤーの名前を入力',
     freezePrompt: 'フリーズするレイヤーの名前を入力',
@@ -193,7 +193,7 @@ export default {
     created: '作成したレイヤーの数',
     alreadyExists: 'レイヤーは既に存在します',
     notFound: 'レイヤーが見つかりません',
-    cannotChangeCurrent: '現在のレイヤーは非表示またはフリーズにできません。',
+    cannotChangeCurrent: '編集レイヤーは非表示またはフリーズにできません。',
     keywords: {
       list: { display: '?(?)', local: '?', global: '?' },
       make: { display: '作成(M)', local: '作成', global: 'Make' },
@@ -222,11 +222,11 @@ export default {
     turnedOn: '表示したレイヤー'
   },
   laycur: {
-    prompt: '現在のレイヤーに変更するオブジェクトを選択',
-    currentLayerNotFound: '現在のレイヤーが見つかりません。',
+    prompt: '編集レイヤーに移すオブジェクトを選択',
+    currentLayerNotFound: '編集レイヤーが見つかりません。',
     noObjects: '有効なオブジェクトが選択されていません。',
-    alreadyCurrent: '選択したオブジェクトは既に現在のレイヤー上にあります。',
-    changed: '現在のレイヤーに変更したオブジェクト'
+    alreadyCurrent: '選択したオブジェクトは既に編集レイヤー上にあります。',
+    changed: '編集レイヤーに移したオブジェクト'
   },
   layfrz: {
     prompt: 'フリーズするレイヤー上のオブジェクトを選択 または',
@@ -239,7 +239,7 @@ export default {
     nestedSelectionLimited:
       'ネストされたシンボルの選択設定は保存されますが、現在の選択では最上位オブジェクトのレイヤーが使われます。',
     layerNotFound: 'レイヤーが見つかりません',
-    cannotFreezeCurrent: '現在のレイヤーはフリーズできません。',
+    cannotFreezeCurrent: '編集レイヤーはフリーズできません。',
     alreadyFrozen: 'レイヤーは既にフリーズされています',
     frozen: 'フリーズしたレイヤー',
     restored: '元に戻したレイヤー',
@@ -334,7 +334,7 @@ export default {
     nestedSelectionLimited:
       'ネストされたシンボルの選択設定は保存されますが、現在の選択では最上位オブジェクトのレイヤーが使われます。',
     layerNotFound: 'レイヤーが見つかりません',
-    cannotTurnOffCurrent: '現在のレイヤーは非表示にできません。',
+    cannotTurnOffCurrent: '編集レイヤーは非表示にできません。',
     alreadyOff: 'レイヤーは既に非表示です',
     turnedOff: '非表示にしたレイヤー',
     restored: '元に戻したレイヤー',

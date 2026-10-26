@@ -763,6 +763,7 @@ export default {
         transparency: '透明度',
         description: '说明',
         currentLayer: '当前图层',
+        setCurrentLayer: '点击设为当前图层',
         newLayerPlaceholder: '图层名称',
         zoomToLayer: '已缩放到所点击的图层"{layer}"',
         lineWeightDefault: '默认'

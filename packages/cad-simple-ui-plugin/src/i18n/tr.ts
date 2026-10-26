@@ -77,6 +77,7 @@ export const tr: Record<string, string> = {
   'layerManager.on': 'Açık',
   'layerManager.color': 'Renk',
   'layerManager.currentLayer': 'Geçerli katman',
+  'layerManager.setCurrentLayer': 'Geçerli katman yapmak için tıklayın',
   'layerManager.zoomToLayer': 'Katmana yakınlaştırıldı: {layer}',
   'layerManager.sortByNameAsc': 'Ada göre artan sırala',
   'layerManager.sortByNameDesc': 'Ada göre azalan sırala',

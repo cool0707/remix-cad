@@ -163,9 +163,58 @@ export function acuiEnsureUiStyles() {
       gap: 2px;
     }
 
-    .ml-ex-ui-layer-current-marker {
+    .ml-ex-ui-layer-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .ml-ex-ui-layer-name-cell .ml-ex-ui-layer-name {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ml-ex-ui-layer-current-button {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ml-ui-text-muted, #909399);
+      opacity: 0.45;
+      cursor: pointer;
+    }
+
+    .ml-ex-ui-layer-current-button svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .ml-ex-ui-layer-table tr:hover .ml-ex-ui-layer-current-button,
+    .ml-ex-ui-layer-current-button:focus-visible {
+      opacity: 1;
+    }
+
+    .ml-ex-ui-layer-current-button:hover {
       color: var(--ml-ui-accent, var(--ml-brand));
-      font-weight: 600;
+    }
+
+    .ml-ex-ui-layer-current-button.is-current {
+      color: #ffffff;
+      background: var(--ml-ui-accent, var(--ml-brand));
+      opacity: 1;
+      cursor: default;
     }
 
     .ml-ex-ui-layer-color {

@@ -1110,6 +1110,8 @@ export default {
         description: 'الوصف',
 
         currentLayer: 'الطبقة الحالية',
+
+        setCurrentLayer: 'انقر لجعلها الطبقة الحالية',
         newLayerPlaceholder: 'اسم الطبقة',
 
         zoomToLayer: 'تم التكبير إلى الطبقة "{layer}"',
