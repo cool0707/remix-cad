@@ -34,6 +34,7 @@ import {
   acapScreenPxToWcs,
   acapSetMeasurementDrawColor,
   acapSetMeasurementTextHeight,
+  AcApSettingManager,
   type AcEdCommandEventArgs,
   AcEdOpenMode,
   type AcTrView2d,
@@ -185,6 +186,7 @@ import {
 import MlBlockInsertGallery from '../common/MlBlockInsertGallery.vue'
 import MlLayerSelect from '../common/MlLayerSelect.vue'
 import MlCharacterMapDialog from '../dialog/MlCharacterMapDialog.vue'
+import MlRibbonCheckboxField from './MlRibbonCheckboxField.vue'
 import MlRibbonFileName from './MlRibbonFileName.vue'
 import MlRibbonLanguageSelector from './MlRibbonLanguageSelector.vue'
 import MlRibbonMeasurementUnitsPanel from './MlRibbonMeasurementUnitsPanel.vue'
@@ -248,6 +250,9 @@ const measurementLuprec = ref(4)
 const measurementAunits = ref(AcDbAngleUnits.DecimalDegrees)
 const measurementAuprec = ref(0)
 const measurementLengthUnit = ref<number>(MEASUREMENT_LENGTH_UNIT_FOLLOW_DRAWING)
+const measurementShowApproximate = ref(
+  AcApSettingManager.instance.get('measurementShowApproximate')
+)
 const isRibbonDisabled = computed(() => isDocumentOpening.value)
 const ribbonColor = ref<AcCmColor | undefined>(new AcCmColor())
 const ribbonColorDisplay = ref('#7b8794')
@@ -1091,6 +1096,12 @@ const handleMeasurementLengthUnitChange = (value: number) => {
   applyMeasurementUnitOverride({ lengthUnit: value })
 }
 
+const handleMeasurementShowApproximateChange = (value: boolean) => {
+  AcApSettingManager.instance.set('measurementShowApproximate', value)
+  measurementShowApproximate.value = value
+  refreshCurrentMeasurementLabels()
+}
+
 /**
  * Applies a newly selected ribbon line type to the active database defaults.
  *
@@ -1654,6 +1665,20 @@ const buildBaseTabs = (
           ariaLabel: t('main.verticalToolbar.measurementFontSize.description'),
           controlWidth: OVERLAY_STYLE_CONTROL_WIDTH,
           onClick: handleMeasurementTextHeightClick
+        }
+      }
+    },
+    {
+      id: 'measurement-show-approximate',
+      type: 'custom',
+      size: 'small',
+      tooltip: t('main.verticalToolbar.measurementShowApproximate.description'),
+      props: {
+        component: MlRibbonCheckboxField,
+        componentProps: {
+          modelValue: measurementShowApproximate.value,
+          label: t('main.verticalToolbar.measurementShowApproximate.text'),
+          'onUpdate:modelValue': handleMeasurementShowApproximateChange
         }
       }
     }

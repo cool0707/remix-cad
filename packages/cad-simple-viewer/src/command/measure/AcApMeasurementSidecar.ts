@@ -64,6 +64,9 @@ function parseStyle(raw: unknown): AcApMeasurementSidecarStyle | undefined {
     lineWeight: MEASUREMENT_LINE_WEIGHT,
     fontSize,
     textHeightWcs: parsePositiveNumber(raw.textHeightWcs),
+    ...(raw.textHeightMode === 'adaptive' || raw.textHeightMode === 'custom'
+      ? { textHeightMode: raw.textHeightMode }
+      : {}),
     arrowSizeWcs: parsePositiveNumber(raw.arrowSizeWcs)
   }
 }
@@ -135,6 +138,9 @@ export function serializeMeasurementStyle(
     lineWeight: MEASUREMENT_LINE_WEIGHT,
     fontSize: style.fontSize
   }
+  if (style.textHeightMode != null) {
+    result.textHeightMode = style.textHeightMode
+  }
   if (
     style.textHeightMode === 'custom' &&
     style.textHeightWcs != null &&
@@ -162,6 +168,11 @@ export function deserializeMeasurementStyle(
     color: acapCssToMeasurementColor(style.color),
     lineWeight: MEASUREMENT_LINE_WEIGHT,
     fontSize: style.fontSize > 0 ? style.fontSize : MEASUREMENT_FONT_SIZE,
+    textHeightMode:
+      style.textHeightMode ??
+      (style.textHeightWcs != null && style.textHeightWcs > 0
+        ? 'custom'
+        : 'adaptive'),
     textHeightWcs: style.textHeightWcs
   }
 }

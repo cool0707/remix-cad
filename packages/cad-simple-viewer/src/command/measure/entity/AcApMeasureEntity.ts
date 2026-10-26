@@ -3,6 +3,7 @@ import type {
   AcGePoint3dLike
 } from '@mlightcad/data-model'
 import {
+  type AcTrHtmlBadge,
   type AcTrHtmlElement,
   AcTrHtmlGroup} from '@mlightcad/three-renderer'
 
@@ -16,13 +17,16 @@ import {
   AcApOverlayEntity,
   type AcApOverlaySerializable,
   type AcApOverlayWorldDrawResult,
-  acapSeedOverlaySizesFromWcs
+  acapScreenPxToWcs,
+  acapSeedOverlaySizesFromWcs,
+  acapWcsToScreenPx
 } from '../../overlay'
 import { hitTestMeasurementGeometry } from '../AcApMeasurementGeometry'
 import { serializeMeasurementStyle } from '../AcApMeasurementSidecar'
 import {
   type AcApMeasurementGroupExtras,
   commitMeasurementGroup,
+  getMeasurementStyle,
   MEASUREMENT_LAYER
 } from '../AcApMeasurementStore'
 import type {
@@ -73,6 +77,22 @@ export interface AcApMeasureEntityOptions {
  * {@link AcApMeasureEntity.commit} wires that into `extras.dispose` so the
  * store always runs it. Do not duplicate cleanup in `extras.dispose`.
  */
+/** Badge size after {@link AcApMeasureEntity.bindBadgeSize} syncs it. */
+export interface AcApMeasureBadgeSize {
+  /** Current on-screen font size (CSS px). */
+  fontPx: number
+  /** World size of one `em` at the current zoom. */
+  emWcs: number
+}
+
+/** Badge size binding returned by {@link AcApMeasureEntity.bindBadgeSize}. */
+export interface AcApMeasureBadgeSizeBinding {
+  /** Re-applies the size; run after a style paint. */
+  sync: () => void
+  /** Removes the view-change listener. */
+  dispose: () => void
+}
+
 export interface AcApMeasureWorldDrawResult extends AcApOverlayWorldDrawResult {
   /** Store payload (style, value, snapshot, redraw) for commit. */
   extras: AcApMeasurementGroupExtras
@@ -278,11 +298,68 @@ export abstract class AcApMeasureEntity
     textHeightWcs?: number
   ): AcApMeasurementStyle {
     const style = acapCloneMeasurementStyle(this.style)
+    // Fit-to-screen keeps the preferred size; the badge re-fits on screen
+    // (see bindBadgeSize).
+    if (style.textHeightMode !== 'custom') return style
     style.fontSize = badgeFontSize
     if (textHeightWcs != null && textHeightWcs > 0) {
       style.textHeightWcs = textHeightWcs
     }
     return style
+  }
+
+  /**
+   * Keeps `badge` sized by the live text-height mode, now and on every view
+   * change. Fit-to-screen shows a constant screen size, refitted to the
+   * geometry's current screen size by `fitFontSize`; custom (WCS) keeps a
+   * world height that scales with zoom.
+   *
+   * @param fitFontSize - Fit-to-screen font for the badge text at the
+   *   preferred size (e.g. clamped to the segment on screen)
+   * @param afterSync - Repositions the badge for its new size
+   */
+  protected bindBadgeSize(
+    view: AcTrView2d,
+    badge: AcTrHtmlBadge,
+    fitFontSize: (text: string, preferredPx: number) => number,
+    afterSync?: (size: AcApMeasureBadgeSize) => void
+  ): AcApMeasureBadgeSizeBinding {
+    const sync = () => {
+      const live = getMeasurementStyle(this.entityId) ?? this.style
+      const customWcs =
+        live.textHeightMode === 'custom' &&
+        live.textHeightWcs != null &&
+        live.textHeightWcs > 0
+          ? live.textHeightWcs
+          : undefined
+      let size: AcApMeasureBadgeSize
+      if (customWcs != null) {
+        if (!badge.scaleWithView) {
+          badge.scaleWithView = true
+          badge.baseZoom = undefined
+          acapSeedOverlaySizesFromWcs(view, {
+            textHeightWcs: customWcs,
+            fontSizePx: live.fontSize,
+            elements: [badge]
+          })
+        }
+        size = { fontPx: acapWcsToScreenPx(customWcs, view), emWcs: customWcs }
+      } else {
+        badge.scaleWithView = false
+        badge.baseZoom = undefined
+        const fontPx = fitFontSize(badge.element.textContent ?? '', live.fontSize)
+        badge.setFontSize(fontPx)
+        size = { fontPx, emWcs: acapScreenPxToWcs(fontPx, view) }
+      }
+      afterSync?.(size)
+      view.isHtmlDirty = true
+    }
+    sync()
+    view.events.viewChanged.addEventListener(sync)
+    return {
+      sync,
+      dispose: () => view.events.viewChanged.removeEventListener(sync)
+    }
   }
 
   /**

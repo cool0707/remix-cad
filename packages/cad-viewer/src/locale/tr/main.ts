@@ -560,6 +560,11 @@ export default {
       text: 'Renk',
       description: 'Seçili ölçümün veya sonraki ölçümlerin rengini ayarlar'
     },
+    measurementShowApproximate: {
+      text: 'Yuvarlanınca ~ göster',
+      description:
+        'Ölçülen değer görüntü hassasiyetine yuvarlandığında başına ~ ekler'
+    },
     measurementFontSize: {
       text: 'Yazı yüksekliği',
       description:

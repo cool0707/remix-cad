@@ -1,6 +1,7 @@
 import { AcCmColor } from '@mlightcad/data-model'
 
 import {
+  deserializeMeasurementStyle,
   measurementSidecarFileName,
   parseMeasurementSidecar,
   serializeMeasurementStyle,
@@ -267,5 +268,45 @@ describe('serializeMeasurementStyle text height', () => {
     )
     // ppu = 10 → 20px / 10 = 2 WCS
     expect(out.textHeightWcs).toBe(2)
+  })
+})
+
+describe('measurement text height mode', () => {
+  it('writes the mode and reads it back', () => {
+    const out = serializeMeasurementStyle({
+      color: new AcCmColor(),
+      lineWeight: 0,
+      fontSize: 13,
+      textHeightMode: 'adaptive'
+    })
+    expect(out.textHeightMode).toBe('adaptive')
+    const file = parseMeasurementSidecar(
+      JSON.stringify({
+        version: 1,
+        measurements: [
+          {
+            id: 'p',
+            type: 'point',
+            style: { ...out, textHeightWcs: 2 },
+            geometry: { type: 'point', position: { x: 0, y: 0 } }
+          }
+        ]
+      })
+    )
+    expect(file.measurements[0]!.style.textHeightMode).toBe('adaptive')
+    expect(
+      deserializeMeasurementStyle(file.measurements[0]!.style).textHeightMode
+    ).toBe('adaptive')
+  })
+
+  it('treats older files with a world height as custom', () => {
+    const style = deserializeMeasurementStyle({
+      color: '#ff0000',
+      lineWeight: 0,
+      fontSize: 13,
+      textHeightWcs: 2
+    })
+    expect(style.textHeightMode).toBe('custom')
+    expect(style.textHeightWcs).toBe(2)
   })
 })

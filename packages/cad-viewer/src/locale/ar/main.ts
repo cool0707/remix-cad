@@ -776,6 +776,12 @@ export default {
       description: 'تحديد لون القياس المحدد أو القياسات الجديدة'
     },
 
+    measurementShowApproximate: {
+      text: 'إظهار ~ عند التقريب',
+      description:
+        'يضيف ~ قبل القيمة المقاسة عند تقريبها إلى دقة العرض'
+    },
+
     measurementFontSize: {
       ...enMain.verticalToolbar.measurementFontSize,
       text: 'ارتفاع النص',

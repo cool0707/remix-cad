@@ -550,6 +550,11 @@ export default {
       description:
         'Nastaví barvu vybraného měření, nebo měření, která přidáte příště'
     },
+    measurementShowApproximate: {
+      text: 'Při zaokrouhlení zobrazit ~',
+      description:
+        'Před naměřenou hodnotu přidá ~, když je zaokrouhlena na zobrazenou přesnost'
+    },
     measurementFontSize: {
       text: 'Výška textu',
       description:

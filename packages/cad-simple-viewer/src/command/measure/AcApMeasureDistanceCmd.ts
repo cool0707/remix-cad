@@ -18,7 +18,6 @@ import {
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
 import {
-  acapAdaptiveMeasureBadgeFontSize,
   acapGetCurrentMeasurementStyle,
   acapGetMeasurementColor,
   acapGetMeasurementFontSize,
@@ -26,6 +25,8 @@ import {
   type AcApMeasurementStyle,
   acapScaleMeasureOverlayPx,
   acapScreenSegmentLengthPx,
+  acapSegmentMeasureBadgeFontSize,
+  acapSegmentMeasureBadgeWorld,
   formatMeasurementLength,
   MEASUREMENT_LINE_WEIGHT
 } from '../../util'
@@ -36,6 +37,7 @@ import {
 } from '../overlay/AcApHtmlLivePreview'
 import {
   ACAP_OVERLAY_ARROW_SIZE_PX,
+  acapLiveBadgeOffLine,
   acapSyncLiveOverlayTextHeight
 } from '../overlay/AcApOverlayDrawUtil'
 import { AcApMeasureDrawCmd } from './AcApMeasureDrawCmd'
@@ -148,11 +150,15 @@ export class AcApMeasureDistanceJig extends AcEdPreviewJig<AcGePoint3dLike> {
     }
 
     const label = formatMeasurementLength(this._db, dist)
-    const fontSize = acapAdaptiveMeasureBadgeFontSize(label, style, linePx)
+    const { fontSize, fitFontSize } = acapSegmentMeasureBadgeFontSize(
+      label,
+      style,
+      linePx
+    )
     const arrowSizePx = acapScaleMeasureOverlayPx(
       ACAP_OVERLAY_ARROW_SIZE_PX,
       style.fontSize,
-      fontSize
+      fitFontSize
     )
     this._preview.acapSetDraw((ctx, view) => {
       acapStrokeLiveSegment(
@@ -171,10 +177,15 @@ export class AcApMeasureDistanceJig extends AcEdPreviewJig<AcGePoint3dLike> {
       fontSize
     })
     this._badge.setText(label)
-    this._badge.setPosition({
-      x: (this._p1.x + p2.x) / 2,
-      y: (this._p1.y + p2.y) / 2
-    })
+    const { emWcs, offLine } = acapLiveBadgeOffLine(
+      this._view,
+      label,
+      { ...style, fontSize },
+      linePx
+    )
+    this._badge.setPosition(
+      acapSegmentMeasureBadgeWorld(this._p1, p2, label, emWcs, offLine)
+    )
     this._badge.object.visible = true
   }
 

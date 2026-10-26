@@ -1,6 +1,9 @@
+/** @jest-environment jsdom */
+
 import type { AcDbDatabase } from '@mlightcad/data-model'
 import { AcDbLinearUnits } from '@mlightcad/data-model'
 
+import { AcApSettingManager } from '../src/app/AcApSettingManager'
 import {
   formatMeasurementAngle,
   formatMeasurementArea,
@@ -178,5 +181,37 @@ describe('AcApMeasurementUnits', () => {
       MEASUREMENT_LENGTH_UNIT_FOLLOW_DRAWING
     )
     expect(formatMeasurementLength(db, 1000)).toBe('L1000.0000:2 mm')
+  })
+})
+
+describe('measurement approximate prefix setting', () => {
+  const db = {
+    lunits: 2,
+    luprec: 2,
+    aunits: 0,
+    auprec: 0,
+    insunits: 0,
+    formatter: {
+      formatLength: (_v: number, o?: { showApproximate?: boolean }) =>
+        o?.showApproximate ? '~ 1.00' : '1.00',
+      formatAngle: (_r: number, o?: { showApproximate?: boolean }) =>
+        o?.showApproximate ? '~ 1' : '1'
+    }
+  } as unknown as AcDbDatabase
+
+  afterEach(() => {
+    AcApSettingManager.instance.set('measurementShowApproximate', false)
+  })
+
+  it('omits the ~ prefix by default', () => {
+    expect(formatMeasurementLength(db, 1.004)).toBe('1.00')
+    expect(formatMeasurementAngle(db, 0.0175)).toBe('1')
+  })
+
+  it('adds the ~ prefix when the setting is on', () => {
+    AcApSettingManager.instance.set('measurementShowApproximate', true)
+    expect(formatMeasurementLength(db, 1.004)).toBe('~ 1.00')
+    expect(formatMeasurementArea(db, 1.004)).toBe('~ 1.00²')
+    expect(formatMeasurementAngle(db, 0.0175)).toBe('~ 1')
   })
 })

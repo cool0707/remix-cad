@@ -162,6 +162,122 @@ export function acapAdaptiveMeasureBadgeFontSize(
   )
 }
 
+/**
+ * Fit-to-screen segment badges stop shrinking below this fraction of the
+ * preferred font size and move off the line instead (see
+ * {@link acapSegmentMeasureBadgeFontSize}).
+ */
+export const ACAP_MEASURE_BADGE_MIN_FONT_RATIO = 0.75
+
+/**
+ * Capsule height in `em`: line box (Noto Sans JP `normal` ≈ 1.45) plus the
+ * vertical padding and border authored on {@link AcTrHtmlBadge}.
+ */
+export const ACAP_MEASURE_BADGE_HEIGHT_EM =
+  1.45 + (2 * 3 + 2 * ACAP_MEASURE_BADGE_BORDER_PX) / ACAP_MEASURE_BADGE_REF_FONT_PX
+
+/**
+ * Gap in `em` between an off-line badge and the segment; clears the stroke
+ * and the arrow-head wings.
+ */
+export const ACAP_MEASURE_BADGE_OFF_LINE_GAP_EM = 0.6
+
+/** Badge sizing for a straight segment (distance measurements). */
+export type AcApSegmentMeasureBadgeSize = {
+  /** Font size used for the badge (CSS px). */
+  fontSize: number
+  /**
+   * Font size that would fit the badge on the line; endpoint arrows scale
+   * with this so they stay in proportion to a short segment.
+   */
+  fitFontSize: number
+}
+
+/**
+ * Fit-to-screen font for a measure badge against a reference screen length
+ * (segment, arc, angle radius, area width). Shrinks like
+ * {@link acapAdaptiveMeasureBadgeFontSize}, but when the text would drop
+ * below {@link ACAP_MEASURE_BADGE_MIN_FONT_RATIO} of the preferred size it
+ * keeps the preferred size. For a segment, place it with
+ * {@link acapSegmentMeasureBadgeWorld} so the capsule sits beside the line
+ * instead of covering it.
+ */
+export function acapSegmentMeasureBadgeFontSize(
+  text: string,
+  style: { fontSize: number; textHeightMode?: 'adaptive' | 'custom' },
+  lineLengthScreenPx: number,
+  options?: AcApMeasureBadgeFontOptions
+): AcApSegmentMeasureBadgeSize {
+  const fitFontSize = acapAdaptiveMeasureBadgeFontSize(
+    text,
+    style,
+    lineLengthScreenPx,
+    options
+  )
+  const fontSize =
+    fitFontSize < style.fontSize * ACAP_MEASURE_BADGE_MIN_FONT_RATIO
+      ? style.fontSize
+      : fitFontSize
+  return { fontSize, fitFontSize }
+}
+
+/**
+ * Whether a capsule at `fontSizePx` is wider than the share of the segment
+ * a mid-line badge may cover, i.e. it should sit beside the line.
+ */
+export function acapMeasureBadgeOverflowsSegment(
+  text: string,
+  fontSizePx: number,
+  lineLengthScreenPx: number,
+  options?: AcApMeasureBadgeFontOptions
+): boolean {
+  if (!(fontSizePx > 0)) return false
+  const fraction =
+    options?.maxLineFraction ?? ACAP_MEASURE_BADGE_MAX_LINE_FRACTION
+  const width = acapEstimateMeasureBadgeWidthPx(text, fontSizePx, options)
+  // Tolerance: a clamped capsule is exactly at the limit.
+  return width > lineLengthScreenPx * fraction * 1.01
+}
+
+/**
+ * Badge anchor for a segment `a`→`b` (world). On the midpoint normally; when
+ * `offLine`, shifted perpendicular to the segment (upward, or rightward for
+ * a vertical segment) until the capsule clears the line.
+ *
+ * @param emWcs - World size of one `em` (the badge text height in WCS)
+ */
+export function acapSegmentMeasureBadgeWorld(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+  text: string,
+  emWcs: number,
+  offLine: boolean,
+  options?: AcApMeasureBadgeFontOptions
+): { x: number; y: number } {
+  const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const len = Math.hypot(dx, dy)
+  if (!offLine || !(emWcs > 0) || !(len > 0)) return mid
+  let nx = -dy / len
+  let ny = dx / len
+  if (ny < -1e-9 || (Math.abs(ny) <= 1e-9 && nx < 0)) {
+    nx = -nx
+    ny = -ny
+  }
+  const refPx = 100
+  const widthEm = acapEstimateMeasureBadgeWidthPx(text, refPx, options) / refPx
+  // Rectangle half-extent along the normal, plus a gap past the stroke.
+  const offsetEm =
+    Math.abs(nx) * (widthEm / 2) +
+    Math.abs(ny) * (ACAP_MEASURE_BADGE_HEIGHT_EM / 2) +
+    ACAP_MEASURE_BADGE_OFF_LINE_GAP_EM
+  return {
+    x: mid.x + nx * offsetEm * emWcs,
+    y: mid.y + ny * offsetEm * emWcs
+  }
+}
+
 /** Screen-space length of a world-space segment. */
 export function acapScreenSegmentLengthPx(
   worldToScreen: (p: { x: number; y: number }) => { x: number; y: number },

@@ -18,12 +18,13 @@ import {
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
 import {
-  acapAdaptiveMeasureBadgeFontSize,
   acapGetCurrentMeasurementStyle,
   acapGetMeasurementColor,
   acapMeasurementCanvasLineWidth,
   acapScaleMeasureOverlayPx,
   acapScreenSegmentLengthPx,
+  acapSegmentMeasureBadgeFontSize,
+  acapSegmentMeasureBadgeWorld,
   formatMeasurementLength,
   MEASUREMENT_LINE_WEIGHT
 } from '../../util'
@@ -34,6 +35,7 @@ import {
 } from '../overlay/AcApHtmlLivePreview'
 import {
   ACAP_OVERLAY_ARROW_SIZE_PX,
+  acapLiveBadgeOffLine,
   acapSyncLiveOverlayTextHeight
 } from '../overlay/AcApOverlayDrawUtil'
 import { placeDistanceMeasurement } from './AcApMeasureDistanceCmd'
@@ -47,11 +49,6 @@ function calcDist(p1: AcGePoint3dLike, p2: AcGePoint3dLike): number {
   const dx = p2.x - p1.x
   const dy = p2.y - p1.y
   return Math.sqrt(dx * dx + dy * dy)
-}
-
-/** Midpoint of a segment. */
-function midOf(a: AcGePoint3dLike, b: AcGePoint3dLike): AcGePoint3dLike {
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: 0 }
 }
 
 /** Snapshot a pick so later getPoint mutations cannot collapse earlier vertices. */
@@ -115,7 +112,7 @@ export class AcApMeasureContinuousJig extends AcEdPreviewJig<AcGePoint3dLike> {
         continue
       }
       const label = formatMeasurementLength(this._db, dist)
-      const fontSize = acapAdaptiveMeasureBadgeFontSize(
+      const { fitFontSize } = acapSegmentMeasureBadgeFontSize(
         label,
         style,
         acapScreenSegmentLengthPx(p => this._view.worldToScreen(p), a, b)
@@ -124,7 +121,7 @@ export class AcApMeasureContinuousJig extends AcEdPreviewJig<AcGePoint3dLike> {
         acapScaleMeasureOverlayPx(
           ACAP_OVERLAY_ARROW_SIZE_PX,
           style.fontSize,
-          fontSize
+          fitFontSize
         )
       )
     }
@@ -190,18 +187,31 @@ export class AcApMeasureContinuousJig extends AcEdPreviewJig<AcGePoint3dLike> {
         continue
       }
       const label = formatMeasurementLength(this._db, dist)
-      const clamped = acapAdaptiveMeasureBadgeFontSize(
+      const linePx = acapScreenSegmentLengthPx(
+        p => this._view.worldToScreen(p),
+        a,
+        b
+      )
+      const clamped = acapSegmentMeasureBadgeFontSize(
         label,
         { ...style, fontSize },
-        acapScreenSegmentLengthPx(p => this._view.worldToScreen(p), a, b)
-      )
+        linePx
+      ).fontSize
       badge.setFontSize(clamped)
       acapSyncLiveOverlayTextHeight(this._view, [badge], {
         ...style,
         fontSize: clamped
       })
       badge.setText(label)
-      badge.setPosition(midOf(a, b))
+      const { emWcs, offLine } = acapLiveBadgeOffLine(
+        this._view,
+        label,
+        { ...style, fontSize: clamped },
+        linePx
+      )
+      badge.setPosition(
+        acapSegmentMeasureBadgeWorld(a, b, label, emWcs, offLine)
+      )
       badge.object.visible = true
     }
   }
