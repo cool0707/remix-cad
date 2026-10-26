@@ -10,7 +10,13 @@ import {
 export type AcEdGripHandleState = 'normal' | 'hover' | 'hot'
 
 /**
- * Interactive DOM grip square rendered in container-local screen coordinates.
+ * Shape of a grip handle: a round `point` grip moves one point, a pill-shaped
+ * `edge` grip lies along a segment and moves the whole segment.
+ */
+export type AcEdGripHandleShape = 'point' | 'edge'
+
+/**
+ * Interactive DOM grip handle rendered in container-local screen coordinates.
  */
 export class AcEdGripHandle {
   private readonly _el: HTMLElement
@@ -18,7 +24,8 @@ export class AcEdGripHandle {
 
   constructor(
     private readonly _host: HTMLElement,
-    appearance: AcEdGripAppearance
+    appearance: AcEdGripAppearance,
+    private readonly _shape: AcEdGripHandleShape = 'point'
   ) {
     injectMlGripHandleCss()
 
@@ -28,7 +35,7 @@ export class AcEdGripHandle {
     }
 
     this._el = document.createElement('div')
-    this._el.className = 'ml-grip-handle ml-grip-handle-normal'
+    this._el.className = this.classNameFor('normal')
     this.applyAppearance(appearance)
     this._host.appendChild(this._el)
   }
@@ -44,7 +51,16 @@ export class AcEdGripHandle {
   setState(state: AcEdGripHandleState) {
     if (this._state === state) return
     this._state = state
-    this._el.className = `ml-grip-handle ml-grip-handle-${state}`
+    this._el.className = this.classNameFor(state)
+  }
+
+  /**
+   * Turns an `edge` handle to lie along its segment.
+   *
+   * @param radians - Segment direction on screen (y down), in radians.
+   */
+  setAngle(radians: number) {
+    this._el.style.setProperty('--ml-grip-angle', `${radians}rad`)
   }
 
   setPosition(pos: AcGePoint2dLike) {
@@ -54,6 +70,10 @@ export class AcEdGripHandle {
 
   applyAppearance(appearance: AcEdGripAppearance) {
     applyGripAppearanceToHost(this._host, appearance)
+  }
+
+  private classNameFor(state: AcEdGripHandleState) {
+    return `ml-grip-handle ml-grip-handle-${this._shape} ml-grip-handle-${state}`
   }
 
   destroy() {

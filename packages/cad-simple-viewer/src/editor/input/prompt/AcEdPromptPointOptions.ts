@@ -1,4 +1,4 @@
-import { AcGePoint3d } from '@mlightcad/data-model'
+import { AcGePoint3d, AcGePoint3dLike } from '@mlightcad/data-model'
 
 import { AcEdPromptOptions } from './AcEdPromptOptions'
 
@@ -27,6 +27,7 @@ export class AcEdPromptPointOptions extends AcEdPromptOptions<AcGePoint3d> {
   private _disableOSnap: boolean = false
   private _showConfirmedPointMark?: boolean
   private _finishOnDoubleClick: boolean = false
+  private _extraOsnapPoints: AcGePoint3dLike[] = []
   private _rightClickKeyword?: string
   private _keyHints: AcEdPromptKeyHint[] = []
   private _defaultValue?: AcGePoint3d
@@ -185,6 +186,20 @@ export class AcEdPromptPointOptions extends AcEdPromptOptions<AcGePoint3d> {
   set finishOnDoubleClick(flag: boolean) {
     if (!this.isReadOnly) {
       this._finishOnDoubleClick = flag
+    }
+  }
+
+  /**
+   * Gets or sets points the cursor snaps to (as endpoints) besides the
+   * drawing's own geometry, e.g. the first vertex of a polyline being drawn,
+   * which is not in the database yet. Ignored when osnap is off.
+   */
+  get extraOsnapPoints(): AcGePoint3dLike[] {
+    return this._extraOsnapPoints
+  }
+  set extraOsnapPoints(points: AcGePoint3dLike[]) {
+    if (!this.isReadOnly) {
+      this._extraOsnapPoints = points
     }
   }
 

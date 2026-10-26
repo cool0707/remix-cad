@@ -1,5 +1,6 @@
 export * from './AcEdGripAppearance'
 export * from './AcEdGripEditSession'
 export * from './AcEdGripHandle'
+export * from './AcEdGripKind'
 export * from './AcEdGripManager'
 export * from './AcEdGripPreviewJig'

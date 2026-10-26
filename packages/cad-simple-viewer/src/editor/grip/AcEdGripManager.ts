@@ -17,6 +17,7 @@ import {
 } from './AcEdGripAppearance'
 import { AcEdGripEditSession, AcEdGripEditTarget } from './AcEdGripEditSession'
 import { AcEdGripHandle } from './AcEdGripHandle'
+import { AcEdGripKind,acedGripKind } from './AcEdGripKind'
 import { acedShouldShowGrips } from './AcEdGripPolicy'
 
 /**
@@ -32,6 +33,8 @@ interface AcEdGripEntry {
   gripIndex: number
   /** Grip location in world (WCS) coordinates at creation time. */
   wcsPoint: AcGePoint3dLike
+  /** Whether the grip moves one point or a whole segment. */
+  kind: AcEdGripKind
   /** DOM handle rendered in the view container for this grip. */
   handle: AcEdGripHandle
 }
@@ -103,7 +106,7 @@ export class AcEdGripManager {
     this._view = view
     this.bindEvents()
     // The view is constructed during `AcApDocManager.createInstance()`, before
-    // the singleton is assigned. Defer so CAD square grips still inherit GRIPSIZE.
+    // the singleton is assigned. Defer so CAD grips still inherit GRIPSIZE.
     queueMicrotask(() => this.applyAppearance())
   }
 
@@ -185,11 +188,17 @@ export class AcEdGripManager {
       const gripPoints = entity.subGetGripPoints()
       for (let gripIndex = 0; gripIndex < gripPoints.length; ++gripIndex) {
         const wcsPoint = gripPoints[gripIndex]
-        const handle = new AcEdGripHandle(this._view.container, appearance)
+        const kind = acedGripKind(entity, gripIndex)
+        const handle = new AcEdGripHandle(
+          this._view.container,
+          appearance,
+          kind.kind
+        )
         const entry: AcEdGripEntry = {
           entityId,
           gripIndex,
           wcsPoint,
+          kind,
           handle
         }
         this.wireHandleEvents(entry)
@@ -285,7 +294,7 @@ export class AcEdGripManager {
 
   /**
    * Updates size and colours on the view container (and existing handles)
-   * from current sysvars. Always writes CSS variables so CAD square grips
+   * from current sysvars. Always writes CSS variables so CAD grips
    * inherit `GRIPSIZE` even when no entities are currently selected.
    */
   private applyAppearance() {
@@ -407,7 +416,8 @@ export class AcEdGripManager {
    * Updates a single grip handle's screen position from its WCS point.
    *
    * Converts world coordinates to canvas, then to container-local pixels,
-   * and applies the result to the handle's DOM element.
+   * and applies the result to the handle's DOM element. Edge grips are also
+   * turned to follow their segment on screen.
    *
    * @param entry - The grip entry to reposition
    */
@@ -415,6 +425,12 @@ export class AcEdGripManager {
     const canvasPos = this._view.worldToScreen(entry.wcsPoint)
     const containerPos = this._view.canvasToContainer(canvasPos)
     entry.handle.setPosition(containerPos)
+    const { kind } = entry
+    if (kind.kind === 'edge') {
+      const from = this._view.worldToScreen(kind.from)
+      const to = this._view.worldToScreen(kind.to)
+      entry.handle.setAngle(Math.atan2(to.y - from.y, to.x - from.x))
+    }
   }
 
   /**
