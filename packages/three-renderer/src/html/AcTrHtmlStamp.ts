@@ -25,7 +25,8 @@ export interface AcTrHtmlStampOptions extends AcTrHtmlElementOptions {
   imageUrl?: string
 }
 
-const STAMP_LABELS: Record<string, string> = {
+/** Text drawn on each built-in stamp badge. */
+export const AC_TR_HTML_STAMP_LABELS: Readonly<Record<string, string>> = {
   approved: 'APPROVED',
   rejected: 'REJECTED',
   revised: 'REVISED',
@@ -80,7 +81,8 @@ export class AcTrHtmlStamp extends AcTrHtmlElement {
         'box-shadow:var(--ml-ui-shadow, 0 1px 4px rgba(0,0,0,0.2));' +
         'white-space:nowrap;'
       badge.textContent =
-        STAMP_LABELS[options.stampId] ?? options.stampId.toUpperCase()
+        AC_TR_HTML_STAMP_LABELS[options.stampId] ??
+        options.stampId.toUpperCase()
       el.appendChild(badge)
     }
 
@@ -88,8 +90,11 @@ export class AcTrHtmlStamp extends AcTrHtmlElement {
       const caption = document.createElement('div')
       caption.className = 'ml-html-stamp-text'
       caption.style.cssText =
-        `color:${accent};font-size:11px;font-weight:600;background:var(--ml-ui-bg, rgba(255,255,255,0.9));` +
-        'padding:1px 6px;border-radius:10px;'
+        `color:${accent};font-size:11px;font-weight:600;background:rgba(255,255,255,0.92);` +
+        'padding:1px 6px;border-radius:10px;' +
+        // The element manager resets the root's `display` when toggling
+        // visibility, so center without relying on the flex layout.
+        'width:fit-content;margin:10px auto 0;white-space:nowrap;'
       caption.textContent = options.text
       el.appendChild(caption)
     }

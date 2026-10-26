@@ -745,9 +745,21 @@ export default {
       content: 'Zadejte text odkazu'
     },
     stamp: {
-      kind: 'Zadejte identifikátor razítka [approved/rejected/revised/for-review/custom]',
-      imageUrl: 'Zadejte URL vlastního obrázku razítka (volitelné)',
-      caption: 'Zadejte popisek razítka (volitelné)',
+      picker: {
+        title: 'Vyberte razítko',
+        close: 'Zavřít',
+        cancel: 'Zrušit',
+        caption: 'Popisek (volitelné)',
+        captionPlaceholder: 'Text zobrazený pod razítkem',
+        custom: 'Z obrázku…',
+        customHint: 'Použít soubor obrázku jako razítko'
+      },
+      names: {
+        approved: 'Schváleno',
+        rejected: 'Zamítnuto',
+        revised: 'Revidováno',
+        forReview: 'Ke kontrole'
+      },
       point: 'Zadejte bod vložení razítka'
     },
     import: {

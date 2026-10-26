@@ -746,9 +746,21 @@ export default {
       content: 'Çağrı metnini girin'
     },
     stamp: {
-      kind: 'Damga kimliğini girin [approved/rejected/revised/for-review/custom]',
-      imageUrl: 'Özel damga görüntüsü URL’sini girin (isteğe bağlı)',
-      caption: 'Damga açıklamasını girin (isteğe bağlı)',
+      picker: {
+        title: 'Damga seçin',
+        close: 'Kapat',
+        cancel: 'İptal',
+        caption: 'Açıklama (isteğe bağlı)',
+        captionPlaceholder: 'Damganın altında gösterilecek metin',
+        custom: 'Görüntüden…',
+        customHint: 'Bir görüntü dosyasını damga olarak kullanın'
+      },
+      names: {
+        approved: 'Onaylandı',
+        rejected: 'Reddedildi',
+        revised: 'Düzeltildi',
+        forReview: 'İncelenecek'
+      },
       point: 'Damga ekleme noktasını belirtin'
     },
     import: {
