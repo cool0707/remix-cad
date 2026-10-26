@@ -30,11 +30,15 @@ Po zapnutí omezí následující úsečku pouze na vodorovný nebo svislý smě
 - Klávesová zkratka: `F8` (pokud je podporována)
 - Přepínač na stavovém řádku
 
-## Polar tracking (POLAR)
+## Přichytávání úhlu (POLAR)
 
-Po zapnutí se kurzor automaticky zarovná podél nastaveného úhlového přírůstku. Výchozí úhlový přírůstek je 90°, lze vybrat 5°, 10°, 15°, 18°, 22,5°, 30°, 45° nebo 90°.
+Po zapnutí se směr od předchozího bodu ke kurzoru přichytává k násobkům nastaveného úhlu. Šipkou dolů vedle tlačítka ve stavovém řádku zvolíte úhel přichycení: po 90°, 45°, 30°, 22,5°, 18°, 15°, 10° nebo 5° (výchozí po 90°).
 
-Polar a ortogonální režim se vzájemně vylučují: zapnutí ortogonálního režimu automaticky vypne polar a naopak.
+I když je přichytávání úhlu vypnuté, při držení klávesy `Shift` se kurzor přichytává ke stejným úhlům.
+
+Je-li zároveň zapnutý ortogonální režim, přidají se k směrům přichycení i vodorovný a svislý směr.
+
+V CAD programech se tato funkce nazývá „polární trasování“ (POLAR v AutoCADu); úhel se ukládá do systémové proměnné POLARANG.
 
 ## Dynamický vstup (DYN)
 

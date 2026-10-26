@@ -8,7 +8,10 @@ import {
 
 import { AcEdBaseView } from '../../view'
 import { AcEdOsnapPoint, AcEdOsnapResolver } from '../AcEdOsnapResolver'
-import { constrainToAngleStep, constrainToTracking } from '../AcEdPolarTracking'
+import {
+  constrainToPolarAngles,
+  constrainToTracking
+} from '../AcEdPolarTracking'
 import { AcEdMarkerManager } from '../marker'
 import { acedClearDomSelection } from './AcEdCanvasTouchCalloutGuard'
 import { AcEdFloatingInputBoxes } from './AcEdFloatingInputBoxes'
@@ -95,7 +98,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   private lastDynamicPoint?: AcGePoint2dLike
   /** Last mouse position (client px), to re-run the pick when Shift toggles. */
   private lastMouseClientPos?: AcGePoint2dLike
-  /** Shift held: snap the direction from the base point to 45° steps. */
+  /** Shift held: snap the direction from the base point to the polar tracking angles. */
   private shiftAngleSnap = false
 
   /** Reference point for ORTHOMODE cursor locking */
@@ -404,7 +407,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   }
 
   /**
-   * Turns the Shift 45° direction snap on or off (Shift pressed / released
+   * Turns the Shift polar-angle direction snap on or off (Shift pressed / released
    * without moving the mouse) and re-runs the pick at the last mouse spot.
    */
   setShiftAngleSnap(on: boolean) {
@@ -885,7 +888,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
 
     if (this.orthoReferencePoint) {
       const constrained = this.shiftAngleSnap
-        ? constrainToAngleStep(wcsPos, this.orthoReferencePoint)
+        ? constrainToPolarAngles(wcsPos, this.orthoReferencePoint)
         : constrainToTracking(wcsPos, this.orthoReferencePoint)
       wcsPos.x = constrained.x
       wcsPos.y = constrained.y

@@ -669,8 +669,11 @@ export default {
       off: 'Zapnout režim ortho'
     },
     polarTracking: {
-      on: 'Vypnout polární trasování',
-      off: 'Zapnout polární trasování'
+      on: 'Vypnout přichytávání úhlu',
+      off: 'Zapnout přichytávání úhlu',
+      menuTitle: 'Úhel přichycení',
+      menuTooltip: 'Zvolit úhel přichycení',
+      step: 'Po {angle}'
     },
     zoom: {
       zoomIn: 'Přiblížit',

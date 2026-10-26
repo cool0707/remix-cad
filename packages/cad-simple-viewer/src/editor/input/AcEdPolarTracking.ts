@@ -52,6 +52,11 @@ interface AcEdBuildTrackingDisplayAnglesOptions {
    * directions, matching AutoCAD combined ortho + polar behavior.
    */
   includeOrtho: boolean
+  /**
+   * When `true`, uses **POLARANG** / **POLARADDANG** even while polar tracking
+   * (**POLARMODE** bit 2) is off. Used by the Shift direction snap.
+   */
+  forcePolar?: boolean
 }
 
 /**
@@ -248,7 +253,8 @@ function buildTrackingDisplayAnglesRadians(
   options: AcEdBuildTrackingDisplayAnglesOptions
 ): number[] {
   const polarmode = getPolarmode(database)
-  const usePolar = (polarmode & POLARMODE_POLAR_TRACKING) !== 0
+  const usePolar =
+    options.forcePolar || (polarmode & POLARMODE_POLAR_TRACKING) !== 0
   const useAdditional = (polarmode & POLARMODE_ADDITIONAL_ANGLES) !== 0
 
   const degreeSet = new Set<number>()
@@ -400,6 +406,50 @@ export function togglePolarTracking(database?: AcDbDatabase): number {
       : current | POLARMODE_POLAR_TRACKING
   AcDbSysVarManager.instance().setVar(AcDbSystemVariables.POLARMODE, next, db)
   return next
+}
+
+/**
+ * Shift direction snap: projects `point` onto the nearest ray from `reference`
+ * at a polar tracking angle (**POLARANG** increments, plus **POLARADDANG** when
+ * POLARMODE bit 4 is set), honoring **ANGBASE** / **ANGDIR**. Applies whether
+ * polar tracking itself is on or off; ORTHOMODE is ignored.
+ *
+ * @param point - Current cursor position in WCS (typically after OSNAP).
+ * @param reference - Base point the direction is measured from.
+ * @param database - Optional database; defaults to the working database.
+ * @returns The projected point, or `point` when it sits on `reference` or no
+ *   angle is configured.
+ */
+export function constrainToPolarAngles(
+  point: AcGePoint2dLike,
+  reference: AcGePoint2dLike,
+  database?: AcDbDatabase
+): AcGePoint2dLike {
+  const db = getDatabase(database)
+  const dx = point.x - reference.x
+  const dy = point.y - reference.y
+  if (Math.hypot(dx, dy) < 1e-10) return point
+
+  const candidates = buildTrackingDisplayAnglesRadians(db, {
+    includeOrtho: false,
+    forcePolar: true
+  })
+  if (candidates.length === 0) return point
+
+  const displayAngle = toDisplayAngleRadians(
+    Math.atan2(dy, dx),
+    db.angbase,
+    db.angdir
+  )
+  const locked = fromDisplayAngleRadians(
+    nearestDisplayAngle(displayAngle, candidates),
+    db.angbase,
+    db.angdir
+  )
+  const ux = Math.cos(locked)
+  const uy = Math.sin(locked)
+  const along = dx * ux + dy * uy
+  return { x: reference.x + along * ux, y: reference.y + along * uy }
 }
 
 /**

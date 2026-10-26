@@ -30,11 +30,15 @@ Açıldığında, bir sonraki çizginin yalnızca yatay veya dikey yönde çizil
 - Kısayol: `F8` (destekleniyorsa)
 - Durum çubuğundan anahtarı değiştir
 
-## Kutupsal İzleme (POLAR)
+## Açı Yakalama (POLAR)
 
-Açıldığında, imleç ayarlanan açı artışı yönünde otomatik hizalanır. Varsayılan açı artışı 90°'dir; 5°, 10°, 15°, 18°, 22,5°, 30°, 45° veya 90° seçilebilir.
+Açıldığında, önceki noktadan imlece olan yön ayarlanan açının katlarına yakalanır. Durum çubuğundaki düğmenin yanındaki aşağı oktan yakalama açısını seçebilirsiniz: her 90°, 45°, 30°, 22,5°, 18°, 15°, 10° veya 5° (varsayılan her 90°).
 
-Kutupsal izleme ve dik mod karşılıklıdır: dik mod açıldığında kutupsal izleme otomatik kapanır, tersi de geçerlidir.
+Açı yakalama kapalıyken bile `Shift` basılı tutulduğunda aynı açılara yakalanır.
+
+Dik mod da açıksa, yatay ve dikey yönler de yakalama yönlerine eklenir.
+
+CAD yazılımlarında "kutupsal izleme" (AutoCAD'de POLAR) olarak bilinen işlevdir; açı POLARANG sistem değişkeninde saklanır.
 
 ## Dinamik Girdi (DYN)
 

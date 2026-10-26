@@ -71,7 +71,7 @@ Soldan sağa tam bir CAD durum çubuğu:
 | Coordinates | Gerçek zamanlı imleç koordinatları |
 | OSNAP | Nesne yakalama geçişi ve yapılandırması |
 | ORTHO | Dik mod |
-| POLAR | Kutupsal izleme |
+| POLAR | Açı yakalama |
 | Object Snap Tracking (OTRACK) | |
 | Çizgi kalınlığı görüntüleme | |
 | Dynamic Input | Yüzen giriş kutusu geçişi |

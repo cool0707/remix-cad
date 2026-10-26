@@ -327,8 +327,8 @@ const BASE_MESSAGES: Record<
     },
     settings: {
       ortho: 'Toggle orthogonal mode',
-      polar: 'Polar tracking angles',
-      polarAngles: 'Polar tracking angles'
+      polar: 'Angle snapping',
+      polarAngles: 'Snap angles'
     },
     drawStyle: {
       color: 'Color',
@@ -595,8 +595,8 @@ const BASE_MESSAGES: Record<
     },
     settings: {
       ortho: '切换正交模式',
-      polar: '极轴追踪角度',
-      polarAngles: '极轴追踪角度'
+      polar: '角度吸附',
+      polarAngles: '吸附角度'
     },
     drawStyle: {
       color: '颜色',
@@ -852,8 +852,8 @@ const BASE_MESSAGES: Record<
     },
     settings: {
       ortho: 'Přepnout ortogonální režim',
-      polar: 'Úhly polárního trasování',
-      polarAngles: 'Úhly polárního trasování'
+      polar: 'Přichytávání úhlu',
+      polarAngles: 'Úhly přichycení'
     },
     drawStyle: {
       color: 'Barva',
@@ -1120,8 +1120,8 @@ const BASE_MESSAGES: Record<
     },
     settings: {
       ortho: 'Dik modu aç/kapat',
-      polar: 'Kutupsal izleme açıları',
-      polarAngles: 'Kutupsal izleme açıları'
+      polar: 'Açı yakalama',
+      polarAngles: 'Yakalama açıları'
     },
     drawStyle: {
       color: 'Renk',
@@ -1392,8 +1392,8 @@ const AR_MESSAGES: AcExMessageTree = {
   },
   'settings': {
     'ortho': 'تبديل الوضع المتعامد',
-    'polar': 'زوايا التتبع القطبي',
-    'polarAngles': 'زوايا التتبع القطبي'
+    'polar': 'التقاط الزاوية',
+    'polarAngles': 'زوايا الالتقاط'
   },
   'drawStyle': {
     'color': 'اللون',
@@ -1641,8 +1641,8 @@ const JA_MESSAGES: AcExMessageTree = {
   },
   settings: {
     ortho: '直交モードの切り替え',
-    polar: '極トラッキングの角度',
-    polarAngles: '極トラッキングの角度'
+    polar: '角度スナップ',
+    polarAngles: 'スナップする角度'
   },
   drawStyle: {
     color: '色',

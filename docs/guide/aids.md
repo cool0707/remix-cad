@@ -30,11 +30,15 @@ When enabled, the next line is restricted to horizontal or vertical direction on
 - Shortcut: `F8` (if supported)
 - Toggle on the status bar
 
-## Polar Tracking (POLAR)
+## Angle Snapping (POLAR)
 
-When enabled, the cursor automatically aligns along the configured angle increment. The default angle increment is 90°; you can choose 5°, 10°, 15°, 18°, 22.5°, 30°, 45°, or 90°.
+When enabled, the direction from the previous point to the cursor snaps to multiples of the configured angle. Use the down arrow next to the status bar button to choose the snap angle: every 90°, 45°, 30°, 22.5°, 18°, 15°, 10°, or 5° (default: every 90°).
 
-Polar and orthogonal are mutually exclusive: turning on Ortho automatically turns off Polar, and vice versa.
+Even when angle snapping is off, holding `Shift` snaps to the same angles.
+
+When Ortho is also on, horizontal and vertical directions are added to the snap directions.
+
+This is what CAD software calls "polar tracking" (POLAR in AutoCAD); the angle is stored in the POLARANG system variable.
 
 ## Dynamic Input (DYN)
 

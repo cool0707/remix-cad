@@ -663,8 +663,11 @@ export default {
       off: '直交モードをオンにする'
     },
     polarTracking: {
-      on: '極トラッキングをオフにする',
-      off: '極トラッキングをオンにする'
+      on: '角度スナップをオフにする',
+      off: '角度スナップをオンにする',
+      menuTitle: 'スナップする角度',
+      menuTooltip: 'スナップする角度を選ぶ',
+      step: '{angle} ごと'
     },
     zoom: {
       zoomIn: '拡大',

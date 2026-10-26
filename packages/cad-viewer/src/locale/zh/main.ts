@@ -638,8 +638,11 @@ export default {
       off: '打开正交模式'
     },
     polarTracking: {
-      on: '关闭极轴追踪',
-      off: '打开极轴追踪'
+      on: '关闭角度吸附',
+      off: '打开角度吸附',
+      menuTitle: '吸附角度',
+      menuTooltip: '选择吸附角度',
+      step: '每 {angle}'
     },
     zoom: {
       zoomIn: '放大',

@@ -4,10 +4,10 @@ import {
 } from '../src/component/statusBar/polarTrackingMenu'
 
 describe('polarTrackingMenu', () => {
-  it('formats increment preview labels like AutoCAD', () => {
-    expect(formatPolarIncrementMenuLabel(90)).toBe('90, 180, 270, 360...')
-    expect(formatPolarIncrementMenuLabel(45)).toBe('45, 90, 135, 180...')
-    expect(formatPolarIncrementMenuLabel(22.5)).toBe('23, 45, 68, 90...')
+  it('formats increment preview labels with degree units', () => {
+    expect(formatPolarIncrementMenuLabel(90)).toBe('90°, 180°, 270°, 360°…')
+    expect(formatPolarIncrementMenuLabel(45)).toBe('45°, 90°, 135°, 180°…')
+    expect(formatPolarIncrementMenuLabel(22.5)).toBe('22.5°, 45°, 67.5°, 90°…')
   })
 
   it('compares polar increments with tolerance', () => {

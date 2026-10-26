@@ -71,7 +71,7 @@ A full CAD status bar, from left to right:
 | Coordinates | Real-time cursor coordinates |
 | OSNAP | Object snap toggle and configuration |
 | ORTHO | Orthogonal mode |
-| POLAR | Polar tracking |
+| POLAR | Angle snapping |
 | Object Snap Tracking (OTRACK) | |
 | Lineweight display | |
 | Dynamic Input | Floating input box toggle |

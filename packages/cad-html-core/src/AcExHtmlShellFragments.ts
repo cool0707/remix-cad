@@ -68,7 +68,7 @@ export function buildAcExHtmlPolarAnglesPanel(): string {
       `<button type="button" class="mlcad-tool-btn mlcad-settings-option-btn mlcad-polar-angle-btn" data-polar-ang="${angle}" title="${angle}°" aria-label="${angle}°"><span class="mlcad-settings-option-indicator" aria-hidden="true"></span><span class="mlcad-settings-option-text">${angle}°</span></button>`
   ).join('')
 
-  return `<div id="mlcad-polar-angles" role="group" data-i18n-attr="aria-label" data-i18n-key="settings.polarAngles" aria-label="Polar tracking angles" hidden>
+  return `<div id="mlcad-polar-angles" role="group" data-i18n-attr="aria-label" data-i18n-key="settings.polarAngles" aria-label="Snap angles" hidden>
           ${polarAngleButtons}
         </div>`
 }
@@ -86,7 +86,7 @@ export function buildAcExHtmlSnapStrip(): string {
             'data-i18n-key': 'settings.ortho',
             'data-i18n-attr': 'title aria-label'
           })}
-          ${acexToolbarButton(AcExHtmlIcons.polarTracking, 'Polar tracking', {
+          ${acexToolbarButton(AcExHtmlIcons.polarTracking, 'Angle snapping', {
             id: 'mlcad-polar-btn',
             'data-toggle': 'polar',
             'data-i18n-key': 'settings.polar',
