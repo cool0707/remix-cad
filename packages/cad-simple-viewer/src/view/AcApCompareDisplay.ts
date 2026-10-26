@@ -24,6 +24,11 @@ export interface AcApCompareDisplayOptions {
   enabled: boolean
   /** Alias for {@link AcApCompareDisplayColors.unchanged}. */
   baseColor?: number
+  /**
+   * Keep unchanged raster images / OLE objects in their own colors instead of
+   * tinting them with the base color (reading mode).
+   */
+  keepImageColors?: boolean
   /** Role colors applied after the unchanged base color. */
   colors?: AcApCompareDisplayColors
   /** Per-entity role overrides (objectId is the DWG handle). */

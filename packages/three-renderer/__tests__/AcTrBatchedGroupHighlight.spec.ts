@@ -292,6 +292,40 @@ describe('AcTrBatchedGroup slot-mask highlight', () => {
     expect(getObjectUserData(clonedLine).originalMaterial).toBeUndefined()
   })
 
+  it('keeps textured unbatched drawables in their colors when asked (reading mode)', () => {
+    const group = new AcTrBatchedGroup()
+    const geometry = new THREE.PlaneGeometry(10, 10)
+    const material = new THREE.MeshBasicMaterial({ map: new THREE.Texture() })
+    const mesh = new THREE.Mesh(geometry, material)
+    getObjectUserData(mesh).noBatch = true
+
+    const entity = new AcTrEntity(new AcTrRenderContext())
+    entity.objectId = 'image-1'
+    entity.visible = true
+    entity.add(mesh)
+    group.addEntity(entity)
+
+    const clonedMesh = [...group.children[0].children].find(
+      child => child instanceof THREE.Mesh
+    ) as THREE.Mesh
+    const sceneMaterial = clonedMesh.material as THREE.MeshBasicMaterial
+
+    // Plain compare display still tints images with the base color.
+    group.setCompareDisplay({ enabled: true, baseColor: 0x000000 })
+    expect(
+      (clonedMesh.material as THREE.MeshBasicMaterial).color.getHex()
+    ).toBe(0x000000)
+
+    group.setCompareDisplay({
+      enabled: true,
+      baseColor: 0x000000,
+      keepTexturedColors: true
+    })
+    expect(clonedMesh.material).toBe(sceneMaterial)
+    expect(sceneMaterial.color.getHex()).toBe(0xffffff)
+    expect(getObjectUserData(clonedMesh).originalMaterial).toBeUndefined()
+  })
+
   it('clears u_compareEnabled uniform when compare display is disabled', () => {
     const group = new AcTrBatchedGroup()
     group.addEntity(createBatchedLineEntity('line-1'))

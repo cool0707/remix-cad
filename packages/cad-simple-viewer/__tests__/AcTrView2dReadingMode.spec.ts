@@ -30,7 +30,8 @@ describe('AcApReadingModeState', () => {
     )
     expect(host.setCompareDisplay).toHaveBeenCalledWith({
       enabled: true,
-      baseColor: ACAP_READING_MODE_COLOR
+      baseColor: ACAP_READING_MODE_COLOR,
+      keepImageColors: true
     })
 
     state.setEnabled(false)

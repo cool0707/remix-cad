@@ -14,6 +14,7 @@ export interface AcApReadingModeHost {
   setCompareDisplay: (options: {
     enabled: boolean
     baseColor?: number
+    keepImageColors?: boolean
     overrides?: []
   }) => void
   /** Marks the view dirty when reading mode is disabled. */
@@ -21,7 +22,8 @@ export interface AcApReadingModeHost {
 }
 
 /**
- * Transient reading-mode state: black linework on a white canvas.
+ * Transient reading-mode state: black linework on a white canvas (raster
+ * images keep their own colors).
  *
  * Does not mutate the drawing database or style-manager materials; the host
  * applies visual-only clear-colour and compare-display overrides.
@@ -93,7 +95,10 @@ export class AcApReadingModeState {
     this.host.applyViewClearColor(ACAP_READING_MODE_BACKGROUND)
     this.host.setCompareDisplay({
       enabled: true,
-      baseColor: ACAP_READING_MODE_COLOR
+      baseColor: ACAP_READING_MODE_COLOR,
+      // Black linework only: images keep their colors (a black tint would
+      // multiply them to black rectangles).
+      keepImageColors: true
     })
   }
 }

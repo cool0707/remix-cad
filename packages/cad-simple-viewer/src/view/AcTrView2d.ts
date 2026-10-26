@@ -3601,6 +3601,7 @@ export class AcTrView2d extends AcEdBaseView {
     const mapped = {
       enabled: options.enabled,
       baseColor,
+      keepTexturedColors: options.keepImageColors,
       colors: {
         deleted: options.colors?.deleted,
         added: options.colors?.added,
