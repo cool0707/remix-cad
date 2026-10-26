@@ -23,8 +23,6 @@ export function acapPrintAreaLabel(sheet: AcApDrawingSheet['sheet']) {
 export interface AcApPrintAreaColors {
   /** Fill outside the sheet. */
   mask: string
-  /** Sheet outline. */
-  border: string
   /** Paper / scale label and its halo. */
   label: string
   labelHalo: string
@@ -48,7 +46,6 @@ export function acapPrintAreaColors(background: number): AcApPrintAreaColors {
   const light = luminance > 0.5
   return {
     mask: `rgba(${r}, ${g}, ${b}, 0.7)`,
-    border: light ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.35)',
     label: light ? '#000' : '#fff',
     labelHalo: light ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.35)'
   }
@@ -67,7 +64,6 @@ export function acapPrintAreaColors(background: number): AcApPrintAreaColors {
 export class AcApPrintAreaOverlay {
   private readonly root: SVGSVGElement
   private readonly mask: SVGPathElement
-  private readonly border: SVGPolygonElement
   private readonly label: SVGTextElement
   private sheet?: AcApDrawingSheet
   private view?: AcTrView2d
@@ -88,14 +84,11 @@ export class AcApPrintAreaOverlay {
     })
     this.mask = document.createElementNS(SVG_NS, 'path')
     this.mask.setAttribute('fill-rule', 'evenodd')
-    this.border = document.createElementNS(SVG_NS, 'polygon')
-    this.border.setAttribute('fill', 'none')
-    this.border.setAttribute('stroke-width', '1')
     this.label = document.createElementNS(SVG_NS, 'text')
     this.label.setAttribute('font-size', '12')
     this.label.setAttribute('paint-order', 'stroke')
     this.label.setAttribute('stroke-width', '2')
-    this.root.append(this.mask, this.border, this.label)
+    this.root.append(this.mask, this.label)
 
     const settings = AcApSettingManager.instance
     settings.events.modified.addEventListener(({ key }) => {
@@ -167,7 +160,6 @@ export class AcApPrintAreaOverlay {
     this.background = background
     const colors = acapPrintAreaColors(background)
     this.mask.setAttribute('fill', colors.mask)
-    this.border.setAttribute('stroke', colors.border)
     this.label.setAttribute('fill', colors.label)
     this.label.setAttribute('stroke', colors.labelHalo)
   }
@@ -216,7 +208,6 @@ export class AcApPrintAreaOverlay {
       'd',
       `M-10,-10H${w + 10}V${h + 10}H-10Z M${pts.join(' L')}Z`
     )
-    this.border.setAttribute('points', pts.join(' '))
     // Label just above the top-left corner of the sheet on screen.
     const left = Math.min(...corners.map(p => p.x))
     const top = Math.min(...corners.map(p => p.y))

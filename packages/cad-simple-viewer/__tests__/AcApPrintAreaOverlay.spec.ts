@@ -82,11 +82,11 @@ describe('AcApPrintAreaOverlay', () => {
       scale: 100
     })
     // A3 at 1:100 centred on (15000, 5000): x -6000…36000, y -9850…19850.
-    const border = root.querySelector('polygon')!.getAttribute('points')
-    expect(border).toBe('140.0,398.5 560.0,398.5 560.0,101.5 140.0,101.5')
-    expect(root.querySelector('path')!.getAttribute('d')).toContain(
-      'M-10,-10H810V610H-10Z M140.0,398.5'
+    expect(root.querySelector('path')!.getAttribute('d')).toBe(
+      'M-10,-10H810V610H-10Z M140.0,398.5 L560.0,398.5 L560.0,101.5 L140.0,101.5Z'
     )
+    // No outline around the sheet.
+    expect(root.querySelector('polygon')).toBeNull()
     expect(root.querySelector('text')!.textContent).toBe('A3 1:100')
     expect(root.querySelector('text')!.getAttribute('fill')).toBe('#fff')
 
@@ -101,8 +101,8 @@ describe('AcApPrintAreaOverlay', () => {
     // Follows pan / zoom.
     view.worldToScreen = p => ({ x: p.x / 100, y: 300 - p.y / 100 })
     view.events.viewChanged.dispatch()
-    expect(root.querySelector('polygon')!.getAttribute('points')).toMatch(
-      /^-60\.0,398\.5/
+    expect(root.querySelector('path')!.getAttribute('d')).toContain(
+      'M-60.0,398.5'
     )
   })
 
