@@ -243,7 +243,7 @@ export default {
       off: 'レイヤー非表示',
       isolate: '選択表示',
       lock: 'レイヤーロック',
-      current: '現在に設定',
+      current: '編集レイヤーにする',
       allOn: '全レイヤー表示',
       unisolate: '選択表示解除',
       unlock: 'レイヤーロック解除',
@@ -329,7 +329,7 @@ export default {
           '選択したレイヤーだけを表示し、他のレイヤーを隠して関連するオブジェクトに集中できるようにします。',
         lock: '選択したレイヤーをロックします。オブジェクトは表示されたまま編集できなくなります。',
         current:
-          '選択したレイヤーを現在のレイヤーにし、新しいオブジェクトをそのレイヤーに作成します。',
+          '選択したレイヤーを編集レイヤーにします。新しく作成するオブジェクトはこのレイヤーに入ります。',
         allOn: '非表示になっているすべてのレイヤーを表示します。',
         unisolate:
           '選択表示で非表示またはロックされたレイヤーを元に戻します。その後のレイヤーの変更は保持されます。',
@@ -737,7 +737,7 @@ export default {
     layerManager: {
       tab: 'レイヤー',
       title: 'レイヤー管理',
-      currentLayerLabel: '現在のレイヤー: {name}',
+      currentLayerLabel: '編集レイヤー: {name}',
       searchPlaceholder: 'レイヤーを検索',
       filters: 'フィルタ',
       collapseFilters: 'フィルタを折りたたむ',
@@ -750,7 +750,7 @@ export default {
         newFilterGroup: '新しいグループフィルタ',
         newLayer: '新規レイヤー',
         deleteLayer: 'レイヤーを削除',
-        setCurrent: '現在に設定'
+        setCurrent: '編集レイヤーにする'
       },
       prompts: {
         newFilterTitle: '新しいフィルタ',
@@ -772,10 +772,10 @@ export default {
         layerDeleted: 'レイヤー「{name}」を削除しました',
         layerDeleteFailed: 'レイヤー「{name}」を削除できませんでした',
         cannotDeleteLayer0: 'レイヤー「0」は削除できません',
-        cannotDeleteCurrent: '現在のレイヤーは削除できません',
+        cannotDeleteCurrent: '編集レイヤーは削除できません',
         selectLayerFirst: '先にレイヤーを選択してください',
-        setCurrentSuccess: '現在のレイヤーを「{name}」に設定しました',
-        setCurrentFailed: '現在のレイヤーを設定できませんでした'
+        setCurrentSuccess: '「{name}」を編集レイヤーにしました',
+        setCurrentFailed: '編集レイヤーを切り替えられませんでした'
       },
       layerList: {
         name: '名前',
@@ -787,7 +787,8 @@ export default {
         lineweight: '線の太さ',
         transparency: '透過性',
         description: '説明',
-        currentLayer: '現在のレイヤー',
+        currentLayer: '編集レイヤー (新しく描く図形はここに入ります)',
+        setCurrentLayer: 'クリックして編集レイヤーにする',
         newLayerPlaceholder: 'レイヤー名',
         zoomToLayer: 'クリックしたレイヤー「{layer}」にズームしました',
         lineWeightDefault: '既定'

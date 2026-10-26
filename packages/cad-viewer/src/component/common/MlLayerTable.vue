@@ -38,15 +38,23 @@
             @blur="emit('draft-commit')"
           />
           <span v-else class="ml-layer-table-name">
-            {{ scope.row.name }}
-            <span
-              v-if="scope.row.name === currentLayerName"
-              class="ml-layer-table-current-marker"
-              :title="t('main.toolPalette.layerManager.layerList.currentLayer')"
-              aria-hidden="true"
+            <button
+              type="button"
+              class="ml-layer-table-current-button"
+              :class="{ 'is-current': scope.row.name === currentLayerName }"
+              :disabled="readonly"
+              :title="currentButtonTitle(scope.row)"
+              :aria-label="currentButtonTitle(scope.row)"
+              :aria-pressed="scope.row.name === currentLayerName"
+              @click.stop="handleSetCurrent(scope.row)"
+              @dblclick.stop
             >
-              *
-            </span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 20l1.2-4.8L15.6 4.8a2.1 2.1 0 0 1 3 3L8.2 18.8z" />
+                <path d="M13.8 6.6l3.6 3.6" />
+              </svg>
+            </button>
+            <span class="ml-layer-table-name-text">{{ scope.row.name }}</span>
           </span>
         </template>
       </el-table-column>
@@ -77,7 +85,9 @@
               :disabled="readonly || scope.row.isDraft"
               :title="t('main.toolPalette.layerManager.layerList.on')"
               :aria-label="t('main.toolPalette.layerManager.layerList.on')"
-              @click.stop="emitChange(scope.row, 'on', !isLayerShown(scope.row))"
+              @click.stop="
+                emitChange(scope.row, 'on', !isLayerShown(scope.row))
+              "
             >
               <span
                 class="ml-layer-table-state-icon"
@@ -374,7 +384,7 @@ const props = withDefaults(
   defineProps<{
     /** Rows to display in the table. */
     layers: MlLayerTableRow[]
-    /** Current layer name (`CLAYER`), used for the `*` marker. */
+    /** Current layer name (`CLAYER`), marked with the pencil button. */
     currentLayerName?: string
     /** Selected layer name (stable across row identity refreshes). */
     selectedLayerName?: string | null
@@ -402,6 +412,8 @@ const emit = defineEmits<{
   (e: 'draft-commit'): void
   (e: 'draft-cancel'): void
   (e: 'toggle-all-on', isOn: boolean): void
+  /** Pencil button clicked on a layer that is not current yet. */
+  (e: 'set-current', layerName: string): void
   (
     e: 'change',
     payload: {
@@ -456,6 +468,17 @@ const getRowClassName = ({ row }: { row: MlLayerTableRow }) => {
     classes.push('ml-layer-table-row--current')
   }
   return classes.join(' ')
+}
+
+const currentButtonTitle = (row: MlLayerTableRow) =>
+  row.name === props.currentLayerName
+    ? t('main.toolPalette.layerManager.layerList.currentLayer')
+    : t('main.toolPalette.layerManager.layerList.setCurrentLayer')
+
+const handleSetCurrent = (row: MlLayerTableRow) => {
+  emit('update:selectedLayerName', row.name)
+  if (props.readonly || row.name === props.currentLayerName) return
+  emit('set-current', row.name)
 }
 
 const handleToggleAll = (isOn: string | number | boolean) => {
@@ -849,9 +872,57 @@ defineExpose({
   width: 100%;
 }
 
-.ml-layer-table-current-marker {
+.ml-layer-table-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ml-layer-table-current-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--el-text-color-placeholder);
+  opacity: 0.45;
+  cursor: pointer;
+}
+
+.ml-layer-table-current-button svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ml-layer-table .el-table__row:hover .ml-layer-table-current-button,
+.ml-layer-table-current-button:focus-visible {
+  opacity: 1;
+}
+
+.ml-layer-table-current-button:hover {
   color: var(--el-color-primary);
-  font-weight: 600;
+  background-color: var(--el-fill-color);
+}
+
+.ml-layer-table-current-button.is-current {
+  color: var(--el-color-white);
+  background-color: var(--el-color-primary);
+  opacity: 1;
+  cursor: default;
+}
+
+.ml-layer-table-current-button:disabled {
+  cursor: default;
 }
 
 .ml-layer-table .ml-layer-table-row--current > td.el-table__cell {

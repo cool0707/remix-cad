@@ -34,6 +34,7 @@ const layerStore = {
   setAllLayersOffExceptCurrent: jest.fn(),
   setLayerOn: jest.fn(),
   setLayerColor: jest.fn(),
+  setCurrentLayer: jest.fn(() => true),
   events: {
     changed: {
       addEventListener: jest.fn(),
@@ -96,9 +97,9 @@ function createView() {
 }
 
 function getLayerNames(view: AcUiLayerListView) {
-  return Array.from(
-    view.element.querySelectorAll('.ml-ex-ui-layer-name')
-  ).map(el => el.textContent?.replace(/\*$/, '') ?? '')
+  return Array.from(view.element.querySelectorAll('.ml-ex-ui-layer-name')).map(
+    el => el.textContent ?? ''
+  )
 }
 
 describe('AcUiLayerListView', () => {
@@ -139,6 +140,29 @@ describe('AcUiLayerListView', () => {
         .querySelector('.ml-ex-ui-layer-name-header')
         ?.getAttribute('aria-sort')
     ).toBe('none')
+
+    view.destroy()
+  })
+
+  it('marks the current layer with a pencil button that switches layers', () => {
+    const view = createView()
+    const buttons = Array.from(
+      view.element.querySelectorAll<HTMLButtonElement>(
+        '.ml-ex-ui-layer-current-button'
+      )
+    )
+
+    expect(buttons).toHaveLength(3)
+    expect(
+      buttons.map(button => button.classList.contains('is-current'))
+    ).toEqual([false, true, false])
+    expect(buttons[1].getAttribute('aria-pressed')).toBe('true')
+
+    buttons[1].click()
+    expect(layerStore.setCurrentLayer).not.toHaveBeenCalled()
+
+    buttons[0].click()
+    expect(layerStore.setCurrentLayer).toHaveBeenCalledWith('Wall')
 
     view.destroy()
   })

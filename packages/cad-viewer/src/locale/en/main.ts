@@ -807,6 +807,7 @@ export default {
         transparency: 'Transparency',
         description: 'Description',
         currentLayer: 'Current layer',
+        setCurrentLayer: 'Click to draw on this layer',
         newLayerPlaceholder: 'Layer name',
         zoomToLayer: 'Zoomed to the clicked layer "{layer}"',
         lineWeightDefault: 'Default'

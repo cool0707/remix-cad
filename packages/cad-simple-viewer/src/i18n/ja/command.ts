@@ -77,7 +77,7 @@ export default {
     },
     clayer: {
       description:
-        '新しいオブジェクトと編集操作に使う現在のレイヤーを設定します'
+        '新しく作成するオブジェクトが入る編集レイヤーを設定します'
     },
     cmleaderstyle: {
       description: '現在のマルチ引出線スタイルの名前を設定します'
@@ -228,8 +228,8 @@ export default {
       description: 'JPEG に書き出します'
     },
     laycur: {
-      description: '選択したオブジェクトのレイヤーを現在のレイヤーに変更します',
-      prompt: '現在のレイヤーに変更するオブジェクトを選択'
+      description: '選択したオブジェクトのレイヤーを編集レイヤーに移します',
+      prompt: '編集レイヤーに移すオブジェクトを選択'
     },
     laydel: {
       description: 'レイヤーとそのレイヤー上のすべてのオブジェクトを削除します'

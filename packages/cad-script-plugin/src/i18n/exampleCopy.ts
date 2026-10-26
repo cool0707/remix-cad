@@ -73,7 +73,7 @@ export const scriptExampleCopyByLocale = {
     countByType: {
       title: '種類別にオブジェクトを数える',
       description:
-        '図面内のすべてのオブジェクトを調べ、種類ごとの数と図面のタイトル、現在の画層を返します。'
+        '図面内のすべてのオブジェクトを調べ、種類ごとの数と図面のタイトル、編集中の画層を返します。'
     },
     circlesByLayer: {
       title: '円が最も多い画層をハイライト',
@@ -83,7 +83,7 @@ export const scriptExampleCopyByLocale = {
     drawingOverview: {
       title: '図面の概要',
       description:
-        'タイトル、単位、現在の画層、範囲、および各画層の表示・フリーズ・ロックの状態を返します。'
+        'タイトル、単位、編集中の画層、範囲、および各画層の表示・フリーズ・ロックの状態を返します。'
     },
     textContents: {
       title: '文字の一覧',
@@ -91,8 +91,9 @@ export const scriptExampleCopyByLocale = {
         '文字、マルチテキスト、属性の文字列を、画層とオブジェクト ID と一緒に集めます。'
     },
     selectCurrentLayer: {
-      title: '現在の画層を選択',
-      description: '図面の現在の画層上にあるすべてのオブジェクトを選択します。'
+      title: '編集中の画層を選択',
+      description:
+        '図面の編集中の画層上にあるすべてのオブジェクトを選択します。'
     },
     longestLines: {
       title: '最も長い線分',

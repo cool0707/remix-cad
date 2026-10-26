@@ -328,18 +328,16 @@ export class AcUiLayerListView {
     })
 
     const nameCell = document.createElement('td')
+    const nameWrap = document.createElement('div')
+    nameWrap.className = 'ml-ex-ui-layer-name-cell'
+    nameWrap.appendChild(
+      this.createCurrentButton(layer.name, layer.name === currentLayer)
+    )
     const nameEl = document.createElement('span')
     nameEl.className = 'ml-ex-ui-layer-name'
     nameEl.textContent = layer.name
-    if (layer.name === currentLayer) {
-      const marker = document.createElement('span')
-      marker.className = 'ml-ex-ui-layer-current-marker'
-      marker.textContent = '*'
-      marker.title = this.i18n.t('layerManager.currentLayer')
-      marker.setAttribute('aria-hidden', 'true')
-      nameEl.appendChild(marker)
-    }
-    nameCell.appendChild(nameEl)
+    nameWrap.appendChild(nameEl)
+    nameCell.appendChild(nameWrap)
 
     const onCell = document.createElement('td')
     onCell.className = 'center'
@@ -374,6 +372,37 @@ export class AcUiLayerListView {
     row.appendChild(onCell)
     row.appendChild(colorCell)
     return row
+  }
+
+  /**
+   * Creates the pencil button in front of a layer name. It is highlighted on
+   * the current layer (`CLAYER`) and makes the layer current when clicked.
+   *
+   * @param layerName - Layer the button belongs to.
+   * @param isCurrent - Whether the layer is the current layer.
+   */
+  private createCurrentButton(layerName: string, isCurrent: boolean) {
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'ml-ex-ui-layer-current-button'
+    button.classList.toggle('is-current', isCurrent)
+    const label = this.i18n.t(
+      isCurrent ? 'layerManager.currentLayer' : 'layerManager.setCurrentLayer'
+    )
+    button.title = label
+    button.setAttribute('aria-label', label)
+    button.setAttribute('aria-pressed', String(isCurrent))
+    button.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M4 20l1.2-4.8L15.6 4.8a2.1 2.1 0 0 1 3 3L8.2 18.8z"/>' +
+      '<path d="M13.8 6.6l3.6 3.6"/></svg>'
+    button.addEventListener('dblclick', event => event.stopPropagation())
+    button.addEventListener('click', event => {
+      event.stopPropagation()
+      if (isCurrent) return
+      this.activeLayerStore?.setCurrentLayer(layerName)
+    })
+    return button
   }
 
   /**
