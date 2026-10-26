@@ -36,8 +36,8 @@ export default {
       accessMode: 'وضع الوصول',
       read: 'قراءة',
       readHint: 'عرض فقط',
-      review: 'مراجعة',
-      reviewHint: 'عرض ومراجعة',
+      review: 'تعليقات',
+      reviewHint: 'عرض وتعليق',
       write: 'تحرير',
       writeHint: 'وصول كامل',
 

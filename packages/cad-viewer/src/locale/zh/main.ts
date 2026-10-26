@@ -18,7 +18,7 @@ export default {
     tab: {
       home: '常用',
       insert: '插入',
-      review: '审阅',
+      review: '批注',
       measurement: '测量',
       hatchContext: '填充',
       mtextEditorContext: '文字编辑器'
@@ -217,7 +217,7 @@ export default {
       properties: '属性',
       utilities: '实用工具',
       annotation: '批注',
-      review: '审阅',
+      review: '批注',
       measurement: '测量',
       style: '样式',
       lengthUnits: '长度单位',
@@ -384,9 +384,9 @@ export default {
       drawingUnits: '图形单位',
       attachDwg: '附着\nDWG',
       attachImage: '附着\n图像',
-      insert: '插入',
-      editAttributes: '编辑属性',
-      defineAttribute: '定义属性',
+      insert: '符号',
+      editAttributes: '编辑符号属性',
+      defineAttribute: '符号属性定义',
       agent: 'CAD Agent'
     }
   },
@@ -446,8 +446,8 @@ export default {
       description: '将测量标注导出为 sidecar JSON 文件'
     },
     annotation: {
-      text: '审阅',
-      description: '审阅工具'
+      text: '批注',
+      description: '批注工具'
     },
     layer: {
       text: '图层',

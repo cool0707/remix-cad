@@ -36,7 +36,7 @@ export const zh: Record<string, string> = {
   'toolbar.measurementPanel': '看结果',
   'toolbar.switchBg': '背景',
   'toolbar.readingMode': '阅读',
-  'toolbar.annotation': '审阅工具',
+  'toolbar.annotation': '批注工具',
   'toolbar.annotationShort': '批注',
   'toolbar.markupCloud': '云线',
   'toolbar.markupCallout': '标注',

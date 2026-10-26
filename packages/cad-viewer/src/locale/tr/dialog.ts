@@ -129,7 +129,7 @@ export default {
     viewerModeView: 'Görüntüle',
     viewerModeViewHint:
       'Yalnızca kaydırma, yakınlaştırma ve katman kontrolleri',
-    viewerModeMeasure: 'Ölçüm ve İnceleme',
+    viewerModeMeasure: 'Ölçüm ve Yorumlar',
     viewerModeMeasureHint:
       'Görüntüleme araçlarına ek olarak ölçüm ve işaretleme',
     expirySection: 'Geçerlilik',

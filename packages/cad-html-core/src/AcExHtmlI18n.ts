@@ -291,7 +291,7 @@ const BASE_MESSAGES: Record<
       measureExport: 'Export',
       measurementPanel: 'Results',
       measure: 'Measure',
-      annotation: 'Review',
+      annotation: 'Comments',
       markupCloud: 'Cloud',
       markupCallout: 'Callout',
       markupText: 'Text',
@@ -376,8 +376,8 @@ const BASE_MESSAGES: Record<
       zoomTo: 'Zoom to {name}'
     },
     review: {
-      title: 'Review',
-      close: 'Close review',
+      title: 'Comments',
+      close: 'Close comments',
       searchPlaceholder: 'Search markups',
       empty: 'No markups yet',
       type: 'Type',
@@ -560,7 +560,7 @@ const BASE_MESSAGES: Record<
       measureExport: '导出',
       measurementPanel: '看结果',
       measure: '测量',
-      annotation: '审阅',
+      annotation: '批注',
       markupCloud: '云线',
       markupCallout: '标注',
       markupText: '文字',
@@ -817,7 +817,7 @@ const BASE_MESSAGES: Record<
       measureExport: 'Export',
       measurementPanel: 'Výsledky',
       measure: 'Měření',
-      annotation: 'Kontrola',
+      annotation: 'Komentáře',
       markupCloud: 'Obláček',
       markupCallout: 'Odkaz',
       markupText: 'Text',
@@ -901,8 +901,8 @@ const BASE_MESSAGES: Record<
       zoomTo: 'Přiblížit na {name}'
     },
     review: {
-      title: 'Kontrola',
-      close: 'Zavřít kontrolu',
+      title: 'Komentáře',
+      close: 'Zavřít komentáře',
       searchPlaceholder: 'Hledat poznámky',
       empty: 'Zatím žádné poznámky',
       type: 'Typ',
@@ -1085,7 +1085,7 @@ const BASE_MESSAGES: Record<
       measureExport: 'Dışa aktar',
       measurementPanel: 'Sonuç',
       measure: 'Ölçüm',
-      annotation: 'İnceleme',
+      annotation: 'Yorumlar',
       markupCloud: 'Bulut',
       markupCallout: 'Çağrı',
       markupText: 'Metin',
@@ -1169,8 +1169,8 @@ const BASE_MESSAGES: Record<
       zoomTo: '{name} katmanına yakınlaştır'
     },
     review: {
-      title: 'İnceleme',
-      close: 'İncelemeyi kapat',
+      title: 'Yorumlar',
+      close: 'Yorumları kapat',
       searchPlaceholder: 'İşaretlerde ara',
       empty: 'Henüz işaret yok',
       type: 'Tür',
@@ -1605,7 +1605,7 @@ const JA_MESSAGES: AcExMessageTree = {
     measureExport: '書き出し',
     measurementPanel: '結果',
     measure: '計測',
-    annotation: 'レビュー',
+    annotation: 'コメント',
     markupCloud: '雲マーク',
     markupCallout: '吹き出し',
     markupText: '文字',
@@ -1690,8 +1690,8 @@ const JA_MESSAGES: AcExMessageTree = {
     zoomTo: '{name} にズーム'
   },
   review: {
-    title: 'レビュー',
-    close: 'レビューを閉じる',
+    title: 'コメント',
+    close: 'コメントを閉じる',
     searchPlaceholder: 'マークアップを検索',
     empty: 'マークアップはまだありません',
     type: '種類',

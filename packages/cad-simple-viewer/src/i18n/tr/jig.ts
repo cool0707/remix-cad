@@ -1292,8 +1292,8 @@ export default {
         global: 'View'
       },
       measure: {
-        display: 'Ölçüm ve İnceleme(Ö)',
-        local: 'Ölçüm ve İnceleme',
+        display: 'Ölçüm ve Yorumlar(Ö)',
+        local: 'Ölçüm ve Yorumlar',
         global: 'Measure'
       }
     }

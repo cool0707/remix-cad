@@ -18,7 +18,7 @@ export default {
     tab: {
       home: 'Domů',
       insert: 'Vložit',
-      review: 'Kontrola',
+      review: 'Komentáře',
       measurement: 'Měření',
       hatchContext: 'Vzorová výplň',
       mtextEditorContext: 'Editor textu'
@@ -220,7 +220,7 @@ export default {
       properties: 'Vlastnosti',
       utilities: 'Nástroje',
       annotation: 'Poznámky',
-      review: 'Kontrola',
+      review: 'Komentáře',
       measurement: 'Měření',
       style: 'Styl',
       lengthUnits: 'Jednotky délky',
@@ -412,9 +412,9 @@ export default {
       drawingUnits: 'Jednotky\nvýkresu',
       attachDwg: 'Připojit\nDWG',
       attachImage: 'Připojit\nobrázek',
-      insert: 'Vložit',
-      editAttributes: 'Upravit\nvlastnosti',
-      defineAttribute: 'Definovat\nvlastnost',
+      insert: 'Symbol',
+      editAttributes: 'Upravit vlastnosti\nsymbolu',
+      defineAttribute: 'Definovat vlastnost\nsymbolu',
       agent: 'CAD\nAgent'
     }
   },
@@ -475,8 +475,8 @@ export default {
       description: 'Exportuje měření do sidecar JSON souboru'
     },
     annotation: {
-      text: 'Revize',
-      description: 'Nástroje kontroly'
+      text: 'Komentáře',
+      description: 'Nástroje komentářů'
     },
     layer: {
       text: 'Hladiny',
@@ -839,8 +839,8 @@ export default {
       }
     },
     designReview: {
-      tab: 'Kontrola',
-      title: 'Kontrola',
+      tab: 'Komentáře',
+      title: 'Komentáře',
       searchPlaceholder: 'Hledat poznámky',
       empty: 'Zatím žádné poznámky',
       type: 'Typ',

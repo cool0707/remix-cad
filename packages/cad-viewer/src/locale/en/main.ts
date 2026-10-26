@@ -18,7 +18,7 @@ export default {
     tab: {
       home: 'Home',
       insert: 'Insert',
-      review: 'Review',
+      review: 'Comments',
       measurement: 'Measurement',
       hatchContext: 'Pattern fill',
       mtextEditorContext: 'Text Editor'
@@ -220,7 +220,7 @@ export default {
       properties: 'Properties',
       utilities: 'Utilities',
       annotation: 'Annotation',
-      review: 'Review',
+      review: 'Comments',
       measurement: 'Measurement',
       style: 'Style',
       lengthUnits: 'Length Units',
@@ -418,9 +418,9 @@ export default {
       drawingUnits: 'Drawing\nUnits',
       attachDwg: 'Attach\nDWG',
       attachImage: 'Attach\nImage',
-      insert: 'Insert',
-      editAttributes: 'Edit\nProperties',
-      defineAttribute: 'Define\nProperty',
+      insert: 'Symbol',
+      editAttributes: 'Edit Symbol\nProperties',
+      defineAttribute: 'Symbol Property\nDefinition',
       agent: 'CAD\nAgent'
     }
   },
@@ -482,8 +482,8 @@ export default {
       description: 'Export measurements to a sidecar JSON file'
     },
     annotation: {
-      text: 'Review',
-      description: 'Review tools'
+      text: 'Comments',
+      description: 'Comment tools'
     },
     layer: {
       text: 'Layer',
@@ -852,8 +852,8 @@ export default {
       }
     },
     designReview: {
-      tab: 'Review',
-      title: 'Review',
+      tab: 'Comments',
+      title: 'Comments',
       searchPlaceholder: 'Search markups',
       empty: 'No markups yet',
       type: 'Type',

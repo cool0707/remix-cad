@@ -36,8 +36,8 @@ export default {
       accessMode: 'Erişim modu',
       read: 'Oku',
       readHint: 'Yalnızca görüntüle',
-      review: 'İnceleme',
-      reviewHint: 'Görüntüle ve incele',
+      review: 'Yorumlar',
+      reviewHint: 'Görüntüle ve yorum yap',
       write: 'Yaz',
       writeHint: 'Tam erişim',
 

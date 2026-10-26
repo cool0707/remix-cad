@@ -18,7 +18,7 @@ export default {
     tab: {
       home: 'ホーム',
       insert: '挿入',
-      review: 'レビュー',
+      review: 'コメント',
       measurement: '計測',
       hatchContext: '塗りつぶし',
       mtextEditorContext: '文字エディタ'
@@ -219,7 +219,7 @@ export default {
       properties: 'プロパティ',
       utilities: 'ユーティリティ',
       annotation: '注釈',
-      review: 'レビュー',
+      review: 'コメント',
       measurement: '計測',
       style: 'スタイル',
       lengthUnits: '長さの単位',
@@ -402,9 +402,9 @@ export default {
       drawingUnits: '図面\n単位',
       attachDwg: 'DWG\nアタッチ',
       attachImage: 'イメージ\nアタッチ',
-      insert: '挿入',
-      editAttributes: 'プロパティ\n編集',
-      defineAttribute: 'プロパティ\n定義',
+      insert: 'シンボル',
+      editAttributes: 'シンボルの\nプロパティ編集',
+      defineAttribute: 'シンボルの\nプロパティ定義',
       agent: 'CAD\nエージェント'
     }
   },
@@ -465,8 +465,8 @@ export default {
       description: '計測をサイドカー JSON ファイルに書き出します'
     },
     annotation: {
-      text: 'レビュー',
-      description: 'レビューツール'
+      text: 'コメント',
+      description: 'コメントツール'
     },
     layer: {
       text: 'レイヤー',
@@ -834,8 +834,8 @@ export default {
       }
     },
     designReview: {
-      tab: 'レビュー',
-      title: 'レビュー',
+      tab: 'コメント',
+      title: 'コメント',
       searchPlaceholder: 'マークアップを検索',
       empty: 'マークアップはまだありません',
       type: '種類',

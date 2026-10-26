@@ -456,7 +456,7 @@ export default {
     }
   },
   markup: {
-    author: 'レビュー担当者を指定 (次回以降のために保存されます)',
+    author: 'コメントの作成者を指定 (次回以降のために保存されます)',
     text: {
       point: '文字マークアップの位置を指定',
       content: 'マークアップの文字を入力'
@@ -869,8 +869,8 @@ export default {
       },
       view: { display: '閲覧(V)', local: '閲覧', global: 'View' },
       measure: {
-        display: '計測とレビュー(M)',
-        local: '計測とレビュー',
+        display: '計測とコメント(M)',
+        local: '計測とコメント',
         global: 'Measure'
       }
     }

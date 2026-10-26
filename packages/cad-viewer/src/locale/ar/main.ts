@@ -27,7 +27,7 @@ export default {
       ...enMain.ribbon.tab,
       home: 'الرئيسية',
       insert: 'إدراج',
-      review: 'مراجعة',
+      review: 'تعليقات',
       measurement: 'القياس',
       hatchContext: 'التعبئة بالنمط',
       mtextEditorContext: 'محرر النص'
@@ -41,7 +41,7 @@ export default {
       properties: 'الخصائص',
       utilities: 'أدوات',
       annotation: 'تعليقات توضيحية',
-      review: 'مراجعة',
+      review: 'تعليقات',
       measurement: 'القياس',
       style: 'النمط',
       lengthUnits: 'وحدات الطول',
@@ -105,8 +105,8 @@ export default {
       drawingUnits: 'وحدات\nالرسم',
       attachDwg: 'إرفاق\nDWG',
       attachImage: 'إرفاق\nصورة',
-      editAttributes: 'تعديل\nالخصائص',
-      defineAttribute: 'تعريف\nخاصية',
+      editAttributes: 'تعديل خصائص\nالرمز',
+      defineAttribute: 'تعريف خاصية\nالرمز',
       agent: 'وكيل\nCAD'
 ,
   mline: 'خط متعدد',
@@ -671,7 +671,7 @@ export default {
 
     annotation: {
       ...enMain.verticalToolbar.annotation,
-      text: 'مراجعة',
+      text: 'تعليقات',
       description: 'أدوات المراجعة'
     },
 

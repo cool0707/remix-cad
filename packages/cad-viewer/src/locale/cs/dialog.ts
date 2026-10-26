@@ -128,7 +128,7 @@ export default {
     viewerMode: 'Režim prohlížeče',
     viewerModeView: 'Prohlížení',
     viewerModeViewHint: 'Pouze posun, přiblížení a ovládání hladin',
-    viewerModeMeasure: 'Měření a kontrola',
+    viewerModeMeasure: 'Měření a komentáře',
     viewerModeMeasureHint: 'Nástroje prohlížení plus měření a poznámky',
     expirySection: 'Platnost',
     expiry1Day: '1 den',

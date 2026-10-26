@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test'
 
 export async function selectAccessMode(
   page: Page,
-  mode: 'Read' | 'Review' | 'Write'
+  mode: 'Read' | 'Comments' | 'Write'
 ) {
   await page.getByRole('radio', { name: new RegExp(`^${mode}\\b`) }).click()
 }
@@ -24,7 +24,7 @@ export async function uploadFixture(
   page: Page,
   filePath: string,
   options?: {
-    accessMode?: 'Read' | 'Review' | 'Write'
+    accessMode?: 'Read' | 'Comments' | 'Write'
     initialView?: 'Auto' | 'Extents' | 'Saved'
   }
 ) {
