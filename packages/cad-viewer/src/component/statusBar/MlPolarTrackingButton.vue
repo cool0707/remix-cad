@@ -13,24 +13,38 @@
       popper-class="ml-polar-tracking-popper"
       @command="handleCommand"
     >
-      <el-button class="ml-polar-tracking-button__arrow">
+      <el-button
+        class="ml-polar-tracking-button__arrow"
+        :title="t('main.statusBar.polarTracking.menuTooltip')"
+        :aria-label="t('main.statusBar.polarTracking.menuTooltip')"
+      >
         <el-icon>
           <ArrowDown />
         </el-icon>
       </el-button>
       <template #dropdown>
         <el-dropdown-menu>
+          <li class="ml-polar-tracking-menu__title" role="presentation">
+            {{ t('main.statusBar.polarTracking.menuTitle') }}
+          </li>
           <el-dropdown-item
             v-for="increment in polarIncrements"
             :key="increment"
             :command="increment"
-            :icon="
-              isSamePolarIncrement(currentPolarang, increment)
-                ? Check
-                : undefined
-            "
           >
-            {{ formatPolarIncrementMenuLabel(increment) }}
+            <el-icon class="ml-polar-tracking-menu__check">
+              <Check v-if="isSamePolarIncrement(currentPolarang, increment)" />
+            </el-icon>
+            <span class="ml-polar-tracking-menu__step">
+              {{
+                t('main.statusBar.polarTracking.step', {
+                  angle: formatPolarAngle(increment)
+                })
+              }}
+            </span>
+            <span class="ml-polar-tracking-menu__preview">
+              {{ formatPolarIncrementMenuLabel(increment) }}
+            </span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
@@ -64,6 +78,7 @@ import {
 } from '../../composable/useSystemVars'
 import { polarTracking } from '../../svg'
 import {
+  formatPolarAngle,
   formatPolarIncrementMenuLabel,
   isSamePolarIncrement,
   POLAR_TRACKING_INCREMENTS
@@ -133,5 +148,32 @@ const handleCommand = (command: number) => {
 
 .ml-polar-tracking-button__arrow :deep(.el-icon) {
   font-size: 10px;
+}
+
+.ml-polar-tracking-menu__title {
+  padding: 6px 16px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--el-text-color-secondary);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+  margin-bottom: 4px;
+  list-style: none;
+  cursor: default;
+  user-select: none;
+}
+
+.ml-polar-tracking-menu__check {
+  width: 1em;
+  margin-inline-end: 6px;
+}
+
+.ml-polar-tracking-menu__step {
+  min-width: 6em;
+}
+
+.ml-polar-tracking-menu__preview {
+  margin-inline-start: 12px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
 }
 </style>

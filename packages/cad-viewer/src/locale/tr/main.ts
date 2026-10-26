@@ -683,7 +683,10 @@ export default {
     },
     polarTracking: {
       on: 'Kutupsal izlemeyi kapat',
-      off: 'Kutupsal izlemeyi aç'
+      off: 'Kutupsal izlemeyi aç',
+      menuTitle: 'Kutupsal izleme açısı',
+      menuTooltip: 'Kutupsal izleme açısını seçin',
+      step: 'Her {angle}'
     },
     zoom: {
       zoomIn: 'Yakınlaştır',

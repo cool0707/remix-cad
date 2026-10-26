@@ -683,7 +683,10 @@ export default {
     },
     polarTracking: {
       on: 'Turn off polar tracking',
-      off: 'Turn on polar tracking'
+      off: 'Turn on polar tracking',
+      menuTitle: 'Polar tracking angle',
+      menuTooltip: 'Choose the polar tracking angle',
+      step: 'Every {angle}'
     },
     zoom: {
       zoomIn: 'Zoom in',

@@ -670,7 +670,10 @@ export default {
     },
     polarTracking: {
       on: 'Vypnout polární trasování',
-      off: 'Zapnout polární trasování'
+      off: 'Zapnout polární trasování',
+      menuTitle: 'Úhel polárního trasování',
+      menuTooltip: 'Zvolit úhel polárního trasování',
+      step: 'Po {angle}'
     },
     zoom: {
       zoomIn: 'Přiblížit',

@@ -639,7 +639,10 @@ export default {
     },
     polarTracking: {
       on: '关闭极轴追踪',
-      off: '打开极轴追踪'
+      off: '打开极轴追踪',
+      menuTitle: '极轴追踪角度',
+      menuTooltip: '选择极轴追踪角度',
+      step: '每 {angle}'
     },
     zoom: {
       zoomIn: '放大',

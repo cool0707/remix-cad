@@ -664,7 +664,10 @@ export default {
     },
     polarTracking: {
       on: '極トラッキングをオフにする',
-      off: '極トラッキングをオンにする'
+      off: '極トラッキングをオンにする',
+      menuTitle: '極トラッキングの角度',
+      menuTooltip: '極トラッキングの角度を選ぶ',
+      step: '{angle} ごと'
     },
     zoom: {
       zoomIn: '拡大',
