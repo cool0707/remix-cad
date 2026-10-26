@@ -17,6 +17,7 @@ import {
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
 import { resolveSelectedEntities } from '../../service'
+import { acapAddUndoOnRightClick } from '../draw/AcApRepeatDrawUtil'
 import { AcApCopyPreviewJig } from './AcApCopyPreviewJig'
 
 type CopyMode = 'Single' | 'Multiple'
@@ -295,6 +296,8 @@ export class AcApCopyCmd extends AcEdCommand {
     copyMode: CopyMode,
     useDisplacementPrompt: boolean = false
   ) {
+    // Copy batches placed so far; right-click (`Undo`) removes the last one.
+    const placed: AcDbEntity[][] = []
     while (true) {
       const pointPrompt = new AcEdPromptPointOptions(
         AcApI18n.t(
@@ -309,6 +312,10 @@ export class AcApCopyCmd extends AcEdCommand {
       pointPrompt.basePoint = basePoint
       // AutoCAD COPY: Enter at placement prompt ends without adding another copy.
       pointPrompt.allowNone = true
+      if (copyMode === 'Multiple') {
+        // Double-click ends too; right-click removes the last copy.
+        acapAddUndoOnRightClick(pointPrompt)
+      }
       pointPrompt.jig = new AcApCopyPreviewJig(
         context.view,
         sourceEntities,
@@ -323,7 +330,19 @@ export class AcApCopyCmd extends AcEdCommand {
           this.computeDisplacement(basePoint, pointResult.value!)
         )
         this.appendCopies(context, copies)
+        placed.push(copies)
         if (copyMode === 'Single') return
+        continue
+      }
+
+      if (
+        pointResult.status === AcEdPromptStatus.Keyword &&
+        pointResult.stringResult === 'Undo'
+      ) {
+        for (const entity of placed.pop() ?? []) {
+          entity.erase()
+          context.view.removeEntity(entity)
+        }
         continue
       }
 
@@ -345,6 +364,7 @@ export class AcApCopyCmd extends AcEdCommand {
           placement.fitMode
         )
         this.appendCopies(context, copies)
+        placed.push(copies)
         if (copyMode === 'Single') return
         continue
       }

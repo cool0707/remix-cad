@@ -182,6 +182,9 @@ export class AcApLayerFreezeCmd extends AcApLayerMutationCmd {
 
     this.addKeyword(prompt, 'settings')
     this.addKeyword(prompt, 'undo')
+    // Double-click ends; right-click undoes the last change.
+    prompt.finishOnDoubleClick = true
+    prompt.rightClickKeyword = 'Undo'
 
     const result = await AcApDocManager.instance.editor.getEntity(prompt)
     if (result.status === AcEdPromptStatus.OK && result.objectId) {

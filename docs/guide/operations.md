@@ -13,7 +13,8 @@ title: Operations
 | Scroll wheel | Zoom the view |
 | Middle-button or Shift + Middle-button drag | Pan the view |
 | Space + left-button drag | Pan the view (also works during a command) |
-| Right-click | Outside a command: show the context menu; inside a command: acts as Enter to confirm |
+| Right-click | Outside a command: show the context menu; inside a command: acts as Enter to confirm. In commands that repeat (LINE, PLINE, COPY, OFFSET, HATCH, chained / area measurement, etc.) it steps back one operation instead |
+| Double-click | Ends a command that repeats (LINE, PLINE, COPY, OFFSET, HATCH, chained / area measurement, etc.) |
 | Esc | Cancel the current command |
 | Enter / Space | Confirm the current step or repeat the last command |
 | Ctrl + Z | Undo |

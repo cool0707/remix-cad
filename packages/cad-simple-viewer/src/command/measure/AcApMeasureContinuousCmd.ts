@@ -29,6 +29,7 @@ import {
   MEASUREMENT_LINE_WEIGHT
 } from '../../util'
 import { AcTrView2d } from '../../view'
+import { acapAddUndoOnRightClick } from '../draw/AcApRepeatDrawUtil'
 import {
   AcApHtmlLivePreview,
   acapStrokeLivePolyline
@@ -220,8 +221,9 @@ export class AcApMeasureContinuousJig extends AcEdPreviewJig<AcGePoint3dLike> {
 /**
  * Command that measures chained straight-line distances, like LINE.
  *
- * The user keeps picking the next vertex until Enter or Cancel. Each
- * consecutive pair is committed as a normal distance measurement.
+ * The user keeps picking the next vertex until double-click, Enter or
+ * Cancel; right-click removes the last vertex. Each consecutive pair is
+ * committed as a normal distance measurement.
  */
 export class AcApMeasureContinuousCmd extends AcApMeasureDrawCmd {
   async execute(context: AcApContext) {
@@ -246,9 +248,13 @@ export class AcApMeasureContinuousCmd extends AcApMeasureDrawCmd {
           )
           prompt.useBasePoint = true
           prompt.basePoint = new AcGePoint3d(points[points.length - 1])
-          prompt.allowNone = true
+          acapAddUndoOnRightClick(prompt)
           prompt.jig = jig
           const result = await editor.getPoint(prompt)
+          if (result.status === AcEdPromptStatus.Keyword) {
+            if (points.length > 1) points.pop()
+            continue
+          }
           if (result.status !== AcEdPromptStatus.OK) break
           const next = clonePoint(result.value!)
           const last = points[points.length - 1]!

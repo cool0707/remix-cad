@@ -126,6 +126,13 @@ test('HATCH fills the room around a clicked point, leaving the circle as an isla
   await page.mouse.click(inCircle.x, inCircle.y)
   await expect.poll(async () => (await hatches(page)).length).toBe(2)
 
+  // Right-click takes the last hatch back; the circle can be picked again.
+  await page.mouse.click(inCircle.x, inCircle.y, { button: 'right' })
+  await expect.poll(async () => (await hatches(page)).length).toBe(1)
+  await page.waitForTimeout(300)
+  await page.mouse.click(inCircle.x, inCircle.y)
+  await expect.poll(async () => (await hatches(page)).length).toBe(2)
+
   await page.keyboard.press('Escape')
 
   const [room, disc] = await hatches(page)

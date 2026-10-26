@@ -21,6 +21,7 @@ import {
   AcEdPromptStatus
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
+import { acapAddUndoOnRightClick } from './AcApRepeatDrawUtil'
 
 /** SKPOLY: 0 = lines, 1 = polyline, 2 = spline. */
 export type AcApSketchType = 'line' | 'polyline' | 'spline'
@@ -181,6 +182,12 @@ class AcApSketchStrokePreview {
     this.view.addTransientEntity(polyline)
   }
 
+  /** Removes the last stroke added by {@link addStroke}. */
+  removeLastStroke() {
+    const entity = this._entities.pop()
+    if (entity) this.view.removeTransientEntity(entity.objectId)
+  }
+
   /**
    * Re-publishes transients. Keyword and distance prompts do not drive jigs.
    */
@@ -246,13 +253,18 @@ export class AcApSketchCmd extends AcEdCommand {
         addKeyword(prompt, 'type')
         addKeyword(prompt, 'increment')
         addKeyword(prompt, 'tolerance')
-        prompt.allowNone = true
+        // Double-click (or Enter) ends; right-click removes the last stroke.
+        acapAddUndoOnRightClick(prompt)
         prompt.disableOSnap = true
         prompt.jig = new AcApSketchRetainJig(context.view, preview)
 
         const result = await AcApDocManager.instance.editor.getPoint(prompt)
         if (result.status === AcEdPromptStatus.Keyword) {
           const keyword = result.stringResult ?? ''
+          if (keyword === 'Undo') {
+            if (strokes.pop()) preview.removeLastStroke()
+            continue
+          }
           if (keyword === 'Type') {
             const accepted = await this.promptType(settings, preview)
             if (!accepted) return
@@ -277,13 +289,14 @@ export class AcApSketchCmd extends AcEdCommand {
         }
         if (result.status !== AcEdPromptStatus.OK || !result.value) return
 
-        const points = await this.captureStroke(
+        const stroke = await this.captureStroke(
           context,
           settings,
           result.value,
           preview
         )
-        if (points === false) return
+        if (stroke === false) return
+        const { points, finish } = stroke
         if (points.length >= 2) {
           strokes.push({
             points,
@@ -291,6 +304,10 @@ export class AcApSketchCmd extends AcEdCommand {
             tolerance: settings.tolerance
           })
           preview.addStroke(points)
+        }
+        if (finish) {
+          this.commitStrokes(context, strokes)
+          return
         }
       }
     } finally {
@@ -396,17 +413,20 @@ export class AcApSketchCmd extends AcEdCommand {
   }
 
   /**
-   * Records one freehand stroke: click starts, move draws, click or Enter stops.
+   * Records one freehand stroke: click starts, move draws, click stops.
+   * Double-click or Enter stops it and ends the command; right-click drops
+   * the stroke.
    *
    * @returns `false` when the user cancels the command entirely; otherwise the
-   * captured points (possibly fewer than two if the stroke is too short).
+   * captured points (possibly fewer than two if the stroke is too short or
+   * was dropped) and whether the command should end.
    */
   private async captureStroke(
     context: AcApContext,
     settings: AcApSketchSettings,
     start: AcGePoint2dLike,
     preview: AcApSketchStrokePreview
-  ): Promise<AcGePoint2d[] | false> {
+  ): Promise<{ points: AcGePoint2d[]; finish: boolean } | false> {
     preview.render()
     const jig = new AcApSketchJig(context.view, start, settings.increment)
     const prompt = new AcEdPromptPointOptions(
@@ -416,11 +436,14 @@ export class AcApSketchCmd extends AcEdCommand {
     prompt.useDashedLine = false
     prompt.useBasePoint = true
     prompt.basePoint = toPoint3d(start)
-    prompt.allowNone = true
+    acapAddUndoOnRightClick(prompt)
     prompt.disableOSnap = true
 
     const result = await AcApDocManager.instance.editor.getPoint(prompt)
     if (result.status === AcEdPromptStatus.Cancel) return false
+    if (result.status === AcEdPromptStatus.Keyword) {
+      return { points: [], finish: false }
+    }
 
     const points = [...jig.points]
     if (result.status === AcEdPromptStatus.OK && result.value) {
@@ -429,7 +452,7 @@ export class AcApSketchCmd extends AcEdCommand {
         points.push(toPoint2d(result.value))
       }
     }
-    return points
+    return { points, finish: result.status === AcEdPromptStatus.None }
   }
 
   private commitStrokes(context: AcApContext, strokes: AcApSketchStroke[]) {

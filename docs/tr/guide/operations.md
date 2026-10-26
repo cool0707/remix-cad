@@ -13,7 +13,8 @@ title: İşlem Yöntemleri
 | Tekerlek | Görünümü yakınlaştır |
 | Orta veya Shift + Orta sürükle | Görünümü kaydır |
 | Space + sol tuşla sürükle | Görünümü kaydır (komut sırasında da çalışır) |
-| Sağ tık | Komut dışında: bağlam menüsü açar; komut sırasında: Enter yerine geçer |
+| Sağ tık | Komut dışında: bağlam menüsü açar; komut sırasında: Enter yerine geçer. Tekrarlayan komutlarda (çizgi, çoklu çizgi, kopyala, ötele, tarama, zincir / alan ölçümü vb.) bunun yerine bir adım geri alır |
+| Çift tık | Tekrarlayan komutu bitirir (çizgi, çoklu çizgi, kopyala, ötele, tarama, zincir / alan ölçümü vb.) |
 | Esc | Geçerli komutu iptal et |
 | Enter / Boşluk | Geçerli adımı onayla veya son komutu tekrarla |
 | Ctrl + Z | Geri al |

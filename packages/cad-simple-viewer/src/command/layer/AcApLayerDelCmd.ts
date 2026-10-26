@@ -150,6 +150,9 @@ export class AcApLayerDelCmd extends AcApLayerMutationCmd {
     prompt.setRejectMessage(AcApI18n.t('jig.laydel.invalidSelection'))
     this.addKeyword(prompt, 'name')
     this.addKeyword(prompt, 'undo')
+    // Double-click ends; right-click undoes the last change.
+    prompt.finishOnDoubleClick = true
+    prompt.rightClickKeyword = 'Undo'
 
     const result = await AcApDocManager.instance.editor.getEntity(prompt)
     if (result.status === AcEdPromptStatus.OK && result.objectId) {

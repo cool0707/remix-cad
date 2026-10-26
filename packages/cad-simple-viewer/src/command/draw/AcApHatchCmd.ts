@@ -40,6 +40,7 @@ import {
   type AcApHatchBoundarySet,
   acapHatchLoopFor
 } from './AcApHatchBoundarySet'
+import { acapAddUndoOnRightClick } from './AcApRepeatDrawUtil'
 
 /**
  * Persisted HATCH command options reused between command invocations.
@@ -237,6 +238,15 @@ export class AcApHatchCmd extends AcEdCommand {
   private _pickedAreas: Array<{ area: number; bounds: AcApHatchBounds }> = []
 
   /**
+   * Hatches made in this run, one entry per pick or object selection, so
+   * right-click (`Undo`) can take the last one back.
+   */
+  private _hatchHistory: Array<{
+    hatches: AcDbHatch[]
+    pickedArea?: { area: number; bounds: AcApHatchBounds }
+  }> = []
+
+  /**
    * Forgets the boundary set and the areas picked so far. Called when a
    * HATCH run starts.
    */
@@ -244,6 +254,37 @@ export class AcApHatchCmd extends AcEdCommand {
     this._pickBoundary = undefined
     this._wholeDrawingTooComplex = undefined
     this._pickedAreas = []
+    this._hatchHistory = []
+  }
+
+  /**
+   * Adds the `Undo` keyword to a boundary prompt: double-click (or Enter)
+   * ends it and right-click picks `Undo` instead.
+   *
+   * @param options - Boundary point prompt.
+   */
+  protected addUndoOnRightClick(options: AcEdPromptPointOptions) {
+    acapAddUndoOnRightClick(options)
+  }
+
+  /**
+   * Erases the hatches of the last pick or object selection in this run.
+   *
+   * @param context - Active command context.
+   * @returns The erased hatches (empty when there was nothing to undo).
+   */
+  protected undoLastHatch(context: AcApContext): AcDbHatch[] {
+    const last = this._hatchHistory.pop()
+    if (!last) return []
+    for (const hatch of last.hatches) {
+      hatch.erase()
+      context.view.removeEntity(hatch)
+    }
+    if (last.pickedArea) {
+      const index = this._pickedAreas.indexOf(last.pickedArea)
+      if (index >= 0) this._pickedAreas.splice(index, 1)
+    }
+    return last.hatches
   }
 
   /** Shows a warning as a notification. */
@@ -425,8 +466,11 @@ export class AcApHatchCmd extends AcEdCommand {
         acapHatchLoopFor(pick.set, island.outline, island.sources)
       )
     ]
-    if (!this.appendHatch(context, loops)) return false
-    this._pickedAreas.push({ area, bounds })
+    const hatch = this.appendHatch(context, loops)
+    if (!hatch) return false
+    const pickedArea = { area, bounds }
+    this._pickedAreas.push(pickedArea)
+    this._hatchHistory.push({ hatches: [hatch], pickedArea })
     this.showMessage(
       islands.length
         ? AcApI18n.t('jig.hatch.boundaryFoundIslands').replace(
@@ -494,7 +538,7 @@ export class AcApHatchCmd extends AcEdCommand {
         : style === AcDbHatchStyle.Outer
           ? 1
           : Infinity
-    let created = 0
+    const created: AcDbHatch[] = []
     outlines.forEach((top, i) => {
       if (depth[i] !== 0) return
       const loops = [acapHatchLoopFor(set, top.outline, top.sources)]
@@ -503,8 +547,10 @@ export class AcApHatchCmd extends AcEdCommand {
         if (!this.loopContains(top.outline, inner.outline)) return
         loops.push(acapHatchLoopFor(set, inner.outline, inner.sources))
       })
-      if (this.appendHatch(context, loops)) created++
+      const hatch = this.appendHatch(context, loops)
+      if (hatch) created.push(hatch)
     })
+    if (created.length) this._hatchHistory.push({ hatches: created })
 
     const closedOwners = new Set(
       outlines.flatMap(o => o.sources.map(i => set.owners[i]))
@@ -525,7 +571,7 @@ export class AcApHatchCmd extends AcEdCommand {
         'warning'
       )
     }
-    return created > 0
+    return created.length > 0
   }
 
   /**
@@ -545,13 +591,13 @@ export class AcApHatchCmd extends AcEdCommand {
    *
    * @param context Active command context.
    * @param loops Boundary loops to be added to the hatch.
-   * @returns `true` when hatch entity was created; otherwise `false`.
+   * @returns The created hatch, or `undefined` when there are no loops.
    */
   protected appendHatch(
     context: AcApContext,
     loops: ReadonlyArray<AcGeLoop2dType>
   ) {
-    if (!loops.length) return false
+    if (!loops.length) return undefined
 
     const hatch = new AcDbHatch()
     if (context.doc.database instanceof AcDbDatabase) {
@@ -572,7 +618,7 @@ export class AcApHatchCmd extends AcEdCommand {
     context.doc.database.tables.blockTable.modelSpace.appendEntity(hatch)
     // Show it now: HATCH goes on picking boundaries until it is ended.
     context.view.addEntity(hatch)
-    return true
+    return hatch
   }
 
   /**
@@ -738,7 +784,8 @@ export class AcApHatchCmd extends AcEdCommand {
    * Executes pick-points branch of HATCH.
    *
    * The user can place multiple internal points. Each accepted point hatches
-   * the area around it, and pressing Enter terminates this branch.
+   * the area around it; right-click undoes the last one, and double-click or
+   * Enter terminates this branch.
    *
    * @param context Active command context.
    * @returns `true` if at least one hatch was created.
@@ -749,9 +796,13 @@ export class AcApHatchCmd extends AcEdCommand {
       const pointOptions = this.createInternalPointOptions(
         AcApI18n.t('jig.hatch.pickPoint')
       )
-      pointOptions.allowNone = true
+      this.addUndoOnRightClick(pointOptions)
       const pointResult =
         await AcApDocManager.instance.editor.getPoint(pointOptions)
+      if (pointResult.status === AcEdPromptStatus.Keyword) {
+        this.undoLastHatch(context)
+        continue
+      }
       if (pointResult.status !== AcEdPromptStatus.OK || !pointResult.value)
         break
       if (this.hatchAtPoint(context, pointResult.value)) {
@@ -768,7 +819,8 @@ export class AcApHatchCmd extends AcEdCommand {
    * Main loop behavior:
    * - Point: hatch the area around the internal point.
    * - Keyword branches: select objects, or option editing.
-   * - Enter/Cancel: exits command.
+   * - Right-click: undoes the last hatch.
+   * - Double-click/Enter/Cancel: exits command.
    *
    * @param context Active command context.
    * @returns Promise resolved when command ends.
@@ -811,6 +863,7 @@ export class AcApHatchCmd extends AcEdCommand {
         AcApI18n.t('jig.hatch.keywords.associative.global'),
         AcApI18n.t('jig.hatch.keywords.associative.local')
       )
+      this.addUndoOnRightClick(options)
 
       const result = await AcApDocManager.instance.editor.getPoint(options)
       if (result.status === AcEdPromptStatus.OK && result.value) {
@@ -820,7 +873,9 @@ export class AcApHatchCmd extends AcEdCommand {
 
       if (result.status === AcEdPromptStatus.Keyword) {
         const keyword = result.stringResult ?? ''
-        if (keyword === 'SelectObjects') {
+        if (keyword === 'Undo') {
+          this.undoLastHatch(context)
+        } else if (keyword === 'SelectObjects') {
           await this.doSelectObjects(context)
         } else if (keyword === 'Pattern') {
           await this.promptPatternName()

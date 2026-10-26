@@ -13,7 +13,8 @@ title: Způsoby ovládání
 | Kolečko | přiblížení pohledu |
 | Tažení prostředním tlačítkem nebo Shift + prostřední tlačítko | posun pohledu |
 | Mezerník + tažení levým tlačítkem | posun pohledu (funguje i během příkazu) |
-| Pravé tlačítko | mimo příkaz: kontextová nabídka; během příkazu: odpovídá Enter (potvrzení) |
+| Pravé tlačítko | mimo příkaz: kontextová nabídka; během příkazu: odpovídá Enter (potvrzení). V opakujících se příkazech (úsečka, křivka, kopie, ekvidistanta, šrafy, řetězové měření / plocha apod.) vrátí o jeden krok zpět |
+| Dvojklik | ukončí opakující se příkaz (úsečka, křivka, kopie, ekvidistanta, šrafy, řetězové měření / plocha apod.) |
 | Esc | zrušení aktuálního příkazu |
 | Enter / mezerník | potvrzení aktuálního kroku nebo opakování předchozího příkazu |
 | Ctrl + Z | zpět |

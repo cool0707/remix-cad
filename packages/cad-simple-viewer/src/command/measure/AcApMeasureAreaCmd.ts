@@ -21,6 +21,7 @@ import {
   formatMeasurementArea
 } from '../../util'
 import { AcTrView2d } from '../../view'
+import { acapAddUndoOnRightClick } from '../draw/AcApRepeatDrawUtil'
 import {
   acapOverlayDash,
   acapScaledOverlayLineWidth,
@@ -262,9 +263,9 @@ export class AcApMeasureAreaCmd extends AcApMeasureDrawCmd {
               AcApI18n.t('jig.measureArea.nextPoint')
             )
             prompt.useBasePoint = true
-            // Allow the user to press Enter (without typing coordinates) to
-            // finish picking vertices and close the area polygon.
-            prompt.allowNone = true
+            // Enter or double-click finishes picking vertices and closes the
+            // area polygon; right-click removes the last vertex.
+            acapAddUndoOnRightClick(prompt)
 
             const onMove = (cursor: AcGePoint3dLike) => {
               if (points.length < 2) {
@@ -303,6 +304,12 @@ export class AcApMeasureAreaCmd extends AcApMeasureDrawCmd {
             )
 
             const pResult = await editor.getPoint(prompt)
+            if (pResult.status === AcEdPromptStatus.Keyword) {
+              liveBadge.object.visible = false
+              if (points.length > 1) points.pop()
+              drawPolygon()
+              continue
+            }
             if (pResult.status !== AcEdPromptStatus.OK) break
             const p = pResult.value!
             liveBadge.object.visible = false

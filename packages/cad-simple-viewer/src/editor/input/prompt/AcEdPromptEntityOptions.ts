@@ -11,6 +11,12 @@ export class AcEdPromptEntityOptions extends AcEdPromptOptions<string> {
   /** Whether entities on locked layers are selectable */
   private _allowObjectOnLockedLayer = false
 
+  /** Whether a double-click ends the prompt like ENTER */
+  private _finishOnDoubleClick = false
+
+  /** Global name of the keyword a right-click picks instead of ENTER */
+  private _rightClickKeyword?: string
+
   /** Message displayed when selection is rejected */
   private _rejectMessage = 'Invalid object selected.'
 
@@ -56,6 +62,36 @@ export class AcEdPromptEntityOptions extends AcEdPromptOptions<string> {
   set allowNone(value: boolean) {
     if (!this.isReadOnly) {
       this._allowNone = value
+    }
+  }
+
+  /**
+   * Gets or sets whether a mouse double-click ends the prompt like Enter
+   * (requires {@link allowNone}). A double-click on an object still picks
+   * it with the first click.
+   */
+  get finishOnDoubleClick(): boolean {
+    return this._finishOnDoubleClick
+  }
+
+  set finishOnDoubleClick(value: boolean) {
+    if (!this.isReadOnly) {
+      this._finishOnDoubleClick = value
+    }
+  }
+
+  /**
+   * Gets or sets the global name of a keyword picked by a right-click
+   * instead of the usual right-click Enter (e.g. `Undo` in OFFSET). Ignored
+   * when the keyword is missing or disabled.
+   */
+  get rightClickKeyword(): string | undefined {
+    return this._rightClickKeyword
+  }
+
+  set rightClickKeyword(globalName: string | undefined) {
+    if (!this.isReadOnly) {
+      this._rightClickKeyword = globalName
     }
   }
 

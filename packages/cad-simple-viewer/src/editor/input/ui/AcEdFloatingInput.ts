@@ -51,7 +51,7 @@ import {
  * Swallows the native `dblclick` that follows a double-click consumed by a
  * prompt (removed after it fires, or shortly after if none comes).
  */
-function sinkFollowingDblClick() {
+export function acedSinkFollowingDblClick() {
   const sink = (e: Event) => {
     e.preventDefault()
     e.stopImmediatePropagation()
@@ -484,7 +484,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     if (e.detail >= 2 && this.onDoubleClick) {
       // The native dblclick that follows must not open an entity editor on
       // what was just drawn.
-      sinkFollowingDblClick()
+      acedSinkFollowingDblClick()
       this.onDoubleClick()
       return
     }

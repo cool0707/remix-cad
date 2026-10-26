@@ -196,6 +196,9 @@ export class AcApLineCmd extends AcEdCommand {
         }
         // AutoCAD LINE: Enter at "next point" ends the command without adding a segment.
         prompt.allowNone = true
+        // Double-click ends too; right-click undoes the last segment.
+        prompt.finishOnDoubleClick = true
+        prompt.rightClickKeyword = 'Undo'
         return prompt
       }
 
