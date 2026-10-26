@@ -1,4 +1,4 @@
-import { AcGePoint2dLike } from '@mlightcad/data-model'
+import { AcGePoint2dLike, AcGePoint3dLike } from '@mlightcad/data-model'
 
 import type { AcEdFloatingKeyword } from './AcEdFloatingMessage'
 
@@ -148,6 +148,12 @@ export interface AcEdFloatingInputOptions<T> {
    * The flag to indicate whether to disable osnap.
    */
   disableOSnap?: boolean
+
+  /**
+   * Extra points to snap to as endpoints (see
+   * `AcEdPromptPointOptions.extraOsnapPoints`).
+   */
+  extraOsnapPoints?: AcGePoint3dLike[]
 
   /**
    * The base point used to draw rubber band or base line

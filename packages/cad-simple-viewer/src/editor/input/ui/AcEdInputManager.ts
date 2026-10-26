@@ -1256,7 +1256,7 @@ export class AcEdInputManager {
     // No reference point available: fallback to typed angle input only.
     if (!basePoint) {
       return this.executePrompt(
-      options,
+        options,
         () => this.getNumberTyped(options, handler),
         value => new AcEdPromptDoubleResult(AcEdPromptStatus.OK, value),
         status => new AcEdPromptDoubleResult(status)
@@ -2771,7 +2771,11 @@ export class AcEdInputManager {
     const before = core.slice(0, core.length - connector.length)
     // Latin-script connectors are whole words ("Specify point or"), so
     // "Color" must not lose its "or".
-    if (before && !/\s$/.test(before) && /^[A-Za-z\u00C0-\u024F]/.test(connector)) {
+    if (
+      before &&
+      !/\s$/.test(before) &&
+      /^[A-Za-z\u00C0-\u024F]/.test(connector)
+    ) {
       return message
     }
     return before.trimEnd()
@@ -2892,6 +2896,10 @@ export class AcEdInputManager {
             : promptDefaults.message,
         keywords: floatingKeywords,
         disableOSnap: options.disableOSnap,
+        extraOsnapPoints:
+          options.promptOptions instanceof AcEdPromptPointOptions
+            ? options.promptOptions.extraOsnapPoints
+            : undefined,
         showBaseLineOnly: promptDefaults.showBaseLineOnly,
         basePoint,
         orthoReferencePoint,
