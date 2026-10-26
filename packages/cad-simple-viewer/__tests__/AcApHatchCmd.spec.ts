@@ -151,6 +151,10 @@ class TestHatchCmd extends AcApHatchCmd {
   selectForTest(context: never, ids: string[]) {
     return this.hatchSelectedObjects(context, ids)
   }
+
+  undoForTest(context: never) {
+    return this.undoLastHatch(context)
+  }
 }
 
 class DefaultHatchCmd extends AcApHatchCmd {
@@ -212,7 +216,9 @@ describe('AcApHatchCmd', () => {
     )
     const cmd = new DefaultHatchCmd()
 
-    expect(cmd.appendForTest(context as never, [createSquareLoop()])).toBe(true)
+    expect(
+      cmd.appendForTest(context as never, [createSquareLoop()])
+    ).toBeInstanceOf(AcDbHatch)
 
     const hatch = appended[0]
     // Shown right away, while HATCH goes on asking for boundaries.
@@ -241,7 +247,9 @@ describe('AcApHatchCmd', () => {
     )
     const cmd = new TestHatchCmd(createSettings())
 
-    expect(cmd.appendForTest(context as never, [createSquareLoop()])).toBe(true)
+    expect(
+      cmd.appendForTest(context as never, [createSquareLoop()])
+    ).toBeInstanceOf(AcDbHatch)
 
     const hatch = appended[0]
     expect(hatch).toBeInstanceOf(AcDbHatch)
@@ -268,7 +276,9 @@ describe('AcApHatchCmd', () => {
     )
     const cmd = new TestHatchCmd(createSettings({ patternName: 'solid' }))
 
-    expect(cmd.appendForTest(context as never, [createSquareLoop()])).toBe(true)
+    expect(
+      cmd.appendForTest(context as never, [createSquareLoop()])
+    ).toBeInstanceOf(AcDbHatch)
 
     const hatch = appended[0]
     expect(hatch.patternName).toBe(HATCH_PATTERN_SOLID)
@@ -298,8 +308,12 @@ const createDrawing = (
       if (item instanceof AcDbHatch) appended.push(item)
     })
   })
-  const context = { doc: { database }, view: { addEntity: jest.fn() } }
-  return { appended, context: context as never, database }
+  const removeEntity = jest.fn()
+  const context = {
+    doc: { database },
+    view: { addEntity: jest.fn(), removeEntity }
+  }
+  return { appended, context: context as never, database, removeEntity }
 }
 
 /** Area of a hatch loop. */
@@ -342,6 +356,22 @@ describe('AcApHatchCmd boundary detection', () => {
     expect(spies(cmd).showMessage).toHaveBeenCalledWith(
       'jig.hatch.boundaryFound'
     )
+  })
+
+  test('undo takes the last hatch back so its area can be picked again', () => {
+    const { appended, context, removeEntity } = createDrawing(room())
+    const cmd = new TestHatchCmd(createSettings())
+
+    expect(cmd.pickForTest(context, 4, 5)).toBe(true)
+    expect(cmd.pickForTest(context, 14, 5)).toBe(true)
+    expect(cmd.undoForTest(context)).toEqual([appended[1]])
+    expect(removeEntity).toHaveBeenCalledWith(appended[1])
+
+    expect(cmd.pickForTest(context, 14, 5)).toBe(true)
+    expect(cmd.pickForTest(context, 4, 5)).toBe(false)
+    expect(cmd.undoForTest(context)).toEqual([appended[2]])
+    expect(cmd.undoForTest(context)).toEqual([appended[0]])
+    expect(cmd.undoForTest(context)).toEqual([])
   })
 
   test('warns when the point is not enclosed or the area is already hatched', () => {

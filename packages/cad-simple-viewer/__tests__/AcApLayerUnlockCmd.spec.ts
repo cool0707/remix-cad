@@ -28,6 +28,9 @@ jest.mock('../src/editor', () => {
     allowNone = false
     allowObjectOnLockedLayer = false
     rejectMessage = 'Invalid object selected.'
+    finishOnDoubleClick = false
+    rightClickKeyword: string | undefined
+    keywords = { add: jest.fn() }
 
     constructor(readonly message: string) {}
 
@@ -45,7 +48,8 @@ jest.mock('../src/editor', () => {
     AcEdPromptEntityOptions,
     AcEdPromptStatus: {
       OK: 'OK',
-      None: 'None'
+      None: 'None',
+      Keyword: 'Keyword'
     }
   }
 })

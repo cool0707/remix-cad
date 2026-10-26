@@ -479,20 +479,18 @@ export class AcApRevCloudCmd extends AcEdCommand {
     class NextPointState implements PolyState {
       buildPrompt() {
         const prompt = new AcEdPromptPointOptions(
-          AcApI18n.t(
-            points.length >= 2
-              ? 'jig.revcloud.nextPointOrUndo'
-              : 'jig.revcloud.nextPoint'
-          )
+          AcApI18n.t('jig.revcloud.nextPointOrUndo')
         )
-        if (points.length >= 2) {
-          addKeyword(prompt, 'undo')
-        }
+        addKeyword(prompt, 'undo')
         prompt.useDashedLine = false
         prompt.useBasePoint = true
         const current = points[points.length - 1]
         prompt.basePoint = new AcGePoint3d(current.x, current.y, 0)
         prompt.allowNone = points.length >= 3
+        // Double-click ends (once there are 3 points); right-click removes
+        // the last point.
+        prompt.finishOnDoubleClick = true
+        prompt.rightClickKeyword = 'Undo'
         prompt.jig = new AcApRevCloudJig(context.view, points, true, settings)
         return prompt
       }

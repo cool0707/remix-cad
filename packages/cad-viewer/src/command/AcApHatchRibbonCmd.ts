@@ -759,6 +759,11 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
       this.syncStateFromSysVars()
       this.applyStateToSelectedHatches()
       return true
+    } else if (keyword === 'Undo') {
+      for (const hatch of this.undoLastHatch(context)) {
+        this._activeHatches.delete(hatch)
+      }
+      return true
     } else if (keyword === 'Cancel') {
       return false
     }
@@ -790,6 +795,7 @@ export class AcApHatchRibbonCmd extends AcApHatchCmd {
       AcApI18n.t('jig.hatch.keywords.cancel.global'),
       AcApI18n.t('jig.hatch.keywords.cancel.local')
     )
+    this.addUndoOnRightClick(options)
     return options
   }
 

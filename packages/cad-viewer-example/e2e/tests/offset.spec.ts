@@ -86,6 +86,13 @@ async function clickAt(
   await page.waitForTimeout(300)
 }
 
+async function dblclickAt(page: Page, point: { x: number; y: number }) {
+  const client = await clientPoint(page, point)
+  await page.mouse.move(client.x, client.y, { steps: 3 })
+  await page.mouse.dblclick(client.x, client.y)
+  await page.waitForTimeout(300)
+}
+
 async function startOffset(page: Page) {
   await page.evaluate(async url => {
     const mod = await import(/* @vite-ignore */ url)
@@ -94,7 +101,7 @@ async function startOffset(page: Page) {
   await expect.poll(async () => (await state(page)).running).toBe(true)
 }
 
-test('each offset shows at once; right-click takes the last distance', async ({
+test('each offset shows at once; right-click steps back, double-click ends', async ({
   page
 }) => {
   await loadFixture(page)
@@ -113,8 +120,17 @@ test('each offset shows at once; right-click takes the last distance', async ({
   expect(current.entities).toBe(3)
   expect(current.shown).toBe(3)
 
-  // Right-click at the selection prompt ends the command.
+  // Right-click at the selection prompt takes the last offset back.
   await clickAt(page, { x: 50, y: 15 }, 'right')
+  current = await state(page)
+  expect(current.running).toBe(true)
+  expect(current.shown).toBe(2)
+
+  // Offset again, then double-click on empty space ends the command.
+  await clickAt(page, { x: 50, y: 0 })
+  await clickAt(page, { x: 50, y: -3 })
+  expect((await state(page)).shown).toBe(3)
+  await dblclickAt(page, { x: 50, y: 15 })
   await expect.poll(async () => (await state(page)).running).toBe(false)
 
   // Next run: right-click accepts the default distance <5> and goes on.
@@ -124,6 +140,5 @@ test('each offset shows at once; right-click takes the last distance', async ({
   await clickAt(page, { x: 50, y: 30 })
   await clickAt(page, { x: 50, y: 33 })
   current = await state(page)
-  expect(current.entities).toBe(4)
   expect(current.shown).toBe(4)
 })

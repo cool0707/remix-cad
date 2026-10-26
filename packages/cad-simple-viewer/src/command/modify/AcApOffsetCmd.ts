@@ -201,6 +201,17 @@ export class AcApOffsetCmd extends AcEdCommand {
     const blockTable = context.doc.database.tables.blockTable
     let offsetDistance: number | undefined
     let currentCurve: AcDbCurve | undefined
+    // Offsets placed so far, one batch per pick.
+    const placed: AcDbEntity[][] = []
+    const addUndoKeyword = (
+      prompt: AcEdPromptEntityOptions | AcEdPromptPointOptions
+    ) => {
+      prompt.keywords.add(
+        AcApI18n.t('jig.line.keywords.undo.display'),
+        AcApI18n.t('jig.line.keywords.undo.global'),
+        AcApI18n.t('jig.line.keywords.undo.local')
+      )
+    }
 
     /** Prompt state contract shared by every OFFSET workflow step. */
     type OffsetState = AcEdPromptState<OffsetPromptOptions, OffsetPromptResult>
@@ -306,6 +317,11 @@ export class AcApOffsetCmd extends AcEdCommand {
           AcApI18n.t('jig.offset.selectObject')
         )
         prompt.allowNone = true
+        // Double-click ends; right-click removes the last offset (or goes
+        // back to the distance before the first one).
+        addUndoKeyword(prompt)
+        prompt.finishOnDoubleClick = true
+        prompt.rightClickKeyword = 'Undo'
         prompt.allowObjectOnLockedLayer = true
         prompt.setRejectMessage(AcApI18n.t('jig.offset.invalidSelection'))
         return prompt
@@ -321,6 +337,20 @@ export class AcApOffsetCmd extends AcEdCommand {
        */
       handleResult(result: OffsetPromptResult): OffsetStep {
         if (!(result instanceof AcEdPromptEntityResult)) return 'finish'
+        if (result.status === AcEdPromptStatus.Keyword) {
+          if (result.stringResult === 'Undo') {
+            const last = placed.pop()
+            if (!last) {
+              this.machine.setState(new DistanceState(this.machine))
+              return 'continue'
+            }
+            for (const entity of last) {
+              entity.erase()
+              context.view.removeEntity(entity)
+            }
+          }
+          return 'continue'
+        }
         if (result.status === AcEdPromptStatus.None) return 'finish'
         if (result.status !== AcEdPromptStatus.OK || !result.objectId) {
           return 'finish'
@@ -369,6 +399,9 @@ export class AcApOffsetCmd extends AcEdCommand {
         )
         prompt.allowNone = true
         prompt.disableOSnap = true
+        // Right-click goes back to picking the object.
+        addUndoKeyword(prompt)
+        prompt.rightClickKeyword = 'Undo'
         if (currentCurve && offsetDistance != null) {
           const jig = new AcApOffsetPreviewJig(
             context.view,
@@ -393,6 +426,13 @@ export class AcApOffsetCmd extends AcEdCommand {
        */
       handleResult(result: OffsetPromptResult): OffsetStep {
         if (!(result instanceof AcEdPromptPointResult)) return 'finish'
+        if (result.status === AcEdPromptStatus.Keyword) {
+          if (result.stringResult === 'Undo') {
+            currentCurve = undefined
+            this.machine.setState(new SelectCurveState(this.machine))
+          }
+          return 'continue'
+        }
         if (
           result.status !== AcEdPromptStatus.OK ||
           !result.value ||
@@ -414,6 +454,7 @@ export class AcApOffsetCmd extends AcEdCommand {
           // Edits inside the command's transaction reach the view only when
           // the command ends; show each offset right away (as COPY does).
           context.view.addEntity(offsetCurves)
+          placed.push(offsetCurves)
         }
 
         currentCurve = undefined

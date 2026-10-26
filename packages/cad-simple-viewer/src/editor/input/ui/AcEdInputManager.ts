@@ -65,7 +65,10 @@ import {
 import { AcEdPromptInputMode } from '../session/AcEdPromptInputSession'
 import { AcEdCommandLine } from './AcEdCommandLine'
 import { AcEdEntityPickCancelChrome } from './AcEdEntityPickCancelChrome'
-import { AcEdFloatingInput } from './AcEdFloatingInput'
+import {
+  AcEdFloatingInput,
+  acedSinkFollowingDblClick
+} from './AcEdFloatingInput'
 import {
   AcEdFloatingInputBoxCount,
   AcEdFloatingInputCommitCallback,
@@ -1913,7 +1916,16 @@ export class AcEdInputManager {
 
           const mouseDownHandler = (e: MouseEvent) => {
             if (e.button === 2) {
-              if (this.shouldUseRightClickEnter() && options.allowNone) {
+              if (!this.shouldUseRightClickEnter()) return
+              const keyword = options.rightClickKeyword
+                ? options.keywords.findByGlobalName(options.rightClickKeyword)
+                : undefined
+              if (keyword?.enabled) {
+                e.preventDefault()
+                rejector(new AcEdKeywordInputError(keyword.globalName))
+                return
+              }
+              if (options.allowNone) {
                 e.preventDefault()
                 cleanup()
                 resolve(null)
@@ -1925,6 +1937,19 @@ export class AcEdInputManager {
           /** Mouse click → try select entity */
           const clickHandler = (e: MouseEvent) => {
             if (e.button !== 0) return
+            // Second click of a double-click: end like Enter. The first one
+            // already picked (or missed) an object.
+            if (
+              e.detail >= 2 &&
+              options.finishOnDoubleClick &&
+              options.allowNone &&
+              !acedIsTouchDerivedMouseEvent(e)
+            ) {
+              acedSinkFollowingDblClick()
+              cleanup()
+              resolve(null)
+              return
+            }
 
             const pos = this.view.screenToWorld(
               this.view.viewportToCanvas({ x: e.clientX, y: e.clientY })

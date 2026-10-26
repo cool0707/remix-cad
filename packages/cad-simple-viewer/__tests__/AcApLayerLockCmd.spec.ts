@@ -28,6 +28,9 @@ jest.mock('../src/editor', () => {
     allowNone = false
     allowObjectOnLockedLayer = false
     rejectMessage = 'Invalid object selected.'
+    finishOnDoubleClick = false
+    rightClickKeyword: string | undefined
+    keywords = { add: jest.fn() }
 
     constructor(readonly message: string) {}
 
@@ -45,7 +48,8 @@ jest.mock('../src/editor', () => {
     AcEdPromptEntityOptions,
     AcEdPromptStatus: {
       OK: 'OK',
-      None: 'None'
+      None: 'None',
+      Keyword: 'Keyword'
     }
   }
 })
@@ -147,6 +151,34 @@ describe('AcApLayerLockCmd', () => {
     expect(prompt.allowNone).toBe(true)
     expect(prompt.allowObjectOnLockedLayer).toBe(true)
     expect(prompt.rejectMessage).toBe('jig.laylck.invalidSelection')
+  })
+
+  test('right-click undo unlocks the layer it just locked', async () => {
+    const layer = createLayer('A-Lock', frozenFlag)
+    const { context } = createContext(new Map([[layer.name, layer]]))
+    const getEntity = jest.mocked(AcApDocManager.instance.editor.getEntity)
+    getEntity
+      .mockResolvedValueOnce({
+        status: AcEdPromptStatus.OK,
+        objectId: 'entity-1'
+      })
+      .mockResolvedValueOnce({
+        status: AcEdPromptStatus.Keyword,
+        stringResult: 'Undo'
+      })
+      .mockResolvedValueOnce({ status: AcEdPromptStatus.None })
+
+    const cmd = new AcApLayerLockCmd()
+    await cmd.execute(context as never)
+
+    expect(layer.standardFlags).toBe(frozenFlag)
+    expect(AcApDocManager.instance.editor.showMessage).toHaveBeenLastCalledWith(
+      'jig.layulk.unlocked: A-Lock',
+      'success'
+    )
+    const prompt = getEntity.mock.calls[0][0]
+    expect(prompt.finishOnDoubleClick).toBe(true)
+    expect(prompt.rightClickKeyword).toBe('Undo')
   })
 
   test('reports already locked layers without changing selection state', async () => {
