@@ -71,7 +71,7 @@ Kromě nástrojů režimu kontroly je k dispozici **Skupina nástrojů pro výb�
 | Souřadnice | Souřadnice kurzoru v reálném čase |
 | OSNAP | Přepnutí a konfigurace uchopování objektů |
 | ORTHO | Kolmý režim |
-| POLAR | Polární sledování |
+| POLAR | Přichytávání úhlu |
 | Sledování uchopování objektů (OTRACK) | |
 | Zobrazení tloušťky čáry | |
 | Dynamický vstup | Přepnutí plovoucího vstupního pole |
