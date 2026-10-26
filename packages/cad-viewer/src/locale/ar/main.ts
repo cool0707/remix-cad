@@ -934,10 +934,10 @@ export default {
 
     polarTracking: {
       ...enMain.statusBar.polarTracking,
-      on: 'إيقاف التتبع القطبي',
-      off: 'تشغيل التتبع القطبي',
-      menuTitle: 'زاوية التتبع القطبي',
-      menuTooltip: 'اختر زاوية التتبع القطبي',
+      on: 'إيقاف التقاط الزاوية',
+      off: 'تشغيل التقاط الزاوية',
+      menuTitle: 'زاوية الالتقاط',
+      menuTooltip: 'اختر زاوية الالتقاط',
       step: 'كل {angle}'
     },
 

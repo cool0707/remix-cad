@@ -682,10 +682,10 @@ export default {
       off: 'Turn on ortho mode'
     },
     polarTracking: {
-      on: 'Turn off polar tracking',
-      off: 'Turn on polar tracking',
-      menuTitle: 'Polar tracking angle',
-      menuTooltip: 'Choose the polar tracking angle',
+      on: 'Turn off angle snapping',
+      off: 'Turn on angle snapping',
+      menuTitle: 'Snap angle',
+      menuTooltip: 'Choose the snap angle',
       step: 'Every {angle}'
     },
     zoom: {

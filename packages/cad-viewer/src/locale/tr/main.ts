@@ -682,10 +682,10 @@ export default {
       off: 'Ortogonal modu aç'
     },
     polarTracking: {
-      on: 'Kutupsal izlemeyi kapat',
-      off: 'Kutupsal izlemeyi aç',
-      menuTitle: 'Kutupsal izleme açısı',
-      menuTooltip: 'Kutupsal izleme açısını seçin',
+      on: 'Açı yakalamayı kapat',
+      off: 'Açı yakalamayı aç',
+      menuTitle: 'Yakalama açısı',
+      menuTooltip: 'Yakalama açısını seçin',
       step: 'Her {angle}'
     },
     zoom: {
