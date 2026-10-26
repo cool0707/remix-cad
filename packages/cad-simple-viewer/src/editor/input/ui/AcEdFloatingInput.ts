@@ -2,7 +2,8 @@ import {
   AcDbSystemVariables,
   AcDbSysVarManager,
   AcGePoint2d,
-  AcGePoint2dLike
+  AcGePoint2dLike,
+  AcGePoint3dLike
 } from '@mlightcad/data-model'
 
 import { AcEdBaseView } from '../../view'
@@ -110,6 +111,8 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   private onNone?: AcEdFloatingInputNoneCallback
   private onKeyword?: AcEdFloatingInputKeywordCallback
   private onDoubleClick?: () => void
+  /** Extra endpoint snaps for this prompt (not in the database). */
+  private extraOsnapPoints?: AcGePoint3dLike[]
 
   /** Validation and dynamic value providers */
   private validateFn: AcEdFloatingInputValidationCallback<T>
@@ -215,6 +218,7 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     this.onNone = options.onNone
     this.onKeyword = options.onKeyword
     this.onDoubleClick = options.onDoubleClick
+    this.extraOsnapPoints = options.extraOsnapPoints
 
     // -----------------------------
     // Input boxes
@@ -859,7 +863,8 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
         cursorWcs: wcsPos,
         lastPoint: this.lastPoint
           ? { x: this.lastPoint.x, y: this.lastPoint.y, z: 0 }
-          : undefined
+          : undefined,
+        extraPoints: this.extraOsnapPoints
       })
       this.osnapMarkerManager.setHintMarkers(
         AcEdOsnapResolver.displayCenterMarks(

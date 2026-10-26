@@ -4,6 +4,7 @@ import {
   AcGePoint2dLike,
   AcGePoint3d,
   AcGeTol,
+  DEFAULT_TOL,
   TAU
 } from '@mlightcad/data-model'
 
@@ -555,6 +556,18 @@ export class AcApPolylineCmd extends AcEdCommand {
       bulges.pop()
       bulges[bulges.length - 1] = undefined
     }
+    // Clicking the snapped first vertex and finishing (double-click or
+    // Enter) closes the polyline instead of ending on a duplicate vertex.
+    const closeSnapPoints = () =>
+      points.length >= 3 ? [new AcGePoint3d(points[0])] : []
+    const closeIfEndedOnFirstPoint = () => {
+      if (closed || points.length < 4) return
+      if (!DEFAULT_TOL.equalPoint2d(points[0], getCurrentPoint())) return
+      // The closing segment's bulge stays on the new last vertex.
+      points.pop()
+      bulges.pop()
+      closed = true
+    }
     const shouldFinish = (status: AcEdPromptStatus) =>
       status !== AcEdPromptStatus.OK && status !== AcEdPromptStatus.Keyword
 
@@ -597,6 +610,7 @@ export class AcApPolylineCmd extends AcEdCommand {
           prompt.basePoint = new AcGePoint3d(basePoint)
         }
         prompt.jig = createPreviewJig(undefined)
+        prompt.extraOsnapPoints = closeSnapPoints()
         // AutoCAD PLINE: Enter at "next point" ends the command without adding a vertex.
         prompt.allowNone = true
         // Double-click ends the polyline; right-click removes the last vertex.
@@ -681,6 +695,7 @@ export class AcApPolylineCmd extends AcEdCommand {
         prompt.jig = createPreviewJig(undefined, end =>
           applyArcDirection(computeDefaultArcBulge(end))
         )
+        prompt.extraOsnapPoints = closeSnapPoints()
         prompt.allowNone = true
         prompt.finishOnDoubleClick = true
         prompt.rightClickKeyword = 'Undo'
@@ -891,6 +906,7 @@ export class AcApPolylineCmd extends AcEdCommand {
     >()
     machine.setState(new LineState(machine))
     await machine.run(prompt => AcApDocManager.instance.editor.getPoint(prompt))
+    closeIfEndedOnFirstPoint()
 
     // Create polyline if we have at least two points
     if (points.length >= 2) {

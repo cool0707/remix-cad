@@ -112,6 +112,31 @@ describe('AcEdOsnapResolver', () => {
     installLocalStorageMock()
   })
 
+  it('snaps to extra points as endpoints within the aperture', () => {
+    withWorkingDatabase(() => {
+      AcApSettingManager.instance.osnapModes = acdbOsnapModesToMask([
+        AcDbOsnapMode.EndPoint
+      ])
+      const resolver = new AcEdOsnapResolver(createMockView([]))
+      const extraPoints = [{ x: 0, y: 0, z: 0 }]
+
+      expect(
+        resolver.resolve({
+          cursorWcs: { x: 3, y: 4 },
+          hitRadiusPx: 20,
+          extraPoints
+        })
+      ).toEqual({ x: 0, y: 0, z: 0, type: AcDbOsnapMode.EndPoint })
+      expect(
+        resolver.resolve({
+          cursorWcs: { x: 30, y: 0 },
+          hitRadiusPx: 20,
+          extraPoints
+        })
+      ).toBeUndefined()
+    })
+  })
+
   it('snaps to intersection of two crossing lines', () => {
     withWorkingDatabase(db => {
       const a = new AcDbLine(
@@ -896,10 +921,9 @@ describe('AcEdOsnapResolver', () => {
         y: (p.y - 100) / 2
       })
 
-      const view = createMockView(
-        [{ id: line.objectId, viewportId }],
-        { [viewportId]: { paperToModel, modelToPaper } }
-      )
+      const view = createMockView([{ id: line.objectId, viewportId }], {
+        [viewportId]: { paperToModel, modelToPaper }
+      })
       const resolver = new AcEdOsnapResolver(view)
 
       // Paper-space cursor near the line's first endpoint once mapped
@@ -932,7 +956,9 @@ describe('AcEdOsnapResolver', () => {
 
       // Tagged as a drill-through hit, but the view has no mapper for that
       // viewport id — must not fall back to treating model WCS as paper.
-      const view = createMockView([{ id: line.objectId, viewportId: 'VP_GONE' }])
+      const view = createMockView([
+        { id: line.objectId, viewportId: 'VP_GONE' }
+      ])
       const resolver = new AcEdOsnapResolver(view)
       const snap = resolver.resolve({
         cursorWcs: { x: 100.2, y: 100.1 },

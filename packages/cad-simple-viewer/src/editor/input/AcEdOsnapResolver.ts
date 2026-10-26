@@ -47,6 +47,8 @@ export interface AcEdOsnapResolveOptions {
   hitRadiusPx?: number
   /** Entities whose snap points are ignored (e.g. the ones being dragged). */
   excludeIds?: ReadonlySet<AcDbObjectId>
+  /** Extra points snapped to as endpoints (geometry not in the database). */
+  extraPoints?: readonly AcGePoint3dLike[]
 }
 
 const DEFAULT_HIT_RADIUS_PX = 20
@@ -186,7 +188,10 @@ function intersectSources(
   b: IntersectionSource
 ): AcGePoint3d[] {
   if (a.transform.equals(b.transform)) {
-    return mapIntersectPointsToWcs(a.entity.intersectWith(b.entity), a.transform)
+    return mapIntersectPointsToWcs(
+      a.entity.intersectWith(b.entity),
+      a.transform
+    )
   }
 
   const bToA = new AcGeMatrix3d().multiplyMatrices(
@@ -267,6 +272,15 @@ export class AcEdOsnapResolver {
       threshold,
       options.excludeIds
     )
+
+    for (const point of options.extraPoints ?? []) {
+      snapPoints.push({
+        x: point.x,
+        y: point.y,
+        z: point.z,
+        type: AcDbOsnapMode.EndPoint
+      })
+    }
 
     for (const mark of this._acquiredCenters) {
       snapPoints.push({

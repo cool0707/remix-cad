@@ -2,10 +2,7 @@ import { AcCmColor } from '@mlightcad/data-model'
 
 import { AC_TR_HTML_BADGE_REF_FONT_PX } from './AcTrHtmlBadge'
 import { acTrHtmlCssColor } from './AcTrHtmlColorUtil'
-import {
-  AC_TR_HTML_DOT_BORDER_EM,
-  AC_TR_HTML_DOT_SIZE_EM
-} from './AcTrHtmlDot'
+import { AC_TR_HTML_DOT_BORDER_EM, AC_TR_HTML_DOT_SIZE_EM } from './AcTrHtmlDot'
 import {
   AC_TR_HTML_SELECTED_CLASS,
   AcTrHtmlElement,
@@ -25,7 +22,7 @@ const GRIP_HANDLE_STYLE_ID = 'ml-grip-handle-style'
 const HTML_GRIP_STYLE_ID = 'ml-html-grip-style'
 
 /**
- * Injects the shared square-grip stylesheet used by CAD entity grips.
+ * Injects the shared grip stylesheet used by CAD entity grips.
  *
  * Safe to call more than once. No-op when `document` is unavailable.
  */
@@ -35,25 +32,50 @@ export function injectMlGripHandleCss(): void {
 
   const style = document.createElement('style')
   style.id = GRIP_HANDLE_STYLE_ID
+  // Figma-like vector-edit handles: a white dot with a GRIPCOLOR ring for a
+  // vertex, a pill along the segment for a grip that moves the whole segment.
+  // Hover fills with GRIPCOLOR, a hot (dragged) grip with GRIPHOT.
   style.textContent = `
       .${ML_GRIP_HANDLE_CLASS} {
+        --ml-grip-dot: calc(var(--ml-ui-grip-size, 8px) + 4px);
         position: absolute;
-        width: var(--ml-ui-grip-size, 8px);
-        height: var(--ml-ui-grip-size, 8px);
+        width: var(--ml-grip-dot);
+        height: var(--ml-grip-dot);
         pointer-events: auto;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) rotate(var(--ml-grip-angle, 0rad));
         z-index: 5;
         box-sizing: border-box;
+        border: 1.5px solid var(--ml-ui-grip-normal, #0080ff);
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6),
+          0 1px 2px rgba(0, 0, 0, 0.35);
         cursor: pointer;
+        transition: background-color 80ms ease-out;
       }
 
-      .${ML_GRIP_HANDLE_CLASS}-normal {
-        background: var(--ml-ui-grip-normal, #0080ff);
+      /* Easier to grab than the visible dot. */
+      .${ML_GRIP_HANDLE_CLASS}::before {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        border-radius: inherit;
+      }
+
+      .${ML_GRIP_HANDLE_CLASS}-edge {
+        width: calc(var(--ml-grip-dot) * 1.6);
+        height: calc(var(--ml-grip-dot) * 0.6);
+        border-radius: 999px;
       }
 
       .${ML_GRIP_HANDLE_CLASS}:hover,
-      .${ML_GRIP_HANDLE_CLASS}-hover,
-      .${ML_GRIP_HANDLE_CLASS}-hot {
+      .${ML_GRIP_HANDLE_CLASS}-hover {
+        background: var(--ml-ui-grip-normal, #0080ff);
+      }
+
+      .${ML_GRIP_HANDLE_CLASS}-hot,
+      .${ML_GRIP_HANDLE_CLASS}-hot:hover {
+        border-color: var(--ml-ui-grip-hot, #ff0000);
         background: var(--ml-ui-grip-hot, #ff0000);
       }
     `
