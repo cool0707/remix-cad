@@ -27,6 +27,13 @@ export interface AcApMeasurementSidecarStyle {
    */
   textHeightWcs?: number
   /**
+   * `'adaptive'` (Fit-to-screen): the badge keeps a constant screen size and
+   * {@link textHeightWcs} is informational. `'custom'`: {@link textHeightWcs}
+   * is the world height. Missing (older files): treated as `'custom'` when
+   * {@link textHeightWcs} is set.
+   */
+  textHeightMode?: 'adaptive' | 'custom'
+  /**
    * Distance-measurement arrow-head length in world units. Prefer this when
    * restoring overlays so arrow size is independent of camera zoom.
    */

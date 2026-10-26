@@ -135,9 +135,14 @@ export class AcApMeasurePointEntity extends AcApMeasureEntity {
       transform: 'translate(-50%, calc(-50% - 16px))'
     })
     this.seedOverlaySizes(view, [dot, badge])
+    const badgeBinding = this.bindBadgeSize(
+      view,
+      badge,
+      (_text, preferredPx) => preferredPx
+    )
     const group = this.createGroup(view).add(dot, badge)
 
-    const cleanups: Array<() => void> = []
+    const cleanups: Array<() => void> = [badgeBinding.dispose]
     const pendingGrips: Array<() => void> = []
     let dragStart = { ...live }
 
@@ -210,7 +215,8 @@ export class AcApMeasurePointEntity extends AcApMeasureEntity {
       extras: {
         style: this.style,
         value,
-        snapshot: this.toRecord(layoutId, view)
+        snapshot: this.toRecord(layoutId, view),
+        redraw: () => badgeBinding.sync()
       }
     }
   }

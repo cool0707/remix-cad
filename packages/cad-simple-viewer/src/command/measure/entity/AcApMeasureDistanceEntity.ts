@@ -20,8 +20,7 @@ import {
   acapBindOverlayPointerDrag,
   acapPlaceOverlayHtml,
   acapScreenPxToWcs,
-  acapSeedOverlaySizesFromWcs,
-  acapWcsToScreenPx
+  acapSeedOverlaySizesFromWcs
 } from '../../overlay'
 import { runMeasurementEdit } from '../AcApMeasurementHistory'
 import { republishMeasurement } from '../AcApMeasurementRepublish'
@@ -234,18 +233,20 @@ export class AcApMeasureDistanceEntity extends AcApMeasureEntity {
       )
       arrowSizeWcs = acapScreenPxToWcs(arrowPx, view)
     }
-    // Badge text height in WCS; it is frozen at this size and scales with zoom.
-    const badgeEmWcs =
-      textHeightWcs ?? acapScreenPxToWcs(badgeFontSize, view)
+    // Current badge size; bindBadgeSize updates it on every view change.
+    let badgeSize = {
+      fontPx: badgeFontSize,
+      emWcs: textHeightWcs ?? acapScreenPxToWcs(badgeFontSize, view)
+    }
     const badgeWorld = () =>
       acapSegmentMeasureBadgeWorld(
         live.start,
         live.end,
         label,
-        badgeEmWcs,
+        badgeSize.emWcs,
         acapMeasureBadgeOverflowsSegment(
           label,
-          acapWcsToScreenPx(badgeEmWcs, view),
+          badgeSize.fontPx,
           screenLength()
         )
       )
@@ -285,13 +286,28 @@ export class AcApMeasureDistanceEntity extends AcApMeasureEntity {
     const redrawPersist = () =>
       paintSegment(getMeasurementStyle(this.entityId) ?? this.style)
     view.events.viewChanged.addEventListener(redrawPersist)
+    const badgeBinding = this.bindBadgeSize(
+      view,
+      badge,
+      (text, preferredPx) =>
+        acapSegmentMeasureBadgeFontSize(
+          text,
+          { fontSize: preferredPx, textHeightMode: 'adaptive' },
+          screenLength()
+        ).fontSize,
+      size => {
+        badgeSize = size
+        acapPlaceOverlayHtml(view, badge, badgeWorld())
+      }
+    )
 
     const group = this.createGroup(view)
       .add(dot1, dot2, badge)
       .addCanvas(persistOverlay)
 
     const cleanups: Array<() => void> = [
-      () => view.events.viewChanged.removeEventListener(redrawPersist)
+      () => view.events.viewChanged.removeEventListener(redrawPersist),
+      badgeBinding.dispose
     ]
     const pendingGrips: Array<() => void> = []
     let dragStart = {
@@ -303,7 +319,7 @@ export class AcApMeasureDistanceEntity extends AcApMeasureEntity {
       dist = calcDist(live.start, live.end)
       label = formatMeasurementLength(db, dist)
       badge.setText(label)
-      acapPlaceOverlayHtml(view, badge, badgeWorld())
+      badgeBinding.sync()
       paintSegment(getMeasurementStyle(this.entityId) ?? this.style)
       view.isHtmlDirty = true
     }
@@ -383,14 +399,6 @@ export class AcApMeasureDistanceEntity extends AcApMeasureEntity {
     })
 
     const snapshot = this.toRecord(layoutId, view)
-    if (
-      importedTextHeight == null &&
-      textHeightWcs != null &&
-      textHeightWcs > 0
-    ) {
-      snapshot.style.fontSize = badgeFontSize
-      snapshot.style.textHeightWcs = textHeightWcs
-    }
     if (arrowSizeWcs != null && arrowSizeWcs > 0) {
       snapshot.style.arrowSizeWcs = arrowSizeWcs
     }
@@ -414,7 +422,10 @@ export class AcApMeasureDistanceEntity extends AcApMeasureEntity {
         style: this.committedLiveStyle(badgeFontSize, textHeightWcs),
         value: { kind: 'length', value: dist },
         snapshot,
-        redraw: paintSegment
+        redraw: paintStyle => {
+          paintSegment(paintStyle)
+          badgeBinding.sync()
+        }
       }
     }
   }

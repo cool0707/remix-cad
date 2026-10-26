@@ -10,8 +10,8 @@ import {
   acapMeasurementCanvasLineWidth,
   type AcApMeasurementStyle,
   acapScreenAreaBadgeRefLengthPx,
-  formatMeasurementArea
-} from '../../../util'
+  acapSegmentMeasureBadgeFontSize,
+  formatMeasurementArea} from '../../../util'
 import type { AcTrView2d } from '../../../view'
 import {
   acapBindOverlayPointerDrag,
@@ -216,13 +216,24 @@ export class AcApMeasureAreaEntity extends AcApMeasureEntity {
     const redrawPersist = () =>
       paintArea(getMeasurementStyle(this.entityId) ?? this.style)
     view.events.viewChanged.addEventListener(redrawPersist)
+    const badgeBinding = this.bindBadgeSize(
+      view,
+      badge,
+      (text, preferredPx) =>
+        acapSegmentMeasureBadgeFontSize(
+          text,
+          { fontSize: preferredPx, textHeightMode: 'adaptive' },
+          acapScreenAreaBadgeRefLengthPx(p => view.worldToScreen(p), live)
+        ).fontSize
+    )
 
     const group = this.createGroup(view)
       .add(badge, ...dots)
       .addCanvas(persistOverlay)
 
     const cleanups: Array<() => void> = [
-      () => view.events.viewChanged.removeEventListener(redrawPersist)
+      () => view.events.viewChanged.removeEventListener(redrawPersist),
+      badgeBinding.dispose
     ]
     const pendingGrips: Array<() => void> = []
     let dragStart = live.map(p => ({ ...p }))
@@ -230,6 +241,7 @@ export class AcApMeasureAreaEntity extends AcApMeasureEntity {
     const refreshLive = () => {
       area = measureShoelaceArea(live)
       badge.setText(formatMeasurementArea(db, area))
+      badgeBinding.sync()
       acapPlaceOverlayHtml(view, badge, measureCentroid(live))
       paintArea(getMeasurementStyle(this.entityId) ?? this.style)
       view.isHtmlDirty = true
@@ -309,19 +321,11 @@ export class AcApMeasureAreaEntity extends AcApMeasureEntity {
       extras: {
         style: this.committedLiveStyle(badgeFontSize, textHeightWcs),
         value: { kind: 'area', value: area },
-        snapshot: (() => {
-          const snapshot = this.toRecord(layoutId, view)
-          if (
-            importedTextHeight == null &&
-            textHeightWcs != null &&
-            textHeightWcs > 0
-          ) {
-            snapshot.style.fontSize = badgeFontSize
-            snapshot.style.textHeightWcs = textHeightWcs
-          }
-          return snapshot
-        })(),
-        redraw: paintArea
+        snapshot: this.toRecord(layoutId, view),
+        redraw: paintStyle => {
+          paintArea(paintStyle)
+          badgeBinding.sync()
+        }
       }
     }
   }

@@ -26,7 +26,12 @@ export function createMeasureEntityFromRecord(
     id: record.id,
     layoutId: record.layoutId,
     style,
-    textHeightWcs: record.style.textHeightWcs,
+    // Fit-to-screen badges size themselves on screen; the stored height is
+    // only the size at export time.
+    textHeightWcs:
+      style.textHeightMode === 'adaptive'
+        ? undefined
+        : record.style.textHeightWcs,
     strokeWidthWcs: record.style.strokeWidthWcs,
     arrowSizeWcs: record.style.arrowSizeWcs
   }

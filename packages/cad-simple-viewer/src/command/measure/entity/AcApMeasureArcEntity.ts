@@ -10,8 +10,8 @@ import {
   acapMeasurementCanvasLineWidth,
   type AcApMeasurementStyle,
   acapScreenArcLengthPx,
-  formatMeasurementLength
-} from '../../../util'
+  acapSegmentMeasureBadgeFontSize,
+  formatMeasurementLength} from '../../../util'
 import type { AcTrView2d } from '../../../view'
 import {
   acapBindOverlayPointerDrag,
@@ -329,6 +329,21 @@ export class AcApMeasureArcEntity extends AcApMeasureEntity {
     const redrawPersist = () =>
       paintArc(getMeasurementStyle(this.entityId) ?? this.style)
     view.events.viewChanged.addEventListener(redrawPersist)
+    const badgeBinding = this.bindBadgeSize(
+      view,
+      badge,
+      (text, preferredPx) =>
+        acapSegmentMeasureBadgeFontSize(
+          text,
+          { fontSize: preferredPx, textHeightMode: 'adaptive' },
+          acapScreenArcLengthPx(
+            p => view.worldToScreen(p),
+            { x: live.geom.cx, y: live.geom.cy },
+            live.geom.r,
+            arcLen
+          )
+        ).fontSize
+    )
 
     const group = this.createGroup(view)
       .add(
@@ -340,7 +355,8 @@ export class AcApMeasureArcEntity extends AcApMeasureEntity {
       .addCanvas(persistOverlay)
 
     const cleanups: Array<() => void> = [
-      () => view.events.viewChanged.removeEventListener(redrawPersist)
+      () => view.events.viewChanged.removeEventListener(redrawPersist),
+      badgeBinding.dispose
     ]
     const pendingGrips: Array<() => void> = []
     let dragStart = {
@@ -355,6 +371,7 @@ export class AcApMeasureArcEntity extends AcApMeasureEntity {
       const arc = valid ? resolveArc() : null
       arcLen = arc?.length ?? 0
       badge.setText(formatMeasurementLength(db, arcLen))
+      badgeBinding.sync()
       acapPlaceOverlayHtml(view, badge, midPoint())
       paintArc(getMeasurementStyle(this.entityId) ?? this.style)
       view.isHtmlDirty = true
@@ -490,19 +507,11 @@ export class AcApMeasureArcEntity extends AcApMeasureEntity {
       extras: {
         style: this.committedLiveStyle(badgeFontSize, textHeightWcs),
         value: { kind: 'length', value: arcLen },
-        snapshot: (() => {
-          const snapshot = this.toRecord(layoutId, view)
-          if (
-            importedTextHeight == null &&
-            textHeightWcs != null &&
-            textHeightWcs > 0
-          ) {
-            snapshot.style.fontSize = badgeFontSize
-            snapshot.style.textHeightWcs = textHeightWcs
-          }
-          return snapshot
-        })(),
-        redraw: paintArc
+        snapshot: this.toRecord(layoutId, view),
+        redraw: paintStyle => {
+          paintArc(paintStyle)
+          badgeBinding.sync()
+        }
       }
     }
   }

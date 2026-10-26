@@ -13,8 +13,8 @@ import {
   acapMeasurementCanvasLineWidth,
   type AcApMeasurementStyle,
   acapScreenAngleBadgeRefLengthPx,
-  formatMeasurementAngle
-} from '../../../util'
+  acapSegmentMeasureBadgeFontSize,
+  formatMeasurementAngle} from '../../../util'
 import type { AcTrView2d } from '../../../view'
 import {
   acapBindOverlayPointerDrag,
@@ -246,13 +246,29 @@ export class AcApMeasureAngleEntity extends AcApMeasureEntity {
     const redrawPersist = () =>
       paintAngle(getMeasurementStyle(this.entityId) ?? this.style)
     view.events.viewChanged.addEventListener(redrawPersist)
+    const badgeBinding = this.bindBadgeSize(
+      view,
+      badge,
+      (text, preferredPx) =>
+        acapSegmentMeasureBadgeFontSize(
+          text,
+          { fontSize: preferredPx, textHeightMode: 'adaptive' },
+          acapScreenAngleBadgeRefLengthPx(
+            p => view.worldToScreen(p),
+            live.vertex,
+            live.arm1,
+            live.arm2
+          )
+        ).fontSize
+    )
 
     const group = this.createGroup(view)
       .add(dotV, dot1, dot2, badge)
       .addCanvas(persistOverlay)
 
     const cleanups: Array<() => void> = [
-      () => view.events.viewChanged.removeEventListener(redrawPersist)
+      () => view.events.viewChanged.removeEventListener(redrawPersist),
+      badgeBinding.dispose
     ]
     const pendingGrips: Array<() => void> = []
     let dragStart = {
@@ -264,6 +280,7 @@ export class AcApMeasureAngleEntity extends AcApMeasureEntity {
     const refreshLive = () => {
       degrees = measureAngleDeg(live.vertex, live.arm1, live.arm2)
       badge.setText(formatMeasurementAngle(db, (degrees * Math.PI) / 180))
+      badgeBinding.sync()
       acapPlaceOverlayHtml(
         view,
         badge,
@@ -359,19 +376,11 @@ export class AcApMeasureAngleEntity extends AcApMeasureEntity {
       extras: {
         style: this.committedLiveStyle(badgeFontSize, textHeightWcs),
         value: { kind: 'angle', radians: (degrees * Math.PI) / 180 },
-        snapshot: (() => {
-          const snapshot = this.toRecord(layoutId, view)
-          if (
-            importedTextHeight == null &&
-            textHeightWcs != null &&
-            textHeightWcs > 0
-          ) {
-            snapshot.style.fontSize = badgeFontSize
-            snapshot.style.textHeightWcs = textHeightWcs
-          }
-          return snapshot
-        })(),
-        redraw: paintAngle
+        snapshot: this.toRecord(layoutId, view),
+        redraw: paintStyle => {
+          paintAngle(paintStyle)
+          badgeBinding.sync()
+        }
       }
     }
   }

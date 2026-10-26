@@ -1906,6 +1906,10 @@ export class AcTrView2d extends AcEdBaseView {
   zoomTo(box: AcGeBox2d, margin: number = 1.1) {
     this.activeLayoutView.zoomTo(box, margin)
     this._isDirty = true
+    // The layout view moves its camera without a change event; canvas
+    // overlays (measure / markup strokes) and screen-sized badges repaint on
+    // `viewChanged` only.
+    this.events.viewChanged.dispatch()
   }
 
   /**

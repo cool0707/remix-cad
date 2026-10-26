@@ -194,11 +194,13 @@ export type AcApSegmentMeasureBadgeSize = {
 }
 
 /**
- * Fit-to-screen font for a segment badge. Shrinks like
+ * Fit-to-screen font for a measure badge against a reference screen length
+ * (segment, arc, angle radius, area width). Shrinks like
  * {@link acapAdaptiveMeasureBadgeFontSize}, but when the text would drop
  * below {@link ACAP_MEASURE_BADGE_MIN_FONT_RATIO} of the preferred size it
- * keeps the preferred size; place it with {@link acapSegmentMeasureBadgeWorld}
- * so the capsule sits beside the line instead of covering it.
+ * keeps the preferred size. For a segment, place it with
+ * {@link acapSegmentMeasureBadgeWorld} so the capsule sits beside the line
+ * instead of covering it.
  */
 export function acapSegmentMeasureBadgeFontSize(
   text: string,
