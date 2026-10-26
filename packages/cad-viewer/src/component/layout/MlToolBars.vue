@@ -32,12 +32,10 @@ import {
   ICON_MEASURE_POINT,
   ICON_MEASUREMENT_PANEL,
   ICON_PAN,
-  ICON_READING_MODE,
   ICON_REV_CIRCLE,
   ICON_REV_CLOUD,
   ICON_REV_RECT,
   ICON_SELECT,
-  ICON_SWITCH_BG,
   ICON_TEXT,
   ICON_ZOOM_EXTENT,
   ICON_ZOOM_ORIGINAL,
@@ -101,7 +99,6 @@ const { refresh: refreshToolbarSide } = usePaletteToolbarAvoidance(
 
 const markupVisible = ref(isMarkupVisible())
 const measurementVisible = ref(isMeasurementVisible())
-const readingModeEnabled = ref(false)
 
 const syncMarkupVisibility = () => {
   markupVisible.value = isMarkupVisible()
@@ -109,14 +106,6 @@ const syncMarkupVisibility = () => {
 
 const syncMeasurementVisibility = () => {
   measurementVisible.value = isMeasurementVisible()
-}
-
-const syncReadingMode = () => {
-  try {
-    readingModeEnabled.value = AcApDocManager.instance.isReadingModeEnabled()
-  } catch {
-    readingModeEnabled.value = false
-  }
 }
 
 /**
@@ -246,7 +235,6 @@ const toolbarSeparator = (): AcUiToolbarItem => ({
 })
 
 const buildItems = (): AcUiToolbarItem[] => {
-  const readingOn = readingModeEnabled.value
   const items: AcUiToolbarItem[] = [
     {
       id: 'select',
@@ -488,24 +476,6 @@ const buildItems = (): AcUiToolbarItem[] => {
       command: 'layer'
     },
     {
-      id: 'switch-bg',
-      label: 'main.verticalToolbar.switchBg.text',
-      icon: ICON_SWITCH_BG,
-      command: 'switchbg',
-      disabled: () => readingModeEnabled.value
-    },
-    {
-      id: 'reading-mode',
-      label: 'main.verticalToolbar.readingMode.text',
-      icon: ICON_READING_MODE,
-      command: 'readingmode',
-      toggle: {
-        getValue: () => readingModeEnabled.value,
-        on: { icon: ICON_READING_MODE },
-        off: { icon: ICON_READING_MODE }
-      }
-    },
-    {
       id: 'measure',
       label: 'main.verticalToolbar.measure.text',
       icon: ICON_MEASURE,
@@ -693,7 +663,6 @@ const buildItems = (): AcUiToolbarItem[] => {
     ]
   })
 
-  void readingOn
   void docOpenMode
   return items
 }
@@ -718,7 +687,6 @@ const ensureToolbar = () => {
     },
     onCommand: command => {
       if (isDocumentOpening.value || !command) return
-      if (command === 'switchbg' && readingModeEnabled.value) return
       AcApDocManager.instance.sendStringToExecute(command)
     }
   })
@@ -745,14 +713,11 @@ onMounted(() => {
   const docs = AcApDocManager.instance
   docs.editor.events.commandEnded.addEventListener(syncMarkupVisibility)
   docs.editor.events.commandEnded.addEventListener(syncMeasurementVisibility)
-  docs.editor.events.commandEnded.addEventListener(syncReadingMode)
   docs.events.documentActivated.addEventListener(syncMarkupVisibility)
   docs.events.documentActivated.addEventListener(syncMeasurementVisibility)
-  docs.events.documentActivated.addEventListener(syncReadingMode)
   AcApI18n.events.localeChanged.addEventListener(handleLocaleChanged)
   syncMarkupVisibility()
   syncMeasurementVisibility()
-  syncReadingMode()
 
   if (features.isShowToolbar) {
     ensureToolbar()
@@ -763,10 +728,8 @@ onUnmounted(() => {
   const docs = AcApDocManager.instance
   docs.editor.events.commandEnded.removeEventListener(syncMarkupVisibility)
   docs.editor.events.commandEnded.removeEventListener(syncMeasurementVisibility)
-  docs.editor.events.commandEnded.removeEventListener(syncReadingMode)
   docs.events.documentActivated.removeEventListener(syncMarkupVisibility)
   docs.events.documentActivated.removeEventListener(syncMeasurementVisibility)
-  docs.events.documentActivated.removeEventListener(syncReadingMode)
   AcApI18n.events.localeChanged.removeEventListener(handleLocaleChanged)
   destroyToolbar()
 })
@@ -784,7 +747,7 @@ watch(
 )
 
 watch(
-  [markupVisible, measurementVisible, readingModeEnabled, docOpenMode],
+  [markupVisible, measurementVisible, docOpenMode],
   () => {
     refreshToolbarItems()
   }

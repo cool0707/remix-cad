@@ -830,6 +830,11 @@ export default {
       description: 'التبديل بين خلفية الرسم السوداء والبيضاء',
       disabledInReadingMode: 'غير متاح أثناء وضع القراءة (اللوحة البيضاء ثابتة)'
     },
+    readingMode: {
+      text: 'وضع القراءة',
+      description:
+        'تبديل وضع القراءة: خطوط سوداء على لوحة بيضاء لتسهيل المراجعة'
+    },
 
     zoom: {
       ...enMain.verticalToolbar.zoom,
@@ -916,6 +921,11 @@ export default {
       ...enMain.statusBar.lineWidth,
       on: 'إخفاء سماكات الخطوط',
       off: 'إظهار سماكات الخطوط'
+    },
+
+    printArea: {
+      on: 'إخفاء نطاق الطباعة',
+      off: 'إظهار نطاق الطباعة (تظليل ما خارج الورقة بالرمادي)'
     },
 
     operationProfile: {

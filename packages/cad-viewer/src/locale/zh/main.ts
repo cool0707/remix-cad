@@ -625,6 +625,10 @@ export default {
       on: '隐藏线宽',
       off: '显示线宽'
     },
+    printArea: {
+      on: '隐藏打印范围',
+      off: '显示打印范围（纸张外显示为灰色）'
+    },
     operationProfile: {
       simple: '简单',
       cad: 'CAD',

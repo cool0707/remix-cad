@@ -601,7 +601,7 @@ export default {
         'Unavailable while reading mode is on (white canvas is fixed)'
     },
     readingMode: {
-      text: 'Reading',
+      text: 'Reading mode',
       description:
         'Toggles reading mode: black linework on a white canvas for easier review'
     },
@@ -668,6 +668,10 @@ export default {
     lineWidth: {
       on: 'Hide line widths',
       off: 'Show line widths'
+    },
+    printArea: {
+      on: 'Hide the print area',
+      off: 'Show the print area: gray out the canvas outside the sheet'
     },
     operationProfile: {
       simple: 'Simple',

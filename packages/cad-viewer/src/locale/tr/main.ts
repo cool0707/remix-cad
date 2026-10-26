@@ -602,6 +602,11 @@ export default {
       disabledInReadingMode:
         'Okuma modundayken kullanılamaz (beyaz tuval sabittir)'
     },
+    readingMode: {
+      text: 'Okuma modu',
+      description:
+        'Okuma modunu açar/kapatır: daha kolay inceleme için beyaz tuvalde siyah çizgiler'
+    },
     zoom: {
       text: 'Yakınlaştır',
       description:
@@ -668,6 +673,10 @@ export default {
     lineWidth: {
       on: 'Çizgi genişliklerini gizle',
       off: 'Çizgi genişliklerini göster'
+    },
+    printArea: {
+      on: 'Baskı alanını gizle',
+      off: 'Baskı alanını göster (kağıt dışını gri yap)'
     },
     operationProfile: {
       simple: 'Basit',

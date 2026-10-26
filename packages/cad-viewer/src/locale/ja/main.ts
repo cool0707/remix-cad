@@ -581,7 +581,7 @@ export default {
       disabledInReadingMode: '閲覧モード中は使用できません (背景は白で固定)'
     },
     readingMode: {
-      text: '閲覧',
+      text: '閲覧モード',
       description:
         '閲覧モードを切り替えます: 白い背景に黒い線で表示してレビューしやすくします'
     },
@@ -649,6 +649,10 @@ export default {
     lineWidth: {
       on: '線の太さを非表示',
       off: '線の太さを表示'
+    },
+    printArea: {
+      on: '印刷範囲の表示をオフにする',
+      off: '印刷範囲を表示 (用紙の外を灰色にする)'
     },
     operationProfile: {
       simple: 'シンプル',

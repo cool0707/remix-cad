@@ -50,6 +50,8 @@ takže výkresy nikdy neopustí zařízení uživatele.
 - **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
   otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
   (motiv, pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).
+- **Tisková oblast** — tlačítko ve stavovém řádku vedle „Zobrazit tloušťky čar“ zašedí plátno mimo papír, na který se výkres tiskne / exportuje
+  (meze výkresu, jinak A3 ve standardním měřítku), jako artboard v Illustratoru, a označí ho (např. `A3 1:100`).
 - **Měřítko zobrazení** — stavový řádek ukazuje zobrazení jako měřítko výkresu (`1/100` = 1 mm na obrazovce ukazuje 100 mm výkresu,
   podle jednotek výkresu a 96 px na palec), s tlačítky −/+ a posuvníkem. Kliknutím zvolíte Zobrazit vše nebo 1/1 … 1/5000.
 - **Panel vlastností** — karta Vlastnosti dělí hodnoty do skupin (Obecné, Umístění, Symbol…)

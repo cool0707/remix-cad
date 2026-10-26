@@ -368,6 +368,12 @@ export class AcTrBatchedGroup extends THREE.Group {
   private _compareEnabled = false
   /** Unchanged-entity color while compare display is enabled. */
   private _compareBaseColor = 0x9ca3af
+  /**
+   * Keep textured drawables (raster images, OLE) in their own colors instead
+   * of the unchanged base color (reading mode: a black tint would multiply
+   * the texture to a black rectangle).
+   */
+  private _compareKeepTexturedColors = false
   /** Deleted-entity color while compare display is enabled. */
   private _compareDeletedColor = 0xe11d48
   /** Added-entity color while compare display is enabled. */
@@ -1809,6 +1815,11 @@ export class AcTrBatchedGroup extends THREE.Group {
     enabled: boolean
     /** Color for unchanged entities. */
     baseColor?: number
+    /**
+     * Leave unchanged textured drawables (raster images, OLE) in their own
+     * colors. Role colors still tint them.
+     */
+    keepTexturedColors?: boolean
     /** Role colors applied after the unchanged base color. */
     colors?: {
       /** Added-entity color. */
@@ -1830,6 +1841,7 @@ export class AcTrBatchedGroup extends THREE.Group {
     if (options.baseColor != null) {
       this._compareBaseColor = options.baseColor
     }
+    this._compareKeepTexturedColors = !!options.keepTexturedColors
     if (options.colors?.deleted != null) {
       this._compareDeletedColor = options.colors.deleted
     }
@@ -1967,7 +1979,11 @@ export class AcTrBatchedGroup extends THREE.Group {
       }
       const role = this._compareRoles.get(objectId)
       const color = this.resolveCompareColor(role)
-      this.applyUnbatchedCompareMaterial(object, color)
+      this.applyUnbatchedCompareMaterial(
+        object,
+        color,
+        role == null && this._compareKeepTexturedColors
+      )
     }
   }
 
@@ -1988,14 +2004,23 @@ export class AcTrBatchedGroup extends THREE.Group {
    *
    * @param object - Root drawable.
    * @param colorHex - 24-bit RGB color.
+   * @param keepTextured - Leave textured leaves in their original material.
    */
   private applyUnbatchedCompareMaterial(
     object: THREE.Object3D,
-    colorHex: number
+    colorHex: number,
+    keepTextured = false
   ) {
     if ('material' in object) {
       const material = object.material as THREE.Material | THREE.Material[]
       const objectData = getObjectUserData(object)
+      if (
+        keepTextured &&
+        this.materialHasTextureMap(objectData.originalMaterial ?? material)
+      ) {
+        this.unhighlightUnbatchedObject(object)
+        return
+      }
       if (objectData.originalMaterial == null) {
         objectData.originalMaterial = material
       }
@@ -2004,7 +2029,7 @@ export class AcTrBatchedGroup extends THREE.Group {
       return
     }
     for (const child of object.children) {
-      this.applyUnbatchedCompareMaterial(child, colorHex)
+      this.applyUnbatchedCompareMaterial(child, colorHex, keepTextured)
     }
   }
 
