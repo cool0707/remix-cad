@@ -1,0 +1,269 @@
+[
+  {
+    "file": "bizudgothic.woff",
+    "name": [
+      "bizudgothic",
+      "BIZ UDGothic",
+      "BIZ UDゴシック",
+      "msgothic",
+      "MS Gothic",
+      "ms gothic",
+      "ＭＳ ゴシック",
+      "MSゴシック",
+      "ms ゴシック",
+      "Osaka-Mono",
+      "Osaka−等幅",
+      "IPAGothic",
+      "IPAゴシック",
+      "IPAexGothic",
+      "IPAexゴシック",
+      "TakaoGothic"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "bizudpgothic.woff",
+    "name": [
+      "bizudpgothic",
+      "BIZ UDPGothic",
+      "BIZ UDPゴシック",
+      "mspgothic",
+      "MS PGothic",
+      "ms pgothic",
+      "ＭＳ Ｐゴシック",
+      "MS Pゴシック",
+      "MS UI Gothic",
+      "msuigothic",
+      "meiryo",
+      "Meiryo",
+      "メイリオ",
+      "Meiryo UI",
+      "yugothic",
+      "Yu Gothic",
+      "游ゴシック",
+      "游ゴシック体",
+      "Yu Gothic UI",
+      "Hiragino Sans",
+      "ヒラギノ角ゴシック",
+      "Hiragino Kaku Gothic ProN",
+      "ヒラギノ角ゴ ProN",
+      "IPAPGothic",
+      "IPAPゴシック"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "bizudmincho.woff",
+    "name": [
+      "bizudmincho",
+      "BIZ UDMincho",
+      "BIZ UD明朝",
+      "msmincho",
+      "MS Mincho",
+      "ms mincho",
+      "ＭＳ 明朝",
+      "MS明朝",
+      "ms 明朝",
+      "IPAMincho",
+      "IPA明朝",
+      "IPAexMincho",
+      "IPAex明朝",
+      "TakaoMincho"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "bizudpmincho.woff",
+    "name": [
+      "bizudpmincho",
+      "BIZ UDPMincho",
+      "BIZ UDP明朝",
+      "mspmincho",
+      "MS PMincho",
+      "ms pmincho",
+      "ＭＳ Ｐ明朝",
+      "MS P明朝",
+      "yumincho",
+      "Yu Mincho",
+      "游明朝",
+      "游明朝体",
+      "Hiragino Mincho ProN",
+      "ヒラギノ明朝 ProN",
+      "IPAPMincho",
+      "IPAP明朝"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/arimo/v36/P5sfzZCDf9_T_3cV7NCUECyoxNk37cxcABrE.ttf",
+    "name": [
+      "arimo",
+      "Arimo",
+      "arial",
+      "Arial",
+      "arialuni",
+      "Arial Unicode MS",
+      "arialn",
+      "Arial Narrow",
+      "helvetica",
+      "Helvetica",
+      "Liberation Sans",
+      "tahoma",
+      "Tahoma",
+      "verdana",
+      "Verdana",
+      "calibri",
+      "Calibri",
+      "segoeui",
+      "Segoe UI"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/tinos/v26/buE4poGnedXvwjX7fmE.ttf",
+    "name": [
+      "tinos",
+      "Tinos",
+      "times",
+      "Times",
+      "timesnewroman",
+      "Times New Roman",
+      "Liberation Serif",
+      "cambria",
+      "Cambria",
+      "georgia",
+      "Georgia"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/cousine/v31/d6lIkaiiRdih4SpP_SQvyQ.ttf",
+    "name": [
+      "cousine",
+      "Cousine",
+      "cour",
+      "courier",
+      "Courier",
+      "couriernew",
+      "Courier New",
+      "Liberation Mono",
+      "consolas",
+      "Consolas"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notosanssc/v41/k3kCo84MPvpLmixcA63oeAL7Iqp5IZJF9bmaG9_FrYtHaA.ttf",
+    "name": [
+      "notosanssc",
+      "Noto Sans SC",
+      "simhei",
+      "SimHei",
+      "黑体",
+      "msyh",
+      "Microsoft YaHei",
+      "微软雅黑",
+      "dengxian",
+      "DengXian",
+      "等线",
+      "PingFang SC",
+      "苹方"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notoserifsc/v36/H4cyBXePl9DZ0Xe7gG9cyOj7uK2-n-D2rd4FY7SCqxWo-Yo.ttf",
+    "name": [
+      "notoserifsc",
+      "Noto Serif SC",
+      "simsun",
+      "SimSun",
+      "宋体",
+      "nsimsun",
+      "NSimSun",
+      "新宋体",
+      "simfang",
+      "FangSong",
+      "仿宋",
+      "仿宋_GB2312",
+      "simkai",
+      "KaiTi",
+      "楷体",
+      "楷体_GB2312"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notosanstc/v40/-nFuOG829Oofr2wohFbTp9ifNAn722rq0MXz76CyzC1Esg.ttf",
+    "name": [
+      "notosanstc",
+      "Noto Sans TC",
+      "msjh",
+      "Microsoft JhengHei",
+      "微軟正黑體",
+      "PingFang TC"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notoseriftc/v37/XLYzIZb5bJNDGYxLBibeHZ0BnHwmuanx8cUaGX9aMNpEM2I.ttf",
+    "name": [
+      "notoseriftc",
+      "Noto Serif TC",
+      "mingliu",
+      "MingLiU",
+      "細明體",
+      "pmingliu",
+      "PMingLiU",
+      "新細明體"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notosanskr/v40/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzuoySLPg9A.ttf",
+    "name": [
+      "notosanskr",
+      "Noto Sans KR",
+      "noto-sans-kr",
+      "malgun",
+      "Malgun Gothic",
+      "맑은 고딕",
+      "gulim",
+      "Gulim",
+      "굴림",
+      "dotum",
+      "Dotum",
+      "돋움"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notoserifkr/v32/3JnoSDn90Gmq2mr3blnHaTZXbOtLJDvui3JOncjmeP5x658.ttf",
+    "name": [
+      "notoserifkr",
+      "Noto Serif KR",
+      "batang",
+      "Batang",
+      "바탕",
+      "gungsuh",
+      "Gungsuh",
+      "궁서"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyfvHqF.ttf",
+    "name": ["notosansarabic", "Noto Sans Arabic", "Arabic Typesetting", "Simplified Arabic", "Traditional Arabic"],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notosanshebrew/v50/or3HQ7v33eiDljA1IufXTtVf7V6RvEEdhQlk0LlGxCyaeNKYZC0sqk3xXGiXd4qdpShh.ttf",
+    "name": ["notosanshebrew", "Noto Sans Hebrew", "David", "Miriam"],
+    "type": "mesh"
+  },
+  {
+    "file": "https://fonts.gstatic.com/s/notosansthai/v29/iJWnBXeUZi_OHPqn4wq6hQ2_hbJ1xyN9wd43SofNWcd1MKVQt_So_9CdU5RtlzZ0RQ.ttf",
+    "name": ["notosansthai", "Noto Sans Thai", "Angsana New", "Cordia New", "Tahoma Thai"],
+    "type": "mesh"
+  }
+]
