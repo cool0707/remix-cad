@@ -5,6 +5,8 @@ import {
   AcDbLinearUnits
 } from '@mlightcad/data-model'
 
+import { AcApSettingManager } from '../app/AcApSettingManager'
+
 /** Linear/angular unit settings used when formatting measurement labels. */
 export interface AcApMeasurementUnits {
   /** Linear display format (LUNITS). */
@@ -106,8 +108,7 @@ export type AcApMeasurementValue =
 
 /** Display flags for length / area / coordinate measurement labels. */
 export const MEASUREMENT_LENGTH_FORMAT_OPTIONS: AcDbFormatterOptions = {
-  showUnits: true,
-  showApproximate: true
+  showUnits: true
 }
 
 /**
@@ -116,15 +117,31 @@ export const MEASUREMENT_LENGTH_FORMAT_OPTIONS: AcDbFormatterOptions = {
  * appended by the caller.
  */
 const MEASUREMENT_CONVERTED_LENGTH_FORMAT_OPTIONS: AcDbFormatterOptions = {
-  showUnits: false,
-  showApproximate: true
+  showUnits: false
 }
 
 /** Display flags for included-angle measurement labels. */
 export const MEASUREMENT_ANGLE_FORMAT_OPTIONS: AcDbFormatterOptions = {
   showUnits: true,
-  showApproximate: true,
   applyAngbaseAngdir: false
+}
+
+/**
+ * Whether rounded measurement labels get the formatter's `~ ` prefix
+ * (user setting {@link AcApSettings.measurementShowApproximate}).
+ */
+function measurementShowApproximate(): boolean {
+  try {
+    return AcApSettingManager.instance.get('measurementShowApproximate') === true
+  } catch {
+    return false
+  }
+}
+
+/** Adds the user's approximate-prefix choice unless the caller set one. */
+function withApproximate(options: AcDbFormatterOptions): AcDbFormatterOptions {
+  if (options.showApproximate != null) return options
+  return { ...options, showApproximate: measurementShowApproximate() }
 }
 
 /**
@@ -261,7 +278,7 @@ function formatMeasurementLengthRaw(
 ): string {
   return withMeasurementFormatContext(
     db,
-    () => db.formatter.formatLength(value, options),
+    () => db.formatter.formatLength(value, withApproximate(options)),
     formatPatch
   )
 }
@@ -394,11 +411,14 @@ export function formatMeasurementAngle(
   return withMeasurementFormatContext(db, () => {
     const { aunits, auprec } = getEffectiveMeasurementUnits(db)
     const value = radiansForMeasurementFormat(radians, aunits, auprec)
-    return db.formatter.formatAngle(value, {
-      ...MEASUREMENT_ANGLE_FORMAT_OPTIONS,
-      ...options,
-      applyAngbaseAngdir: false
-    })
+    return db.formatter.formatAngle(
+      value,
+      withApproximate({
+        ...MEASUREMENT_ANGLE_FORMAT_OPTIONS,
+        ...options,
+        applyAngbaseAngdir: false
+      })
+    )
   })
 }
 

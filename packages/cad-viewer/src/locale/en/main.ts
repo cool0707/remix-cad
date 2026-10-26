@@ -557,6 +557,11 @@ export default {
       description:
         'Set the color for the selected measurement, or for measurements you add next'
     },
+    measurementShowApproximate: {
+      text: 'Show ~ when rounded',
+      description:
+        'Prefix measured values with ~ when the display precision rounds them'
+    },
     measurementFontSize: {
       text: 'Text height',
       description:

@@ -518,6 +518,11 @@ export default {
       text: '颜色',
       description: '有选中测量标注时修改其颜色；未选中时用于后续添加的测量标注'
     },
+    measurementShowApproximate: {
+      text: '舍入时显示 ~',
+      description:
+        '测量值按显示精度舍入时，在数值前加 ~（约）'
+    },
     measurementFontSize: {
       text: '字高',
       description: '有选中测量标注时修改其字高；未选中时用于后续添加的测量标注',

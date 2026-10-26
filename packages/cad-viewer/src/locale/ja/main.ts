@@ -538,6 +538,11 @@ export default {
       text: '色',
       description: '選択した計測、またはこれから追加する計測の色を設定します'
     },
+    measurementShowApproximate: {
+      text: '丸めたら ~ を付ける',
+      description:
+        '表示の桁数で丸めた計測値の前に ~（約）を付けます'
+    },
     measurementFontSize: {
       text: '文字の高さ',
       description:

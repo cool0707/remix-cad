@@ -109,6 +109,12 @@ export interface AcApSettings {
    * press still shows the magnifier loupe around the active sample.
    */
   useSimulatedMouseOnTouch: boolean
+  /**
+   * When true, measurement labels rounded by the display precision get a
+   * `~ ` prefix (e.g. `~ 2.5 m`). Off by default: AutoCAD and Jw_cad show the
+   * rounded value without a marker.
+   */
+  measurementShowApproximate: boolean
 }
 
 /**
@@ -164,7 +170,8 @@ const DEFAULT_VALUES: AcApSettings = {
   selectionStyle: 'simple',
   hideTouchPointTutorial: false,
   touchPointTutorialSnoozeDate: null,
-  useSimulatedMouseOnTouch: true
+  useSimulatedMouseOnTouch: true,
+  measurementShowApproximate: false
 }
 
 /** Default localStorage key for persisting user preferences */
