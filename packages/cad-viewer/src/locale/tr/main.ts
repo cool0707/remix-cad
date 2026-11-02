@@ -1115,6 +1115,14 @@ export default {
     }
   },
   message: {
+    dropToOpen: 'Çizimi açmak için bırakın',
+    dropToInsertImage: 'Görüntüyü çizime eklemek için bırakın',
+    dropUnsupported:
+      '“{fileName}” desteklenmeyen bir dosya. Bir çizim (DWG, DXF, JWW, SXF, …) veya görüntü bırakın.',
+    dropImageNoDocument: 'Görüntünün ekleneceği açık bir çizim yok.',
+    dropImageReadOnly:
+      'Bu çizim salt görüntüleme modunda açık; görüntü eklenemez.',
+    dropImageDecodeFailed: '“{fileName}” görüntüsü okunamadı.',
     loadingFonts: 'Yazı tipleri yükleniyor ...',
     loadingDwgConverter: 'DWG dönüştürücü yükleniyor...',
     fontsNotFound: '{fonts} yazı tipleri yazı tipi deposunda bulunamıyor!',

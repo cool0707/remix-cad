@@ -32,6 +32,8 @@ drawings never leave the user's device.
   block attribute → symbol property, Model space → Canvas, Layout → Print page,
   Hatch → Pattern fill, Xref → Linked drawing, Quick Select → Select by Criteria, and so on.
   Tooltips keep the CAD term in parentheses (all locales).
+- **Drag & drop files** — drop a drawing (DWG, DXF, JWW, JWC, SXF) onto the viewer to open it.
+  Drop an image (PNG, JPEG, BMP, GIF, TIFF) to insert it into the open drawing at the drop point, sized to fit the view (undoable).
 - **Movable tool bar** — drag the grip (⠿) to move the tool bar anywhere; the ⋯ menu next to it switches
   between vertical and horizontal or puts the bar back in its home position: the left edge of the drawing
   area, or the right edge while the floating panel (layers etc.) is over the left. A bar the panel would cover goes back there by itself.

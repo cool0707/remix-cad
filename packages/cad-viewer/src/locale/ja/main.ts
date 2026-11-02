@@ -1093,6 +1093,13 @@ export default {
     }
   },
   message: {
+    dropToOpen: 'ドロップして図面を開く',
+    dropToInsertImage: 'ドロップして画像を図面に挿入',
+    dropUnsupported:
+      '「{fileName}」は開けない形式です。図面ファイル (DWG・DXF・JWW・SXF など) か画像をドロップしてください。',
+    dropImageNoDocument: '画像を挿入する図面が開かれていません。',
+    dropImageReadOnly: 'この図面は閲覧モードで開かれているため、画像を挿入できません。',
+    dropImageDecodeFailed: '画像「{fileName}」を読み込めませんでした。',
     loadingFonts: 'フォントを読み込んでいます...',
     loadingDwgConverter: 'DWG コンバーターを読み込んでいます...',
     fontsNotFound: 'フォント {fonts} がフォントリポジトリに見つかりません。',

@@ -1572,6 +1572,14 @@ export default {
 
   message: {
     ...enMain.message,
+    dropToOpen: 'أفلت لفتح الرسم',
+    dropToInsertImage: 'أفلت لإدراج الصورة في الرسم',
+    dropUnsupported:
+      '«{fileName}» ملف غير مدعوم. أفلت ملف رسم (DWG وDXF وJWW وSXF …) أو صورة.',
+    dropImageNoDocument: 'لا يوجد رسم مفتوح لإدراج الصورة فيه.',
+    dropImageReadOnly:
+      'هذا الرسم مفتوح في وضع العرض فقط، لذا لا يمكن إدراج الصور.',
+    dropImageDecodeFailed: 'تعذرت قراءة الصورة «{fileName}».',
 
     loadingFonts:
       'جارٍ تحميل الخطوط ...',

@@ -88,7 +88,10 @@
  * @see {@link https://github.com/mlightcad/cad-viewer/blob/main/packages/cad-viewer/src/component/MlCadViewer.vue | Source Code}
  */
 import {
+  acapAttachImageFile,
   AcApDocManager,
+  acapIsDrawingFileName,
+  acapIsImageFile,
   AcApOpenDatabaseOptions,
   AcApOpenViewMode,
   AcEdMTextEditor,
@@ -96,7 +99,11 @@ import {
   eventBus,
   layoutBackgroundColorFromRgb
 } from '@mlightcad/cad-simple-viewer'
-import { ACDB_DRAW_CIRCLE_SIDES_DRAFT, ACGI_PAPER_SPACE_BACKGROUND, log } from '@mlightcad/data-model'
+import {
+  ACDB_DRAW_CIRCLE_SIDES_DRAFT,
+  ACGI_PAPER_SPACE_BACKGROUND,
+  log
+} from '@mlightcad/data-model'
 import { provideLocale } from '@mlightcad/ui-components'
 import { ElConfigProvider, ElMessage } from 'element-plus'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
@@ -457,6 +464,121 @@ const openLocalFile = async (file: File) => {
   }
 }
 
+/**
+ * Drag & drop onto the viewer: a drawing file (any extension the viewer can
+ * open) is opened like File > Open; image files are attached to the open
+ * drawing at the drop point. While files are dragged over the viewer an
+ * overlay tells what dropping will do.
+ */
+type DropKind = 'drawing' | 'image' | 'unknown'
+const dropHint = ref<DropKind | null>(null)
+let dragDepth = 0
+
+const hasDraggedFiles = (e: DragEvent) =>
+  Array.from(e.dataTransfer?.types ?? []).includes('Files')
+
+/**
+ * Guesses the drop action while dragging. Only MIME types are visible before
+ * the drop (no file names), so "all images" means image insertion and
+ * anything else is treated as a drawing to open.
+ */
+const guessDropKind = (e: DragEvent): DropKind => {
+  const items = Array.from(e.dataTransfer?.items ?? []).filter(
+    item => item.kind === 'file'
+  )
+  if (items.length > 0 && items.every(item => item.type.startsWith('image/'))) {
+    return 'image'
+  }
+  return 'drawing'
+}
+
+const resetDrag = () => {
+  dragDepth = 0
+  dropHint.value = null
+}
+
+const onDragEnter = (e: DragEvent) => {
+  if (!editorRef.value || !hasDraggedFiles(e)) return
+  e.preventDefault()
+  dragDepth++
+  dropHint.value = guessDropKind(e)
+}
+
+const onDragOver = (e: DragEvent) => {
+  if (!editorRef.value || !hasDraggedFiles(e)) return
+  e.preventDefault()
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'
+  if (!dropHint.value) dropHint.value = guessDropKind(e)
+}
+
+const onDragLeave = (e: DragEvent) => {
+  if (!hasDraggedFiles(e)) return
+  dragDepth = Math.max(0, dragDepth - 1)
+  if (dragDepth === 0) dropHint.value = null
+}
+
+const showDropMessage = (message: string, type: 'warning' | 'error') => {
+  ElMessage({ message, grouping: true, type, showClose: true })
+}
+
+const insertDroppedImages = async (images: File[], e: DragEvent) => {
+  const view = AcApDocManager.instance.curView
+  const base = view.viewportToCanvas({ x: e.clientX, y: e.clientY })
+  // Several images: shift each a little so they do not stack exactly.
+  const step = 24
+  for (const [index, file] of images.entries()) {
+    const result = await acapAttachImageFile(file, {
+      x: base.x + index * step,
+      y: base.y + index * step
+    })
+    if (result === 'readOnly') {
+      showDropMessage(t('main.message.dropImageReadOnly'), 'warning')
+      return
+    }
+    if (result === 'noDocument') {
+      showDropMessage(t('main.message.dropImageNoDocument'), 'warning')
+      return
+    }
+    if (result === 'decodeFailed') {
+      showDropMessage(
+        t('main.message.dropImageDecodeFailed', { fileName: file.name }),
+        'error'
+      )
+    }
+  }
+}
+
+const onDrop = async (e: DragEvent) => {
+  if (!editorRef.value || !hasDraggedFiles(e)) return
+  e.preventDefault()
+  resetDrag()
+  const files = Array.from(e.dataTransfer?.files ?? [])
+  if (files.length === 0) return
+
+  const drawing = files.find(file => acapIsDrawingFileName(file.name))
+  if (drawing) {
+    if (isDocumentOpening.value) return
+    await openLocalFile(drawing)
+    return
+  }
+
+  const images = files.filter(file => acapIsImageFile(file))
+  if (images.length > 0) {
+    await insertDroppedImages(images, e)
+    return
+  }
+
+  showDropMessage(
+    t('main.message.dropUnsupported', { fileName: files[0].name }),
+    'warning'
+  )
+}
+
+const dropHintText = computed(() => {
+  if (dropHint.value === 'image') return t('main.message.dropToInsertImage')
+  return t('main.message.dropToOpen')
+})
+
 // Watch for URL changes and automatically open new files
 // This allows dynamic loading of different CAD files without component remounting
 watch(
@@ -661,6 +783,10 @@ const closeNotificationCenter = () => {
     :class="viewerThemeClass"
     :style="{ '--ml-header-height': `${headerHeightPx}px` }"
     class="ml-cad-viewer-container"
+    @dragenter="onDragEnter"
+    @dragover="onDragOver"
+    @dragleave="onDragLeave"
+    @drop="onDrop"
   >
     <!-- Element Plus configuration provider for internationalization -->
     <el-config-provider :locale="elementPlusLocale">
@@ -690,6 +816,11 @@ const closeNotificationCenter = () => {
 
           <!-- Dialog manager for modal dialogs and settings -->
           <ml-dialog-manager v-if="editorRef" />
+
+          <!-- Shown while files are dragged over the viewer -->
+          <div v-if="dropHint" class="ml-cad-drop-overlay">
+            <div class="ml-cad-drop-overlay__label">{{ dropHintText }}</div>
+          </div>
 
           <!-- Notification center (anchored to the canvas / main area) -->
           <ml-notification-center
@@ -775,11 +906,35 @@ const closeNotificationCenter = () => {
   z-index: 6;
 }
 
+/* Drag & drop hint over the drawing area. Ignores pointer events so the
+   drag keeps targeting the elements beneath (dragleave stays consistent). */
+.ml-cad-drop-overlay {
+  position: absolute;
+  inset: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--ml-brand, var(--el-color-primary));
+  border-radius: 12px;
+  background: var(--ml-brand-soft, rgba(128, 128, 128, 0.12));
+  pointer-events: none;
+}
+
+.ml-cad-drop-overlay__label {
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: var(--ml-brand-gradient, var(--el-color-primary));
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
 /* Mobile command chrome is position:fixed over the canvas; hide the
    status-bar footer so ✓ / × receive taps instead of the footer. */
 .ml-cad-layout:has(.ml-mobile-cmd-active) .ml-cad-footer {
   visibility: hidden;
   pointer-events: none;
 }
-
 </style>
