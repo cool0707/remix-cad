@@ -33,6 +33,8 @@ del dispositivo del usuario.
   atributo de bloque → propiedad del símbolo, espacio modelo → lienzo, presentación → página de impresión,
   sombreado → relleno de patrón, referencia externa → plano vinculado, selección rápida → seleccionar por criterios, etc.
   Las descripciones emergentes mantienen el término CAD entre paréntesis (todos los idiomas).
+- **Arrastrar y soltar archivos** — suelte un plano (DWG, DXF, JWW, JWC, SXF) en el visor para abrirlo.
+  Suelte una imagen (PNG, JPEG, BMP, GIF, TIFF) para insertarla en el plano abierto donde la suelta, ajustada a la vista (se puede deshacer).
 - **Barra de herramientas movible** — arrastra el asa (⠿) para moverla a cualquier lugar; el menú ⋯ junto a
   ella la cambia entre vertical y horizontal o la devuelve a su posición inicial: el borde izquierdo del área
   de dibujo, o el derecho cuando el panel flotante (capas, etc.) tapa la izquierda. Si el panel la tapa, vuelve allí sola. Los

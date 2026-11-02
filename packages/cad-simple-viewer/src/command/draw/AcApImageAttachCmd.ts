@@ -2,6 +2,8 @@ import {
   AcDbDatabase,
   AcDbRasterImage,
   AcDbRasterImageDef,
+  AcGePoint2d,
+  AcGePoint2dLike,
   AcGePoint3d,
   AcGePoint3dLike
 } from '@mlightcad/data-model'
@@ -70,6 +72,96 @@ async function decodeImageSize(
   } finally {
     URL.revokeObjectURL(objectUrl)
   }
+}
+
+/** Lower-case extensions (without the dot) IMAGEATTACH accepts. */
+export const ACAP_IMAGE_FILE_TYPES: readonly string[] = IMAGE_FILE_ACCEPT.split(
+  ','
+).map(ext => ext.slice(1))
+
+/** Whether the file looks like a raster image IMAGEATTACH can attach. */
+export function acapIsImageFile(file: { name: string; type?: string }) {
+  if (file.type && file.type.startsWith('image/')) return true
+  const dot = file.name.lastIndexOf('.')
+  if (dot < 0) return false
+  return ACAP_IMAGE_FILE_TYPES.includes(file.name.slice(dot + 1).toLowerCase())
+}
+
+/** Result of {@link acapAttachImageFile}. */
+export type AcApAttachImageResult =
+  | 'ok'
+  | 'noDocument'
+  | 'readOnly'
+  | 'decodeFailed'
+
+/** Share of the visible view (shorter side) the dropped image fills. */
+const DROP_IMAGE_VIEW_RATIO = 0.4
+
+/**
+ * Attaches a raster image to the current drawing without prompts (used for
+ * drag & drop). The image is centered on `screenPoint` (canvas-local pixels;
+ * the view center when omitted) and sized so its longer side is
+ * {@link DROP_IMAGE_VIEW_RATIO} of the shorter side of the visible area, so it
+ * is easy to see whatever the drawing scale is. Undoable as one edit.
+ */
+export async function acapAttachImageFile(
+  file: File,
+  screenPoint?: AcGePoint2dLike
+): Promise<AcApAttachImageResult> {
+  const docManager = AcApDocManager.instance
+  const doc = docManager.curDocument
+  if (!doc) return 'noDocument'
+  if (doc.openMode !== AcEdOpenMode.Write) return 'readOnly'
+
+  let pixelSize: { width: number; height: number }
+  try {
+    pixelSize = await decodeImageSize(file)
+  } catch {
+    return 'decodeFailed'
+  }
+
+  const view = docManager.curView
+  const viewWidth = Math.max(1, view.width)
+  const viewHeight = Math.max(1, view.height)
+  const corner0 = view.screenToWorld({ x: 0, y: 0 })
+  const corner1 = view.screenToWorld({ x: viewWidth, y: viewHeight })
+  const visibleWidth = Math.abs(corner1.x - corner0.x)
+  const visibleHeight = Math.abs(corner1.y - corner0.y)
+  let maxSide = Math.min(visibleWidth, visibleHeight) * DROP_IMAGE_VIEW_RATIO
+  if (!(maxSide > 0) || !Number.isFinite(maxSide)) maxSide = DEFAULT_MAX_SIDE
+
+  const pw = Math.max(1, pixelSize.width)
+  const ph = Math.max(1, pixelSize.height)
+  const factor = maxSide / Math.max(pw, ph)
+  const width = Math.max(1e-6, pw * factor)
+  const height = Math.max(1e-6, ph * factor)
+
+  const center: AcGePoint2d = view.screenToWorld(
+    screenPoint ?? { x: viewWidth / 2, y: viewHeight / 2 }
+  )
+  const position = new AcGePoint3d(
+    center.x - width / 2,
+    center.y - height / 2,
+    0
+  )
+
+  const db = doc.database
+  const defName = uniqueImageDefName(db, file.name)
+  acapRunDatabaseEdit(db, 'IMAGEATTACH', () => {
+    const imageDef = new AcDbRasterImageDef()
+    imageDef.sourceFileName = file.name
+    db.objects.imageDefinition.setAt(defName, imageDef)
+
+    const image = new AcDbRasterImage()
+    image.position = position
+    image.width = width
+    image.height = height
+    image.rotation = 0
+    image.image = file
+    image.imageDefId = imageDef.objectId
+    db.tables.blockTable.modelSpace.appendEntity(image)
+  })
+  return 'ok'
 }
 
 function pickImageFile(): Promise<File | undefined> {

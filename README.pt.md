@@ -32,6 +32,8 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   atributo de bloco → propriedade do símbolo, espaço do modelo → tela, layout → página de impressão,
   hachura → preenchimento com padrão, referência externa → desenho vinculado, seleção rápida → selecionar por critérios etc.
   As dicas de ferramenta mantêm o termo CAD entre parênteses (todos os idiomas).
+- **Arrastar e soltar arquivos**: solte um desenho (DWG, DXF, JWW, JWC, SXF) no visualizador para abri-lo.
+  Solte uma imagem (PNG, JPEG, BMP, GIF, TIFF) para inseri-la no desenho aberto no ponto onde foi solta, ajustada à vista (pode ser desfeito).
 - **Barra de ferramentas móvel** — arraste a alça (⠿) para movê-la para qualquer lugar; o menu ⋯ ao lado
   alterna entre vertical e horizontal ou a devolve à posição inicial: a borda esquerda da área de desenho, ou a
   direita quando o painel flutuante (camadas etc.) cobre a esquerda. Se o painel a cobrir, ela volta para lá sozinha. Os submenus

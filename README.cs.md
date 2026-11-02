@@ -31,6 +31,8 @@ takže výkresy nikdy neopustí zařízení uživatele.
   blok → symbol, atribut bloku → vlastnost symbolu, modelový prostor → plátno,
   rozvržení → tisková stránka, šrafování → vzorová výplň, externí reference → propojený výkres,
   rychlý výběr → výběr podle kritérií atd. Popisky nástrojů uvádějí CAD pojem v závorce (všechna národní prostředí).
+- **Přetahování souborů** — přetažením výkresu (DWG, DXF, JWW, JWC, SXF) do prohlížeče jej otevřete.
+  Přetažený obrázek (PNG, JPEG, BMP, GIF, TIFF) se vloží do otevřeného výkresu na místo puštění ve velikosti podle pohledu (lze vrátit).
 - **Přesouvatelný panel nástrojů** — přetažením úchytu (⠿) panel přesunete kamkoli; nabídka ⋯ vedle něj
   ho přepne na svislý nebo vodorovný nebo vrátí na výchozí místo: k levému okraji plochy výkresu, nebo k pravému,
   když plovoucí panel (vrstvy apod.) zakrývá levý okraj. Pokud by ho panel zakryl, vrátí se tam sám. Podnabídky se otevírají směrem ke

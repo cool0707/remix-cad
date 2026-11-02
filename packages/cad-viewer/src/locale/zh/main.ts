@@ -1064,6 +1064,12 @@ export default {
     }
   },
   message: {
+    dropToOpen: '拖放以打开图纸',
+    dropToInsertImage: '拖放以将图像插入图纸',
+    dropUnsupported: '不支持“{fileName}”。请拖放图纸文件（DWG、DXF、JWW、SXF 等）或图像。',
+    dropImageNoDocument: '没有打开的图纸可插入图像。',
+    dropImageReadOnly: '此图纸以只读模式打开，无法插入图像。',
+    dropImageDecodeFailed: '无法读取图像“{fileName}”。',
     loadingFonts: '正在加载字体...',
     loadingDwgConverter: '正在加载DWG转换器...',
     fontsNotFound: '在字体库中找不到字体：{fonts}。',

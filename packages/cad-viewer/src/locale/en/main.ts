@@ -1109,6 +1109,14 @@ export default {
     }
   },
   message: {
+    dropToOpen: 'Drop to open the drawing',
+    dropToInsertImage: 'Drop to insert the image into the drawing',
+    dropUnsupported:
+      '"{fileName}" is not a supported file. Drop a drawing (DWG, DXF, JWW, SXF, …) or an image.',
+    dropImageNoDocument: 'No drawing is open to insert the image into.',
+    dropImageReadOnly:
+      'This drawing is open in view-only mode, so images cannot be inserted.',
+    dropImageDecodeFailed: 'Could not read the image "{fileName}".',
     loadingFonts: 'Loading fonts ...',
     loadingDwgConverter: 'Loading DWG converter...',
     fontsNotFound: 'Fonts {fonts} can not be found in font repository!',

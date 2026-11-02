@@ -1101,6 +1101,15 @@ export default {
     }
   },
   message: {
+    dropToOpen: 'Přetažením otevřete výkres',
+    dropToInsertImage: 'Přetažením vložíte obrázek do výkresu',
+    dropUnsupported:
+      'Soubor „{fileName}“ není podporován. Přetáhněte výkres (DWG, DXF, JWW, SXF, …) nebo obrázek.',
+    dropImageNoDocument:
+      'Není otevřen žádný výkres, do kterého lze obrázek vložit.',
+    dropImageReadOnly:
+      'Výkres je otevřen pouze pro čtení, obrázky nelze vkládat.',
+    dropImageDecodeFailed: 'Obrázek „{fileName}“ nelze načíst.',
     loadingFonts: 'Načítám fonty…',
     loadingDwgConverter: 'Načítám převodník DWG…',
     fontsNotFound: 'Fonty {fonts} nebyly nalezeny v úložišti fontů!',
