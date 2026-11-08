@@ -49,6 +49,12 @@ takže výkresy nikdy neopustí zařízení uživatele.
   krok přibližně jednoho pixelu obrazovky (Shift: ×10). Dvojklikem na objekt upravíte jeho vrcholy uzlovými body CAD. Uchopení je jedno tlačítko zapnout/vypnout
   ve stavovém řádku; režimy uchopení jsou v Nastavení.
   Objekty, které lze vybrat, se pod kurzorem zvýrazní barvou motivu (v obou profilech); nad vybraným objektem kurzor ukazuje, že jej lze přetáhnout.
+- **Místní nabídka** — pravým tlačítkem na výkresu se otevře nabídka jen s tím, co lze právě udělat (Jednoduchý i CAD).
+  S výběrem: vyjmout, kopírovat, vložit, duplikovat, odstranit, vybrat stejnou hladinu, zobrazit vlastnosti; bez výběru: opakovat poslední příkaz,
+  vytvořit (úsečka, křivka, obdélník, kružnice…), symbol, komentář (text, obláček…), vložit, vybrat vše, zobrazit vše, zpět / znovu.
+  V Jednoduchém režimu pravé tlačítko na nevybraném objektu ho nejdřív vybere. Při kreslení v Jednoduchém režimu je nabídka Hotovo / Zpět
+  (poslední bod, pokud to příkaz umožňuje) / Zrušit (CAD ponechává pravé tlačítko = Enter). Ctrl+X / C / V / D / A (⌘ na Macu) vyjímají,
+  kopírují, vkládají (na kurzor), duplikují a vybírají vše.
 - **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
   otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
   (motiv, pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).

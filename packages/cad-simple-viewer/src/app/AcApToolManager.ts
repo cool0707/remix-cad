@@ -74,7 +74,21 @@ const NAMED_TOOLS = new Set([
   'spline',
   'mtext',
   'hatch',
-  'point'
+  'point',
+  'move',
+  'copy',
+  'rotate',
+  'offset',
+  'revcloud',
+  '-insert',
+  'markuptext',
+  'markupcloud',
+  'markuprect',
+  'markupcircle',
+  'markuparrow',
+  'markupline',
+  'markupcallout',
+  'markupstamp'
 ])
 
 /** One run of a command, from `commandWillStart` to `commandEnded`. */
@@ -122,6 +136,8 @@ export class AcApToolManager {
 
   private _run?: AcApToolRun
   private _prompt = ''
+  /** See {@link lastCommand} */
+  private _lastCommand?: string
   /** Command restarted for continuous drawing, until it starts */
   private _restartTimer?: ReturnType<typeof setTimeout>
 
@@ -173,6 +189,15 @@ export class AcApToolManager {
     }
   }
 
+  /**
+   * Global name of the last command the user ran that asked for input
+   * (`'line'`, `'move'`...), for "repeat". Commands run by a script with their
+   * own inputs, and the select / pan tools, are left out.
+   */
+  get lastCommand(): string | undefined {
+    return this._lastCommand
+  }
+
   /** Whether a command is running (between its start and end events). */
   get isCommandRunning() {
     return this._run != null
@@ -187,7 +212,7 @@ export class AcApToolManager {
   labelOf(tool: string) {
     const name = tool.toLowerCase()
     if (NAMED_TOOLS.has(name)) {
-      return AcApI18n.t(`main.tool.${name}`)
+      return AcApI18n.t(`main.tool.${name.replace(/^-/, '')}`)
     }
     return name.replace(/^-/, '').toUpperCase()
   }
@@ -240,6 +265,14 @@ export class AcApToolManager {
     this._run = undefined
     this._prompt = ''
     this.view.promptBadge = ''
+    if (
+      run.interactive &&
+      run.prompts > 0 &&
+      run.name !== 'select' &&
+      run.name !== 'pan'
+    ) {
+      this._lastCommand = run.name
+    }
 
     if (this.isSimple && run.prompts > 0) {
       const cancelled = run.lastStatus === AcEdPromptStatus.Cancel

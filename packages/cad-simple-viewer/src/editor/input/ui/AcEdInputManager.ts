@@ -131,6 +131,27 @@ class AcEdNoneInputError extends Error {
 }
 
 /**
+ * What the prompt waiting for input accepts, for UI outside the prompt (the
+ * right-click menu of the simple profile).
+ */
+export interface AcEdPromptActions {
+  /** Whether Enter is accepted (ends the prompt with what it has) */
+  canConfirm: boolean
+  /** Enabled keywords the prompt offers */
+  keywords: AcEdMobileKeywordChip[]
+  /** Same as pressing Enter */
+  confirm(): void
+  /** Same as pressing Esc */
+  cancel(): void
+  /**
+   * Same as typing a keyword.
+   *
+   * @param globalName - Global name of one of {@link keywords}.
+   */
+  keyword(globalName: string): void
+}
+
+/**
  * A fully type-safe TypeScript class providing CAD-style interactive user input
  * using floating HTML input boxes and mouse events. Supports collecting points,
  * distances, angles, numbers, strings, and selecting a 2-point rectangular box
@@ -188,6 +209,8 @@ export class AcEdInputManager {
     }
   }
   private _disposed = false
+  /** What the prompt waiting for input accepts; see {@link promptActions}. */
+  private _promptActions: AcEdPromptActions | null = null
   /** Editor event bus used to unregister dispose-time listeners. */
   private readonly _editorEvents: AcEditor['events']
   /** Buffered command-line style inputs (each item is one Enter-confirmed value). */
@@ -414,7 +437,16 @@ export class AcEdInputManager {
   }
 
   /**
+   * What the prompt waiting for input accepts (Enter, its keywords, Esc), or
+   * `null` when no prompt is waiting.
+   */
+  get promptActions(): AcEdPromptActions | null {
+    return this._promptActions
+  }
+
+  /**
    * Opens the mobile command chrome for the current prompt when on phone/pad.
+   * Also records the prompt's actions for {@link promptActions}.
    */
   private beginMobilePrompt(args: {
     prompt: string
@@ -432,6 +464,13 @@ export class AcEdInputManager {
     onMetricsInput?: AcEdMobileCommandChromeCallbacks['onMetricsInput']
   }): void {
     this._carriedTapPoint = null
+    this._promptActions = {
+      canConfirm: args.allowNone,
+      keywords: (args.keywords ?? []).filter(kw => kw.enabled),
+      confirm: args.onConfirm,
+      cancel: args.onCancel,
+      keyword: args.onKeyword
+    }
     this.syncDesktopCommandLineVisibility()
     if (!acedInteractionStrategy().point.usesSessionChrome) return
     this._mobileChrome.show(
@@ -462,6 +501,7 @@ export class AcEdInputManager {
 
   /** Closes the mobile command chrome and restores desktop CLI visibility. */
   private endMobilePrompt(): void {
+    this._promptActions = null
     this._mobileChrome.hide()
     this.syncDesktopCommandLineVisibility()
     this._sessionAccessoryController.remountActiveSessionAccessory()
@@ -2626,6 +2666,14 @@ export class AcEdInputManager {
   }
 
   /**
+   * Whether a right-click inside a prompt answers it like Enter (the CAD
+   * profile, per `SHORTCUTMENU`). When not, the view shows a menu instead.
+   */
+  get rightClickIsEnter() {
+    return this.shouldUseRightClickEnter()
+  }
+
+  /**
    * Resolves right-click behavior for current prompt session.
    *
    * SHORTCUTMENU:
@@ -2635,6 +2683,8 @@ export class AcEdInputManager {
    * 3 => always menu
    */
   private shouldUseRightClickEnter() {
+    // The simple profile opens a menu (Enter / undo / cancel) instead.
+    if (AcApSettingManager.instance.operationProfile === 'simple') return false
     const mode = this.getShortcutMenuMode()
     if (mode === 0) return true
     if (mode === 1) return this.active

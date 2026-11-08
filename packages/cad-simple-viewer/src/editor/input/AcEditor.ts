@@ -170,6 +170,14 @@ export class AcEditor {
   }
 
   /**
+   * What the prompt waiting for input accepts (Enter, its keywords, Esc), or
+   * `null` when no prompt is waiting.
+   */
+  get promptActions() {
+    return this._inputManager.promptActions
+  }
+
+  /**
    * Current modifier key state (Ctrl/Shift/Alt/Meta) during input sessions.
    */
   getInputModifiers(): AcEdInputModifiers {

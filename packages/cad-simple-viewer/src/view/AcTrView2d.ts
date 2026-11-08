@@ -49,6 +49,8 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
 import { AcApDocManager, AcApSettingManager } from '../app'
+import { AcApContextMenuController } from '../app/AcApContextMenuController'
+import { AcApEditActions } from '../app/AcApEditActions'
 import { AcApOpenViewMode } from '../app/AcApOpenDatabaseOptions'
 import { AcApToolManager } from '../app/AcApToolManager'
 import { AcApZoomCmd } from '../command/AcApZoomCmd'
@@ -403,6 +405,10 @@ export class AcTrView2d extends AcEdBaseView {
   private _keyHandler: AcEdViewKeyHandler
   /** Tool in use and the simple profile's tool behavior. */
   private _toolManager: AcApToolManager
+  /** Clipboard, duplicate, select all ... on the selection. */
+  private _editActions: AcApEditActions
+  /** Right-click menu of the canvas. */
+  private _contextMenu: AcApContextMenuController
   /** Removes iOS canvas long-press callout listeners registered in the constructor. */
   private _disposeCanvasTouchCallout: (() => void) | undefined
   /** Removes mobile long-press box-selection gesture listeners. */
@@ -654,6 +660,16 @@ export class AcTrView2d extends AcEdBaseView {
       drawnBox: id => this._scene.getEntityBox(id)
     })
     this._toolManager = new AcApToolManager(this)
+    this._editActions = new AcApEditActions(this, {
+      activeSpaceId: () => this._scene.activeLayoutBtrId,
+      drawnBox: id => this._scene.getEntityBox(id),
+      isShown: id => this._scene.isEntityShown(id)
+    })
+    this._contextMenu = new AcApContextMenuController(this, {
+      toolManager: this._toolManager,
+      editActions: this._editActions,
+      rightClickIsEnter: () => this.editor.inputManager.rightClickIsEnter
+    })
     this._keyHandler = new AcEdViewKeyHandler(this)
     if (options.calculateSizeCallback) {
       this.setCalculateSizeCallback(options.calculateSizeCallback)
@@ -1185,6 +1201,16 @@ export class AcTrView2d extends AcEdBaseView {
   /** Simple profile frame, drag move and nudge of the selection. */
   get selectionTransformer() {
     return this._selectionTransformer
+  }
+
+  /** Clipboard, duplicate, select all ... on the selection. */
+  get editActions() {
+    return this._editActions
+  }
+
+  /** Right-click menu of the canvas. */
+  get contextMenu() {
+    return this._contextMenu
   }
 
   /** Tool in use and the simple profile's tool behavior. */
@@ -3645,6 +3671,7 @@ export class AcTrView2d extends AcEdBaseView {
     this._disposeMobileBoxGesture = undefined
     this._viewDomAbort.abort()
     this._toolManager.dispose()
+    this._contextMenu.dispose()
 
     if (this._onFontNotFound) {
       this._renderer.events.fontNotFound.removeEventListener(
