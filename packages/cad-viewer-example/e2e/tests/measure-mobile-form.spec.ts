@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { useCadProfile } from '../helpers/operationProfile'
+
 /**
  * Regression: starting a measure command on a narrow viewport used to log
  * `ElementPlusError: [ElForm] unexpected width NaN` because the Measurement
@@ -28,6 +30,8 @@ test('measure distance does not log ElForm unexpected width NaN', async ({
     }
   })
 
+  // The ribbon's Measurement tab belongs to the CAD profile.
+  await useCadProfile(page)
   await page.goto('/')
   await page.getByRole('button', { name: 'New Drawing' }).click()
   await expect(page.locator('.ml-cad-container')).toBeVisible({

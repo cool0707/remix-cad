@@ -24,8 +24,11 @@
             :tabs="tabs"
             @tab-close="closeTaskTab"
           >
-            <template v-if="!layersSplit" #actions>
+            <!-- The tabs read whether this slot exists only once: keep it
+                 and show the button when the layers are in the tabs. -->
+            <template #actions>
               <el-dropdown
+                v-if="!layersSplit"
                 trigger="click"
                 class="ml-palette-more"
                 @command="handleLayoutCommand"

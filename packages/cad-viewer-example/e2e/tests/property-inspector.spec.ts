@@ -193,7 +193,13 @@ test('double-click on a symbol focuses its field in the simple profile', async (
   page
 }) => {
   await loadFixture(page)
-  await page.locator('.ml-overflow-tab', { hasText: 'Layers' }).click()
+  // Show another tab (the Find panel) so the double-click has to switch back.
+  await page.keyboard.press('Control+k')
+  await page.locator('.ml-command-palette-input').fill('find')
+  await page
+    .locator('.ml-command-palette-item[data-id="command:find" i]')
+    .click()
+  await expect(page.getByTestId('find-palette')).toBeVisible()
 
   const client = await page.evaluate(async url => {
     const mod = await import(/* @vite-ignore */ url)
