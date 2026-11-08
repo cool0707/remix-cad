@@ -439,7 +439,6 @@ class SxfDxfWriter {
     this.pair(62, String(color.aci))
     if (color.trueColor !== undefined) this.pair(420, String(color.trueColor))
     this.pair(370, String(lineWeight(style.lineWidth)))
-    if (this.s !== 1) this.pair(48, fmt(this.s))
     this.pair(100, subclass)
   }
 
@@ -491,9 +490,15 @@ class SxfDxfWriter {
       this.pair(3, '')
       this.pair(72, '65')
       this.pair(73, String(type.pattern.length))
-      this.pair(40, fmt(type.pattern.reduce((sum, v) => sum + Math.abs(v), 0)))
+      // Patterns are paper millimetres; records hold them in drawing units,
+      // like the standard line types added later, so entities need no line
+      // type scale.
+      this.pair(
+        40,
+        fmt(type.pattern.reduce((sum, v) => sum + Math.abs(v), 0) * this.s)
+      )
       for (const v of type.pattern) {
-        this.pair(49, fmt(v))
+        this.pair(49, fmt(v * this.s))
         this.pair(74, '0')
       }
     }
