@@ -28,6 +28,9 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
     `@fontsource-variable/noto-sans-jp`).
 - **Nomes de páginas de impressão localizados** em novos desenhos, em vez dos nomes em chinês
   do modelo.
+- **Abas de páginas de impressão como no CAD de desktop** — o botão **+** ao lado das abas adiciona uma página;
+  com clique direito (ou toque longo) numa aba é possível renomear (também com clique duplo), configurar a página
+  (papel A0–A4, retrato / paisagem), copiar ou excluir; as abas são reordenadas arrastando.
 - **Termos simples para quem não usa CAD** — a interface usa palavras do dia a dia: bloco → símbolo,
   atributo de bloco → propriedade do símbolo, espaço do modelo → tela, layout → página de impressão,
   hachura → preenchimento com padrão, referência externa → desenho vinculado, seleção rápida → selecionar por critérios etc.

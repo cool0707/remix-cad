@@ -1,4 +1,4 @@
-import { AcApDocManager } from '@mlightcad/cad-simple-viewer'
+import { AcApDocManager, acapLayoutEvents } from '@mlightcad/cad-simple-viewer'
 import {
   AcDbDatabase,
   acdbHostApplicationServices,
@@ -43,6 +43,19 @@ export function useLayouts(editor: AcApDocManager) {
     reactiveLayouts.length = 0
     reset(args.doc.database)
   })
+
+  // Tabs added, copied, renamed, deleted, moved (layout tab menu / drag).
+  const resetCurrent = () => {
+    const database = editor.curDocument?.database
+    if (database) reset(database)
+  }
+  acapLayoutEvents.layoutsChanged.addEventListener(args => {
+    if (args.database === editor.curDocument?.database) reset(args.database)
+  })
+  const layoutEvents = acdbHostApplicationServices().layoutManager.events
+  layoutEvents.layoutCreated.addEventListener(resetCurrent)
+  layoutEvents.layoutRemoved.addEventListener(resetCurrent)
+  layoutEvents.layoutRenamed.addEventListener(resetCurrent)
 
   acdbHostApplicationServices().layoutManager.events.layoutSwitched.addEventListener(
     args => {

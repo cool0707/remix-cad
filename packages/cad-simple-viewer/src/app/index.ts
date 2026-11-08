@@ -39,3 +39,4 @@ export {
   acapUpdateOpenFileDialogOptions
 } from './AcApOpenFileDialog'
 export * from './notification'
+export * from './AcApLayoutActions'

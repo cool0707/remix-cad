@@ -694,7 +694,32 @@ export default {
       tooltip: '画像を PNG で書き出し'
     },
     modelTab: 'キャンバス',
-    moreLayouts: 'その他の印刷ページ'
+    moreLayouts: 'その他の印刷ページ',
+    layoutTabs: {
+      newLayout: '新しい印刷ページ',
+      newLayoutTooltip: '印刷ページを追加',
+      rename: '名前の変更',
+      pageSetup: 'ページ設定…',
+      copy: 'コピー',
+      delete: '削除',
+      renameTitle: '印刷ページの名前の変更',
+      renamePrompt: '印刷ページの新しい名前',
+      nameEmpty: '名前を入力してください',
+      nameInvalid: '名前に {chars} は使えません',
+      nameExists: 'この名前はすでに使われています',
+      deleteTitle: '印刷ページの削除',
+      deleteConfirm:
+        '「{name}」を削除しますか？この印刷ページに描かれた内容もすべて削除されます。',
+      confirm: 'OK',
+      cancel: 'キャンセル',
+      pageSetupTitle: 'ページ設定 – {name}',
+      paper: '用紙サイズ',
+      orientation: '向き',
+      landscape: '横',
+      portrait: '縦',
+      pageSetupHint:
+        'ステータスバーの「印刷範囲を表示」をオンにすると、用紙の外側がグレーで表示されます。'
+    }
   },
   toolPalette: {
     entityProperties: {

@@ -718,7 +718,32 @@ export default {
       tooltip: 'Görüntüyü PNG olarak dışa aktar'
     },
     modelTab: 'Tuval',
-    moreLayouts: 'Diğer baskı sayfaları'
+    moreLayouts: 'Diğer baskı sayfaları',
+    layoutTabs: {
+      newLayout: 'Yeni baskı sayfası',
+      newLayoutTooltip: 'Baskı sayfası ekle',
+      rename: 'Yeniden adlandır',
+      pageSetup: 'Sayfa düzeni…',
+      copy: 'Kopyala',
+      delete: 'Sil',
+      renameTitle: 'Baskı sayfasını yeniden adlandır',
+      renamePrompt: 'Baskı sayfasının yeni adı',
+      nameEmpty: 'Bir ad girin',
+      nameInvalid: 'Ad şu karakterleri içeremez: {chars}',
+      nameExists: 'Bu ad zaten kullanılıyor',
+      deleteTitle: 'Baskı sayfasını sil',
+      deleteConfirm:
+        '“{name}” silinsin mi? Bu baskı sayfasında çizilen her şey de silinir.',
+      confirm: 'Tamam',
+      cancel: 'İptal',
+      pageSetupTitle: 'Sayfa düzeni – {name}',
+      paper: 'Kâğıt boyutu',
+      orientation: 'Yön',
+      landscape: 'Yatay',
+      portrait: 'Dikey',
+      pageSetupHint:
+        'Durum çubuğunda “Baskı alanını göster” açıkken kâğıdın dışı gri gösterilir.'
+    }
   },
   toolPalette: {
     entityProperties: {

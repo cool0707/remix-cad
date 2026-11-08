@@ -980,7 +980,32 @@ export default {
 
     modelTab: 'لوحة الرسم',
 
-    moreLayouts: 'المزيد من صفحات الطباعة'
+    moreLayouts: 'المزيد من صفحات الطباعة',
+    layoutTabs: {
+      newLayout: 'صفحة طباعة جديدة',
+      newLayoutTooltip: 'إضافة صفحة طباعة',
+      rename: 'إعادة التسمية',
+      pageSetup: 'إعداد الصفحة…',
+      copy: 'نسخ',
+      delete: 'حذف',
+      renameTitle: 'إعادة تسمية صفحة الطباعة',
+      renamePrompt: 'الاسم الجديد لصفحة الطباعة',
+      nameEmpty: 'أدخل اسمًا',
+      nameInvalid: 'لا يمكن أن يحتوي الاسم على {chars}',
+      nameExists: 'هذا الاسم مستخدم بالفعل',
+      deleteTitle: 'حذف صفحة الطباعة',
+      deleteConfirm:
+        'هل تريد حذف «{name}»؟ سيُحذف أيضًا كل ما رُسم على صفحة الطباعة هذه.',
+      confirm: 'موافق',
+      cancel: 'إلغاء',
+      pageSetupTitle: 'إعداد الصفحة – {name}',
+      paper: 'حجم الورق',
+      orientation: 'الاتجاه',
+      landscape: 'أفقي',
+      portrait: 'عمودي',
+      pageSetupHint:
+        'عند تشغيل «إظهار منطقة الطباعة» في شريط الحالة، يظهر ما حول الورق باللون الرمادي.'
+    }
   },
   toolPalette: {
     ...enMain.toolPalette,

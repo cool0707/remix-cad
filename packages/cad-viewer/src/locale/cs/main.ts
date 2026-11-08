@@ -705,7 +705,32 @@ export default {
       tooltip: 'Exportovat obrázek jako PNG'
     },
     modelTab: 'Plátno',
-    moreLayouts: 'Další tiskové stránky'
+    moreLayouts: 'Další tiskové stránky',
+    layoutTabs: {
+      newLayout: 'Nová tisková stránka',
+      newLayoutTooltip: 'Přidat tiskovou stránku',
+      rename: 'Přejmenovat',
+      pageSetup: 'Vzhled stránky…',
+      copy: 'Kopírovat',
+      delete: 'Odstranit',
+      renameTitle: 'Přejmenovat tiskovou stránku',
+      renamePrompt: 'Nový název tiskové stránky',
+      nameEmpty: 'Zadejte název',
+      nameInvalid: 'Název nesmí obsahovat {chars}',
+      nameExists: 'Tento název se již používá',
+      deleteTitle: 'Odstranit tiskovou stránku',
+      deleteConfirm:
+        'Odstranit „{name}“? Odstraní se i vše, co je na této tiskové stránce nakresleno.',
+      confirm: 'OK',
+      cancel: 'Zrušit',
+      pageSetupTitle: 'Vzhled stránky – {name}',
+      paper: 'Velikost papíru',
+      orientation: 'Orientace',
+      landscape: 'Na šířku',
+      portrait: 'Na výšku',
+      pageSetupHint:
+        'Když je ve stavovém řádku zapnuto „Zobrazit oblast tisku“, okolí papíru je šedé.'
+    }
   },
   toolPalette: {
     entityProperties: {

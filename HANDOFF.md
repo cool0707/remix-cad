@@ -301,6 +301,18 @@ HATCH (`AcApHatchCmd`、リボンの `AcApHatchRibbonCmd` も継承) を AutoCAD
   線の途中に届かない端はその線上へ延ばし、端と端の隙間は直線で橋渡しする (両方の端を互いに引き寄せると角がずれるため)。
   HPGAPTOL が 0 でも、図面サイズの 1/20000 以内の隙間 (円弧を折れ線にしたときのずれなど) は閉じる。
 
+## 2.7 印刷ページ (レイアウト) タブの編集 (2026-11-08)
+
+- 操作本体は `packages/cad-simple-viewer/src/app/AcApLayoutActions.ts` (`acapCreateLayout` / `acapCopyLayout` /
+  `acapRenameLayout` / `acapDeleteLayout` / `acapMoveLayout` / `acapSetLayoutPageSetup`)。変更のたびに
+  `acapLayoutEvents.layoutsChanged` を出し、`useLayouts` がタブを作り直す。UI は `MlLayoutTabs.vue` と `MlLayoutPageSetupDlg.vue`。
+- data-model の `AcDbLayoutManager` には頼っていない: `createLayout` は tabOrder が既存と重なり BTR とも結び付けず、
+  `renameLayout` は辞書のキーを変えない (改名後に名前で引けず、DXF にも旧名で出る) ため。改名は辞書の `_recordsByName` を
+  直接作り直している (data-model を上げたら確認すること)。
+- ページ設定は用紙 (A0〜A4) と向きだけ。レイアウトの LIMITS (用紙の大きさ、左下は維持) と plotPaperSize / canonicalMediaName を書く。
+  ペーパー空間の単位は plotPaperUnits (mm / inch) とみなす。印刷範囲表示 (`AcApPrintAreaOverlay`) は印刷ページでは LIMITS を用紙として描く。
+- 元に戻す (undo) には載せていない (やり残し)。読み取り専用で開いたときは + とメニューを出さない。
+
 ## 3. 既知の問題・やり残し
 
 - DWG を開く処理: NURBS 以外では、LibreDWG の `convertEx` (embind) が約 1 秒かかる。ここは手付かず。
