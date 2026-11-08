@@ -68,7 +68,9 @@
 </template>
 
 <script setup lang="ts">
-import { AcApDocManager } from '@mlightcad/cad-simple-viewer'
+import {
+  AcApDocManager,
+  acapEnsureStandardLineType} from '@mlightcad/cad-simple-viewer'
 import { ElOption, ElSelect, type SelectInstance } from 'element-plus'
 import {
   type Component,
@@ -132,9 +134,15 @@ const isDropdownOpen = ref(false)
 const activeDatabase = shallowRef(
   AcApDocManager.instance?.curDocument?.database
 )
+const activeFileName = shallowRef(
+  AcApDocManager.instance?.curDocument?.fileName
+)
 
 const resolvedOptions = computed(() =>
-  (props.options ?? buildLineTypeOptions(activeDatabase.value)).map(item => ({
+  (
+    props.options ??
+    buildLineTypeOptions(activeDatabase.value, activeFileName.value)
+  ).map(item => ({
     ...item,
     label: localizeLineTypeLabel(item.value, item.label)
     // Intentionally omit eager per-option SVG strings. Large linetype tables
@@ -178,6 +186,7 @@ function resolveOptionPreviewSvg(option: LineTypeOption) {
  */
 function handleDocumentActivated() {
   activeDatabase.value = AcApDocManager.instance?.curDocument?.database
+  activeFileName.value = AcApDocManager.instance?.curDocument?.fileName
 }
 
 /**
@@ -186,6 +195,10 @@ function handleDocumentActivated() {
  * @param value Line type name chosen in the dropdown.
  */
 function onSelect(value: string) {
+  // Standard line types are offered before the drawing defines them; add the
+  // record first so whatever the caller assigns the name to can resolve it.
+  const doc = AcApDocManager.instance?.curDocument
+  if (doc) acapEnsureStandardLineType(doc.database, value, doc.fileName)
   emit('update:modelValue', value)
   emit('change', value)
 }

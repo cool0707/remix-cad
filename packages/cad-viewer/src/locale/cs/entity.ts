@@ -202,7 +202,19 @@ export default {
     dashDoubleDot: 'Krátká dvojitě čerchovaná',
     doubleDashDoubleDot: 'Dvojčárková dvojitě čerchovaná',
     dashTripleDot: 'Krátká trojitě čerchovaná',
-    doubleDashTripleDot: 'Dvojčárková trojitě čerchovaná'
+    doubleDashTripleDot: 'Dvojčárková trojitě čerchovaná',
+    jwwDashed1: 'Jw_cad čárkovaná 1',
+    jwwDashed2: 'Jw_cad čárkovaná 2',
+    jwwDashed3: 'Jw_cad čárkovaná 3',
+    jwwDashDot1: 'Jw_cad čerchovaná 1',
+    jwwDashDot2: 'Jw_cad čerchovaná 2',
+    jwwDivide1: 'Jw_cad dvojitě čerchovaná 1',
+    jwwDivide2: 'Jw_cad dvojitě čerchovaná 2',
+    jwwConstruction: 'Jw_cad pomocná čára',
+    jwwDashedX2: 'Jw_cad dvojnásobně dlouhá čárkovaná',
+    jwwDashedX4: 'Jw_cad čtyřnásobně dlouhá čárkovaná',
+    jwwDashDotX2: 'Jw_cad dvojnásobně dlouhá čerchovaná',
+    jwwDivideX2: 'Jw_cad dvojnásobně dlouhá dvojitě čerchovaná'
   },
   enum: {
     AtLeast: 'Nejméně',

@@ -25,7 +25,20 @@ const LINE_TYPE_NAME_KEYS: Record<string, string> = {
   dash_2dot: 'dashDoubleDot',
   '2dash_2dot': 'doubleDashDoubleDot',
   dash_3dot: 'dashTripleDot',
-  '2dash_3dot': 'doubleDashTripleDot'
+  '2dash_3dot': 'doubleDashTripleDot',
+  // Jw_cad line types (names written by the JWW reader, ezjww).
+  jww_dashed1: 'jwwDashed1',
+  jww_dashed2: 'jwwDashed2',
+  jww_dashed3: 'jwwDashed3',
+  jww_dashdot1: 'jwwDashDot1',
+  jww_dashdot2: 'jwwDashDot2',
+  jww_divide1: 'jwwDivide1',
+  jww_divide2: 'jwwDivide2',
+  jww_construction: 'jwwConstruction',
+  jww_dashed_x2: 'jwwDashedX2',
+  jww_dashed_x4: 'jwwDashedX4',
+  jww_dashdot_x2: 'jwwDashDotX2',
+  jww_divide_x2: 'jwwDivideX2'
 }
 
 /** `ACAD_ISO02W100` … `ACAD_ISO15W100` (ISO 128 line types 02–15). */

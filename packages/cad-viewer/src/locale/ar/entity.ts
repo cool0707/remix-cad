@@ -75,7 +75,19 @@ export default {
     dashDoubleDot: 'شرطة قصيرة ونقطتان',
     doubleDashDoubleDot: 'شرطتان ونقطتان',
     dashTripleDot: 'شرطة قصيرة وثلاث نقاط',
-    doubleDashTripleDot: 'شرطتان وثلاث نقاط'
+    doubleDashTripleDot: 'شرطتان وثلاث نقاط',
+    jwwDashed1: 'Jw_cad متقطع 1',
+    jwwDashed2: 'Jw_cad متقطع 2',
+    jwwDashed3: 'Jw_cad متقطع 3',
+    jwwDashDot1: 'Jw_cad شرطة ونقطة 1',
+    jwwDashDot2: 'Jw_cad شرطة ونقطة 2',
+    jwwDivide1: 'Jw_cad شرطة ونقطتان 1',
+    jwwDivide2: 'Jw_cad شرطة ونقطتان 2',
+    jwwConstruction: 'Jw_cad خط مساعد',
+    jwwDashedX2: 'Jw_cad متقطع مضاعف الطول',
+    jwwDashedX4: 'Jw_cad متقطع رباعي الطول',
+    jwwDashDotX2: 'Jw_cad شرطة ونقطة مضاعفة الطول',
+    jwwDivideX2: 'Jw_cad شرطة ونقطتان مضاعفة الطول'
   },
   enum: {
     ...enEntity.enum,

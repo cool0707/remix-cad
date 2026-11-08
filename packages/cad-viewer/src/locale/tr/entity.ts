@@ -202,7 +202,19 @@ export default {
     dashDoubleDot: 'Kısa kesik-çift nokta',
     doubleDashDoubleDot: 'Çift kesik-çift nokta',
     dashTripleDot: 'Kısa kesik-üç nokta',
-    doubleDashTripleDot: 'Çift kesik-üç nokta'
+    doubleDashTripleDot: 'Çift kesik-üç nokta',
+    jwwDashed1: 'Jw_cad kesikli 1',
+    jwwDashed2: 'Jw_cad kesikli 2',
+    jwwDashed3: 'Jw_cad kesikli 3',
+    jwwDashDot1: 'Jw_cad kesik-nokta 1',
+    jwwDashDot2: 'Jw_cad kesik-nokta 2',
+    jwwDivide1: 'Jw_cad kesik-iki nokta 1',
+    jwwDivide2: 'Jw_cad kesik-iki nokta 2',
+    jwwConstruction: 'Jw_cad yardımcı çizgi',
+    jwwDashedX2: 'Jw_cad iki kat uzun kesikli',
+    jwwDashedX4: 'Jw_cad dört kat uzun kesikli',
+    jwwDashDotX2: 'Jw_cad iki kat uzun kesik-nokta',
+    jwwDivideX2: 'Jw_cad iki kat uzun kesik-iki nokta'
   },
   enum: {
     AtLeast: 'En Az',

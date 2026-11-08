@@ -202,7 +202,19 @@ export default {
     dashDoubleDot: '短划双点线',
     doubleDashDoubleDot: '双短划双点线',
     dashTripleDot: '短划三点线',
-    doubleDashTripleDot: '双短划三点线'
+    doubleDashTripleDot: '双短划三点线',
+    jwwDashed1: 'Jw_cad 虚线 1',
+    jwwDashed2: 'Jw_cad 虚线 2',
+    jwwDashed3: 'Jw_cad 虚线 3',
+    jwwDashDot1: 'Jw_cad 点划线 1',
+    jwwDashDot2: 'Jw_cad 点划线 2',
+    jwwDivide1: 'Jw_cad 双点划线 1',
+    jwwDivide2: 'Jw_cad 双点划线 2',
+    jwwConstruction: 'Jw_cad 辅助线',
+    jwwDashedX2: 'Jw_cad 双倍长虚线',
+    jwwDashedX4: 'Jw_cad 四倍长虚线',
+    jwwDashDotX2: 'Jw_cad 双倍长点划线',
+    jwwDivideX2: 'Jw_cad 双倍长双点划线'
   },
   enum: {
     AtLeast: '至少',

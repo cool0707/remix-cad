@@ -61,7 +61,19 @@ describe('linetype / ByLayer display names', () => {
       'SXF_DASHED_SPACED',
       'SXF_LONG_DASH_3DOT',
       'SXF_CHAIN',
-      'SXF_2DASH_2DOT'
+      'SXF_2DASH_2DOT',
+      'JWW_DASHED1',
+      'JWW_DASHED2',
+      'JWW_DASHED3',
+      'JWW_DASHDOT1',
+      'JWW_DASHDOT2',
+      'JWW_DIVIDE1',
+      'JWW_DIVIDE2',
+      'JWW_CONSTRUCTION',
+      'JWW_DASHED_X2',
+      'JWW_DASHED_X4',
+      'JWW_DASHDOT_X2',
+      'JWW_DIVIDE_X2'
     ]
     for (const name of names) {
       const key = resolveLineTypeNameKey(name)?.key
@@ -78,6 +90,9 @@ describe('linetype / ByLayer display names', () => {
     expect(displayName('SXF_CHAIN_2DASH')).toBe('二点鎖線')
     expect(displayName('SXF_2DASH_3DOT')).toBe('三点二短鎖線')
     expect(displayName('ACAD_ISO10W100')).toBe('一点短鎖線')
+    expect(displayName('JWW_DASHDOT1')).toBe('Jw_cad 一点鎖1')
+    expect(displayName('JWW_DASHED2')).toBe('Jw_cad 点線2')
+    expect(displayName('JWW_DASHED_X4')).toBe('Jw_cad 4倍長点線')
   })
 
   it('keeps user-defined names unchanged', () => {
