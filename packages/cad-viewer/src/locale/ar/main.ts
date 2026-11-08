@@ -928,6 +928,10 @@ export default {
       off: 'إظهار نطاق الطباعة (تظليل ما خارج الورقة بالرمادي)'
     },
 
+    commandPalette: {
+      label: 'بحث',
+      tooltip: 'البحث عن الأوامر والطبقات'
+    },
     operationProfile: {
       simple: 'بسيط',
       cad: 'CAD',

@@ -654,6 +654,10 @@ export default {
       on: '印刷範囲の表示をオフにする',
       off: '印刷範囲を表示 (用紙の外を灰色にする)'
     },
+    commandPalette: {
+      label: '検索',
+      tooltip: 'コマンドやレイヤーを検索'
+    },
     operationProfile: {
       simple: 'シンプル',
       cad: 'CAD',

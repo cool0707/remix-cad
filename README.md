@@ -60,6 +60,7 @@ drawings never leave the user's device.
   In Simple, right-clicking an unselected object selects it first. While drawing in Simple the menu is Done / Undo (the last point,
   when the command allows it) / Cancel (CAD keeps right-click = Enter). Ctrl+X / C / V / D / A (⌘ on Mac) cut, copy, paste
   (at the cursor), duplicate and select all.
+- **Command palette (Ctrl+K / ⌘K)** — search commands by plain name, by CAD term ("block", "hatch", "xref") or by command name / alias (`LINE`, `L`) and run them; the right-click menu's edit actions (copy, select all…) and layers (picking one makes it current) are found too. Shortcuts are shown next to each result. Also opens from the **Search** button in the status bar. In Simple the command line is hidden — it only comes up while a command asks you to choose an option (it can be turned back on in Options).
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).

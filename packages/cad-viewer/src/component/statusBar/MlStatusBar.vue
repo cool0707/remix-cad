@@ -16,6 +16,7 @@
     <template #right>
       <ml-progress />
       <el-button-group class="ml-status-bar-right-button-group">
+        <ml-command-palette-button v-if="!isMobile" />
         <ml-tool-status v-if="!isMobile" />
         <ml-operation-profile-button />
         <el-button
@@ -73,9 +74,15 @@ import { ElButton, ElButtonGroup } from 'element-plus'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useCurrentPos, useDocument, useIsMobile, useSettings } from '../../composable'
+import {
+  useCurrentPos,
+  useDocument,
+  useIsMobile,
+  useSettings
+} from '../../composable'
 import { dynamicInput, lineWidth, orthoMode } from '../../svg'
 import { MlSysVarToggleButton } from '../common'
+import MlCommandPaletteButton from './MlCommandPaletteButton.vue'
 import MlFullScreenButton from './MlFullScreenButton.vue'
 import MlLayoutTabs from './MlLayoutTabs.vue'
 import MlNotificationButton from './MlNotificationButton.vue'

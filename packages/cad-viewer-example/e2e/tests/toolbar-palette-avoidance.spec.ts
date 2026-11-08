@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, type Page, test } from '@playwright/test'
 
 import { uploadFixture } from '../helpers/fileUpload'
+import { showCommandLine } from '../helpers/operationProfile'
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 const fixturePath = path.resolve(currentDir, '..', 'fixtures', 'two-lines.dxf')
@@ -11,6 +12,7 @@ const fixturePath = path.resolve(currentDir, '..', 'fixtures', 'two-lines.dxf')
 const verticalToolbar = (page: Page) =>
   page.locator('.ml-vertical-toolbar-host > .ml-ex-ui-toolbar')
 async function openLayerPalette(page: Page) {
+  await showCommandLine(page)
   await page.goto('/')
   await uploadFixture(page, fixturePath)
   await expect(page.locator('.ml-cad-container')).toBeVisible({

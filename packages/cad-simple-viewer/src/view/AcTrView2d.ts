@@ -49,6 +49,8 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
 import { AcApDocManager, AcApSettingManager } from '../app'
+import { AcApCommandPaletteController } from '../app/AcApCommandPaletteController'
+import { acapIsCommandPaletteShortcut } from '../app/AcApCommandPaletteItems'
 import { AcApContextMenuController } from '../app/AcApContextMenuController'
 import { AcApEditActions } from '../app/AcApEditActions'
 import { AcApOpenViewMode } from '../app/AcApOpenDatabaseOptions'
@@ -409,6 +411,8 @@ export class AcTrView2d extends AcEdBaseView {
   private _editActions: AcApEditActions
   /** Right-click menu of the canvas. */
   private _contextMenu: AcApContextMenuController
+  /** Command palette (Ctrl / Cmd + K) */
+  private _commandPalette: AcApCommandPaletteController
   /** Removes iOS canvas long-press callout listeners registered in the constructor. */
   private _disposeCanvasTouchCallout: (() => void) | undefined
   /** Removes mobile long-press box-selection gesture listeners. */
@@ -669,6 +673,10 @@ export class AcTrView2d extends AcEdBaseView {
       toolManager: this._toolManager,
       editActions: this._editActions,
       rightClickIsEnter: () => this.editor.inputManager.rightClickIsEnter
+    })
+    this._commandPalette = new AcApCommandPaletteController(this, {
+      toolManager: this._toolManager,
+      editActions: this._editActions
     })
     this._keyHandler = new AcEdViewKeyHandler(this)
     if (options.calculateSizeCallback) {
@@ -1008,7 +1016,14 @@ export class AcTrView2d extends AcEdBaseView {
       'keydown',
       (e: KeyboardEvent) => {
         if (!this.isActiveManagedView()) return
-        if (!this.isShortcutEventInsideViewer(e)) return
+        if (
+          !this.isShortcutEventInsideViewer(e) &&
+          // Ctrl / Cmd + K also from the host's UI (ribbon, panels), but not
+          // from its text fields.
+          !(acapIsCommandPaletteShortcut(e) && !isEditableTarget(e.target))
+        ) {
+          return
+        }
         this._keyHandler.handleKeyDown(e)
       },
       { signal: viewDomSignal }
@@ -1211,6 +1226,11 @@ export class AcTrView2d extends AcEdBaseView {
   /** Right-click menu of the canvas. */
   get contextMenu() {
     return this._contextMenu
+  }
+
+  /** Command palette (Ctrl / Cmd + K). */
+  get commandPalette() {
+    return this._commandPalette
   }
 
   /** Tool in use and the simple profile's tool behavior. */
@@ -3672,6 +3692,7 @@ export class AcTrView2d extends AcEdBaseView {
     this._viewDomAbort.abort()
     this._toolManager.dispose()
     this._contextMenu.dispose()
+    this._commandPalette.dispose()
 
     if (this._onFontNotFound) {
       this._renderer.events.fontNotFound.removeEventListener(
@@ -5239,4 +5260,15 @@ export class AcTrView2d extends AcEdBaseView {
       AcDbRenderingCache.instance.clear()
     }
   }
+}
+
+/** Whether keys typed at the target go into a text field. */
+function isEditableTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false
+  return (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA' ||
+    target.tagName === 'SELECT' ||
+    target.isContentEditable
+  )
 }

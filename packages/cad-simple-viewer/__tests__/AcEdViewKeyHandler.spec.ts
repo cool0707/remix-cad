@@ -70,6 +70,7 @@ function createMockView(
       y: p.y * 2
     })),
     selectionSet: { clear: jest.fn() },
+    commandPalette: { toggle: jest.fn(() => true) },
     htmlTransientManager: {
       hasSelection: jest.fn(() => htmlSelection.hasSelection ?? false),
       deleteSelected: jest.fn(() => htmlSelection.deleted ?? false),
@@ -87,6 +88,27 @@ function createMockView(
 describe('AcEdViewKeyHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  test('Ctrl / Cmd + K toggles the command palette, also during a command', () => {
+    const view = createMockView(true)
+    const handler = new AcEdViewKeyHandler(view)
+    const toggle = (
+      view as unknown as { commandPalette: { toggle: jest.Mock } }
+    ).commandPalette.toggle
+    const ctrlK = keyboardEvent({ code: 'KeyK', ctrlKey: true })
+    expect(handler.handleKeyDown(ctrlK)).toBe(true)
+    expect(ctrlK.preventDefault).toHaveBeenCalled()
+    expect(
+      handler.handleKeyDown(keyboardEvent({ code: 'KeyK', metaKey: true }))
+    ).toBe(true)
+    expect(toggle).toHaveBeenCalledTimes(2)
+    // Not with Shift, nor without Ctrl / Cmd.
+    handler.handleKeyDown(
+      keyboardEvent({ code: 'KeyK', ctrlKey: true, shiftKey: true })
+    )
+    handler.handleKeyDown(keyboardEvent({ code: 'KeyK' }))
+    expect(toggle).toHaveBeenCalledTimes(2)
   })
 
   test('handleKeyDown maps platform undo/redo keys to commands', () => {

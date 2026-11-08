@@ -1,4 +1,5 @@
 export * from './command'
+export * from './commandpalette'
 export * from './contextmenu'
 export * from './global'
 export * from './grip'

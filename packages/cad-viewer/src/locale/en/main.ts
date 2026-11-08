@@ -673,6 +673,10 @@ export default {
       on: 'Hide the print area',
       off: 'Show the print area: gray out the canvas outside the sheet'
     },
+    commandPalette: {
+      label: 'Search',
+      tooltip: 'Search commands and layers'
+    },
     operationProfile: {
       simple: 'Simple',
       cad: 'CAD',

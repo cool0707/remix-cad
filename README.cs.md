@@ -58,6 +58,10 @@ takže výkresy nikdy neopustí zařízení uživatele.
   V Jednoduchém režimu pravé tlačítko na nevybraném objektu ho nejdřív vybere. Při kreslení v Jednoduchém režimu je nabídka Hotovo / Zpět
   (poslední bod, pokud to příkaz umožňuje) / Zrušit (CAD ponechává pravé tlačítko = Enter). Ctrl+X / C / V / D / A (⌘ na Macu) vyjímají,
   kopírují, vkládají (na kurzor), duplikují a vybírají vše.
+- **Paleta příkazů (Ctrl+K / ⌘K)** — příkazy hledejte běžným názvem, pojmem z CADu („blok“, „šrafa“, „externí reference“) nebo názvem / zkratkou
+  příkazu (`LINE`, `L`) a spusťte je; najdete i úpravy z místní nabídky (kopírovat, vybrat vše…) a hladiny (výběrem se stane aktuální).
+  U výsledků jsou klávesové zkratky. Otevře se i tlačítkem **Hledat** ve stavovém řádku. V profilu Jednoduchý je příkazový řádek skrytý
+  a objeví se jen tehdy, když příkaz žádá o výběr možnosti (v Možnostech jej lze opět trvale zobrazit).
 - **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
   otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
   (motiv, pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).

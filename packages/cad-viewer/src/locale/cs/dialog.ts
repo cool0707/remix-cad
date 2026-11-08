@@ -20,7 +20,9 @@ export default {
     themeDark: 'Tmavý',
     themeLight: 'Světlý',
     displaySection: 'Zobrazení',
-    ribbonHiddenHint: 'Bez pásu karet otevřete toto okno příkazem OPTIONS.',
+    ribbonHiddenHint: 'Bez pásu karet otevřete toto okno paletou příkazů Ctrl+K (⌘K): vyhledejte „Možnosti“.',
+    commandLineSimpleHint:
+      'V jednoduchém profilu hledejte příkazy paletou Ctrl+K (⌘K). Příkazový řádek se zobrazí jen tehdy, když příkaz žádá o výběr možnosti.',
     snapSection: 'Uchopení',
     snapHint: 'Používá se při zadávání bodů, přetahování výběru a u vodítek zarovnání. Body k uchopení:',
     hatchSection: 'Výplň',

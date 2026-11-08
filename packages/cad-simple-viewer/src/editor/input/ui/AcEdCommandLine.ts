@@ -662,7 +662,9 @@ export class AcEdCommandLine {
       e => {
         e.stopPropagation()
         this.visible = false
-        AcApSettingManager.instance.isShowCommandLine = false
+        // The setting of the profile in use (the simple profile has its own).
+        const settings = AcApSettingManager.instance
+        settings.set(settings.commandLineSettingKey, false)
       },
       { signal: domSignal }
     )
@@ -699,16 +701,12 @@ export class AcEdCommandLine {
       { signal: domSignal }
     )
 
-    this.textInput.addEventListener(
-      'keydown',
-      e => this.handleKeyDown(e),
-      { signal: domSignal }
-    )
-    this.textInput.addEventListener(
-      'input',
-      () => this.handleInputChange(),
-      { signal: domSignal }
-    )
+    this.textInput.addEventListener('keydown', e => this.handleKeyDown(e), {
+      signal: domSignal
+    })
+    this.textInput.addEventListener('input', () => this.handleInputChange(), {
+      signal: domSignal
+    })
     // Tells the view's key handler that the user chose to type here (prompts
     // also focus the input on their own; single-key tools still work then).
     this.cliContainer.addEventListener(

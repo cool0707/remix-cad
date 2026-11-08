@@ -200,6 +200,11 @@ export class AcEdInputManager {
   private readonly _onSettingsModified = () => {
     this.syncDesktopCommandLineVisibility()
   }
+  /**
+   * Keyword sessions running now. While one runs, the simple profile shows
+   * its hidden command line, where the options are listed and typed.
+   */
+  private _keywordSessions = 0
   /** Clears leftover mobile chrome when a command ends. */
   private readonly _onCommandEnded = () => {
     this._carriedTapPoint = null
@@ -417,8 +422,34 @@ export class AcEdInputManager {
    */
   private syncDesktopCommandLineVisibility(): void {
     const hide = acedShouldHideDesktopCommandLine(this.active)
-    this._commandLine.visible =
-      !hide && AcApSettingManager.instance.isShowCommandLine
+    const settings = AcApSettingManager.instance
+    const wanted =
+      settings.operationProfile === 'simple'
+        ? settings.isShowCommandLineSimple || this._keywordSessions > 0
+        : settings.isShowCommandLine
+    this._commandLine.visible = !hide && wanted
+  }
+
+  /**
+   * Runs a command-line keyword session, showing the command line meanwhile
+   * when the simple profile hides it.
+   */
+  private trackKeywordSession<R>(start: () => Promise<R>): Promise<R> {
+    this._keywordSessions++
+    this.syncDesktopCommandLineVisibility()
+    let promise: Promise<R>
+    try {
+      promise = start()
+    } catch (err) {
+      this.releaseKeywordSession()
+      throw err
+    }
+    return promise.finally(() => this.releaseKeywordSession())
+  }
+
+  private releaseKeywordSession() {
+    this._keywordSessions = Math.max(0, this._keywordSessions - 1)
+    this.syncDesktopCommandLineVisibility()
   }
 
   /**
@@ -865,8 +896,12 @@ export class AcEdInputManager {
   ) {
     if (!this.hasKeywords(options)) return undefined
     const keywordOptions = this.buildKeywordOptions(options)
+    const start = () =>
+      this._commandLine.getKeywords(keywordOptions, allowTyping)
+    // Hidden keywords (typed by scripts) need no command line.
+    const shown = options.keywords?.toArray().some(kw => kw.visible)
     return {
-      promise: this._commandLine.getKeywords(keywordOptions, allowTyping),
+      promise: shown ? this.trackKeywordSession(start) : start(),
       cancel: () => this._commandLine.cancelActiveSession()
     }
   }
@@ -1495,7 +1530,9 @@ export class AcEdInputManager {
             }
           })
 
-          this._commandLine.getKeywords(options, true).then(
+          this.trackKeywordSession(() =>
+            this._commandLine.getKeywords(options, true)
+          ).then(
             result => {
               if (!result) {
                 rejector(

@@ -38,7 +38,9 @@ export default {
     themeDark: 'ダーク',
     themeLight: 'ライト',
     displaySection: '表示',
-    ribbonHiddenHint: 'リボンを隠すと、この画面はコマンド OPTIONS で開きます。',
+    ribbonHiddenHint: 'リボンを隠すと、この画面は Ctrl+K (⌘K) のコマンドパレットで「環境設定」を探して開きます。',
+    commandLineSimpleHint:
+      'シンプルでは、コマンドは Ctrl+K (⌘K) のコマンドパレットで探します。コマンドラインは、コマンドがオプションを選ぶよう求めたときだけ出ます。',
     snapSection: 'スナップ',
     snapHint: '点の指定、選択範囲のドラッグ、整列ガイドで使います。吸着する点:',
     hatchSection: '塗りつぶし',
