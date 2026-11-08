@@ -88,7 +88,19 @@ export default {
     dashDoubleDot: '二点短鎖線',
     doubleDashDoubleDot: '二点二短鎖線',
     dashTripleDot: '三点短鎖線',
-    doubleDashTripleDot: '三点二短鎖線'
+    doubleDashTripleDot: '三点二短鎖線',
+    jwwDashed1: 'Jw_cad 点線1',
+    jwwDashed2: 'Jw_cad 点線2',
+    jwwDashed3: 'Jw_cad 点線3',
+    jwwDashDot1: 'Jw_cad 一点鎖1',
+    jwwDashDot2: 'Jw_cad 一点鎖2',
+    jwwDivide1: 'Jw_cad 二点鎖1',
+    jwwDivide2: 'Jw_cad 二点鎖2',
+    jwwConstruction: 'Jw_cad 補助線種',
+    jwwDashedX2: 'Jw_cad 倍長点線',
+    jwwDashedX4: 'Jw_cad 4倍長点線',
+    jwwDashDotX2: 'Jw_cad 倍長一点鎖',
+    jwwDivideX2: 'Jw_cad 倍長二点鎖'
   },
   enum: {
     AtLeast: '最小',

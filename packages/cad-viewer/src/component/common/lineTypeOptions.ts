@@ -1,4 +1,8 @@
 import {
+  acapStandardLineTypeRecord,
+  acapStandardLineTypes
+} from '@mlightcad/cad-simple-viewer'
+import {
   type AcDbDatabase,
   type AcDbLinetypePreviewSvgOptions,
   type AcGiBaseLineStyle
@@ -222,13 +226,22 @@ export function resolveLineTypeBackground(option?: LineTypeOption) {
 }
 
 /**
- * Builds a deduplicated and sorted set of selectable line type options from the
- * active drawing database.
+ * Builds a deduplicated and sorted set of selectable line type options: the
+ * drawing's line type table plus the standard line types the viewer adds on
+ * demand ({@link acapStandardLineTypes}: generic ones, and Jw_cad ones for
+ * drawings from Jw_cad). A standard line type the drawing does not define yet
+ * is added to it when selected ({@link MlLineTypeSelect}).
  *
  * @param db Active CAD database that owns the line type table.
- * @returns Dropdown-ready options, with `Continuous` promoted to the top when present.
+ * @param fileName File name of the drawing, used to recognize Jw_cad drawings.
+ * @returns Dropdown-ready options: `Continuous`, `ByLayer` and `ByBlock`
+ * first, then the standard line types in a fixed order, then the drawing's
+ * other line types by name.
  */
-export function buildLineTypeOptions(db?: AcDbDatabase): LineTypeOption[] {
+export function buildLineTypeOptions(
+  db?: AcDbDatabase,
+  fileName?: string
+): LineTypeOption[] {
   if (!db) return []
 
   const options: LineTypeOption[] = []
@@ -236,9 +249,9 @@ export function buildLineTypeOptions(db?: AcDbDatabase): LineTypeOption[] {
 
   for (const record of db.tables.linetypeTable.newIterator()) {
     const name = record.name || record.linetype.name
-    if (!name || seen.has(name)) continue
+    if (!name || seen.has(name.toLowerCase())) continue
 
-    seen.add(name)
+    seen.add(name.toLowerCase())
     // Do not eagerly call `toPreviewSvgString` for every record. Drawings with
     // hundreds of complex TEXT linetypes (and N layer-table selects) otherwise
     // allocate megabytes of SVG strings up front. Dropdown rows use the CSS
@@ -252,14 +265,31 @@ export function buildLineTypeOptions(db?: AcDbDatabase): LineTypeOption[] {
     })
   }
 
-  options.sort((a, b) => {
-    const aIsContinuous = a.value.toLowerCase() === 'continuous'
-    const bIsContinuous = b.value.toLowerCase() === 'continuous'
-    if (aIsContinuous !== bIsContinuous) {
-      return aIsContinuous ? -1 : 1
-    }
-    return a.label.localeCompare(b.label)
-  })
+  const standard = acapStandardLineTypes(db, fileName)
+  for (const lineType of standard) {
+    if (seen.has(lineType.name.toLowerCase())) continue
+    seen.add(lineType.name.toLowerCase())
+    const record = acapStandardLineTypeRecord(db, lineType)
+    // Not in the drawing yet: preview from a detached record.
+    options.push({
+      value: lineType.name,
+      label: lineType.name,
+      lineType: record.linetype,
+      previewSvgProvider: record
+    })
+  }
+
+  const order = new Map(
+    standard.map((lineType, index) => [lineType.name.toLowerCase(), index])
+  )
+  const leading = ['continuous', 'bylayer', 'byblock']
+  const rank = (option: LineTypeOption) => {
+    const key = option.value.toLowerCase()
+    const lead = leading.indexOf(key)
+    if (lead >= 0) return lead - leading.length
+    return order.get(key) ?? standard.length
+  }
+  options.sort((a, b) => rank(a) - rank(b) || a.label.localeCompare(b.label))
 
   return options
 }

@@ -430,8 +430,8 @@ const layerOptions = computed(() =>
 )
 
 const lineTypeOptions = computed<LineTypeOption[]>(() => {
-  const db = AcApDocManager.instance?.curDocument?.database
-  const options = buildLineTypeOptions(db)
+  const doc = AcApDocManager.instance?.curDocument
+  const options = buildLineTypeOptions(doc?.database, doc?.fileName)
   const specials: LineTypeOption[] = [
     { value: 'ByLayer', label: symbolicName('byLayer') },
     { value: 'ByBlock', label: symbolicName('byBlock') }

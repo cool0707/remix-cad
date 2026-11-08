@@ -202,7 +202,19 @@ export default {
     dashDoubleDot: 'Short dash double-dot',
     doubleDashDoubleDot: 'Double dash double-dot',
     dashTripleDot: 'Short dash triple-dot',
-    doubleDashTripleDot: 'Double dash triple-dot'
+    doubleDashTripleDot: 'Double dash triple-dot',
+    jwwDashed1: 'Jw_cad dashed 1',
+    jwwDashed2: 'Jw_cad dashed 2',
+    jwwDashed3: 'Jw_cad dashed 3',
+    jwwDashDot1: 'Jw_cad chain 1',
+    jwwDashDot2: 'Jw_cad chain 2',
+    jwwDivide1: 'Jw_cad double-dot chain 1',
+    jwwDivide2: 'Jw_cad double-dot chain 2',
+    jwwConstruction: 'Jw_cad construction line',
+    jwwDashedX2: 'Jw_cad double-length dashed',
+    jwwDashedX4: 'Jw_cad quadruple-length dashed',
+    jwwDashDotX2: 'Jw_cad double-length chain',
+    jwwDivideX2: 'Jw_cad double-length double-dot chain'
   },
   enum: {
     AtLeast: 'At Least',
