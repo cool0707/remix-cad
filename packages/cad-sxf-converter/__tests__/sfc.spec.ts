@@ -174,7 +174,11 @@ describe('AcDbSxfConverter (SFC)', () => {
 
   it('draws fills and hatch lines', async () => {
     const { entities } = await open('sxf-sample.sfc')
-    expect(entities.some(e => e instanceof AcDbHatch)).toBe(true)
+    const fill = entities.find((e): e is AcDbHatch => e instanceof AcDbHatch)
+    expect(fill?.isSolidFill).toBe(true)
+    // Sheet scale, like HPSCALE of new hatches: a pattern chosen for the
+    // fill later keeps its paper size.
+    expect(fill?.patternScale).toBeCloseTo(100, 6)
     const hatchLines = entities.filter(
       (e): e is AcDbLine => e instanceof AcDbLine && e.layer === '壁'
     )

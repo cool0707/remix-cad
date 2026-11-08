@@ -62,6 +62,9 @@
     追加するパターンは図面の縮尺 (`acapDrawingHatchScale`) を掛けた図面単位なので、新しく描いた線も用紙上で正しい長さになる。
   - ハッチの模様の大きさ (`HPSCALE`) は、図面を開いたときに `$LIMMIN/$LIMMAX` が表す用紙の縮尺にする (`acapDrawingHatchScale()`、`AcApDocManager.syncHatchScale()`)。
     実寸の 1/100 図面で倍率 1 のままだと、模様の間隔が図寸 0.03mm になって白く潰れるため。SXF も同じ。
+    ハッチの柄は線種と違って共有のテーブルが無く、要素ごとの尺度 (41) で大きさを決めるしかないので、こちらは要素側で縮尺を持つ。
+    SXF の塗りつぶし (SOLID の HATCH) にも同じ縮尺を 41 に書いておき、後から柄に変えても新しいハッチと同じ大きさになるようにしている
+    (JWW の塗りつぶしは SOLID 要素なのでハッチの尺度は無い)。
     `HPSCALE` はセッション変数なので、図面ごとに値を覚えて切り替え時に戻す。リミットが標準縮尺の用紙でない図面 (普通の DXF) は 1。
 - 拡張子判定: `cad-simple-viewer/src/app/AcApDrawingFileTypes.ts` (`acapDrawingFileTypes()` など。DWG/DXF + `AcDbDatabaseConverterManager` に登録済みの形式)。`AcApDocument.openDocument`、ファイル選択パネル (タグ表示も)、ローカル/URL データソース、マークアップ/計測サイドカー名、example の `FileUpload.vue` が使う。`AcDbDatabase.openUri()` は元から未知の拡張子を converter type として渡すので変更不要。
 - サンプル: `resources/cad-data/samples/jww-sample.jww` (`node tools/make-jww-sample.mjs` で ezjww の writer から生成、自作なのでライセンス問題なし)。テスト: `packages/cad-jww-converter/__tests__`、`cad-simple-viewer/__tests__/AcApDrawingFileTypes.spec.ts`、e2e `cad-viewer-example/e2e/tests/jww.spec.ts`。

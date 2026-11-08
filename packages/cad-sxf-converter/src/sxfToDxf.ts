@@ -390,6 +390,12 @@ class SxfDxfWriter {
     })
     this.pair(75, '0')
     this.pair(76, '1')
+    // Pattern scale of the sheet (like HPSCALE of new hatches), so a pattern
+    // chosen for this fill later keeps its paper size.
+    this.pair(52, '0')
+    this.pair(41, fmt(this.s))
+    this.pair(77, '0')
+    this.pair(78, '0')
     this.pair(98, '0')
   }
 
