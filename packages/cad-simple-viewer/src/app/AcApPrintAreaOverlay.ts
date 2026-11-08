@@ -7,6 +7,7 @@ import {
   type AcApDrawingSheet,
   acapResolveDrawingSheet
 } from './AcApDrawingSheet'
+import { acapGetLayoutPageSetup, acapLayoutEvents } from './AcApLayoutActions'
 import { AcApSettingManager } from './AcApSettingManager'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
@@ -17,6 +18,15 @@ const SVG_NS = 'http://www.w3.org/2000/svg'
  */
 export function acapPrintAreaLabel(sheet: AcApDrawingSheet['sheet']) {
   return `${sheet.paper} 1:${Number(sheet.scale.toPrecision(10))}`
+}
+
+/** Rectangle shown by {@link AcApPrintAreaOverlay}, in drawing units. */
+interface AcApPrintAreaSheet {
+  min: { x: number; y: number }
+  max: { x: number; y: number }
+  label: string
+  /** Export sheet (canvas only). */
+  drawingSheet?: AcApDrawingSheet
 }
 
 /** Colors of the print area overlay for a canvas background. */
@@ -54,7 +64,8 @@ export function acapPrintAreaColors(background: number): AcApPrintAreaColors {
 /**
  * Illustrator-style artboard display (`isShowPrintArea` setting): in the
  * canvas (model space), everything outside the sheet the drawing is printed /
- * exported on (see {@link acapResolveDrawingSheet}) is covered with gray.
+ * exported on (see {@link acapResolveDrawingSheet}) is covered with gray; on a
+ * print page (paper space), everything outside its paper (page setup).
  *
  * The overlay is screen-space HTML over the WebGL canvas and never takes
  * pointer events. The sheet is resolved when the mode is turned on, when a
@@ -65,7 +76,7 @@ export class AcApPrintAreaOverlay {
   private readonly root: SVGSVGElement
   private readonly mask: SVGPathElement
   private readonly label: SVGTextElement
-  private sheet?: AcApDrawingSheet
+  private sheet?: AcApPrintAreaSheet
   private view?: AcTrView2d
   private background?: number
 
@@ -100,6 +111,8 @@ export class AcApPrintAreaOverlay {
     acdbHostApplicationServices().layoutManager.events.layoutSwitched.addEventListener(
       () => this.refresh(true)
     )
+    // Page setup of a print page changed.
+    acapLayoutEvents.layoutsChanged.addEventListener(() => this.refresh(true))
     this.refresh(true)
   }
 
@@ -108,9 +121,9 @@ export class AcApPrintAreaOverlay {
     return !!AcApSettingManager.instance.get('isShowPrintArea')
   }
 
-  /** The sheet currently shown, if any. */
+  /** The sheet currently shown in the canvas (model space), if any. */
   get currentSheet() {
-    return this.isVisible() ? this.sheet : undefined
+    return this.isVisible() ? this.sheet?.drawingSheet : undefined
   }
 
   /**
@@ -126,10 +139,11 @@ export class AcApPrintAreaOverlay {
     }
     if (!this.sheet) {
       try {
-        this.sheet = acapResolveDrawingSheet(
-          this.docManager.curDocument.database
-        )
+        this.sheet = this.resolveSheet()
       } catch {
+        this.sheet = undefined
+      }
+      if (!this.sheet) {
         this.root.style.display = 'none'
         return
       }
@@ -137,13 +151,36 @@ export class AcApPrintAreaOverlay {
     this.draw(this.sheet)
   }
 
-  private isVisible() {
+  /**
+   * The canvas shows the sheet the drawing is exported on; a print page
+   * (paper space) shows its paper from the page setup.
+   */
+  private resolveSheet(): AcApPrintAreaSheet | undefined {
+    const db = this.docManager.curDocument.database
     const view = this.docManager.curView
-    return (
-      this.isEnabled &&
-      !!view &&
-      view.activeLayoutBtrId === view.modelSpaceBtrId
-    )
+    if (view.activeLayoutBtrId === view.modelSpaceBtrId) {
+      const drawingSheet = acapResolveDrawingSheet(db)
+      return {
+        min: drawingSheet.min,
+        max: drawingSheet.max,
+        label: acapPrintAreaLabel(drawingSheet.sheet),
+        drawingSheet
+      }
+    }
+    const layout = db.objects.layout.getBtrIdAt(view.activeLayoutBtrId)
+    if (!layout) return undefined
+    const setup = acapGetLayoutPageSetup(layout)
+    const limits = layout.limits
+    if (!setup || !limits || limits.isEmpty()) return undefined
+    return {
+      min: { x: limits.min.x, y: limits.min.y },
+      max: { x: limits.max.x, y: limits.max.y },
+      label: setup.paper
+    }
+  }
+
+  private isVisible() {
+    return this.isEnabled && !!this.docManager.curView
   }
 
   private readonly onViewChanged = () => this.refresh()
@@ -187,9 +224,9 @@ export class AcApPrintAreaOverlay {
     view.events.renderFrame.addEventListener(this.onRenderFrame)
   }
 
-  private draw(drawingSheet: AcApDrawingSheet) {
+  private draw(sheet: AcApPrintAreaSheet) {
     const view = this.view!
-    const { min, max } = drawingSheet
+    const { min, max } = sheet
     const corners = [
       { x: min.x, y: min.y },
       { x: max.x, y: min.y },
@@ -211,7 +248,7 @@ export class AcApPrintAreaOverlay {
     // Label just above the top-left corner of the sheet on screen.
     const left = Math.min(...corners.map(p => p.x))
     const top = Math.min(...corners.map(p => p.y))
-    this.label.textContent = acapPrintAreaLabel(drawingSheet.sheet)
+    this.label.textContent = sheet.label
     this.label.setAttribute('x', String(Math.max(left, 4)))
     this.label.setAttribute('y', String(Math.max(top - 6, 14)))
     if (view.backgroundColor !== this.background) {

@@ -669,7 +669,31 @@ export default {
       tooltip: '导出图片为 PNG'
     },
     modelTab: '画布',
-    moreLayouts: '更多打印页'
+    moreLayouts: '更多打印页',
+    layoutTabs: {
+      newLayout: '新建打印页',
+      newLayoutTooltip: '添加打印页',
+      rename: '重命名',
+      pageSetup: '页面设置…',
+      copy: '复制',
+      delete: '删除',
+      renameTitle: '重命名打印页',
+      renamePrompt: '打印页的新名称',
+      nameEmpty: '请输入名称',
+      nameInvalid: '名称不能包含 {chars}',
+      nameExists: '该名称已被使用',
+      deleteTitle: '删除打印页',
+      deleteConfirm: '删除“{name}”？此打印页上绘制的内容也会全部删除。',
+      confirm: '确定',
+      cancel: '取消',
+      pageSetupTitle: '页面设置 – {name}',
+      paper: '纸张大小',
+      orientation: '方向',
+      landscape: '横向',
+      portrait: '纵向',
+      pageSetupHint:
+        '在状态栏中打开“显示打印区域”后，纸张以外的部分显示为灰色。'
+    }
   },
   toolPalette: {
     entityProperties: {

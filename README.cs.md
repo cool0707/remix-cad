@@ -27,6 +27,9 @@ takže výkresy nikdy neopustí zařízení uživatele.
   - Text rozhraní: **Noto Sans JP** (hostováno pomocí
     `@fontsource-variable/noto-sans-jp`).
 - **Lokalizované názvy tiskových stránek** v nových výkresech místo čínských názvů ze šablony.
+- **Karty tiskových stránek jako v desktopovém CAD** — tlačítko **+** vedle karet přidá tiskovou stránku; pravým
+  kliknutím (nebo dlouhým stiskem) na kartu ji lze přejmenovat (také dvojklikem), nastavit vzhled stránky
+  (papír A0–A4, na výšku / na šířku), zkopírovat nebo odstranit; karty se řadí přetažením.
 - **Srozumitelné pojmy i pro uživatele bez zkušeností s CAD** — rozhraní používá běžná slova:
   blok → symbol, atribut bloku → vlastnost symbolu, modelový prostor → plátno,
   rozvržení → tisková stránka, šrafování → vzorová výplň, externí reference → propojený výkres,

@@ -713,7 +713,32 @@ export default {
       tooltip: 'Export image as PNG'
     },
     modelTab: 'Canvas',
-    moreLayouts: 'More print pages'
+    moreLayouts: 'More print pages',
+    layoutTabs: {
+      newLayout: 'New print page',
+      newLayoutTooltip: 'Add a print page',
+      rename: 'Rename',
+      pageSetup: 'Page setup…',
+      copy: 'Copy',
+      delete: 'Delete',
+      renameTitle: 'Rename print page',
+      renamePrompt: 'New name for the print page',
+      nameEmpty: 'Enter a name',
+      nameInvalid: 'The name cannot contain {chars}',
+      nameExists: 'This name is already used',
+      deleteTitle: 'Delete print page',
+      deleteConfirm:
+        'Delete “{name}”? Everything drawn on this print page is deleted too.',
+      confirm: 'OK',
+      cancel: 'Cancel',
+      pageSetupTitle: 'Page setup – {name}',
+      paper: 'Paper size',
+      orientation: 'Orientation',
+      landscape: 'Landscape',
+      portrait: 'Portrait',
+      pageSetupHint:
+        'The paper is shown in gray when “Show print area” is on in the status bar.'
+    }
   },
   toolPalette: {
     entityProperties: {
