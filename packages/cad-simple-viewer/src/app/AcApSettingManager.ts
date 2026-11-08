@@ -127,6 +127,21 @@ export interface AcApSettings {
    * drawing is printed / exported on (see `AcApPrintAreaOverlay`).
    */
   isShowPrintArea: boolean
+  /**
+   * Simple profile: show the layers in their own section under the other
+   * palette tabs (on by default). When off, the layers are the first tab of
+   * the one palette.
+   */
+  sidebarLayersSplitSimple: boolean
+  /**
+   * CAD profile: same as {@link AcApSettings.sidebarLayersSplitSimple}
+   * (off by default: one palette with the layers as its first tab).
+   */
+  sidebarLayersSplitCad: boolean
+  /**
+   * Shows developer tools (memory and open-file profiles) in the main menu.
+   */
+  isShowDevTools: boolean
 }
 
 /**
@@ -185,7 +200,10 @@ const DEFAULT_VALUES: AcApSettings = {
   touchPointTutorialSnoozeDate: null,
   useSimulatedMouseOnTouch: true,
   measurementShowApproximate: false,
-  isShowPrintArea: false
+  isShowPrintArea: false,
+  sidebarLayersSplitSimple: true,
+  sidebarLayersSplitCad: false,
+  isShowDevTools: false
 }
 
 /** Default localStorage key for persisting user preferences */
@@ -581,6 +599,30 @@ export class AcApSettingManager<T extends AcApSettings = AcApSettings> {
     return this.operationProfile === 'simple'
       ? 'isShowCommandLineSimple'
       : 'isShowCommandLine'
+  }
+
+  /**
+   * Key of the "layers in their own section" setting of the current
+   * operation profile.
+   */
+  get sidebarLayersSplitKey():
+    | 'sidebarLayersSplitSimple'
+    | 'sidebarLayersSplitCad' {
+    return this.operationProfile === 'simple'
+      ? 'sidebarLayersSplitSimple'
+      : 'sidebarLayersSplitCad'
+  }
+
+  /**
+   * Whether the palette shows the layers in their own section, for the
+   * current operation profile.
+   */
+  get isSidebarLayersSplit(): boolean {
+    return this.get(this.sidebarLayersSplitKey)
+  }
+
+  set isSidebarLayersSplit(value: boolean) {
+    this.set(this.sidebarLayersSplitKey, value)
   }
 
   /**

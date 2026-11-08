@@ -51,7 +51,11 @@ export default {
   },
   commandPalette: {
     title: 'Paleta příkazů',
-    placeholder: 'Hledat příkazy a hladiny (např. úsečka, hladina, LINE)',
+    placeholder: 'Hledat příkazy, hladiny a text (např. úsečka, hladina, LINE)',
+    groupCommands: 'Příkazy',
+    groupText: 'Text ve výkresu',
+    textAll: 'Zobrazit všechny výsledky v panelu Hledat ({count})',
+    placeholderText: 'Hledat text ve výkresu, příkazy a hladiny',
     empty: 'Nic nenalezeno',
     layer: 'Hladina',
     layerCurrent: 'Aktuální hladina',

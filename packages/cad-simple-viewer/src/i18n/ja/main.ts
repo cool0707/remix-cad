@@ -51,7 +51,11 @@ export default {
   },
   commandPalette: {
     title: 'コマンドパレット',
-    placeholder: 'コマンドやレイヤーを検索 (例: 線、画層、LINE)',
+    placeholder: 'コマンド・レイヤー・図面の文字を検索 (例: 線、画層、LINE)',
+    groupCommands: 'コマンド',
+    groupText: '図面の中の文字',
+    textAll: 'すべての結果を検索パネルに表示 ({count} 件)',
+    placeholderText: '図面の中の文字・コマンド・レイヤーを検索',
     empty: '見つかりません',
     layer: 'レイヤー',
     layerCurrent: '編集レイヤー',

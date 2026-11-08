@@ -20,6 +20,21 @@ export interface AcEdCommandPaletteItem {
   command?: string
   /** Key shown on the right (`'Ctrl+C'`) */
   shortcut?: string
+  /**
+   * Heading of the item's group (`'Text in the drawing'`). A heading is drawn
+   * above the first item of each group.
+   */
+  group?: string
+}
+
+/**
+ * Window rectangle of the field the palette opens over (the top bar's search
+ * field): the palette's search box takes the field's place.
+ */
+export interface AcEdCommandPaletteAnchor {
+  left: number
+  top: number
+  width: number
 }
 
 /** Options of {@link AcEdCommandPalette}. */
@@ -36,6 +51,12 @@ export interface AcEdCommandPaletteOptions {
   emptyText?: string
   /** Accessible name of the palette */
   title?: string
+  /** Text already in the search box */
+  initialQuery?: string
+  /**
+   * Opens the palette over this field instead of near the top of the window.
+   */
+  anchor?: AcEdCommandPaletteAnchor
 }
 
 const STYLE_ID = 'ml-command-palette-styles'
@@ -149,6 +170,12 @@ const PALETTE_CSS = `
     font-size: 11px;
     text-align: center;
   }
+  .ml-command-palette-group {
+    padding: 8px 10px 2px;
+    color: var(--ml-ui-text-muted, #909399);
+    font-size: 11px;
+    font-weight: 600;
+  }
   .ml-command-palette-empty {
     padding: 14px;
     color: var(--ml-ui-text-muted, #909399);
@@ -237,6 +264,9 @@ export class AcEdCommandPalette {
     this.list.id = `ml-command-palette-list-${Date.now()}`
     this.input.setAttribute('aria-controls', this.list.id)
 
+    if (options.initialQuery) this.input.value = options.initialQuery
+    if (options.anchor) this.placeOver(options.anchor)
+
     this.root.append(this.input, this.list)
     document.body.append(this.backdrop, this.root)
 
@@ -246,6 +276,7 @@ export class AcEdCommandPalette {
     this.bindGlobalEvents()
     this.refresh()
     this.input.focus({ preventScroll: true })
+    if (options.initialQuery) this.input.select()
   }
 
   /** Root element of the palette (for tests and styling). */
@@ -277,6 +308,28 @@ export class AcEdCommandPalette {
     this.options.onClose?.()
   }
 
+  /** Puts the palette over the anchor field, at least as wide as it. */
+  private placeOver(anchor: AcEdCommandPaletteAnchor) {
+    const margin = 8
+    const width = Math.min(
+      Math.max(anchor.width, 560),
+      window.innerWidth - 2 * margin
+    )
+    const center = anchor.left + anchor.width / 2
+    const left = Math.min(
+      Math.max(margin, center - width / 2),
+      window.innerWidth - margin - width
+    )
+    const top = Math.max(margin / 2, anchor.top - 4)
+    Object.assign(this.root.style, {
+      top: `${top}px`,
+      left: `${left}px`,
+      width: `${width}px`,
+      transform: 'none',
+      maxHeight: `${Math.max(200, window.innerHeight - top - 24)}px`
+    })
+  }
+
   /** Searches again for the text in the box and redraws the list. */
   private refresh() {
     this.items = this.options.search(this.input.value)
@@ -288,7 +341,16 @@ export class AcEdCommandPalette {
       empty.textContent = this.options.emptyText ?? ''
       this.list.appendChild(empty)
     }
+    let group: string | undefined
     this.items.forEach((item, index) => {
+      if (item.group && item.group !== group) {
+        const heading = document.createElement('div')
+        heading.className = 'ml-command-palette-group'
+        heading.setAttribute('role', 'presentation')
+        heading.textContent = item.group
+        this.list.appendChild(heading)
+      }
+      group = item.group
       const button = document.createElement('button')
       button.type = 'button'
       button.className = 'ml-command-palette-item'
@@ -396,6 +458,12 @@ export class AcEdCommandPalette {
     if ((e.ctrlKey || e.metaKey) && e.code === 'KeyK') {
       e.preventDefault()
       this.close()
+      return
+    }
+    // Ctrl / Cmd + F: the palette already searches the drawing; keep the
+    // browser's page search (which cannot see the canvas) closed.
+    if ((e.ctrlKey || e.metaKey) && e.code === 'KeyF') {
+      e.preventDefault()
       return
     }
     switch (e.key) {

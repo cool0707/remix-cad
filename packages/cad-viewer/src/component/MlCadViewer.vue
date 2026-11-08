@@ -136,6 +136,7 @@ import { MlNotificationCenter } from './notification'
 import { MlPaletteManager } from './palette'
 import { MlRibbonCommands } from './ribbon'
 import { MlStatusBar } from './statusBar'
+import { bindCommandPaletteToTopBar, MlTopBar, openSearch } from './topBar'
 
 const emit = defineEmits<{
   /**
@@ -315,6 +316,7 @@ const viewerThemeClass = computed(() =>
 )
 
 const features = useSettings()
+const isSimple = computed(() => features.operationProfile === 'simple')
 const {
   beginDocumentOpening,
   endDocumentOpening,
@@ -646,12 +648,18 @@ const onFindShortcut = (e: KeyboardEvent) => {
   if (!isFindShortcutInViewer(e.target, layoutRef.value)) return
   e.preventDefault()
   e.stopPropagation()
+  // Simple profile: the search field of the top bar, the drawing's text
+  // first. CAD profile: the Find palette.
+  if (isSimple.value && openSearch({ focus: 'text' })) return
   openFindPalette()
 }
+
+let unbindCommandPalette: (() => void) | undefined
 
 // Component lifecycle: Initialize and load initial file if URL or localFile is provided
 onMounted(async () => {
   window.addEventListener('keydown', onFindShortcut, true)
+  unbindCommandPalette = bindCommandPaletteToTopBar()
   beginPendingOpen(props.mode)
 
   if (props.url || props.localFile) {
@@ -708,6 +716,7 @@ onUnmounted(() => {
   emit('destroy')
 
   window.removeEventListener('keydown', onFindShortcut, true)
+  unbindCommandPalette?.()
 
   AcEdMTextEditor.setDefaultToolbarEnabled(true)
   headerResizeObserver?.disconnect()
@@ -720,7 +729,8 @@ watch(
     editorRef,
     isWriteMode,
     () => features.isShowRibbon,
-    () => features.isShowToolbar
+    () => features.isShowToolbar,
+    isSimple
   ],
   async () => {
     await nextTick()
@@ -793,8 +803,10 @@ const closeNotificationCenter = () => {
       <div ref="layoutRef" class="ml-cad-layout">
         <!-- Header section with command ribbon -->
         <header v-if="editorRef" ref="headerRef" class="ml-cad-header">
+          <!-- Simple profile: a thin top bar instead of the ribbon. -->
+          <ml-top-bar v-if="isSimple" :current-locale="effectiveLocale" />
           <ml-ribbon-commands
-            v-if="features.isShowRibbon"
+            v-else-if="features.isShowRibbon"
             :current-locale="effectiveLocale"
           />
         </header>
@@ -807,6 +819,13 @@ const closeNotificationCenter = () => {
             ref="containerRef"
             class="ml-cad-container"
           ></div>
+
+          <!-- Simple profile: the text / hatch options float while editing. -->
+          <ml-ribbon-commands
+            v-if="editorRef && isSimple"
+            mode="contextual"
+            :current-locale="effectiveLocale"
+          />
 
           <!-- Toolbar with common CAD operations (zoom, pan, select, etc.) -->
           <ml-tool-bars v-if="editorRef" />

@@ -51,7 +51,11 @@ export default {
   },
   commandPalette: {
     title: 'Komut paleti',
-    placeholder: 'Komut ve katman ara (ör. çizgi, katman, LINE)',
+    placeholder: 'Komut, katman ve metin ara (ör. çizgi, katman, LINE)',
+    groupCommands: 'Komutlar',
+    groupText: 'Çizimdeki metin',
+    textAll: 'Tüm sonuçları Bul panelinde göster ({count})',
+    placeholderText: 'Çizimdeki metni, komutları ve katmanları ara',
     empty: 'Bulunamadı',
     layer: 'Katman',
     layerCurrent: 'Geçerli katman',

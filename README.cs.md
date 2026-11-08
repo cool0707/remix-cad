@@ -60,8 +60,14 @@ takže výkresy nikdy neopustí zařízení uživatele.
   kopírují, vkládají (na kurzor), duplikují a vybírají vše.
 - **Paleta příkazů (Ctrl+K / ⌘K)** — příkazy hledejte běžným názvem, pojmem z CADu („blok“, „šrafa“, „externí reference“) nebo názvem / zkratkou
   příkazu (`LINE`, `L`) a spusťte je; najdete i úpravy z místní nabídky (kopírovat, vybrat vše…) a hladiny (výběrem se stane aktuální).
-  U výsledků jsou klávesové zkratky. Otevře se i tlačítkem **Hledat** ve stavovém řádku. V profilu Jednoduchý je příkazový řádek skrytý
+  U výsledků jsou klávesové zkratky. Otevře se i vyhledávacím polem horní lišty (jednoduchý profil) nebo tlačítkem **Hledat** ve stavovém řádku (CAD). V profilu Jednoduchý je příkazový řádek skrytý
   a objeví se jen tehdy, když příkaz žádá o výběr možnosti (v Možnostech jej lze opět trvale zobrazit).
+- **Horní lišta a boční panel (jednoduchý profil)** — jednoduchý profil místo pásu karet zobrazuje tenkou horní lištu
+  (nabídka ≡, název souboru, zpět / znovu, vyhledávací pole, tisk, export). Vyhledávací pole (Ctrl+K / Ctrl+F) najde příkazy,
+  hladiny i text ve výkresu; „Zobrazit všechny výsledky“ je vypíše v panelu Hledat. Volby úprav textu a tvorby šrafy se nad
+  výkresem zobrazí jen během práce s nimi. Boční panel má hladiny ve vlastní sekci pod vlastnostmi (sbalená sekce ukazuje
+  aktuální hladinu); Hledat, Měření a další panely se objeví jako zavíratelné karty až po otevření. Hladiny lze vrátit
+  do karet (výchozí v profilu CAD); každý profil si rozvržení pamatuje.
 - **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
   otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
   (motiv, pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).

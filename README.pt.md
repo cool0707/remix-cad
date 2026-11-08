@@ -62,8 +62,15 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   copiam, colam (no cursor), duplicam e selecionam tudo.
 - **Paleta de comandos (Ctrl+K / ⌘K)** — procure comandos pelo nome comum, pelo termo CAD ("bloco", "hachura", "referência externa")
   ou pelo nome / alias do comando (`LINE`, `L`) e execute-os; também encontra as ações de edição do menu de contexto (copiar, selecionar tudo…)
-  e as camadas (escolher uma a torna a atual). Cada resultado mostra o atalho. Também abre pelo botão **Pesquisar** da barra de status.
+  e as camadas (escolher uma a torna a atual). Cada resultado mostra o atalho. Também abre pelo campo de busca da barra superior (simples) ou pelo botão **Pesquisar** da barra de status (CAD).
   No Simples a linha de comando fica oculta e só aparece quando um comando pede para escolher uma opção (pode voltar a ser exibida em Opções).
+- **Barra superior e painel lateral (perfil simples)** — o perfil simples mostra uma barra superior fina em vez da faixa de opções
+  (menu ≡, nome do arquivo, desfazer / refazer, campo de busca, imprimir, exportar). O campo de busca (Ctrl+K / Ctrl+F) encontra
+  comandos, camadas e também o texto do desenho; “Mostrar todos os resultados” lista tudo no painel Localizar. As opções de edição
+  de texto e de criação de hachura flutuam sobre o desenho apenas enquanto são usadas. O painel lateral mantém as camadas em uma
+  seção própria abaixo das propriedades (recolhida, ainda mostra a camada atual); Localizar, Medições e os outros painéis aparecem
+  como abas que podem ser fechadas só depois de abertos. As camadas também podem voltar para as abas (o padrão do perfil CAD);
+  cada perfil lembra o seu layout.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).

@@ -144,11 +144,13 @@ test('edit actions and layers', async ({ page }) => {
   await expect.poll(async () => (await viewerState(page)).clayer).toBe('Walls')
 })
 
-test('status bar button opens the palette; a pick by mouse', async ({
+test('simple: the top bar search field opens the palette; a pick by mouse', async ({
   page
 }) => {
   await loadFixture(page)
-  await page.getByTestId('command-palette-button').click()
+  // The simple profile has the top bar's field instead of the status bar button.
+  await expect(page.getByTestId('command-palette-button')).toHaveCount(0)
+  await page.getByTestId('top-bar-search').click()
   await expect(palette(page)).toBeVisible()
   await search(page, 'line')
   await page.locator('.ml-command-palette-item[data-id="command:line"]').click()
@@ -156,7 +158,7 @@ test('status bar button opens the palette; a pick by mouse', async ({
   await page.keyboard.press('Escape')
 
   // A press outside closes it.
-  await page.getByTestId('command-palette-button').click()
+  await page.getByTestId('top-bar-search').click()
   await expect(palette(page)).toBeVisible()
   await page.mouse.click(10, 300)
   await expect(palette(page)).toHaveCount(0)
@@ -187,6 +189,12 @@ test('CAD profile: the command line stays; system variables are listed', async (
   await useCadProfile(page)
   await loadFixture(page)
   await expect(commandLine(page)).toBeVisible()
+  // The ribbon instead of the top bar; the status bar button opens the palette.
+  await expect(page.getByTestId('top-bar')).toHaveCount(0)
+  await page.getByTestId('command-palette-button').click()
+  await expect(palette(page)).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(palette(page)).toHaveCount(0)
 
   await page.keyboard.press('Control+k')
   await expect(palette(page)).toBeVisible()

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, type Page, test } from '@playwright/test'
 
 import { uploadFixture } from '../helpers/fileUpload'
-import { showCommandLine } from '../helpers/operationProfile'
+import { showCommandLine, useCadProfile } from '../helpers/operationProfile'
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 const fixturePath = path.resolve(
@@ -152,6 +152,8 @@ test.describe('Find palette (full Vue UI)', () => {
   test('ribbon Find button (Home > Utilities) opens the palette', async ({
     page
   }) => {
+    // The ribbon is the CAD profile's (the simple one has its top bar).
+    await useCadProfile(page)
     await loadFixture(page)
     // At the default window size the Utilities group sits in the overflow.
     const overflow = page.locator('button.ml-ribbon-overflow-trigger:visible')
@@ -293,6 +295,8 @@ test.describe('Find palette (full Vue UI)', () => {
   test('Ctrl+F opens the palette instead of the browser page search', async ({
     page
   }) => {
+    // CAD profile: the Find palette. (Simple: the top bar search, below.)
+    await useCadProfile(page)
     await loadFixture(page)
     await expect(page.getByTestId('find-palette')).toBeHidden()
     await page
@@ -304,6 +308,65 @@ test.describe('Find palette (full Vue UI)', () => {
     await page.keyboard.press('Control+f')
     await expect(page.getByTestId('find-palette')).toBeVisible()
     await expect(input(page)).toBeFocused()
+  })
+
+  test('simple profile: Ctrl+F searches the text from the top bar and shows all results in the palette', async ({
+    page
+  }) => {
+    await loadFixture(page)
+    await page
+      .locator('.ml-cad-container canvas')
+      .first()
+      .click({
+        position: { x: 900, y: 300 }
+      })
+    await page.keyboard.press('Control+f')
+    const palette = page.locator('.ml-command-palette')
+    await expect(palette).toBeVisible()
+    // Opened over the top bar's search field.
+    const field = (await page.getByTestId('top-bar-search').boundingBox())!
+    const box = (await palette.boundingBox())!
+    expect(Math.abs(box.y - field.y)).toBeLessThan(8)
+    await page.keyboard.type('sala')
+    // The text in the drawing comes first.
+    await expect(palette.locator('.ml-command-palette-group').first()).toHaveText(
+      'Text in the drawing'
+    )
+    await expect(
+      palette.locator('.ml-command-palette-item').first()
+    ).toContainText(/sala/i)
+    await expect(page.getByTestId('find-palette')).toBeHidden()
+    await palette
+      .locator('.ml-command-palette-item', { hasText: 'Show all results' })
+      .click()
+    await expect(page.getByTestId('find-palette')).toBeVisible()
+    await expect(input(page)).toHaveValue('sala')
+    await expect(rows(page).first()).toBeVisible()
+    // A closable tab: closing it goes back to the properties.
+    const tab = page.locator('.ml-overflow-tab', { hasText: 'Find' })
+    await tab.locator('.ml-overflow-tab-close').click()
+    await expect(page.getByTestId('find-palette')).toBeHidden()
+    await expect(
+      page.locator('.ml-overflow-tab.is-active', { hasText: 'Properties' })
+    ).toBeVisible()
+  })
+
+  test('simple profile: picking a text hit in the search jumps to it', async ({
+    page
+  }) => {
+    await loadFixture(page)
+    await page.getByTestId('top-bar-search').click()
+    await page.keyboard.type('sala')
+    const palette = page.locator('.ml-command-palette')
+    const hit = palette
+      .locator('.ml-command-palette-item', { hasText: /sala/i })
+      .first()
+    await expect(hit).toBeVisible()
+    await hit.click()
+    await expect(palette).toBeHidden()
+    await expect
+      .poll(async () => (await viewerState(page)).selected)
+      .toEqual(['B1'])
   })
 
   test('finds plain text inside a block and frames it beside the palette', async ({

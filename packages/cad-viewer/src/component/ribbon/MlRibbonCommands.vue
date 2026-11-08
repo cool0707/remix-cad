@@ -16,10 +16,8 @@ import {
   View
 } from '@element-plus/icons-vue'
 import {
-  AcApConvertToDxfCmd,
   acapCssColor,
   AcApDocManager,
-  acapDrawingExporters,
   acapDrawStyleKindForCommand,
   acapGetMeasurementColor,
   acapGetMeasurementCustomTextHeightWcs,
@@ -27,10 +25,7 @@ import {
   acapGetMeasurementTextHeightMode,
   AcApI18n,
   AcApLayerService,
-  AcApOpenCmd,
-  AcApQNewCmd,
   acapRunDatabaseEdit,
-  acapRunDataSourceMenuAction,
   acapScreenPxToWcs,
   acapSetMeasurementDrawColor,
   acapSetMeasurementTextHeight,
@@ -103,8 +98,8 @@ import {
   isDark,
   LAYER_FILTER_ALL,
   toggleDark,
-  useDataSources,
   useDocument,
+  useFileMenu,
   useLayerFilters,
   useLayers,
   useSettings,
@@ -207,6 +202,12 @@ type OverlayTextHeightMode = 'adaptive' | 'custom'
 
 interface Props {
   currentLocale?: LocaleProp
+  /**
+   * `'full'`: the ribbon (CAD profile). `'contextual'`: only the tab of the
+   * text being edited or the hatch being made, as a bar floating over the
+   * drawing (simple profile, which has its top bar instead of the ribbon).
+   */
+  mode?: 'full' | 'contextual'
 }
 
 /**
@@ -220,14 +221,15 @@ interface RibbonSysVarChangeEvent {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  currentLocale: undefined
+  currentLocale: undefined,
+  mode: 'full'
 })
+const isContextualMode = computed(() => props.mode === 'contextual')
 
 const features = useSettings()
 const ribbonContainerRef = ref<HTMLElement>()
 const { isDocumentOpening, openMode: docOpenMode } = useDocument()
 const { canUndo, canRedo } = useUndoRedo()
-const { menuItems: dataSourceMenuItems, isSingleLocalOpen } = useDataSources()
 const { t, locale } = useI18n()
 const isMarkupOverlayVisible = ref(true)
 const isMeasurementOverlayVisible = ref(true)
@@ -2716,6 +2718,22 @@ const ribbonData = computed(() => {
   }
 })
 
+/**
+ * Tabs the ribbon shows. The floating bar keeps the contextual tabs of a
+ * running command or text being edited (not those of a mere selection: the
+ * properties of a selected hatch are in the palette).
+ */
+const shownTabs = computed(() =>
+  isContextualMode.value
+    ? ribbonData.value.tabs.filter(
+        tab =>
+          tab.contextual &&
+          tab.visible !== false &&
+          (tab.id !== 'hatch-context' || tab.contextualMode === 'exclusive')
+      )
+    : ribbonData.value.tabs
+)
+
 watch(
   () =>
     ribbonData.value.tabs
@@ -2736,85 +2754,10 @@ watch(
   { immediate: true }
 )
 
-const fileMenuItems = computed<FileMenuItemModel[]>(() => {
-  locale.value
-  dataSourceMenuItems.value
-  isSingleLocalOpen.value
-  const openItem: FileMenuItemModel = isSingleLocalOpen.value
-    ? {
-        id: 'Open',
-        label: t('main.mainMenu.open')
-      }
-    : {
-        id: 'Open',
-        label: t('main.mainMenu.open'),
-        children: dataSourceMenuItems.value.map(item => ({
-          id: `ds:${item.id}`,
-          label: item.label
-        }))
-      }
-  const items: FileMenuItemModel[] = [
-    {
-      id: 'QNew',
-      label: t('main.mainMenu.new')
-    },
-    openItem,
-    {
-      id: 'DrawingUnits',
-      label: t('main.mainMenu.drawingUnits')
-    }
-  ]
-  if (!AcApDocManager.instance.disableExport) {
-    items.push({
-      id: 'Export',
-      label: t('main.mainMenu.exportMenu'),
-      divided: true,
-      children: [
-        {
-          id: 'Convert',
-          label: t('main.mainMenu.export')
-        },
-        // CAD formats registered by the application (JWW, SFC, P21) follow
-        // DXF.
-        ...acapDrawingExporters().map(exporter => ({
-          id: `ExportFormat:${exporter.command}`,
-          label: t('main.mainMenu.exportAs', { format: exporter.formatName })
-        })),
-        {
-          id: 'ExportHtml',
-          label: t('main.mainMenu.exportHtml')
-        },
-        {
-          id: 'ExportPdf',
-          label: t('main.mainMenu.exportPdf')
-        },
-        {
-          id: 'ExportSvg',
-          label: t('main.mainMenu.exportSvg')
-        },
-        {
-          id: 'ExportImage',
-          label: t('main.mainMenu.exportImage')
-        },
-        {
-          id: 'PngOut',
-          label: t('main.mainMenu.exportImageArea')
-        }
-      ]
-    })
-  }
-  items.push({
-    id: 'Settings',
-    label: t('main.mainMenu.settings'),
-    divided: true
-  })
-  items.push({
-    id: 'About',
-    label: t('main.mainMenu.about'),
-    divided: true
-  })
-  return items
-})
+const fileMenu = useFileMenu()
+const fileMenuItems = computed<FileMenuItemModel[]>(
+  () => fileMenu.fileMenuItems.value
+)
 
 const ribbonTexts = computed<RibbonLocaleTexts>(() => {
   locale.value
@@ -2879,82 +2822,36 @@ const handleHeaderRedo = () => {
   AcApDocManager.instance.sendStringToExecute('redo')
 }
 
-const handleFileMenuSelect = async (command: string) => {
+const handleFileMenuSelect = (command: string) => {
   if (isRibbonDisabled.value) return
-  if (
-    AcApDocManager.instance.disableExport &&
-    (command === 'Convert' ||
-      command === 'ExportHtml' ||
-      command === 'ExportPdf' ||
-      command === 'ExportSvg' ||
-      command === 'ExportImage' ||
-      command === 'PngOut' ||
-      command.startsWith('ExportFormat:'))
-  ) {
-    return
-  }
-  if (command === 'Convert') {
-    const cmd = new AcApConvertToDxfCmd()
-    cmd.trigger(AcApDocManager.instance.context)
-  } else if (command === 'ExportHtml') {
-    AcApDocManager.instance.sendStringToExecute('chtml')
-  } else if (command === 'ExportPdf') {
-    // Same path as chtml/csvg: DocManager lazy-loads the plugin then runs cpdf.
-    // Avoid a separate await+execute that raced Vite's first-time pdf-lib optimize.
-    AcApDocManager.instance.sendStringToExecute('cpdf')
-  } else if (command === 'ExportSvg') {
-    AcApDocManager.instance.sendStringToExecute('csvg')
-  } else if (command === 'ExportImage') {
-    AcApDocManager.instance.sendStringToExecute('cimage')
-  } else if (command === 'PngOut') {
-    AcApDocManager.instance.sendStringToExecute('pngout')
-  } else if (command.startsWith('ExportFormat:')) {
-    AcApDocManager.instance.sendStringToExecute(
-      command.slice('ExportFormat:'.length)
-    )
-  } else if (command === 'QNew') {
-    const cmd = new AcApQNewCmd()
-    cmd.trigger(AcApDocManager.instance.context)
-  } else if (command === 'Open') {
-    const cmd = new AcApOpenCmd()
-    cmd.trigger(AcApDocManager.instance.context)
-  } else if (command.startsWith('ds:')) {
-    const itemId = command.slice(3)
-    const item = dataSourceMenuItems.value.find(i => i.id === itemId)
-    if (item) {
-      void acapRunDataSourceMenuAction(item)
-    }
-  } else if (command === 'DrawingUnits') {
-    AcApDocManager.instance.sendStringToExecute('units')
-  } else if (command === 'Settings') {
-    AcApDocManager.instance.sendStringToExecute('options')
-  } else if (command === 'About') {
-    AcApDocManager.instance.sendStringToExecute('about')
-  }
+  fileMenu.run(command)
 }
 </script>
 
 <template>
   <div
+    v-if="!isContextualMode || shownTabs.length"
     ref="ribbonContainerRef"
     :aria-disabled="isRibbonDisabled"
     class="ml-ribbon-toolbar-container"
+    :class="{ 'is-floating': isContextualMode }"
+    :data-testid="isContextualMode ? 'floating-context-bar' : undefined"
   >
     <ml-ribbon
       v-model:active-tab="activeRibbonTabId"
       :disabled="isRibbonDisabled"
       :file-menu-items="fileMenuItems"
       :minimized="false"
-      :show-file-menu="true"
+      :show-file-menu="!isContextualMode"
       :show-open-backstage="false"
-      :tabs="ribbonData.tabs"
+      :tabs="shownTabs"
       :texts="ribbonTexts"
       hide-key-tips-toggle
       hide-layout-switcher
       @file-menu-select="handleFileMenuSelect"
       @item-click="handleRibbonItemClick"
     >
-      <template #tabs-after="{ disabled }">
+      <template v-if="!isContextualMode" #tabs-after="{ disabled }">
         <div class="ml-ribbon-tabs-after">
           <el-tooltip
             :content="t('main.ribbon.tooltip.undo')"
@@ -2982,7 +2879,7 @@ const handleFileMenuSelect = async (command: string) => {
           </el-tooltip>
         </div>
       </template>
-      <template #tabs-extra="{ disabled }">
+      <template v-if="!isContextualMode" #tabs-extra="{ disabled }">
         <ml-ribbon-view-buttons :disabled="disabled" />
         <el-tooltip
           :content="
@@ -3025,7 +2922,10 @@ const handleFileMenuSelect = async (command: string) => {
         </el-tooltip>
       </template>
     </ml-ribbon>
-    <ml-ribbon-file-name :container-el="ribbonContainerRef" />
+    <ml-ribbon-file-name
+      v-if="!isContextualMode"
+      :container-el="ribbonContainerRef"
+    />
     <ml-character-map-dialog
       v-model="mtextCharacterMapVisible"
       :font-options="mtextCharacterMapFontOptions"
@@ -3041,6 +2941,34 @@ const handleFileMenuSelect = async (command: string) => {
   width: 100%;
   box-sizing: border-box;
   z-index: 6;
+}
+
+/*
+ * Simple profile: the contextual tab floats over the top of the drawing
+ * (inside the canvas area, clear of a docked palette) as a card.
+ */
+.ml-ribbon-toolbar-container.is-floating {
+  position: absolute;
+  top: calc(var(--ml-palette-dock-top, 0px) + 8px);
+  left: calc(
+    (
+        var(--ml-palette-dock-left, 0px) + 100% -
+          var(--ml-palette-dock-right, 0px)
+      ) /
+      2
+  );
+  transform: translateX(-50%);
+  width: auto;
+  max-width: calc(
+    100% - var(--ml-palette-dock-left, 0px) -
+      var(--ml-palette-dock-right, 0px) - 24px
+  );
+  z-index: 8;
+  border: 1px solid var(--ml-ui-border, var(--el-border-color));
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--ml-ui-shadow, 0 8px 24px rgba(0, 0, 0, 0.2));
+  background: var(--ml-ui-bg, var(--el-bg-color));
 }
 
 .ml-ribbon-tabs-after {

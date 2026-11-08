@@ -195,8 +195,19 @@ const onFindClick = async () => {
   if (find.hits.value.length > 0) await find.navigateTo(0)
 }
 
+/** Searches for a query handed over by the command palette, if any. */
+const applyPendingQuery = async () => {
+  const pending = store.dialogs.findQuery
+  if (!pending) return
+  store.dialogs.findQuery = ''
+  find.query.value = pending
+  find.search()
+  if (find.hits.value.length > 0) await find.navigateTo(0)
+}
+
 const focusInput = async () => {
   await nextTick()
+  void applyPendingQuery()
   const el = inputRef.value?.$el?.querySelector('input') as
     | HTMLInputElement
     | undefined
