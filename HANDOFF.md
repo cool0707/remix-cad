@@ -51,16 +51,20 @@
   - 画層名を `<グループ>-<レイヤ> <グループ名> - <レイヤ名>` (16 進、Jw_cad と同じ) にし、使われている画層だけ作る。ezjww の画層名 → (グループ, レイヤ) は ezjww の `layer_name_map` を移植した `ezjwwLayerNames()` で逆引き。
   - 文字のフォント (ＭＳ ゴシック等) ごとに文字スタイルを作る (ezjww の DXF は全部 STANDARD)。
   - **文字高さの補正**: mtext-renderer は TrueType を「DXF の文字高さ = 英大文字 A の高さ」(`unitsPerEm / A.yMax` 倍) で描く。Jw_cad の文字サイズは全角の文字枠 (em) の高さなので、そのままだと BIZ UD で 1.27 倍 (明朝 1.29 倍) になり枠からはみ出す。高さに `A.yMax / em` (ゴシック 1617/2048、明朝 1587/2048) を掛け、基点も descender (246/2048) 分上げて文字枠の下端に合わせている (`jwwTextFontMetrics()`)。同梱フォントを差し替えたらこの値も更新すること。DXF/DWG は AutoCAD 互換の挙動なので触っていない。
-  - 線種パターンは図寸 mm なので、要素の線種尺度 (48) に縮尺を入れる。
+  - 線種パターンは図寸 mm なので、線種レコード (LTYPE) のパターンに主縮尺を掛けて図面単位で書く。要素の線種尺度 (48) は 1
+    (グループ別モードで主縮尺と違うグループの要素と、ブロック内の要素だけ `縮尺 / 主縮尺`)。
+    後から追加する標準線種 (下記) と同じ決め方なので、読み込んだ線種を新しい線に使っても、読み込んだ線を標準線種に変えても模様の大きさが合う。
+    SXF (`sxfToDxf.ts`) も同じ。書き出しはパターン × 線種尺度の積で見るので影響なし。
   - 線種テーブルには使われている線種しか書かない。選べる線種は UI 側で補う:
     `cad-simple-viewer/src/app/AcApStandardLineTypes.ts` の汎用線種 (DASHED / HIDDEN / DOT / CENTER / PHANTOM、acadiso.lin の値) を
     全図面に、Jw_cad 線種 (`JWW_*` 12 種、ezjww の定義と同じ) を JWW 由来の図面 (拡張子 .jww/.jwc か `JWW_*` 線種を持つ) にだけ
     ドロップダウンへ出し、選んだときに図面へ追加する (`MlLineTypeSelect` → `acapEnsureStandardLineType`)。
     追加するパターンは図面の縮尺 (`acapDrawingHatchScale`) を掛けた図面単位なので、新しく描いた線も用紙上で正しい長さになる。
-    **残課題**: JWW から読んだ既存の `JWW_*` レコードは図寸 mm のまま (要素側の線種尺度で拡大) なので、
-    それを新しい線に使うと線種尺度 1 で描かれ、模様が細かくなりすぎる。
   - ハッチの模様の大きさ (`HPSCALE`) は、図面を開いたときに `$LIMMIN/$LIMMAX` が表す用紙の縮尺にする (`acapDrawingHatchScale()`、`AcApDocManager.syncHatchScale()`)。
     実寸の 1/100 図面で倍率 1 のままだと、模様の間隔が図寸 0.03mm になって白く潰れるため。SXF も同じ。
+    ハッチの柄は線種と違って共有のテーブルが無く、要素ごとの尺度 (41) で大きさを決めるしかないので、こちらは要素側で縮尺を持つ。
+    SXF の塗りつぶし (SOLID の HATCH) にも同じ縮尺を 41 に書いておき、後から柄に変えても新しいハッチと同じ大きさになるようにしている
+    (JWW の塗りつぶしは SOLID 要素なのでハッチの尺度は無い)。
     `HPSCALE` はセッション変数なので、図面ごとに値を覚えて切り替え時に戻す。リミットが標準縮尺の用紙でない図面 (普通の DXF) は 1。
 - 拡張子判定: `cad-simple-viewer/src/app/AcApDrawingFileTypes.ts` (`acapDrawingFileTypes()` など。DWG/DXF + `AcDbDatabaseConverterManager` に登録済みの形式)。`AcApDocument.openDocument`、ファイル選択パネル (タグ表示も)、ローカル/URL データソース、マークアップ/計測サイドカー名、example の `FileUpload.vue` が使う。`AcDbDatabase.openUri()` は元から未知の拡張子を converter type として渡すので変更不要。
 - サンプル: `resources/cad-data/samples/jww-sample.jww` (`node tools/make-jww-sample.mjs` で ezjww の writer から生成、自作なのでライセンス問題なし)。テスト: `packages/cad-jww-converter/__tests__`、`cad-simple-viewer/__tests__/AcApDrawingFileTypes.spec.ts`、e2e `cad-viewer-example/e2e/tests/jww.spec.ts`。

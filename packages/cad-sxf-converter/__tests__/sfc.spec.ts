@@ -18,6 +18,7 @@ import { AcDbSxfConverter } from '../src/AcDbSxfConverter'
 import { convertSxfToDxf, detectSxfFormat } from '../src/convertSxf'
 import { buildSfcModel, readSfcDrawing, readSfcFeatures } from '../src/sfc'
 import { decodeSxfBytes } from '../src/step'
+import { SXF_LINE_TYPE_PATTERNS } from '../src/style'
 import { sxfTextFontMetrics } from '../src/sxfToDxf'
 
 const SAMPLES = resolve(__dirname, '../../../resources/cad-data/samples')
@@ -103,7 +104,7 @@ describe('SFC parsing', () => {
 
 describe('AcDbSxfConverter (SFC)', () => {
   it('opens the sample in real millimetres of the main partial drawing', async () => {
-    const { entities } = await open('sxf-sample.sfc')
+    const { db, entities } = await open('sxf-sample.sfc')
     // Walls: the 10 m × 7 m outline is an LWPOLYLINE on layer 壁.
     const walls = entities.filter(
       (e): e is AcDbPolyline => e instanceof AcDbPolyline && e.layer === '壁'
@@ -131,7 +132,15 @@ describe('AcDbSxfConverter (SFC)', () => {
     )
     expect(grid).toHaveLength(5)
     expect(grid[0].lineType).toBe('SXF_CHAIN')
-    expect(grid[0].linetypeScale).toBeCloseTo(100, 6)
+    // The pattern is in drawing units (like the standard line types added to
+    // new lines), so the entity needs no line type scale.
+    expect(grid[0].linetypeScale).toBeCloseTo(1, 6)
+    const paper = SXF_LINE_TYPE_PATTERNS.chain
+    const pattern = db.tables.linetypeTable
+      .getAt('SXF_CHAIN')
+      ?.linetype?.pattern?.map(e => e.elementLength)
+    expect(pattern).toHaveLength(paper.length)
+    pattern?.forEach((v, i) => expect(v).toBeCloseTo(paper[i] * 100, 6))
   })
 
   it('keeps circles, arcs and ellipses as curves', async () => {
@@ -165,7 +174,11 @@ describe('AcDbSxfConverter (SFC)', () => {
 
   it('draws fills and hatch lines', async () => {
     const { entities } = await open('sxf-sample.sfc')
-    expect(entities.some(e => e instanceof AcDbHatch)).toBe(true)
+    const fill = entities.find((e): e is AcDbHatch => e instanceof AcDbHatch)
+    expect(fill?.isSolidFill).toBe(true)
+    // Sheet scale, like HPSCALE of new hatches: a pattern chosen for the
+    // fill later keeps its paper size.
+    expect(fill?.patternScale).toBeCloseTo(100, 6)
     const hatchLines = entities.filter(
       (e): e is AcDbLine => e instanceof AcDbLine && e.layer === '壁'
     )

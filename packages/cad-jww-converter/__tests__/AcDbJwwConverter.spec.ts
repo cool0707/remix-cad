@@ -107,7 +107,17 @@ describe('AcDbJwwConverter', () => {
     )
     const lengths = walls.map(w => w.startPoint.distanceTo(w.endPoint))
     expect(Math.max(...lengths)).toBeCloseTo(10000, 6)
-    expect(walls[0].linetypeScale).toBeCloseTo(100, 6)
+    // Line type records are in drawing units (like the standard line types
+    // added to new lines), so entities need no line type scale.
+    expect(walls[0].linetypeScale).toBeCloseTo(1, 6)
+    const chain = entities.find(e => e.lineType === 'JWW_DASHDOT1')
+    expect(chain?.linetypeScale).toBeCloseTo(1, 6)
+    const pattern = db.tables.linetypeTable
+      .getAt('JWW_DASHDOT1')
+      ?.linetype?.pattern?.map(e => e.elementLength)
+    // Jw_cad chain line 1 (3.125 mm dash on paper) at 1/100.
+    expect(pattern?.[0]).toBeCloseTo(312.5, 6)
+    expect(pattern?.[1]).toBeCloseTo(-62.5, 6)
     // $LIMMIN / $LIMMAX are checked on the DXF text above: Jest loads the CJS
     // build of data-model, which the header-reader patch does not cover.
   })
@@ -178,6 +188,10 @@ describe('AcDbJwwConverter', () => {
     expect(
       border(groupDb).startPoint.distanceTo(border(groupDb).endPoint)
     ).toBeCloseTo(400, 6)
+    // Line type records are at the main scale (1/100), so the 1/1 group
+    // scales its patterns back down to paper size.
+    expect(border(groupDb).linetypeScale).toBeCloseTo(0.01, 6)
+    expect(border(paperDb).linetypeScale).toBeCloseTo(1, 6)
 
     const drawingDb = await openSample()
     expect(

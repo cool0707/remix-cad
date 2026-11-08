@@ -740,8 +740,13 @@ class JwwDxfWriter {
     if (typeof e.line_weight === 'number' && e.line_weight >= 0) {
       this.pair(370, String(e.line_weight))
     }
-    // Line type patterns are paper millimetres, like JWW coordinates.
-    if (s !== 1 && type !== 'INSERT') this.pair(48, fmt(s))
+    // Line type records are in drawing units of the main scale (like the
+    // standard line types added later), so only entities drawn at another
+    // scale (other layer groups, block contents) need a line type scale.
+    const ltScale = s / this.mainScale
+    if (ltScale !== 1 && type !== 'INSERT' && type !== 'IMAGE') {
+      this.pair(48, fmt(ltScale))
+    }
   }
 
   private writeHeader() {
@@ -784,9 +789,11 @@ class JwwDxfWriter {
     this.table('LTYPE', names.size)
     for (const name of names) {
       const def = defined.get(name)
-      const [description, pattern] = def
+      const [description, paperPattern] = def
         ? [def.description, def.pattern]
         : (BUILTIN_LINE_TYPES[name] ?? ['', []])
+      // Patterns are paper millimetres; records hold them in drawing units.
+      const pattern = paperPattern.map(v => v * this.mainScale)
       this.pair(0, 'LTYPE')
       this.pair(5, this.nextHandle())
       this.pair(100, 'AcDbSymbolTableRecord')
