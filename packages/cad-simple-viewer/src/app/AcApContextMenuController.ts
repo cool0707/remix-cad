@@ -164,7 +164,7 @@ export class AcApContextMenuController {
       hasSymbols: this.hasSymbols(),
       isAvailable,
       t,
-      isMac: isMacPlatform(),
+      isMac: acapIsMacPlatform(),
       simple
     }
   }
@@ -271,7 +271,8 @@ export class AcApContextMenuController {
   }
 }
 
-function isMacPlatform() {
+/** Whether shortcuts are shown the macOS way (⌘). */
+export function acapIsMacPlatform() {
   if (typeof navigator === 'undefined') return false
   const nav = navigator as Navigator & {
     userAgentData?: { platform?: string }

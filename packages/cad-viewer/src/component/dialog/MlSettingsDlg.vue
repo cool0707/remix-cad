@@ -126,6 +126,16 @@
             {{ item.label }}
           </el-checkbox>
         </div>
+        <div
+          v-if="
+            form.operationProfile === 'simple' &&
+            !form.isShowCommandLineSimple &&
+            !isSmallViewport
+          "
+          class="ml-settings-dlg__hint"
+        >
+          {{ t('dialog.settingsDlg.commandLineSimpleHint') }}
+        </div>
         <div v-if="!form.isShowRibbon" class="ml-settings-dlg__hint">
           {{ t('dialog.settingsDlg.ribbonHiddenHint') }}
         </div>
@@ -189,6 +199,7 @@ type SettingsForm = Pick<
   | 'isShowRibbon'
   | 'isShowToolbar'
   | 'isShowCommandLine'
+  | 'isShowCommandLineSimple'
   | 'isShowCoordinate'
   | 'isShowLanguageSelector'
   | 'isShowEntityInfo'
@@ -219,6 +230,7 @@ const readSettings = (): SettingsForm => {
     isShowRibbon: s.isShowRibbon,
     isShowToolbar: s.isShowToolbar,
     isShowCommandLine: s.isShowCommandLine,
+    isShowCommandLineSimple: s.isShowCommandLineSimple,
     isShowCoordinate: s.isShowCoordinate,
     isShowLanguageSelector: s.isShowLanguageSelector,
     isShowEntityInfo: s.isShowEntityInfo,
@@ -262,7 +274,11 @@ const displayItems = computed(() => {
     { key: 'isShowRibbon', label: t('main.statusBar.setting.ribbon') },
     { key: 'isShowToolbar', label: t('main.statusBar.setting.toolbar') },
     {
-      key: 'isShowCommandLine',
+      // Each profile has its own (hidden by default in the simple one).
+      key:
+        form.operationProfile === 'simple'
+          ? 'isShowCommandLineSimple'
+          : 'isShowCommandLine',
       label: t('main.statusBar.setting.commandLine')
     },
     { key: 'isShowCoordinate', label: t('main.statusBar.setting.coordinate') },
@@ -275,7 +291,11 @@ const displayItems = computed(() => {
   ]
   // Phones have no desktop command line.
   return isSmallViewport.value
-    ? items.filter(item => item.key !== 'isShowCommandLine')
+    ? items.filter(
+        item =>
+          item.key !== 'isShowCommandLine' &&
+          item.key !== 'isShowCommandLineSimple'
+      )
     : items
 })
 

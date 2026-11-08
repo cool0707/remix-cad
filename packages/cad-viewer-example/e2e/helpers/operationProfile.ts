@@ -26,3 +26,23 @@ export async function useCadProfile(page: Page) {
     )
   }, SETTINGS_KEY)
 }
+
+/**
+ * Keeps the command line shown in the simple profile (it is hidden there by
+ * default; commands are found with Ctrl+K), for tests that type commands.
+ * Call before `page.goto`.
+ */
+export async function showCommandLine(page: Page) {
+  await page.addInitScript(key => {
+    let stored: Record<string, unknown> = {}
+    try {
+      stored = JSON.parse(localStorage.getItem(key) ?? '{}')
+    } catch {
+      // Start from scratch.
+    }
+    localStorage.setItem(
+      key,
+      JSON.stringify({ ...stored, isShowCommandLineSimple: true })
+    )
+  }, SETTINGS_KEY)
+}

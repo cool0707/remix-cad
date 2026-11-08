@@ -665,6 +665,10 @@ export default {
       on: 'Skrýt tiskovou oblast',
       off: 'Zobrazit tiskovou oblast (mimo papír šedě)'
     },
+    commandPalette: {
+      label: 'Hledat',
+      tooltip: 'Hledat příkazy a hladiny'
+    },
     operationProfile: {
       simple: 'Jednoduchý',
       cad: 'CAD',

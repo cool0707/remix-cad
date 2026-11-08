@@ -61,6 +61,10 @@ del dispositivo del usuario.
   En Simple, el clic derecho sobre un objeto no seleccionado lo selecciona primero. Al dibujar en Simple el menú es Hecho / Deshacer (el último punto,
   si el comando lo permite) / Cancelar (CAD mantiene clic derecho = Intro). Ctrl+X / C / V / D / A (⌘ en Mac) cortan, copian, pegan
   (en el cursor), duplican y seleccionan todo.
+- **Paleta de comandos (Ctrl+K / ⌘K)** — busca comandos por su nombre común, por el término CAD («bloque», «sombreado», «referencia externa»)
+  o por el nombre / alias del comando (`LINE`, `L`) y ejecútalos; también encuentra las acciones de edición del menú contextual (copiar, seleccionar todo…)
+  y las capas (al elegir una pasa a ser la actual). Cada resultado muestra su atajo. También se abre con el botón **Buscar** de la barra de estado.
+  En Simple la línea de comandos se oculta y solo aparece cuando un comando pide elegir una opción (se puede volver a mostrar en Opciones).
 - **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
   abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
   (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).

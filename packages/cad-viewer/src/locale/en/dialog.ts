@@ -20,7 +20,9 @@ export default {
     themeDark: 'Dark',
     themeLight: 'Light',
     displaySection: 'Display',
-    ribbonHiddenHint: 'Without the ribbon, open this dialog with the OPTIONS command.',
+    ribbonHiddenHint: 'Without the ribbon, open this dialog with Ctrl+K (⌘K): search for “Options”.',
+    commandLineSimpleHint:
+      'In the Simple profile, find commands with Ctrl+K (⌘K). The command line only comes up when a command asks you to choose an option.',
     snapSection: 'Snap',
     snapHint: 'Snapping is used when picking points, dragging the selection and for alignment guides. Points to snap to:',
     hatchSection: 'Fill',

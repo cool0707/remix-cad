@@ -42,8 +42,15 @@ export type AcApOperationProfile = 'cad' | 'simple'
 export interface AcApSettings {
   /** Whether debug mode is enabled for development features */
   isDebug: boolean
-  /** Whether the command line interface is visible */
+  /** Whether the command line interface is visible (CAD profile) */
   isShowCommandLine: boolean
+  /**
+   * Whether the command line is visible in the simple profile. Off by
+   * default: commands are found with the command palette (Ctrl / Cmd + K),
+   * and the command line only comes up while a command asks to choose an
+   * option.
+   */
+  isShowCommandLineSimple: boolean
   /** Whether coordinate display is visible */
   isShowCoordinate: boolean
   /** Whether entity info card is visible */
@@ -151,6 +158,7 @@ export interface AcApSettingManagerConfigureOptions {
 const DEFAULT_VALUES: AcApSettings = {
   isDebug: false,
   isShowCommandLine: true,
+  isShowCommandLineSimple: false,
   isShowCoordinate: true,
   isShowEntityInfo: false,
   isShowLanguageSelector: true,
@@ -550,6 +558,29 @@ export class AcApSettingManager<T extends AcApSettings = AcApSettings> {
    */
   set isShowCommandLine(value: boolean) {
     this.set('isShowCommandLine', value)
+  }
+
+  /**
+   * Whether the command line is shown in the simple profile (see
+   * {@link AcApSettings.isShowCommandLineSimple}).
+   */
+  get isShowCommandLineSimple() {
+    return this.get('isShowCommandLineSimple')
+  }
+
+  set isShowCommandLineSimple(value: boolean) {
+    this.set('isShowCommandLineSimple', value)
+  }
+
+  /**
+   * Key of the command line setting of the current operation profile:
+   * `isShowCommandLineSimple` in the simple profile, `isShowCommandLine` in
+   * the CAD profile.
+   */
+  get commandLineSettingKey(): 'isShowCommandLine' | 'isShowCommandLineSimple' {
+    return this.operationProfile === 'simple'
+      ? 'isShowCommandLineSimple'
+      : 'isShowCommandLine'
   }
 
   /**

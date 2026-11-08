@@ -20,7 +20,9 @@ export default {
     themeDark: '暗黑',
     themeLight: '明亮',
     displaySection: '显示',
-    ribbonHiddenHint: '隐藏功能区后，请用 OPTIONS 命令打开此对话框。',
+    ribbonHiddenHint: '隐藏功能区后，请按 Ctrl+K (⌘K) 打开命令面板，搜索“选项”来打开此对话框。',
+    commandLineSimpleHint:
+      '在简易模式下，请用 Ctrl+K (⌘K) 的命令面板查找命令。只有当命令要求选择选项时才会显示命令行。',
     snapSection: '捕捉',
     snapHint: '在指定点、拖动所选对象和对齐参考线时使用。捕捉到的点：',
     hatchSection: '填充',

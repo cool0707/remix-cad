@@ -20,7 +20,9 @@ export default {
     themeDark: 'Koyu',
     themeLight: 'Açık',
     displaySection: 'Görünüm',
-    ribbonHiddenHint: 'Şerit gizliyken bu pencereyi OPTIONS komutuyla açın.',
+    ribbonHiddenHint: 'Şerit gizliyken bu pencereyi Ctrl+K (⌘K) ile açılan komut paletinde “Seçenekler” arayarak açın.',
+    commandLineSimpleHint:
+      'Basit profilde komutları Ctrl+K (⌘K) komut paletiyle bulun. Komut satırı yalnızca bir komut seçenek seçmenizi istediğinde görünür.',
     snapSection: 'Yakalama',
     snapHint: 'Nokta seçerken, seçimi sürüklerken ve hizalama kılavuzlarında kullanılır. Yakalanacak noktalar:',
     hatchSection: 'Dolgu',

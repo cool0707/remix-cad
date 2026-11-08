@@ -629,6 +629,10 @@ export default {
       on: '隐藏打印范围',
       off: '显示打印范围（纸张外显示为灰色）'
     },
+    commandPalette: {
+      label: '搜索',
+      tooltip: '搜索命令和图层'
+    },
     operationProfile: {
       simple: '简单',
       cad: 'CAD',

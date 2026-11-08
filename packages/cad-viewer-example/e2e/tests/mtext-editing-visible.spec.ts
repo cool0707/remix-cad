@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
+import { showCommandLine } from '../helpers/operationProfile'
+
 type Clip = { x: number; y: number; width: number; height: number }
 
 /** Counts bright pixels inside `clip` of the page screenshot. */
@@ -32,6 +34,7 @@ async function countBrightPixels(page: Page, clip: Clip) {
 test('mtext editor shows typed text and IME composition while editing', async ({
   page
 }) => {
+  await showCommandLine(page)
   await page.goto('/?new=1')
   const canvas = page.locator('.ml-cad-container canvas').first()
   await expect(canvas).toBeVisible({ timeout: 30000 })

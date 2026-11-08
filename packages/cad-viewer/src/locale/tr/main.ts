@@ -678,6 +678,10 @@ export default {
       on: 'Baskı alanını gizle',
       off: 'Baskı alanını göster (kağıt dışını gri yap)'
     },
+    commandPalette: {
+      label: 'Ara',
+      tooltip: 'Komut ve katman ara'
+    },
     operationProfile: {
       simple: 'Basit',
       cad: 'CAD',

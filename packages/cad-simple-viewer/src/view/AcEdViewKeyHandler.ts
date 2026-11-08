@@ -1,4 +1,5 @@
 import { AcApDocManager } from '../app'
+import { acapIsCommandPaletteShortcut } from '../app/AcApCommandPaletteItems'
 import { ACAP_TOOL_SHORTCUTS } from '../app/AcApToolShortcuts'
 import { runMarkupEdit } from '../command/markup/AcApMarkupHistory'
 import { runMeasurementEdit } from '../command/measure/AcApMeasurementHistory'
@@ -55,6 +56,16 @@ export class AcEdViewKeyHandler {
   handleKeyDown(e: KeyboardEvent): boolean {
     const undoRedoShortcut = this.resolveUndoRedoShortcut(e)
     const ignoreEditableTarget = this.shouldIgnoreEditableTargetShortcut(e)
+
+    // Ctrl / Cmd + K: the command palette, in both profiles and also while a
+    // command runs or the command line has the focus (not while text is
+    // edited in place).
+    if (acapIsCommandPaletteShortcut(e)) {
+      if (AcEdMTextEditor.getActiveInputBox()) return false
+      e.preventDefault()
+      this.view.commandPalette.toggle()
+      return true
+    }
 
     if (this.handleEditShortcut(e)) {
       return true

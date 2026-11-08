@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, type Page, test } from '@playwright/test'
 
 import { uploadFixture } from '../helpers/fileUpload'
+import { showCommandLine } from '../helpers/operationProfile'
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 const fixturePath = path.resolve(
@@ -71,6 +72,7 @@ async function runCommand(page: Page, name: string) {
 }
 
 async function loadFixture(page: Page, file = fixturePath) {
+  await showCommandLine(page)
   await page.goto('/')
   await uploadFixture(page, file)
   await expect(page.locator('.ml-cad-container')).toBeVisible({

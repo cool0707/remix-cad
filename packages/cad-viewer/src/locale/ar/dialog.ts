@@ -28,7 +28,9 @@ export default {
     themeDark: 'داكن',
     themeLight: 'فاتح',
     displaySection: 'العرض',
-    ribbonHiddenHint: 'عند إخفاء الشريط، افتح هذه النافذة بالأمر OPTIONS.',
+    ribbonHiddenHint: 'عند إخفاء الشريط، افتح هذه النافذة من لوحة الأوامر Ctrl+K (⌘K) بالبحث عن «الخيارات».',
+    commandLineSimpleHint:
+      'في الملف البسيط، ابحث عن الأوامر بلوحة الأوامر Ctrl+K (⌘K). لا يظهر سطر الأوامر إلا عندما يطلب الأمر اختيار خيار.',
     snapSection: 'الالتقاط',
     snapHint: 'يُستخدم عند تحديد النقاط وسحب التحديد ولخطوط المحاذاة. النقاط التي يُلتقط إليها:',
     hatchSection: 'التعبئة',
