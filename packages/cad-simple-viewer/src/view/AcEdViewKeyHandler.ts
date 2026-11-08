@@ -24,6 +24,17 @@ const NUDGE_DIRECTIONS: Readonly<Record<string, readonly [number, number]>> = {
   ArrowDown: [0, -1]
 }
 
+/** Ctrl / Cmd + key editing shortcuts (see `AcApEditActions`). */
+const EDIT_SHORTCUTS: Readonly<
+  Record<string, 'cut' | 'copy' | 'paste' | 'duplicate' | 'selectAll'>
+> = {
+  KeyX: 'cut',
+  KeyC: 'copy',
+  KeyV: 'paste',
+  KeyD: 'duplicate',
+  KeyA: 'selectAll'
+}
+
 /**
  * Handles global keyboard shortcuts for a CAD view.
  *
@@ -44,6 +55,10 @@ export class AcEdViewKeyHandler {
   handleKeyDown(e: KeyboardEvent): boolean {
     const undoRedoShortcut = this.resolveUndoRedoShortcut(e)
     const ignoreEditableTarget = this.shouldIgnoreEditableTargetShortcut(e)
+
+    if (this.handleEditShortcut(e)) {
+      return true
+    }
 
     if (
       !undoRedoShortcut &&
@@ -122,6 +137,55 @@ export class AcEdViewKeyHandler {
     }
 
     return false
+  }
+
+  /**
+   * Ctrl / Cmd + X / C / V / D / A: cut, copy, paste (at the cursor),
+   * duplicate and select all, as in the right-click menu. Only while no
+   * command runs and no field has the focus; a key that does nothing (copy
+   * without a selection...) is left to the page.
+   *
+   * @returns `true` when the event was consumed.
+   */
+  private handleEditShortcut(e: KeyboardEvent): boolean {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey) return false
+    const actions = EDIT_SHORTCUTS[e.code]
+    if (!actions) return false
+    if (
+      this.isTyping(e) ||
+      this.view.editor.isActive ||
+      this.view.toolManager.isCommandRunning ||
+      AcEdMTextEditor.getActiveInputBox()
+    ) {
+      return false
+    }
+    const edit = this.view.editActions
+    let done: boolean
+    switch (actions) {
+      case 'cut':
+        done = edit.cut()
+        break
+      case 'copy':
+        done = edit.copy()
+        break
+      case 'paste':
+        done = edit.paste(
+          this.view.hasCursorPos
+            ? this.view.screenToWorld(this.view.curMousePos)
+            : undefined
+        )
+        break
+      case 'duplicate':
+        done = edit.duplicate()
+        break
+      case 'selectAll':
+        edit.selectAll()
+        // Never select the page's text instead.
+        done = true
+        break
+    }
+    if (done) e.preventDefault()
+    return done
   }
 
   /** Clears the entity and markup / measurement selection. */

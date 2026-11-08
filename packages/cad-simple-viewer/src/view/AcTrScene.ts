@@ -417,6 +417,15 @@ export class AcTrScene {
     return this.activeLayout?.getEntityBox(id)
   }
 
+  /**
+   * Whether the entity is drawn in the active layout (not on a layer that is
+   * off or frozen, nor hidden otherwise).
+   * @param id Entity object id
+   */
+  isEntityShown(id: AcDbObjectId) {
+    return this.activeLayout?.isEntityShown(id) ?? false
+  }
+
   addLayer(layer: AcEdLayerInfo) {
     const updatedLayers: AcTrLayer[] = []
     this._layers.set(layer.name, layer)

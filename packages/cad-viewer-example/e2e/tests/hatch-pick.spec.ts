@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, type Page, test } from '@playwright/test'
 
 import { uploadFixture } from '../helpers/fileUpload'
+import { useCadProfile } from '../helpers/operationProfile'
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 // A floor plan of two rooms whose walls overlap the grid lines, with a door
@@ -16,6 +17,9 @@ const jwwSamplePath = path.resolve(
 let viewerModuleUrl: string | undefined
 
 test.beforeEach(async ({ page }) => {
+  // AutoCAD flows: right-click answers the prompt (the simple profile opens
+  // a menu there instead).
+  await useCadProfile(page)
   viewerModuleUrl = undefined
   page.on('request', request => {
     if (

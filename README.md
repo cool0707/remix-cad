@@ -51,6 +51,12 @@ drawings never leave the user's device.
   (alignment guides). Arrow keys nudge the selection by a round step of about one screen pixel (Shift: ×10). Double-click an object
   to edit its vertices with the CAD grips. Snapping is one on/off button in the status bar; the snap modes are in Settings.
   Objects you can select light up in the theme color under the cursor (both profiles); over a selected object the cursor shows that it can be dragged.
+- **Right-click menu** — right-click the drawing for a menu of what can be done right now (Simple and CAD).
+  With a selection: cut, copy, paste, duplicate, delete, select the same layer, show properties; without one: repeat the last command,
+  create (line, polyline, rectangle, circle…), symbol, comment (text, cloud…), paste, select all, zoom to fit, undo / redo.
+  In Simple, right-clicking an unselected object selects it first. While drawing in Simple the menu is Done / Undo (the last point,
+  when the command allows it) / Cancel (CAD keeps right-click = Enter). Ctrl+X / C / V / D / A (⌘ on Mac) cut, copy, paste
+  (at the cursor), duplicate and select all.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).

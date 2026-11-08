@@ -51,6 +51,12 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   (guias de alinhamento). As setas deslocam a seleção um passo redondo de cerca de um pixel da tela (Shift: ×10). Clique duas vezes em um
   objeto para editar seus vértices com os grips do CAD. O snap é um único botão liga/desliga na barra de status; os modos ficam nas Configurações.
   Objetos selecionáveis são destacados na cor do tema sob o cursor (nos dois perfis); sobre um objeto selecionado, o cursor indica que ele pode ser arrastado.
+- **Menu de contexto** — clique com o botão direito no desenho para um menu apenas com o que pode ser feito agora (Simples e CAD).
+  Com seleção: recortar, copiar, colar, duplicar, excluir, selecionar a mesma camada, mostrar propriedades; sem seleção: repetir o último comando,
+  criar (linha, polilinha, retângulo, círculo…), símbolo, comentário (texto, nuvem…), colar, selecionar tudo, ajustar à tela, desfazer / refazer.
+  No Simples, clicar com o botão direito num objeto não selecionado o seleciona primeiro. Ao desenhar no Simples o menu é Concluir / Desfazer
+  (o último ponto, quando o comando permite) / Cancelar (o CAD mantém botão direito = Enter). Ctrl+X / C / V / D / A (⌘ no Mac) recortam,
+  copiam, colam (no cursor), duplicam e selecionam tudo.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).

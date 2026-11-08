@@ -52,6 +52,12 @@ del dispositivo del usuario.
   objetos cercanos (guías de alineación). Las flechas desplazan la selección un paso redondo de aproximadamente un píxel (Mayús: ×10). Doble clic en
   un objeto para editar sus vértices con los pinzamientos de CAD. El ajuste es un único botón de activar/desactivar en la barra de estado; los modos están en Configuración.
   Los objetos seleccionables se resaltan con el color del tema bajo el cursor (en ambos perfiles); sobre un objeto seleccionado, el cursor indica que se puede arrastrar.
+- **Menú contextual** — al hacer clic derecho en el dibujo aparece un menú solo con lo que se puede hacer ahora (Simple y CAD).
+  Con selección: cortar, copiar, pegar, duplicar, eliminar, seleccionar la misma capa, mostrar propiedades; sin selección: repetir el último comando,
+  crear (línea, polilínea, rectángulo, círculo…), símbolo, comentario (texto, nube…), pegar, seleccionar todo, ajustar a la vista, deshacer / rehacer.
+  En Simple, el clic derecho sobre un objeto no seleccionado lo selecciona primero. Al dibujar en Simple el menú es Hecho / Deshacer (el último punto,
+  si el comando lo permite) / Cancelar (CAD mantiene clic derecho = Intro). Ctrl+X / C / V / D / A (⌘ en Mac) cortan, copian, pegan
+  (en el cursor), duplican y seleccionan todo.
 - **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
   abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
   (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).

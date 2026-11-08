@@ -56,6 +56,19 @@ function createMockView(
   return {
     editor: { isActive: isEditorActive },
     toolManager,
+    editActions: {
+      cut: jest.fn(() => true),
+      copy: jest.fn(() => true),
+      paste: jest.fn(() => true),
+      duplicate: jest.fn(() => false),
+      selectAll: jest.fn(() => 0)
+    },
+    hasCursorPos: true,
+    curMousePos: { x: 10, y: 20 },
+    screenToWorld: jest.fn((p: { x: number; y: number }) => ({
+      x: p.x * 2,
+      y: p.y * 2
+    })),
     selectionSet: { clear: jest.fn() },
     htmlTransientManager: {
       hasSelection: jest.fn(() => htmlSelection.hasSelection ?? false),
@@ -108,6 +121,62 @@ describe('AcEdViewKeyHandler', () => {
     sendCommand.mockClear()
     handler.handleKeyDown(keyboardEvent({ code: 'KeyA', ctrlKey: true }))
     expect(sendCommand).not.toHaveBeenCalled()
+  })
+
+  test('Ctrl / Cmd + X C V D A run the editing actions', () => {
+    const view = createMockView()
+    const handler = new AcEdViewKeyHandler(view)
+    const actions = view.editActions as unknown as Record<string, jest.Mock>
+
+    expect(
+      handler.handleKeyDown(keyboardEvent({ code: 'KeyC', ctrlKey: true }))
+    ).toBe(true)
+    expect(actions.copy).toHaveBeenCalled()
+    expect(
+      handler.handleKeyDown(keyboardEvent({ code: 'KeyX', metaKey: true }))
+    ).toBe(true)
+    expect(actions.cut).toHaveBeenCalled()
+
+    // Paste goes to the cursor.
+    expect(
+      handler.handleKeyDown(keyboardEvent({ code: 'KeyV', ctrlKey: true }))
+    ).toBe(true)
+    expect(actions.paste).toHaveBeenCalledWith({ x: 20, y: 40 })
+
+    // Nothing duplicated: the key is left to the page.
+    const dup = keyboardEvent({ code: 'KeyD', ctrlKey: true })
+    expect(handler.handleKeyDown(dup)).toBe(false)
+    expect(dup.preventDefault).not.toHaveBeenCalled()
+
+    // Select all never selects the page's text.
+    const all = keyboardEvent({ code: 'KeyA', ctrlKey: true })
+    expect(handler.handleKeyDown(all)).toBe(true)
+    expect(all.preventDefault).toHaveBeenCalled()
+    expect(actions.selectAll).toHaveBeenCalled()
+  })
+
+  test('editing shortcuts wait while a command runs or a field is focused', () => {
+    const busy = createMockView(true)
+    expect(
+      new AcEdViewKeyHandler(busy).handleKeyDown(
+        keyboardEvent({ code: 'KeyC', ctrlKey: true })
+      )
+    ).toBe(false)
+    expect(
+      (busy.editActions as unknown as Record<string, jest.Mock>).copy
+    ).not.toHaveBeenCalled()
+
+    const view = createMockView()
+    const input = { tagName: 'INPUT', classList: { contains: () => false } }
+    expect(
+      new AcEdViewKeyHandler(view).handleKeyDown(
+        keyboardEvent({
+          code: 'KeyC',
+          ctrlKey: true,
+          target: input as unknown as EventTarget
+        })
+      )
+    ).toBe(false)
   })
 
   test('handleKeyDown skips undo/redo while editor input is active', () => {

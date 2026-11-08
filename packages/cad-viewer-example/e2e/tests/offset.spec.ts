@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { expect, type Page, test } from '@playwright/test'
 
 import { uploadFixture } from '../helpers/fileUpload'
+import { useCadProfile } from '../helpers/operationProfile'
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 /** Two horizontal lines: y = 0 and y = 30, both from x = 0 to x = 100. */
@@ -12,6 +13,9 @@ const fixturePath = path.resolve(currentDir, '..', 'fixtures', 'two-lines.dxf')
 let viewerModuleUrl: string | undefined
 
 test.beforeEach(async ({ page }) => {
+  // AutoCAD flows: right-click answers the prompt (the simple profile opens
+  // a menu there instead).
+  await useCadProfile(page)
   viewerModuleUrl = undefined
   page.on('request', request => {
     if (
