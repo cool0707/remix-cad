@@ -643,7 +643,9 @@ export default {
       toolbar: 'Araç Çubuğu',
       stats: 'İstatistikler',
       replaceOnClick: 'Tıklama seçimi değiştirir',
-      continuousDraw: 'Çizmeye devam et (çizim aracında kal)'
+      continuousDraw: 'Çizmeye devam et (çizim aracında kal)',
+      layersSplit: 'Katmanları ayrı bölümde göster',
+      devTools: 'Geliştirici araçları'
     },
     osnap: {
       on: 'Yakalamayı kapat',
@@ -749,7 +751,28 @@ export default {
         'Durum çubuğunda “Baskı alanını göster” açıkken kâğıdın dışı gri gösterilir.'
     }
   },
+  topBar: {
+    menu: 'Menü',
+    search: 'Ara',
+    searchTooltip: 'Komutları, katmanları ve çizimdeki metni ara (Ctrl+K / Ctrl+F)',
+    agent: 'Asistan',
+    agentTooltip: 'Çizim üzerinde çalışması için asistana sor',
+    print: 'Yazdır',
+    printTooltip: 'Yazdır (PDF olarak dışa aktar)',
+    printMenu: 'Yazdır (PDF)…',
+    export: 'Dışa aktar',
+    view: 'Görünüm',
+    script: 'Betik…',
+    devTools: 'Geliştirici araçları'
+  },
   toolPalette: {
+    layersSection: {
+      more: 'Diğer',
+      split: 'Katmanları altta ayrı göster',
+      merge: 'Katmanları üstteki sekmelere taşı',
+      expand: 'Katmanları göster',
+      collapse: 'Katmanları daralt'
+    },
     entityProperties: {
       tab: 'Özellikler',
       title: 'Varlık Özellikleri',

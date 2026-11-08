@@ -60,7 +60,14 @@ drawings never leave the user's device.
   In Simple, right-clicking an unselected object selects it first. While drawing in Simple the menu is Done / Undo (the last point,
   when the command allows it) / Cancel (CAD keeps right-click = Enter). Ctrl+X / C / V / D / A (⌘ on Mac) cut, copy, paste
   (at the cursor), duplicate and select all.
-- **Command palette (Ctrl+K / ⌘K)** — search commands by plain name, by CAD term ("block", "hatch", "xref") or by command name / alias (`LINE`, `L`) and run them; the right-click menu's edit actions (copy, select all…) and layers (picking one makes it current) are found too. Shortcuts are shown next to each result. Also opens from the **Search** button in the status bar. In Simple the command line is hidden — it only comes up while a command asks you to choose an option (it can be turned back on in Options).
+- **Command palette (Ctrl+K / ⌘K)** — search commands by plain name, by CAD term ("block", "hatch", "xref") or by command name / alias (`LINE`, `L`) and run them; the right-click menu's edit actions (copy, select all…) and layers (picking one makes it current) are found too. Shortcuts are shown next to each result. Also opens from the search field of the top bar (simple) or the **Search** button in the status bar (CAD). In Simple the command line is hidden — it only comes up while a command asks you to choose an option (it can be turned back on in Options).
+- **Top bar and side panel (simple profile)** — the simple profile shows a thin top bar instead of the ribbon
+  (≡ menu, file name, undo / redo, search field, print, export). The search field (Ctrl+K / Ctrl+F) finds commands,
+  layers and also the text in the drawing; “Show all results” lists every hit in the Find panel. The options of text
+  editing and hatch creation float over the drawing only while you use them. The side panel keeps the layers in their own
+  section under the properties (collapsed, it still shows the current layer); Find, Measurements and the other panels
+  appear as closable tabs only once opened. The layers can also go back into the tabs (the CAD profile's default);
+  each profile remembers its layout.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).

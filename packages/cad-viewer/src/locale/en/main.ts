@@ -638,7 +638,9 @@ export default {
       toolbar: 'Toolbar',
       stats: 'Statistics',
       replaceOnClick: 'Click replaces the selection',
-      continuousDraw: 'Keep drawing (stay in the drawing tool)'
+      continuousDraw: 'Keep drawing (stay in the drawing tool)',
+      layersSplit: 'Layers in their own section',
+      devTools: 'Developer tools'
     },
     osnap: {
       on: 'Turn off snapping',
@@ -744,7 +746,28 @@ export default {
         'The paper is shown in gray when “Show print area” is on in the status bar.'
     }
   },
+  topBar: {
+    menu: 'Menu',
+    search: 'Search',
+    searchTooltip: 'Search commands, layers and text in the drawing (Ctrl+K / Ctrl+F)',
+    agent: 'Agent',
+    agentTooltip: 'Ask the agent to work on the drawing',
+    print: 'Print',
+    printTooltip: 'Print (export to PDF)',
+    printMenu: 'Print (PDF)…',
+    export: 'Export',
+    view: 'View',
+    script: 'Script…',
+    devTools: 'Developer tools'
+  },
   toolPalette: {
+    layersSection: {
+      more: 'More',
+      split: 'Show layers below, in their own section',
+      merge: 'Move layers into the tabs above',
+      expand: 'Show layers',
+      collapse: 'Collapse layers'
+    },
     entityProperties: {
       tab: 'Properties',
       title: 'Entity Properties',

@@ -619,7 +619,9 @@ export default {
       toolbar: 'ツールバー',
       stats: '統計',
       replaceOnClick: 'クリックで選択を置き換える',
-      continuousDraw: '作図を続ける (選択ツールに戻らない)'
+      continuousDraw: '作図を続ける (選択ツールに戻らない)',
+      layersSplit: 'レイヤーを別の段に表示',
+      devTools: '開発者向けの機能'
     },
     osnap: {
       on: 'スナップをオフにする',
@@ -725,7 +727,28 @@ export default {
         'ステータスバーの「印刷範囲を表示」をオンにすると、用紙の外側がグレーで表示されます。'
     }
   },
+  topBar: {
+    menu: 'メニュー',
+    search: '検索',
+    searchTooltip: 'コマンド・レイヤー・図面の中の文字を検索 (Ctrl+K / Ctrl+F)',
+    agent: 'エージェント',
+    agentTooltip: 'エージェントに図面の作業を頼む',
+    print: '印刷',
+    printTooltip: '印刷 (PDF に書き出す)',
+    printMenu: '印刷 (PDF)…',
+    export: '書き出し',
+    view: '表示',
+    script: 'スクリプト…',
+    devTools: '開発者向け'
+  },
   toolPalette: {
+    layersSection: {
+      more: 'その他の操作',
+      split: 'レイヤーを下に分けて表示',
+      merge: 'レイヤーを上のタブにまとめる',
+      expand: 'レイヤーを開く',
+      collapse: 'レイヤーを折りたたむ'
+    },
     entityProperties: {
       tab: 'プロパティ',
       title: 'オブジェクトプロパティ',

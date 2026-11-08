@@ -51,7 +51,11 @@ export default {
   },
   commandPalette: {
     title: 'Command palette',
-    placeholder: 'Search commands and layers (e.g. line, layer, LINE)',
+    placeholder: 'Search commands, layers and text (e.g. line, layer, LINE)',
+    groupCommands: 'Commands',
+    groupText: 'Text in the drawing',
+    textAll: 'Show all results in the Find panel ({count})',
+    placeholderText: 'Search text in the drawing, commands and layers',
     empty: 'Nothing found',
     layer: 'Layer',
     layerCurrent: 'Current layer',

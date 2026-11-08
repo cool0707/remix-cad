@@ -881,7 +881,9 @@ export default {
       toolbar: 'شريط الأدوات',
       stats: 'الإحصائيات',
       replaceOnClick: 'النقر يستبدل التحديد',
-      continuousDraw: 'متابعة الرسم (البقاء في أداة الرسم)'
+      continuousDraw: 'متابعة الرسم (البقاء في أداة الرسم)',
+      layersSplit: 'عرض الطبقات في قسم منفصل',
+      devTools: 'أدوات المطور'
     },
 
     osnap: {
@@ -1011,8 +1013,29 @@ export default {
         'عند تشغيل «إظهار منطقة الطباعة» في شريط الحالة، يظهر ما حول الورق باللون الرمادي.'
     }
   },
+  topBar: {
+    menu: 'القائمة',
+    search: 'بحث',
+    searchTooltip: 'ابحث عن الأوامر والطبقات والنص في الرسم (Ctrl+K / Ctrl+F)',
+    agent: 'الوكيل',
+    agentTooltip: 'اطلب من الوكيل العمل على الرسم',
+    print: 'طباعة',
+    printTooltip: 'طباعة (تصدير إلى PDF)',
+    printMenu: 'طباعة (PDF)…',
+    export: 'تصدير',
+    view: 'عرض',
+    script: 'برنامج نصي…',
+    devTools: 'أدوات المطور'
+  },
   toolPalette: {
     ...enMain.toolPalette,
+    layersSection: {
+      more: 'المزيد',
+      split: 'عرض الطبقات منفصلة في الأسفل',
+      merge: 'نقل الطبقات إلى علامات التبويب في الأعلى',
+      expand: 'إظهار الطبقات',
+      collapse: 'طي الطبقات'
+    },
 
     entityProperties: {
       ...enMain.toolPalette.entityProperties,

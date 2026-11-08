@@ -136,7 +136,10 @@
         >
           {{ t('dialog.settingsDlg.commandLineSimpleHint') }}
         </div>
-        <div v-if="!form.isShowRibbon" class="ml-settings-dlg__hint">
+        <div
+          v-if="form.operationProfile !== 'simple' && !form.isShowRibbon"
+          class="ml-settings-dlg__hint"
+        >
           {{ t('dialog.settingsDlg.ribbonHiddenHint') }}
         </div>
       </ml-fieldset-group>
@@ -204,6 +207,9 @@ type SettingsForm = Pick<
   | 'isShowLanguageSelector'
   | 'isShowEntityInfo'
   | 'isShowStats'
+  | 'sidebarLayersSplitSimple'
+  | 'sidebarLayersSplitCad'
+  | 'isShowDevTools'
 >
 
 type DisplayKey = Exclude<
@@ -234,7 +240,10 @@ const readSettings = (): SettingsForm => {
     isShowCoordinate: s.isShowCoordinate,
     isShowLanguageSelector: s.isShowLanguageSelector,
     isShowEntityInfo: s.isShowEntityInfo,
-    isShowStats: s.isShowStats
+    isShowStats: s.isShowStats,
+    sidebarLayersSplitSimple: s.sidebarLayersSplitSimple,
+    sidebarLayersSplitCad: s.sidebarLayersSplitCad,
+    isShowDevTools: s.isShowDevTools
   }
 }
 
@@ -270,9 +279,23 @@ const handleProfileChange = () => {
 }
 
 const displayItems = computed(() => {
+  const simple = form.operationProfile === 'simple'
   const items: { key: DisplayKey; label: string }[] = [
-    { key: 'isShowRibbon', label: t('main.statusBar.setting.ribbon') },
+    // The simple profile always has its top bar instead of the ribbon.
+    ...(simple
+      ? []
+      : [
+          {
+            key: 'isShowRibbon' as const,
+            label: t('main.statusBar.setting.ribbon')
+          }
+        ]),
     { key: 'isShowToolbar', label: t('main.statusBar.setting.toolbar') },
+    {
+      // Each profile keeps its own palette layout.
+      key: simple ? 'sidebarLayersSplitSimple' : 'sidebarLayersSplitCad',
+      label: t('main.statusBar.setting.layersSplit')
+    },
     {
       // Each profile has its own (hidden by default in the simple one).
       key:
@@ -287,7 +310,8 @@ const displayItems = computed(() => {
       label: t('main.statusBar.setting.languageSelector')
     },
     { key: 'isShowEntityInfo', label: t('main.statusBar.setting.entityInfo') },
-    { key: 'isShowStats', label: t('main.statusBar.setting.stats') }
+    { key: 'isShowStats', label: t('main.statusBar.setting.stats') },
+    { key: 'isShowDevTools', label: t('main.statusBar.setting.devTools') }
   ]
   // Phones have no desktop command line.
   return isSmallViewport.value

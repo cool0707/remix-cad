@@ -51,7 +51,11 @@ export default {
   },
   commandPalette: {
     title: '命令面板',
-    placeholder: '搜索命令和图层 (例如: 直线、图层、LINE)',
+    placeholder: '搜索命令、图层和文字 (例如: 直线、图层、LINE)',
+    groupCommands: '命令',
+    groupText: '图纸中的文字',
+    textAll: '在查找面板中显示全部结果 ({count} 个)',
+    placeholderText: '搜索图纸中的文字、命令和图层',
     empty: '未找到',
     layer: '图层',
     layerCurrent: '当前图层',

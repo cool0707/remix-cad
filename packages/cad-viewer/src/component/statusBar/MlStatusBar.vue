@@ -16,7 +16,10 @@
     <template #right>
       <ml-progress />
       <el-button-group class="ml-status-bar-right-button-group">
-        <ml-command-palette-button v-if="!isMobile" />
+        <!-- The simple profile has the search field of its top bar instead. -->
+        <ml-command-palette-button
+          v-if="!isMobile && features.operationProfile !== 'simple'"
+        />
         <ml-tool-status v-if="!isMobile" />
         <ml-operation-profile-button />
         <el-button

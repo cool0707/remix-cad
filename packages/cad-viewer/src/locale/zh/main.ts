@@ -594,7 +594,9 @@ export default {
       toolbar: '工具栏',
       stats: '性能面板',
       replaceOnClick: '单击替换选择',
-      continuousDraw: '连续绘图 (不返回选择工具)'
+      continuousDraw: '连续绘图 (不返回选择工具)',
+      layersSplit: '在单独区域显示图层',
+      devTools: '开发者工具'
     },
     osnap: {
       on: '关闭捕捉',
@@ -699,7 +701,28 @@ export default {
         '在状态栏中打开“显示打印区域”后，纸张以外的部分显示为灰色。'
     }
   },
+  topBar: {
+    menu: '菜单',
+    search: '搜索',
+    searchTooltip: '搜索命令、图层和图纸中的文字 (Ctrl+K / Ctrl+F)',
+    agent: '智能助手',
+    agentTooltip: '让智能助手处理图纸',
+    print: '打印',
+    printTooltip: '打印 (导出为 PDF)',
+    printMenu: '打印 (PDF)…',
+    export: '导出',
+    view: '视图',
+    script: '脚本…',
+    devTools: '开发者工具'
+  },
   toolPalette: {
+    layersSection: {
+      more: '更多',
+      split: '在下方单独显示图层',
+      merge: '将图层并入上方标签页',
+      expand: '展开图层',
+      collapse: '折叠图层'
+    },
     entityProperties: {
       tab: '属性',
       title: '图元属性',

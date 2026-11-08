@@ -9,10 +9,12 @@ import { uploadFixture } from '../helpers/fileUpload'
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 const samples = path.resolve(currentDir, '../../../../resources/cad-data/samples')
 
+/** Main menu (≡) of the top bar > Export > label. */
 async function openExport(page: Page, label: string) {
-  await page.getByText('File', { exact: true }).first().click()
-  await page.getByText('Export', { exact: true }).first().hover()
-  await page.getByText(label, { exact: true }).first().click()
+  await page.getByTestId('top-bar-menu').click()
+  const menus = page.locator('.ml-context-menu')
+  await menus.getByText('Export', { exact: true }).first().hover()
+  await menus.getByText(label, { exact: true }).first().click()
 }
 
 /** Picks an option of the n-th select of the paper / scale fields. */

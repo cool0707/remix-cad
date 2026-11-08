@@ -18,9 +18,12 @@ export class AcApFindCmd extends AcEdCommand {
 
 /**
  * Shows the Find tab of the palette and focuses its query field. Shared by
- * the FIND command, the ribbon button and the Ctrl/Cmd+F shortcut.
+ * the FIND command, the ribbon button and the Ctrl/Cmd+F shortcut. With a
+ * query, the palette searches for it right away (all results of the command
+ * palette's text search).
  */
-export function openFindPalette() {
+export function openFindPalette(query?: string) {
+  if (query) store.dialogs.findQuery = query
   store.dialogs.activePaletteTab = 'find'
   store.dialogs.layerManager = true
   store.dialogs.findFocusTick++

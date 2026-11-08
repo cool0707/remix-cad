@@ -8,6 +8,12 @@ export const store = reactive({
      */
     layerManager: true,
     activePaletteTab: 'layerManager',
+    /**
+     * Task panels (find, measurements, ...) opened as closable tabs, in the
+     * order they were opened. A panel shows as a tab only once something
+     * opens it.
+     */
+    openTaskTabs: [] as string[],
     /** Sub-tab inside Missing / External Resources palette */
     activeMissingResourceTab: 'font' as 'font' | 'xref',
     /**
@@ -16,7 +22,12 @@ export const store = reactive({
      */
     openFileProfileTabVisible: false,
     /** Bumped by the FIND command so the Find palette focuses its query field. */
-    findFocusTick: 0
+    findFocusTick: 0,
+    /**
+     * Query the Find palette searches for when it shows next (set by the
+     * command palette's "all results" line). Cleared once used.
+     */
+    findQuery: ''
   },
   features: {
     /** Set when `@mlightcad/cad-agent-plugin` is installed and registered. */

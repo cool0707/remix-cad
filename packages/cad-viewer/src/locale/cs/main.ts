@@ -630,7 +630,9 @@ export default {
       toolbar: 'Panel nástrojů',
       stats: 'Statistiky',
       replaceOnClick: 'Kliknutí nahradí výběr',
-      continuousDraw: 'Pokračovat v kreslení (zůstat v nástroji)'
+      continuousDraw: 'Pokračovat v kreslení (zůstat v nástroji)',
+      layersSplit: 'Hladiny ve vlastní sekci',
+      devTools: 'Nástroje pro vývojáře'
     },
     osnap: {
       on: 'Vypnout uchopení',
@@ -736,7 +738,28 @@ export default {
         'Když je ve stavovém řádku zapnuto „Zobrazit oblast tisku“, okolí papíru je šedé.'
     }
   },
+  topBar: {
+    menu: 'Nabídka',
+    search: 'Hledat',
+    searchTooltip: 'Hledat příkazy, hladiny a text ve výkresu (Ctrl+K / Ctrl+F)',
+    agent: 'Agent',
+    agentTooltip: 'Požádat agenta o práci s výkresem',
+    print: 'Tisk',
+    printTooltip: 'Tisk (export do PDF)',
+    printMenu: 'Tisk (PDF)…',
+    export: 'Export',
+    view: 'Zobrazení',
+    script: 'Skript…',
+    devTools: 'Nástroje pro vývojáře'
+  },
   toolPalette: {
+    layersSection: {
+      more: 'Další',
+      split: 'Zobrazit hladiny dole zvlášť',
+      merge: 'Přesunout hladiny do karet nahoře',
+      expand: 'Rozbalit hladiny',
+      collapse: 'Sbalit hladiny'
+    },
     entityProperties: {
       tab: 'Vlastnosti',
       title: 'Vlastnosti objektu',

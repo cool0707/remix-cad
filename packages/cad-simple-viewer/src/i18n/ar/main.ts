@@ -51,7 +51,11 @@ export default {
   },
   commandPalette: {
     title: 'لوحة الأوامر',
-    placeholder: 'البحث عن الأوامر والطبقات (مثل: خط، طبقة، LINE)',
+    placeholder: 'ابحث عن الأوامر والطبقات والنص (مثل: خط، طبقة، LINE)',
+    groupCommands: 'الأوامر',
+    groupText: 'النص في الرسم',
+    textAll: 'عرض كل النتائج في لوحة البحث ({count})',
+    placeholderText: 'ابحث عن النص في الرسم والأوامر والطبقات',
     empty: 'لا توجد نتائج',
     layer: 'طبقة',
     layerCurrent: 'الطبقة الحالية',
