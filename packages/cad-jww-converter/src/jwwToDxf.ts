@@ -77,22 +77,6 @@ export interface JwwConversionResult {
 const DEFAULT_FONT = 'ＭＳ ゴシック'
 
 /**
- * Metrics of the bundled BIZ UD fonts that replace ＭＳ ゴシック / ＭＳ 明朝
- * (`resources/cad-data/fonts`), as fractions of the em.
- *
- * Jw_cad's text height is the height of the character cell (the em of a
- * full-width character), but the renderer scales TrueType fonts so that the
- * DXF text height equals the height of a capital "A". Without correction
- * Japanese text is drawn about 1.27 times too large.
- */
-const TEXT_FONT_METRICS = {
-  // bizudgothic / bizudpgothic: em 2048, "A" 1617, descender 246
-  gothic: { capHeight: 1617 / 2048, descender: 246 / 2048 },
-  // bizudmincho / bizudpmincho: em 2048, "A" 1587, descender 246
-  mincho: { capHeight: 1587 / 2048, descender: 246 / 2048 }
-}
-
-/**
  * DXF rotation (degrees) of a JWW text.
  *
  * Jw_cad 縦字 uses a Windows vertical font (`@ＭＳ ゴシック`), which the
@@ -111,11 +95,43 @@ function jwwTextRotation(e: EzDxfEntity, font: string) {
   return ((degrees % 360) + 360) % 360
 }
 
-/** Metrics of the font the viewer substitutes for a Jw_cad font name. */
+/**
+ * Metrics of the bundled font (NS-Font, `resources/cad-data/fonts`) the viewer
+ * substitutes for a Jw_cad font name, as fractions of the em.
+ *
+ * Jw_cad's text height is the height of the character cell (the em of a
+ * full-width character), but the renderer scales TrueType fonts so that the
+ * DXF text height equals the height of a capital "A". Without correction
+ * Japanese text is drawn 1.3–1.5 times too large.
+ *
+ * Same values as `cellFontMetrics` in cad-export-model (not imported so that
+ * the parser worker does not pull in data-model); a test keeps them in sync.
+ */
+const TEXT_FONT_METRICS = {
+  // nsgothic.woff (NS Gothic): em 1000, "A" 770, descender 141
+  gothic: { capHeight: 770 / 1000, descender: 141 / 1000 },
+  // nspgothic.woff / nsuigothic.woff (NS PGothic / NS UI Gothic): "A" 688
+  pgothic: { capHeight: 688 / 1000, descender: 141 / 1000 },
+  // nsmincho.woff (NS Mincho): "A" 684
+  mincho: { capHeight: 684 / 1000, descender: 141 / 1000 },
+  // nspmincho.woff (NS PMincho): "A" 695
+  pmincho: { capHeight: 695 / 1000, descender: 141 / 1000 }
+}
+
+/** Bundled face for a font name, following the aliases in fonts.json. */
+function textFontFace(font: string): keyof typeof TEXT_FONT_METRICS {
+  const name = font.trim().replace(/^@/, '')
+  const mincho = /明朝|mincho/i.test(name)
+  const proportional =
+    /[PＰ]\s*(ゴシック|明朝|gothic|mincho)|\bUI\b|uigothic|meiryo|メイリオ|yu\s*(gothic|mincho)|游|hiragino|ヒラギノ/i.test(
+      name
+    )
+  if (mincho) return proportional ? 'pmincho' : 'mincho'
+  return proportional ? 'pgothic' : 'gothic'
+}
+
 export function jwwTextFontMetrics(font: string) {
-  return /明朝|mincho/i.test(font)
-    ? TEXT_FONT_METRICS.mincho
-    : TEXT_FONT_METRICS.gothic
+  return TEXT_FONT_METRICS[textFontFace(font)]
 }
 
 /** Linetype patterns ezjww references without defining them (paper mm). */

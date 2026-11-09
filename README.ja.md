@@ -20,8 +20,11 @@
   ブラウザの言語設定から自動で選ばれます。
 - **フォントを自前で配信（CAD 用 CDN 不要）** — フォントと図面テンプレートは
   アプリ自身から配信します（`resources/cad-data` → `./cad-data/`）。
-  - 図面の文字：**BIZ UD ゴシック／明朝** を同梱し、ＭＳ ゴシック／ＭＳ 明朝の代わりと
-    既定の代替フォントに使います。日本語が中国語の字形で表示されることはありません。
+  - 図面の文字：**NS ゴシック／NS 明朝**（[NS-Font](https://github.com/cool0707/NS-Font)。Noto Sans / Serif CJK JP を
+    元に、文字の大きさ・字送りを MS ゴシック／MS 明朝に合わせたフォント）を同梱し、
+    ＭＳ ゴシック／ＭＳ 明朝（Ｐ・UI 付きを含む）の代わりと既定の代替フォントに使います。
+    日本語が中国語の字形で表示されることはなく、Windows のフォントと同じ字幅になります。
+    同梱しているのはレギュラーの日本語異体字追加版（JIS 第 1〜第 4 水準、IVS 入り）です。
   - その他の文字：必要になったときだけ **Google Fonts** から読み込みます
     （Arial → Arimo、SimSun → Noto Serif SC、Malgun Gothic → Noto Sans KR など）。
   - UI の文字：**Noto Sans JP**（`@fontsource-variable/noto-sans-jp` で同梱）。
@@ -96,7 +99,7 @@
   「画像に書き出し」も同じ選び方（表示画面・オブジェクト範囲・用紙と縮尺 + 解像度）で、PNG・JPEG・BMP・TIFF を選べます。
   範囲を指定する従来の書き出しは「選択範囲を画像に書き出し」として残しています。
 - **縦書き** — 縦書きフォント（`@ＭＳ ゴシック` など。Jw_cad の縦字を含む）の文字と、
-  文字スタイルで「縦書き」を指定した TEXT を、同梱の BIZ UD フォントのまま縦に表示します。
+  文字スタイルで「縦書き」を指定した TEXT を、同梱の NS-Font のまま縦に表示します。
   SVG・PDF 出力も縦書きになります（`@mlightcad/cad-vertical-text`）。
 
 ## デモ
@@ -153,7 +156,7 @@ pnpm test
 | パス | 内容 |
 | --- | --- |
 | `fonts/fonts.json` | フォントの一覧（同梱ファイルと Google Fonts の URL） |
-| `fonts/*.woff` | BIZ UD ゴシック／Pゴシック／明朝／P明朝（SIL OFL 1.1） |
+| `fonts/*.woff` | NS ゴシック／Pゴシック／UI Gothic／明朝／P明朝（NS-Font、SIL OFL 1.1） |
 | `templates/acad*.dxf` | 新規図面のテンプレート |
 | `samples/fonts-sample.dxf` | フォント置き換えの確認用図面 |
 | `samples/jww-sample.jww` | JWW のサンプル（`tools/make-jww-sample.mjs` で生成） |
@@ -163,7 +166,7 @@ pnpm test
 場合は、`AcApDocManager` に `baseUrl` を渡してください（相対 URL はページを基準に
 解決されます）。代替フォントは `defaultFonts` / `symbolFonts` オプションで変更できます。
 
-SHX フォントは同梱していません。SHX を使う文字は BIZ UD ゴシックで表示され、
+SHX フォントは同梱していません。SHX を使う文字は NS ゴシックで表示され、
 通知センターに表示されます。
 
 ## パッケージ
@@ -265,5 +268,5 @@ LibreDWG の npm ビルドは書き込み機能を外してあります）。
 ## ライセンス
 
 [MIT](./LICENSE)。ライセンスの条件に従い、mlightcad の著作権表示はそのまま残しています。
-同梱フォントの BIZ UD フォント（© Morisawa Inc.）と Noto Sans JP は SIL Open Font
+同梱フォントの NS-Font（Noto CJK の派生、© Adobe）と Noto Sans JP は SIL Open Font
 License 1.1 です。

@@ -15,7 +15,7 @@ export default {
       title: 'Select CAD File to View',
       subtitle: 'Import DWG, DXF, JWW / JWC (Jw_cad) or SXF drawings into the viewer',
       fontCdnNotice:
-        'Japanese fonts (BIZ UD) are bundled with this viewer. Fonts for other scripts (Chinese, Korean, Latin substitutes, etc.) are downloaded from Google Fonts when a drawing needs them; if Google Fonts is unreachable, that text may not display correctly.',
+        'Japanese fonts (NS-Font: NS Gothic / NS Mincho) are bundled with this viewer. Fonts for other scripts (Chinese, Korean, Latin substitutes, etc.) are downloaded from Google Fonts when a drawing needs them; if Google Fonts is unreachable, that text may not display correctly.',
       newDrawing: 'New Drawing',
       or: 'or',
       dropFile: 'Drop file or',

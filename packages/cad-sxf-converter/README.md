@@ -35,7 +35,7 @@ from [ezsxf](https://github.com/monozukuri-ai/ezsxf) (MIT): `src/features.rs`,
 | Predefined / user line types, widths | `SXF_*` linetypes (pattern in paper mm, entity linetype scale = drawing scale), lineweight |
 | Line, polyline, spline, clothoid | LINE / LWPOLYLINE (curves sampled) |
 | Circle, arc, ellipse, elliptic arc | CIRCLE / ARC / ELLIPSE (exact, also under rotated or scaled placements) |
-| Text (box height, width, base point 1–9) | TEXT with the BIZ UD height / baseline correction and a width factor that fits the box; one text style per font |
+| Text (box height, width, base point 1–9) | TEXT with the NS-Font height / baseline correction and a width factor that fits the box; one text style per font |
 | Dimensions, labels, balloons | Lines, open arrowheads and text |
 | Colour fill / line hatching | Solid HATCH / clipped LINEs; externally defined and tile hatches show their visible boundaries |
 | Composite figures (部分図, groups, parts) | Expanded in place |

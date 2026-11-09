@@ -15,7 +15,7 @@ export default {
       title: 'Vyberte soubor CAD k zobrazení',
       subtitle: 'Importujte výkresy DWG, DXF, JWW / JWC (Jw_cad) nebo SXF do prohlížeče',
       fontCdnNotice:
-        'Japanese fonts (BIZ UD) are bundled with this viewer. Fonts for other scripts (Chinese, Korean, Latin substitutes, etc.) are downloaded from Google Fonts when a drawing needs them; if Google Fonts is unreachable, that text may not display correctly.',
+        'Japanese fonts (NS-Font: NS Gothic / NS Mincho) are bundled with this viewer. Fonts for other scripts (Chinese, Korean, Latin substitutes, etc.) are downloaded from Google Fonts when a drawing needs them; if Google Fonts is unreachable, that text may not display correctly.',
       newDrawing: 'Nový výkres',
       or: 'nebo',
       dropFile: 'Přetáhněte soubor nebo',

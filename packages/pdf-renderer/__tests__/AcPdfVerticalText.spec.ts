@@ -14,7 +14,7 @@ import type { AcPdfGlyphProvider } from '../src/text/AcPdfGlyphProvider'
 
 const FONT = resolve(
   __dirname,
-  '../../../resources/cad-data/fonts/bizudgothic.woff'
+  '../../../resources/cad-data/fonts/nsgothic.woff'
 )
 
 function style(font: string, standardFlag = 0): AcGiTextStyle {
@@ -79,7 +79,7 @@ async function textModeRenderer() {
     title: 'vertical-text'
   })
   renderer.textFontManager = new AcPdfFontManager(async name =>
-    /bizudgothic|ゴシック/i.test(name) ? bytes : undefined
+    /nsgothic|ゴシック/i.test(name) ? bytes : undefined
   )
   return renderer
 }

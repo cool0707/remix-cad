@@ -8,10 +8,10 @@ import {
 } from '../src'
 
 const HEIGHT = 10
-/** Em of BIZ UD: "A" is 1617 / 2048 em. */
-const EM = (HEIGHT * 2048) / 1617
-/** Baseline to em-box centre (BIZ UD descender 246 / 2048). */
-const CENTER = (0.5 - 246 / 2048) * EM
+/** Em of NS Gothic: "A" is 770 / 1000 em. */
+const EM = (HEIGHT * 1000) / 770
+/** Baseline to em-box centre (NS-Font descender 141 / 1000). */
+const CENTER = (0.5 - 141 / 1000) * EM
 
 function input(text: string, overrides: Partial<VerticalTextInput> = {}) {
   return {
@@ -79,7 +79,7 @@ describe('horizontalTextStyle', () => {
 describe('verticalTextLines', () => {
   it('drops MTEXT formatting and splits paragraphs', () => {
     expect(
-      verticalTextLines('{\\fBIZ UDGothic|b0;縦}書き\\P\\H2x;2行目%%d')
+      verticalTextLines('{\\fNS Gothic|b0;縦}書き\\P\\H2x;2行目%%d')
     ).toEqual(['縦書き', '2行目°'])
     expect(verticalTextLines('a\\\\b\\{c\\}\\U+3042\\S1^2;')).toEqual([
       'a\\b{c}あ1/2'

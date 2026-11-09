@@ -20,8 +20,10 @@ takže výkresy nikdy neopustí zařízení uživatele.
   offline export do HTML). Jazyk se zjišťuje z prohlížeče.
 - **Vlastní hostování písem bez CAD CDN**: písma a šablony výkresů poskytuje
   samotná aplikace (`resources/cad-data` → `./cad-data/`).
-  - Text výkresů: přiložena písma **BIZ UD Gothic / Mincho**, která nahrazují
-    MS Gothic / MS Mincho a slouží jako výchozí záložní písmo.
+  - Text výkresů: přiložena písma **NS Gothic / NS Mincho** ([NS-Font](https://github.com/cool0707/NS-Font),
+    založená na Noto Sans / Serif CJK JP s metrikou MS Gothic / MS Mincho), která
+    nahrazují MS Gothic / MS Mincho a slouží jako výchozí záložní písmo
+    (běžná tloušťka s japonskými variantami znaků, IVS).
   - Ostatní písma se podle potřeby načítají z **Google Fonts**
     (Arial → Arimo, SimSun → Noto Serif SC, Malgun Gothic → Noto Sans KR, …).
   - Text rozhraní: **Noto Sans JP** (hostováno pomocí
@@ -99,7 +101,7 @@ takže výkresy nikdy neopustí zařízení uživatele.
   BMP nebo TIFF; výběr oblasti zůstává jako „Exportovat vybranou oblast jako obrázek“.
 - **Svislé písmo (縦書き)** — text ve svislém písmu Windows (`@ＭＳ ゴシック`, např. 縦字 z Jw_cad)
   a TEXT se stylem s příznakem AutoCAD „svislý“ se píše shora dolů na obrazovce i v exportu
-  SVG / PDF, s přibalenými písmy BIZ UD (`@mlightcad/cad-vertical-text`).
+  SVG / PDF, s přibalenými písmy NS-Font (`@mlightcad/cad-vertical-text`).
 
 ## Ukázka
 
@@ -131,7 +133,7 @@ pnpm test
 Vše, co prohlížeč za běhu stahuje, je v `resources/cad-data/` (viz
 [README](./resources/cad-data/README.md)). Při vkládání balíčků předejte `baseUrl`
 do `AcApDocManager` a záložní písma upravte volbami `defaultFonts` / `symbolFonts`.
-Písma SHX nejsou přiložena; text, který je používá, se zobrazí písmem BIZ UD Gothic.
+Písma SHX nejsou přiložena; text, který je používá, se zobrazí písmem NS Gothic.
 
 ## Podpora DWG
 
@@ -206,5 +208,5 @@ použité pro čtení má zápis vypnutý).
 ## Licence
 
 [MIT](./LICENSE). Původní upozornění na autorská práva mlightcad je zachováno,
-jak licence vyžaduje. Přiložená písma BIZ UD (© Morisawa Inc.) a Noto Sans JP
+jak licence vyžaduje. Přiložená písma NS-Font (odvozená z Noto CJK, © Adobe) a Noto Sans JP
 jsou licencována pod SIL Open Font License 1.1.

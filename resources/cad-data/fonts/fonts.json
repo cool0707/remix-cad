@@ -1,7 +1,10 @@
 [
   {
-    "file": "bizudgothic.woff",
+    "file": "nsgothic.woff",
     "name": [
+      "nsgothic",
+      "NS Gothic",
+      "NS ゴシック",
       "bizudgothic",
       "BIZ UDGothic",
       "BIZ UDゴシック",
@@ -22,8 +25,11 @@
     "type": "mesh"
   },
   {
-    "file": "bizudpgothic.woff",
+    "file": "nspgothic.woff",
     "name": [
+      "nspgothic",
+      "NS PGothic",
+      "NS Pゴシック",
       "bizudpgothic",
       "BIZ UDPGothic",
       "BIZ UDPゴシック",
@@ -32,17 +38,13 @@
       "ms pgothic",
       "ＭＳ Ｐゴシック",
       "MS Pゴシック",
-      "MS UI Gothic",
-      "msuigothic",
       "meiryo",
       "Meiryo",
       "メイリオ",
-      "Meiryo UI",
       "yugothic",
       "Yu Gothic",
       "游ゴシック",
       "游ゴシック体",
-      "Yu Gothic UI",
       "Hiragino Sans",
       "ヒラギノ角ゴシック",
       "Hiragino Kaku Gothic ProN",
@@ -53,8 +55,23 @@
     "type": "mesh"
   },
   {
-    "file": "bizudmincho.woff",
+    "file": "nsuigothic.woff",
     "name": [
+      "nsuigothic",
+      "NS UI Gothic",
+      "msuigothic",
+      "MS UI Gothic",
+      "Meiryo UI",
+      "Yu Gothic UI"
+    ],
+    "type": "mesh"
+  },
+  {
+    "file": "nsmincho.woff",
+    "name": [
+      "nsmincho",
+      "NS Mincho",
+      "NS 明朝",
       "bizudmincho",
       "BIZ UDMincho",
       "BIZ UD明朝",
@@ -73,8 +90,11 @@
     "type": "mesh"
   },
   {
-    "file": "bizudpmincho.woff",
+    "file": "nspmincho.woff",
     "name": [
+      "nspmincho",
+      "NS PMincho",
+      "NS P明朝",
       "bizudpmincho",
       "BIZ UDPMincho",
       "BIZ UDP明朝",

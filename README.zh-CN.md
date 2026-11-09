@@ -17,7 +17,9 @@
   添加了完整的 `ja` 语言包，并根据浏览器语言自动选择。
 - **字体自托管，不依赖 CAD CDN**：字体和图纸模板由应用自身提供
   （`resources/cad-data` → `./cad-data/`）。
-  - 图纸文字：内置 **BIZ UD Gothic / Mincho**，用于替代 MS Gothic / MS Mincho，并作为默认回退字体。
+  - 图纸文字：内置 **NS Gothic / NS Mincho**（[NS-Font](https://github.com/cool0707/NS-Font)，基于 Noto Sans / Serif CJK JP，
+    度量与 MS Gothic / MS Mincho 相同），用于替代 MS Gothic / MS Mincho，并作为默认回退字体
+    （常规字重，含日文异体字和 IVS）。
   - 其他文字按需从 **Google Fonts** 加载（Arial → Arimo，SimSun → Noto Serif SC，
     Malgun Gothic → Noto Sans KR 等）。
   - 界面文字：**Noto Sans JP**（通过 `@fontsource-variable/noto-sans-jp` 自托管）。
@@ -73,7 +75,7 @@
   “导出为图像”也采用相同的方式（显示画面、对象范围或图纸与比例 + 分辨率），可选择 PNG、JPEG、BMP 或 TIFF；原有的框选区域导出保留为“导出选定区域为图像”。
 - **竖排文字（縦書き）** — 使用 Windows 竖排字体（`@ＭＳ ゴシック` 等，包括 Jw_cad 的縦字）的文字，
   以及文字样式设置了 AutoCAD“垂直”标志的 TEXT，在屏幕上和 SVG / PDF 导出中都会从上到下书写，
-  直接使用内置的 BIZ UD 字体（`@mlightcad/cad-vertical-text`）。
+  直接使用内置的 NS-Font 字体（`@mlightcad/cad-vertical-text`）。
 
 ## 演示
 
@@ -105,7 +107,7 @@ pnpm test
 运行时加载的所有资源都位于 `resources/cad-data/`（详见其
 [README](./resources/cad-data/README.md)）。嵌入这些包时，可以向 `AcApDocManager`
 传入 `baseUrl`，并通过 `defaultFonts` / `symbolFonts` 选项修改回退字体。
-未内置 SHX 字体，使用 SHX 的文字将以 BIZ UD Gothic 显示。
+未内置 SHX 字体，使用 SHX 的文字将以 NS Gothic 显示。
 
 ## DWG 支持
 
@@ -173,4 +175,4 @@ const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
 ## 许可证
 
 [MIT](./LICENSE)。按照许可证要求保留了 mlightcad 的原始版权声明。内置的
-BIZ UD 字体（© Morisawa Inc.）和 Noto Sans JP 采用 SIL Open Font License 1.1。
+NS-Font 字体（源自 Noto CJK，© Adobe）和 Noto Sans JP 采用 SIL Open Font License 1.1。

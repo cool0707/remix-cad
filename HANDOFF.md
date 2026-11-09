@@ -29,7 +29,7 @@
 | `@mlightcad/data-model@1.15.14` | ① `lib/base/AcDbDxfPairReader.js`: 文字コード自動判定 (`acdbGuessLegacyEncoding`)、② `lib/dxf/AcDbDxfHeaderReader.js`: `$LIMMIN/$LIMMAX/$PLIMMIN/$PLIMMAX` を `db.limmin` 等に格納 (+ `.d.ts`)、③ `lib/dxf/AcDbNativeDxfConverter.js`: 読み込み直後に画層 0 と参照画層を作成 (`acdbEnsureReferencedLayers`)、④ `lib/entity/AcDbRasterImage.js` + `dist/data-model.cjs`: `boundaryPath()` の回転の中心が右下の角になっていた・負の角度を無視していたのを、挿入点 (左下) 中心・0 以外すべてに修正 |
 | `@mlightcad/libredwg-converter@3.15.14` | DWG ヘッダーの LIMMIN 等を `db` に格納 |
 | `@mlightcad/geometry-engine@3.15.14` | NURBS 評価の高速パス |
-| `@mlightcad/mtext-renderer@0.13.5` | `fonts.json` の絶対 URL (Google Fonts) を許可 |
+| `@mlightcad/mtext-renderer@0.13.5` | ① `fonts.json` の絶対 URL (Google Fonts) を許可、② 異体字セレクタ (IVS) を cmap format 14 で引いて異体字を描く (`applyIvs` / `ivsChar`、2.8 参照) |
 | `@mlightcad/ui-components@0.1.11` | `useBoundingRect` (`dist/*.js` と `src/`): 左右にドッキングしたパレットを、ウィンドウのリサイズ時と折りたたみ/展開時に端から位置を計算し直す。元はリサイズ時に幅の差分を足していたので、ビューア側の再配置と合わせて 2 倍ずれていた。折りたたみ中にタイトルバーを押すと記憶位置が折りたたみ位置で上書きされ、展開すると右にはみ出していた |
 | `ezjww@0.7.3` | npm 版は Node 専用 (読み込み時に `fs` で wasm を読む)。`initSync` / `initAsync` を追加し、wasm を後から渡せるようにした (`exports` に wasm パスも追加) |
 
@@ -50,7 +50,7 @@
   - 用紙サイズ (`paper_size`: 0–4 = A0–A4、8–11 = 2A–5A、12–14 = 10m/50m/100m) → `$LIMMIN/$LIMMAX` (原点中心、主縮尺倍)。
   - 画層名を `<グループ>-<レイヤ> <グループ名> - <レイヤ名>` (16 進、Jw_cad と同じ) にし、使われている画層だけ作る。ezjww の画層名 → (グループ, レイヤ) は ezjww の `layer_name_map` を移植した `ezjwwLayerNames()` で逆引き。
   - 文字のフォント (ＭＳ ゴシック等) ごとに文字スタイルを作る (ezjww の DXF は全部 STANDARD)。
-  - **文字高さの補正**: mtext-renderer は TrueType を「DXF の文字高さ = 英大文字 A の高さ」(`unitsPerEm / A.yMax` 倍) で描く。Jw_cad の文字サイズは全角の文字枠 (em) の高さなので、そのままだと BIZ UD で 1.27 倍 (明朝 1.29 倍) になり枠からはみ出す。高さに `A.yMax / em` (ゴシック 1617/2048、明朝 1587/2048) を掛け、基点も descender (246/2048) 分上げて文字枠の下端に合わせている (`jwwTextFontMetrics()`)。同梱フォントを差し替えたらこの値も更新すること。DXF/DWG は AutoCAD 互換の挙動なので触っていない。
+  - **文字高さの補正**: mtext-renderer は TrueType を「DXF の文字高さ = 英大文字 A の高さ」(`unitsPerEm / A.yMax` 倍) で描く。Jw_cad の文字サイズは全角の文字枠 (em) の高さなので、そのままだと文字枠からはみ出す (現在の NS-Font で 1.3〜1.46 倍)。高さに `A.yMax / em` を掛け、基点も descender 分上げて文字枠の下端に合わせている (`jwwTextFontMetrics()`。値は 2.8 を参照)。同梱フォントを差し替えたらこの値も更新すること。DXF/DWG は AutoCAD 互換の挙動なので触っていない。
   - 線種パターンは図寸 mm なので、線種レコード (LTYPE) のパターンに主縮尺を掛けて図面単位で書く。要素の線種尺度 (48) は 1
     (グループ別モードで主縮尺と違うグループの要素と、ブロック内の要素だけ `縮尺 / 主縮尺`)。
     後から追加する標準線種 (下記) と同じ決め方なので、読み込んだ線種を新しい線に使っても、読み込んだ線を標準線種に変えても模様の大きさが合う。
@@ -237,7 +237,7 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
 - 用紙 (`chooseSheet`): `$LIMMIN/$LIMMAX` が A0–A4 × 縮尺ちょうどならそれ (JWW / SXF から読んだ図面は往復で一致)。
   A2 と A4 は比が同じなので標準縮尺 → 小さい用紙を優先。無ければ A3 (縦長なら縦) に 85% で収まる最小の標準縮尺、図面中心に配置。
   Jest は data-model の CJS ビルドでパッチが効かず limits が読めないので、テストでは `db.limmin` を直接入れている。
-- 文字: DXF の高さ (英大文字の高さ) ↔ Jw_cad / SXF の文字枠 (em) を読み込みと同じ BIZ UD の値 (`cellFontMetrics`) で逆変換。
+- 文字: DXF の高さ (英大文字の高さ) ↔ Jw_cad / SXF の文字枠 (em) を読み込みと同じ同梱フォントの値 (`cellFontMetrics`) で逆変換。
   JWW・SXF とも往復で位置・高さ・幅係数が一致する (テスト済み)。
 - **JWW** (`cad-jww-converter/src/jwwExport.ts`、ezjww の `toJwwBytes`): 読み込みと同じ Worker で書く (`AcDbJwwConverter.exportDatabase()` / `writeJww()`)。
   用紙 A0–A4 横のみ、全レイヤグループに同じ縮尺、座標は用紙中心原点の図寸。`<g>-<l> グループ名 - レイヤ名` の画層は元の位置へ、他は順に詰める。
@@ -323,6 +323,29 @@ HATCH (`AcApHatchCmd`、リボンの `AcApHatchRibbonCmd` も継承) を AutoCAD
 - ページ設定は用紙 (A0〜A4) と向きだけ。レイアウトの LIMITS (用紙の大きさ、左下は維持) と plotPaperSize / canonicalMediaName を書く。
   ペーパー空間の単位は plotPaperUnits (mm / inch) とみなす。印刷範囲表示 (`AcApPrintAreaOverlay`) は印刷ページでは LIMITS を用紙として描く。
 - 元に戻す (undo) には載せていない (やり残し)。読み取り専用で開いたときは + とメニューを出さない。
+
+## 2.8 同梱フォントを NS-Font に (2026-11-09)
+
+- BIZ UD の代わりに [NS-Font](https://github.com/cool0707/NS-Font) (Noto Sans / Serif CJK JP を MS ゴシック・MS 明朝の
+  字送り・大きさに合わせたもの) を同梱。レギュラーの **日本語異体字追加版** (`dist/Regular-JPVariants/*.ttf`) を
+  fontTools で WOFF にしたもの (`resources/cad-data/fonts/ns*.woff`, OFL は `OFL-NSFont.txt`)。
+  opentype.js 2.0 は WOFF2 を読めない (外部の展開ライブラリが要る) ので WOFF にしている。
+- 5 書体: NS ゴシック (`nsgothic`、既定の代替・記号フォント)、NS Pゴシック、NS UI Gothic、NS 明朝、NS P明朝。
+  `fonts.json` の別名は従来どおり (ＭＳ ゴシック → NS ゴシック、メイリオ・游ゴシック → NS Pゴシック など)。
+  MS UI Gothic / Meiryo UI / Yu Gothic UI は NS UI Gothic に。旧名 `bizudgothic` / `BIZ UDGothic` 等も別名として残した。
+- 文字高さの補正値 (em 1000、descender 141): A の高さが書体ごとに違う — ゴシック 770 (MS ゴシックの半角英字が背が高いため)、
+  Pゴシック・UI Gothic 688、明朝 684、P明朝 695。`cellFontMetrics` (cad-export-model) が名前から書体を判定する
+  (`cellFontFace`)。jwwToDxf / sxfToDxf は Worker に data-model を持ち込まないよう同じ表を持っているので、
+  `__tests__/fontMetrics.spec.ts` (cad-export-model・jww・sxf) で fonts.json の別名・実フォントの値と一致を確認している。
+- 縦書きの em 中心 (`EM_CENTER_ABOVE_BASELINE`) も 0.5 − 141/1000 に。
+- BIZ UD にあって NS-Font に無い字は 22 字 (括弧の部品 ⎧⎨⎩⎫⎬⎭ と CJK 互換漢字の一部)。⌀ (U+2300) はどちらにも無い。
+- **異体字セレクタ (IVS)**: 以前は mtext-renderer が 1 文字ずつ cmap を引くため、セレクタ (U+E0100 など) が「?」で
+  描かれていた (BIZ UD でも同じ)。mtext-renderer のパッチで、`processWord` の前に `applyIvs` が「基底字 + セレクタ」を
+  そのフォントの cmap format 14 (opentype.js の `tables.cmap.varSelectorList`) で引き、異体字グリフがあれば
+  U+100000 + グリフ ID の私用符号位置に置き換える (`MeshFont.ivsChar` がその符号位置を `glyphIndexMap` に登録する)。
+  フォントに無い組は基底字だけ、単独のセレクタは捨てる。グリフキャッシュ・フォールバックの仕組みはそのまま使える。
+  index.js / mtext-renderer-worker.js / index.umd.cjs の 3 つに同じ変更。画面表示 (葛󠄀・辻󠄀 など) は確認済み、
+  SVG / PDF 書き出しでの IVS は未確認。MTEXT 編集中はセレクタを除いた文字数で文字位置が数えられる点に注意。
 
 ## 3. 既知の問題・やり残し
 

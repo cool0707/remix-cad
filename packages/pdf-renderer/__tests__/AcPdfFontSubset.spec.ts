@@ -15,7 +15,7 @@ import type { AcPdfOp } from '../src/renderer/AcPdfStyle'
 
 /**
  * fontkit's subsetter copies glyphs verbatim and writes a short `loca` for
- * small subsets; BIZ UD has odd-length glyphs, so without padding every glyph
+ * small subsets; fonts such as BIZ UD have odd-length glyphs, so without padding every glyph
  * after the first odd one was corrupt and PDF viewers painted nothing for it
  * ("居間・食堂" rendered as "居間").
  */
@@ -46,7 +46,7 @@ describe('AcPdfFontManager subset embedding', () => {
     return decodePDFRawStream(file as PDFRawStream).decode()
   }
 
-  it.each(['bizudgothic', 'bizudpgothic', 'bizudmincho', 'bizudpmincho'])(
+  it.each(['nsgothic', 'nspgothic', 'nsuigothic', 'nsmincho', 'nspmincho'])(
     'keeps every subset glyph of %s intact',
     async name => {
       const woff = new Uint8Array(
@@ -56,7 +56,12 @@ describe('AcPdfFontManager subset embedding', () => {
       expect(await fonts.load('f')).toBe(true)
 
       const doc = await PDFDocument.create()
-      const texts = ['居間・食堂', 'サンプル平面図', 'ABC abc 123', '寝室（洋室）']
+      const texts = [
+        '居間・食堂',
+        'サンプル平面図',
+        'ABC abc 123',
+        '寝室（洋室）'
+      ]
       const ops = texts.map(textOp)
       for (const op of ops) {
         await fonts.embedOp(doc, op)

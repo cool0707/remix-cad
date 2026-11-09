@@ -15,10 +15,10 @@ import {
 } from '../src/util/AcTrVerticalText'
 
 const HEIGHT = 10
-/** Em of the fake font: like BIZ UD, "A" is 1617 / 2048 em. */
-const EM = (HEIGHT * 2048) / 1617
-/** Baseline to em-box centre (BIZ UD descender 246 / 2048). */
-const CENTER = (0.5 - 246 / 2048) * EM
+/** Em of the fake font: like NS Gothic, "A" is 770 / 1000 em. */
+const EM = (HEIGHT * 1000) / 770
+/** Baseline to em-box centre (NS-Font descender 141 / 1000). */
+const CENTER = (0.5 - 141 / 1000) * EM
 
 function style(font: string, standardFlag = 0): TextStyle {
   return {
@@ -63,8 +63,8 @@ function fakeRender(piece: { data: MTextData }): MTextObject {
   const minX = centered ? -advance / 2 : 0
   const object = new THREE.Object3D() as MTextObject
   object.box = new THREE.Box3(
-    new THREE.Vector3(minX, (-246 / 2048) * EM, 0),
-    new THREE.Vector3(minX + advance, (1 - 246 / 2048) * EM, 0)
+    new THREE.Vector3(minX, (-141 / 1000) * EM, 0),
+    new THREE.Vector3(minX + advance, (1 - 141 / 1000) * EM, 0)
   )
   object.createLayoutData = () => ({ lines: [], chars: [] })
   return object

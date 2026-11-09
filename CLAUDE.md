@@ -28,7 +28,7 @@ pnpm --filter @mlightcad/cad-viewer-example test:e2e   # Playwright e2e (fixture
 - `packages/cad-sxf-converter` — SXF 読み込み。TypeScript 実装 (ezsxf から移植、wasm なし)。DXF 経由で読む。example で opt-in 登録。
 - `packages/cad-vertical-text` — 縦書きの組み方 (依存なし)。画面 (three-renderer)・SVG・PDF で共有。
 - `@mlightcad/data-model` / `libredwg-converter` / `geometry-engine` / `mtext-renderer` は **npm 依存** (このリポジトリにソースは無い)。直すときは pnpm patch (下記)。
-- `resources/cad-data/` — フォント (BIZ UD woff + fonts.json)・テンプレート・サンプル図面。ビルド時に各 example の `cad-data/` へコピーされる。
+- `resources/cad-data/` — フォント (NS-Font woff + fonts.json)・テンプレート・サンプル図面。ビルド時に各 example の `cad-data/` へコピーされる。
 - `demo/index.html` + `tools/build-demo.mjs` → `demo-dist/` → GitHub Pages (`.github/workflows/demo.yml`, gh-pages ブランチ)。
   - `main` はサイトの直下、それ以外のブランチは `preview/<ブランチ名>/` に出る
     (例: https://cool0707.github.io/remix-cad/preview/<ブランチ名>/ 。名前の `/` などは `-` になる)。
@@ -51,7 +51,7 @@ pnpm patch-commit /tmp/dm-edit
 
 - UI 文字列は必ず i18n に入れ、**en / ja / zh / tr / cs / ar 全ロケール**に追加する
   (cad-simple-viewer `src/i18n/*`, cad-viewer `src/locale/*`, cad-viewer-example `src/locale/*`)。日本語を最優先で自然に。
-- 図面フォントは CDN を使わない。BIZ UD を同梱、他言語は Google Fonts (`fonts.json` の絶対 URL)。UI フォントは Noto Sans JP。
+- 図面フォントは CDN を使わない。日本語は NS-Font (NS ゴシック・明朝、レギュラーの日本語異体字追加版) を同梱、他言語は Google Fonts (`fonts.json` の絶対 URL)。UI フォントは Noto Sans JP。
 - LibreDWG (GPL) を本体パッケージに取り込まない。DWG は example 側で opt-in 登録している。JWW / SXF も同じく **MIT 互換のライブラリか自前実装** にする。
   例外として DWG 書き出しは CADcraft (MPL-2.0) を取り込む予定 — MPL のファイルは専用パッケージに分け、ライセンス表記を残す (HANDOFF.md 2.5)。
 - `main` と `ja-localization` は現在同一。今後は `main` から作業ブランチを切ればよい。

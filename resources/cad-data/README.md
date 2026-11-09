@@ -10,14 +10,28 @@ into their build output, so no third-party CAD CDN is needed.
 
 | File | Font | Used for (aliases) |
 | --- | --- | --- |
-| `bizudgothic.woff` | BIZ UDGothic | default fallback, symbols, MS Gothic, IPA Gothic … |
-| `bizudpgothic.woff` | BIZ UDPGothic | MS PGothic, MS UI Gothic, Meiryo, Yu Gothic … |
-| `bizudmincho.woff` | BIZ UDMincho | MS Mincho, IPA Mincho … |
-| `bizudpmincho.woff` | BIZ UDPMincho | MS PMincho, Yu Mincho … |
+| `nsgothic.woff` | NS Gothic | default fallback, symbols, MS Gothic, BIZ UDGothic, IPA Gothic … |
+| `nspgothic.woff` | NS PGothic | MS PGothic, BIZ UDPGothic, Meiryo, Yu Gothic … |
+| `nsuigothic.woff` | NS UI Gothic | MS UI Gothic, Meiryo UI, Yu Gothic UI |
+| `nsmincho.woff` | NS Mincho | MS Mincho, BIZ UDMincho, IPA Mincho … |
+| `nspmincho.woff` | NS PMincho | MS PMincho, BIZ UDPMincho, Yu Mincho … |
 
-The BIZ UD fonts are © Morisawa Inc., licensed under the SIL Open Font
-License 1.1 (`OFL-BIZUD.txt`); the WOFF files are converted from the TTFs in
-[google/fonts](https://github.com/google/fonts).
+These are [NS-Font](https://github.com/cool0707/NS-Font): Noto Sans / Serif
+CJK JP with the glyph size, advance widths and line height of the MS Gothic /
+MS Mincho family, so drawings made with Windows fonts keep their layout. The
+files are the regular weight of the "Japanese variants" edition
+(`dist/Regular-JPVariants/*.ttf`, converted to WOFF with fontTools; opentype.js
+cannot read WOFF2): JIS X 0213 level 1–4 kanji, NEC / IBM extensions and the
+Adobe-Japan1 ideographic variation sequences (drawn on screen through
+`patches/@mlightcad__mtext-renderer@0.13.5.patch`, which resolves cmap format
+14). NS-Font is licensed under the SIL
+Open Font License 1.1 (`OFL-NSFont.txt`).
+
+The text-height correction of the JWW / SXF readers and writers depends on
+the capital "A" and descender of these faces (`cellFontMetrics` in
+`packages/cad-export-model/src/text.ts`; checked by
+`packages/cad-export-model/__tests__/fontMetrics.spec.ts`), so update it when
+replacing the files.
 
 Entries whose `file` is an absolute URL (Arimo, Tinos, Cousine, Noto Sans /
 Serif SC, TC, KR, Arabic, Hebrew, Thai) are downloaded from Google Fonts only

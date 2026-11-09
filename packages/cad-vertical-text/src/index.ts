@@ -37,12 +37,15 @@ const ATTACH_BASELINE_LEFT = 10
 
 /**
  * Distance from the baseline to the centre of the em box, in em. Matches the
- * bundled BIZ UD fonts (descender 246 / 2048 em).
+ * bundled NS-Font faces (descender 141 / 1000 em).
  */
-export const EM_CENTER_ABOVE_BASELINE = 0.5 - 246 / 2048
+export const EM_CENTER_ABOVE_BASELINE = 0.5 - 141 / 1000
 
-/** Em per DXF text height for the bundled BIZ UD fonts ("A" is 1617 / 2048 em). */
-export const FALLBACK_EM_PER_HEIGHT = 2048 / 1617
+/**
+ * Em per DXF text height when the font is unknown: the bundled default face
+ * NS Gothic ("A" is 770 / 1000 em).
+ */
+export const FALLBACK_EM_PER_HEIGHT = 1000 / 770
 
 /** Characters drawn sideways (as in horizontal text) inside a vertical line. */
 const SIDEWAYS = new Set(

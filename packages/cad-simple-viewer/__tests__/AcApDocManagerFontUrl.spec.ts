@@ -364,17 +364,17 @@ describe('AcApDocManager font URL configuration', () => {
     AcApDocManager.createInstance({})
 
     expect(mockInitialize).toHaveBeenCalled()
-    expect(mockSetDefaultFonts).toHaveBeenCalledWith(['bizudgothic'])
+    expect(mockSetDefaultFonts).toHaveBeenCalledWith(['nsgothic'])
     expect(mockSetFontUrl).toHaveBeenCalled()
   })
 
   it('uses custom default font chains when provided', () => {
     AcApDocManager.createInstance({
-      defaultFonts: ['bizudmincho', 'notosanssc']
+      defaultFonts: ['nsmincho', 'notosanssc']
     })
 
     expect(mockSetDefaultFonts).toHaveBeenCalledWith([
-      'bizudmincho',
+      'nsmincho',
       'notosanssc'
     ])
   })
@@ -444,7 +444,7 @@ describe('AcApDocManager preset fonts for open', () => {
     const names = call[0]
     const options = call[1]
     expect(names.length).toBeGreaterThan(0)
-    expect(names).toEqual(expect.arrayContaining(['bizudgothic']))
+    expect(names).toEqual(expect.arrayContaining(['nsgothic']))
     expect(options).toEqual({ scope: 'all' })
     expect(manager!.lastPresetFontsForOpen).toEqual(names)
   })

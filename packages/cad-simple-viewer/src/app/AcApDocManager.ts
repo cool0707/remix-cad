@@ -249,13 +249,13 @@ export interface AcApWebworkerFiles {
 
 /**
  * Default text-font fallback chain used when a drawing font is missing or a
- * glyph is not covered. BIZ UDGothic (bundled under `cad-data/fonts`) covers
- * Latin, kana and JIS kanji, so Japanese drawings never fall back to Chinese
- * glyph shapes.
+ * glyph is not covered. NS Gothic (NS-Font, bundled under `cad-data/fonts`)
+ * covers Latin, kana and JIS X 0213 kanji, so Japanese drawings never fall
+ * back to Chinese glyph shapes.
  */
-const DEFAULT_FALLBACK_FONTS: readonly string[] = ['bizudgothic']
+const DEFAULT_FALLBACK_FONTS: readonly string[] = ['nsgothic']
 /** Default symbol-font chain for `%%c` / `%%d` / `%%p` control codes. */
-const DEFAULT_SYMBOL_FONTS: readonly string[] = ['bizudgothic']
+const DEFAULT_SYMBOL_FONTS: readonly string[] = ['nsgothic']
 
 /**
  * Options for creating AcApDocManager instance
@@ -285,12 +285,12 @@ export interface AcApDocManagerOptions {
   baseUrl?: string
   /**
    * Text-font fallback chain (catalog font names) used for missing fonts and
-   * uncovered glyphs. Defaults to `['bizudgothic']`.
+   * uncovered glyphs. Defaults to `['nsgothic']`.
    */
   defaultFonts?: readonly string[]
   /**
    * Symbol-font chain used for AutoCAD `%%` control codes. Defaults to
-   * `['bizudgothic']`.
+   * `['nsgothic']`.
    */
   symbolFonts?: readonly string[]
   /**
@@ -1286,7 +1286,7 @@ export class AcApDocManager {
    *
    * This method loads either the specified fonts or the configured default font
    * fallback chains ({@link AcApDocManagerOptions.defaultFonts}, by default
-   * `bizudgothic`) if no fonts are provided. The loaded
+   * `nsgothic`) if no fonts are provided. The loaded
    * fonts are used for rendering CAD text entities like MText and Text in the viewer.
    *
    * It is better to load default fonts when viewer is initialized so that the viewer can

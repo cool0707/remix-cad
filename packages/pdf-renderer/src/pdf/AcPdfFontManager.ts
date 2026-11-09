@@ -190,8 +190,8 @@ function writeSfnt(input: SfntTable[]): Uint8Array {
  * fontkit's TTFSubset (used by pdf-lib's `embedFont({ subset: true })`)
  * copies each glyph's bytes verbatim and, when the subset is small, writes a
  * short-format `loca` — which stores offsets halved. A source font with
- * odd-length glyphs (BIZ UD ships them; legal with a long `loca`) then gets
- * truncated offsets, so every glyph after the first odd one decodes as
+ * odd-length glyphs (the bundled NS-Font faces ship them; legal with a long
+ * `loca`) then gets truncated offsets, so every glyph after the first odd one decodes as
  * garbage and PDF viewers paint nothing for it (e.g. "居間・食堂" showed only
  * "居間"). Padding makes every subset offset even, so halving is exact.
  */

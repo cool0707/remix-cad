@@ -613,7 +613,7 @@ export class AcEdMTextEditor {
       ownerDocument: view.container.ownerDocument,
       textColor: cursorColor,
       backgroundColor: `#${view.backgroundColor.toString(16).padStart(6, '0')}`,
-      fontFamily: '"BIZ UDPGothic", "Noto Sans JP", sans-serif'
+      fontFamily: '"NS PGothic", "Noto Sans JP", sans-serif'
     })
 
     return new Promise(resolve => {

@@ -15,7 +15,7 @@ export default {
       title: '选择要查看的 CAD 文件',
       subtitle: '将 DWG、DXF、JWW / JWC（Jw_cad）或 SXF图纸导入查看器',
       fontCdnNotice:
-        '本查看器已内置日文字体（BIZ UD）。其他文字（中文、韩文、拉丁替代字体等）的字体会在图纸需要时从 Google Fonts 下载；如果无法访问 Google Fonts，这些文字可能无法正常显示。',
+        '本查看器已内置日文字体（NS-Font：NS Gothic / NS Mincho）。其他文字（中文、韩文、拉丁替代字体等）的字体会在图纸需要时从 Google Fonts 下载；如果无法访问 Google Fonts，这些文字可能无法正常显示。',
       newDrawing: '新建图纸',
       or: '或',
       dropFile: '拖放文件或',

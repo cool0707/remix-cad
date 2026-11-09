@@ -17,8 +17,9 @@
   오프라인 HTML 내보내기)에 `ja` 로캘을 추가했으며 브라우저 언어에 따라 자동으로 선택됩니다.
 - **글꼴 자체 호스팅(CAD CDN 불필요)**: 글꼴과 도면 템플릿은 앱에서 직접 제공합니다
   (`resources/cad-data` → `./cad-data/`).
-  - 도면 문자: **BIZ UD Gothic / Mincho**를 포함하여 MS Gothic / MS Mincho 대체 및 기본
-    대체 글꼴로 사용합니다.
+  - 도면 문자: **NS Gothic / NS Mincho**([NS-Font](https://github.com/cool0707/NS-Font), Noto Sans / Serif CJK JP를
+    기반으로 MS Gothic / MS Mincho와 같은 메트릭으로 만든 글꼴)를 포함하여 MS Gothic /
+    MS Mincho 대체 및 기본 대체 글꼴로 사용합니다(레귤러, 일본어 이체자·IVS 포함).
   - 그 밖의 문자는 필요할 때 **Google Fonts**에서 불러옵니다(Arial → Arimo,
     SimSun → Noto Serif SC, 맑은 고딕 → Noto Sans KR 등).
   - UI 문자: **Noto Sans JP**(`@fontsource-variable/noto-sans-jp`로 자체 호스팅).
@@ -84,7 +85,7 @@
   범위를 지정하는 기존 방식은 「선택 영역을 이미지로 내보내기」로 남아 있습니다.
 - **세로쓰기(縦書き)** — Windows 세로쓰기 글꼴(`@ＭＳ ゴシック` 등, Jw_cad 縦字 포함)의 문자와
   문자 스타일에 AutoCAD "세로" 플래그가 있는 TEXT를 화면과 SVG / PDF 내보내기에서 위에서 아래로
-  씁니다. 번들된 BIZ UD 글꼴을 그대로 사용합니다(`@mlightcad/cad-vertical-text`).
+  씁니다. 번들된 NS-Font 글꼴을 그대로 사용합니다(`@mlightcad/cad-vertical-text`).
 
 ## 데모
 
@@ -116,7 +117,7 @@ pnpm test
 실행 중에 불러오는 리소스는 모두 `resources/cad-data/`에 있습니다(자세한 내용은
 [README](./resources/cad-data/README.md)). 패키지를 직접 포함할 때는 `AcApDocManager`에
 `baseUrl`을 전달하고 `defaultFonts` / `symbolFonts` 옵션으로 대체 글꼴을 바꿀 수 있습니다.
-SHX 글꼴은 포함하지 않으며, SHX를 사용하는 문자는 BIZ UD Gothic으로 표시됩니다.
+SHX 글꼴은 포함하지 않으며, SHX를 사용하는 문자는 NS Gothic으로 표시됩니다.
 
 ## DWG 지원
 
@@ -189,4 +190,4 @@ const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
 ## 라이선스
 
 [MIT](./LICENSE). 라이선스 조건에 따라 mlightcad의 원 저작권 표시를 유지합니다.
-포함된 BIZ UD 글꼴(© Morisawa Inc.)과 Noto Sans JP는 SIL Open Font License 1.1을 따릅니다.
+포함된 NS-Font 글꼴(Noto CJK 파생, © Adobe)과 Noto Sans JP는 SIL Open Font License 1.1을 따릅니다.

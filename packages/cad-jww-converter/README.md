@@ -23,8 +23,8 @@ and the viewer's file dialogs accept `.jww` and `.jwc`.
 | Paper size (A0–A4, 2A–5A, 10m–100m) | `$LIMMIN` / `$LIMMAX` (centred on the origin) → "drawing limits" initial view |
 | Layer group / layer | Layer `<group>-<layer> <group name> - <layer name>` (hex numbers as in Jw_cad); only used layers; hidden → frozen, protected → locked |
 | Pen color, line type, width | ACI color, LTYPE (pattern in paper mm, entity linetype scale = drawing scale), lineweight (from ezjww) |
-| Text font | Text style per font (ＭＳ ゴシック / ＭＳ 明朝 … → BIZ UD via `fonts.json`) |
-| Text size (character cell height) | DXF height = cell × cap height / em of the substituted BIZ UD font, baseline raised by the descender — the renderer sizes TrueType text by the capital "A", which would otherwise draw Japanese text ~1.27× too large |
+| Text font | Text style per font (ＭＳ ゴシック / ＭＳ 明朝 … → NS-Font via `fonts.json`) |
+| Text size (character cell height) | DXF height = cell × cap height / em of the substituted NS-Font face, baseline raised by the descender — the renderer sizes TrueType text by the capital "A", which would otherwise draw Japanese text ~1.27× too large |
 | Blocks | Block definitions + INSERT |
 | Dimensions, solids | Lines + text, SOLID (from ezjww) |
 
@@ -40,7 +40,7 @@ and the viewer's file dialogs accept `.jww` and `.jwc`.
 JWC (the old format) goes through the same conversion: ezjww converts it to paper
 millimetres with the origin at the sheet centre (sheets A0–A4), and the layer group
 scales, layer names and text-height correction are applied as for JWW. JWC stores
-no fonts, so text uses ＭＳ ゴシック (BIZ UD Gothic). Profiles ezjww does not accept
+no fonts, so text uses ＭＳ ゴシック (NS Gothic). Profiles ezjww does not accept
 fail with its error message.
 
 Not supported yet: JWS, embedded images (`^@BM`).

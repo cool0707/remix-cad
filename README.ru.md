@@ -20,8 +20,10 @@
   в HTML). Язык определяется по настройкам браузера.
 - **Шрифты размещаются в приложении, без CAD CDN**: шрифты и шаблоны чертежей
   отдаются самим приложением (`resources/cad-data` → `./cad-data/`).
-  - Текст чертежей: включены **BIZ UD Gothic / Mincho**, они заменяют
-    MS Gothic / MS Mincho и служат резервным шрифтом по умолчанию.
+  - Текст чертежей: включены **NS Gothic / NS Mincho** ([NS-Font](https://github.com/cool0707/NS-Font), на основе
+    Noto Sans / Serif CJK JP с метриками MS Gothic / MS Mincho), они заменяют
+    MS Gothic / MS Mincho и служат резервным шрифтом по умолчанию
+    (обычное начертание с японскими вариантами иероглифов, IVS).
   - Другие письменности загружаются по требованию из **Google Fonts**
     (Arial → Arimo, SimSun → Noto Serif SC, Malgun Gothic → Noto Sans KR и т. д.).
   - Текст интерфейса: **Noto Sans JP** (размещается локально через
@@ -100,7 +102,7 @@
   BMP или TIFF; экспорт выбранной области остался отдельным пунктом.
 - **Вертикальное письмо (縦書き)** — текст с вертикальным шрифтом Windows (`@ＭＳ ゴシック`,
   например 縦字 из Jw_cad) и TEXT со стилем, у которого установлен флаг AutoCAD «вертикальный»,
-  пишутся сверху вниз на экране и при экспорте в SVG / PDF встроенными шрифтами BIZ UD
+  пишутся сверху вниз на экране и при экспорте в SVG / PDF встроенными шрифтами NS-Font
   (`@mlightcad/cad-vertical-text`).
 
 ## Демо
@@ -134,7 +136,7 @@ pnpm test
 (см. [README](./resources/cad-data/README.md)). При встраивании пакетов передайте
 `baseUrl` в `AcApDocManager`; резервные шрифты настраиваются опциями
 `defaultFonts` / `symbolFonts`. Шрифты SHX не включены; текст с ними отображается
-шрифтом BIZ UD Gothic.
+шрифтом NS Gothic.
 
 ## Поддержка DWG
 
@@ -210,5 +212,5 @@ const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
 ## Лицензия
 
 [MIT](./LICENSE). Исходное уведомление об авторских правах mlightcad сохранено,
-как того требует лицензия. Включённые шрифты BIZ UD (© Morisawa Inc.) и
+как того требует лицензия. Включённые шрифты NS-Font (производные от Noto CJK, © Adobe) и
 Noto Sans JP распространяются по лицензии SIL Open Font License 1.1.

@@ -15,7 +15,7 @@ export default {
       title: 'Görüntülenecek CAD Dosyasını Seçin',
       subtitle: 'DWG, DXF, JWW / JWC (Jw_cad) veya SXF çizimlerini görüntüleyiciye aktarın',
       fontCdnNotice:
-        'Japanese fonts (BIZ UD) are bundled with this viewer. Fonts for other scripts (Chinese, Korean, Latin substitutes, etc.) are downloaded from Google Fonts when a drawing needs them; if Google Fonts is unreachable, that text may not display correctly.',
+        'Japanese fonts (NS-Font: NS Gothic / NS Mincho) are bundled with this viewer. Fonts for other scripts (Chinese, Korean, Latin substitutes, etc.) are downloaded from Google Fonts when a drawing needs them; if Google Fonts is unreachable, that text may not display correctly.',
       newDrawing: 'Yeni Çizim',
       or: 'veya',
       dropFile: 'Dosyayı bırakın veya',

@@ -21,8 +21,10 @@ del dispositivo del usuario.
   exportación a HTML sin conexión). El idioma se detecta desde el navegador.
 - **Fuentes autoalojadas, sin CDN de CAD**: las fuentes y plantillas se sirven
   desde la propia aplicación (`resources/cad-data` → `./cad-data/`).
-  - Texto de los planos: se incluyen **BIZ UD Gothic / Mincho**, usadas para
-    MS Gothic / MS Mincho y como fuente de respaldo predeterminada.
+  - Texto de los planos: se incluyen **NS Gothic / NS Mincho** ([NS-Font](https://github.com/cool0707/NS-Font),
+    basadas en Noto Sans / Serif CJK JP con las métricas de MS Gothic / MS Mincho),
+    usadas para MS Gothic / MS Mincho y como fuente de respaldo predeterminada
+    (peso regular con variantes japonesas, IVS).
   - Otros sistemas de escritura se cargan bajo demanda desde **Google Fonts**
     (Arial → Arimo, SimSun → Noto Serif SC, Malgun Gothic → Noto Sans KR, …).
   - Texto de la interfaz: **Noto Sans JP** (autoalojada con
@@ -104,7 +106,7 @@ del dispositivo del usuario.
   la exportación de una ventana elegida sigue disponible aparte.
 - **Escritura vertical (縦書き)** — el texto con una fuente vertical de Windows (`@ＭＳ ゴシック`,
   p. ej. el 縦字 de Jw_cad) y el TEXT cuyo estilo tiene el indicador «vertical» de AutoCAD se
-  escriben de arriba abajo en pantalla y al exportar a SVG / PDF, con las fuentes BIZ UD
+  escriben de arriba abajo en pantalla y al exportar a SVG / PDF, con las fuentes NS-Font
   incluidas (`@mlightcad/cad-vertical-text`).
 
 ## Demo
@@ -138,7 +140,7 @@ Todo lo que el visor descarga en tiempo de ejecución está en `resources/cad-da
 (consulte su [README](./resources/cad-data/README.md)). Al integrar los paquetes,
 pase `baseUrl` a `AcApDocManager` y ajuste las fuentes de respaldo con las
 opciones `defaultFonts` / `symbolFonts`. Las fuentes SHX no se incluyen; el texto
-que las usa se muestra con BIZ UD Gothic.
+que las usa se muestra con NS Gothic.
 
 ## Soporte DWG
 
@@ -216,5 +218,5 @@ npm de LibreDWG usada para leer tiene la escritura desactivada).
 ## Licencia
 
 [MIT](./LICENSE). Se conserva el aviso de copyright original de mlightcad, tal
-como exige la licencia. Las fuentes incluidas BIZ UD (© Morisawa Inc.) y
+como exige la licencia. Las fuentes incluidas NS-Font (derivadas de Noto CJK, © Adobe) y
 Noto Sans JP usan la SIL Open Font License 1.1.

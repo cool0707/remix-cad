@@ -4,21 +4,49 @@
  * Jw_cad and SXF size text by the character cell (the em of a full-width
  * character); DXF sizes it by the height of a capital letter. The readers in
  * cad-jww-converter / cad-sxf-converter convert cell → capital height with the
- * metrics of the bundled BIZ UD fonts, so the writers use the inverse to make
+ * metrics of the bundled NS-Font faces, so the writers use the inverse to make
  * a drawing survive a round trip unchanged.
  */
 
-/** Metrics of the bundled BIZ UD fonts, as fractions of the em. */
+/**
+ * Metrics of the bundled NS-Font faces (`resources/cad-data/fonts`), as
+ * fractions of the em: the height of a capital "A" (the renderer sizes
+ * TrueType text so that the DXF height equals it) and the descender.
+ * All faces have em 1000 and descender 141.
+ */
 const FONT_METRICS = {
-  // bizudgothic / bizudpgothic: em 2048, "A" 1617, descender 246
-  gothic: { capHeight: 1617 / 2048, descender: 246 / 2048 },
-  // bizudmincho / bizudpmincho: em 2048, "A" 1587, descender 246
-  mincho: { capHeight: 1587 / 2048, descender: 246 / 2048 }
+  // nsgothic.woff (NS Gothic): "A" 770 — MS Gothic's tall half-width Latin
+  gothic: { capHeight: 770 / 1000, descender: 141 / 1000 },
+  // nspgothic.woff / nsuigothic.woff (NS PGothic / NS UI Gothic): "A" 688
+  pgothic: { capHeight: 688 / 1000, descender: 141 / 1000 },
+  // nsmincho.woff (NS Mincho): "A" 684
+  mincho: { capHeight: 684 / 1000, descender: 141 / 1000 },
+  // nspmincho.woff (NS PMincho): "A" 695
+  pmincho: { capHeight: 695 / 1000, descender: 141 / 1000 }
+}
+
+/** Which bundled face a font name is drawn with. */
+export type CellFontFace = keyof typeof FONT_METRICS
+
+/**
+ * The bundled face the viewer substitutes for a font name, following the
+ * aliases in `resources/cad-data/fonts/fonts.json` (unknown names fall back
+ * to NS Gothic). A leading `@` (Windows vertical font) is ignored.
+ */
+export function cellFontFace(font: string): CellFontFace {
+  const name = font.trim().replace(/^@/, '')
+  const mincho = /明朝|mincho/i.test(name)
+  const proportional =
+    /[PＰ]\s*(ゴシック|明朝|gothic|mincho)|\bUI\b|uigothic|meiryo|メイリオ|yu\s*(gothic|mincho)|游|hiragino|ヒラギノ/i.test(
+      name
+    )
+  if (mincho) return proportional ? 'pmincho' : 'mincho'
+  return proportional ? 'pgothic' : 'gothic'
 }
 
 /** Metrics of the font the viewer substitutes for a font name. */
 export function cellFontMetrics(font: string) {
-  return /明朝|mincho/i.test(font) ? FONT_METRICS.mincho : FONT_METRICS.gothic
+  return FONT_METRICS[cellFontFace(font)]
 }
 
 /** Character cells of a string: half-width characters take half a cell. */
