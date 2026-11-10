@@ -4,6 +4,7 @@ import { readFileSync } from 'fs'
 import {
   escapeTextCarets,
   hasJwwSpecialCodes,
+  jwwTextCells,
   layoutJwwText
 } from '../src/jwwSpecialText'
 import { convertJwwToDxf } from '../src/jwwToDxf'
@@ -64,6 +65,13 @@ describe('layoutJwwText', () => {
     ])
   })
 
+  it('measures the drawn characters only', () => {
+    expect(jwwTextCells('居間・食堂')).toBe(5)
+    expect(jwwTextCells('文字の均等縮小^3')).toBe(7)
+    expect(jwwTextCells('上付文字　m^u2 ')).toBe(6.5)
+    expect(jwwTextCells('重ね文字　P^bL 、P^BL')).toBe(7.5)
+  })
+
   it('keeps carets that are not codes', () => {
     expect(layoutJwwText('a^z^')).toEqual([
       { text: 'a^z^', x: 0, y: 0, scale: 1 }
@@ -73,7 +81,7 @@ describe('layoutJwwText', () => {
 })
 
 describe('convertJwwToDxf with 特殊文字', () => {
-  function drawing(content: string) {
+  function drawing(content: string, length = 10, size = 4) {
     const doc = ezjww.newJwwDocument()
     doc.entities.push({
       type: 'TEXT',
@@ -88,11 +96,11 @@ describe('convertJwwToDxf with 特殊文字', () => {
       },
       start_x: 10,
       start_y: 20,
-      end_x: 20,
+      end_x: 10 + length,
       end_y: 20,
       text_type: 0,
-      size_x: 4,
-      size_y: 4,
+      size_x: size,
+      size_y: size,
       spacing: 0,
       angle: 0,
       font_name: 'ＭＳ ゴシック',
@@ -118,6 +126,29 @@ describe('convertJwwToDxf with 特殊文字', () => {
     const strings = texts(dxf)
     expect(strings).toContain('〇')
     expect(strings).toContain('ア')
+  })
+
+  function widthFactors(dxf: string) {
+    const lines = dxf.split(/\r?\n/)
+    const result: number[] = []
+    let entities = false
+    for (let i = 0; i < lines.length - 1; i += 2) {
+      if (lines[i + 1] === 'ENTITIES') entities = true
+      if (entities && lines[i].trim() === '41') {
+        result.push(Number(lines[i + 1]))
+      }
+    }
+    return result
+  }
+
+  it('fits only the drawn characters into the saved length (文字の均等縮小)', () => {
+    // Jw_cad saves 19 mm for 文字の均等縮小^3 at 3 mm (7 characters).
+    const { dxf } = convertJwwToDxf(ezjww, drawing('文字の均等縮小^3', 19, 3))
+    expect(texts(dxf)).toEqual(['文字の均等縮小'])
+    expect(widthFactors(dxf)[0]).toBeCloseTo(19 / 21)
+    // Same width per character as without the code.
+    const plain = convertJwwToDxf(ezjww, drawing('文字の均等縮小', 19, 3))
+    expect(widthFactors(dxf)[0]).toBeCloseTo(widthFactors(plain.dxf)[0])
   })
 
   it('escapes literal carets', () => {

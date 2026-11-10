@@ -18,6 +18,8 @@ import { jwwPaperSize } from './jwwPaper'
 import {
   escapeTextCarets,
   hasJwwSpecialCodes,
+  jwwCharCells,
+  jwwTextCells,
   layoutJwwText
 } from './jwwSpecialText'
 
@@ -635,7 +637,7 @@ class JwwDxfWriter {
           break
         }
         const { style, font } = this.styleFor(content, n('x'), n('y'))
-        const width =
+        let width =
           this.textWidths[this.textWidthIndex++] ?? (n('width_factor') || 1)
         // The JWW point is the bottom of the character cell; the DXF point
         // is the baseline, one descender above it.
@@ -647,10 +649,19 @@ class JwwDxfWriter {
         const sin = Math.sin(angle)
         // 特殊文字 (^u, ^o, ...) become TEXT runs of their own. Jw_cad
         // ignores them in 縦字.
-        const runs =
-          font.trim().startsWith('@') || !hasJwwSpecialCodes(content)
-            ? [{ text: content, x: 0, y: 0, scale: 1 }]
-            : layoutJwwText(content)
+        const special =
+          !font.trim().startsWith('@') && hasJwwSpecialCodes(content)
+        const runs = special
+          ? layoutJwwText(content)
+          : [{ text: content, x: 0, y: 0, scale: 1 }]
+        if (special) {
+          // ezjww fits every character of the string, codes included, into
+          // the saved length; Jw_cad fits only the drawn ones (and the
+          // length already has 文字の均等縮小 `^<digit>` applied).
+          const all = [...content].reduce((sum, c) => sum + jwwCharCells(c), 0)
+          const drawn = jwwTextCells(content)
+          if (drawn > 0) width *= all / drawn
+        }
         for (const run of runs) {
           const along = run.x * cell * width
           const rise = cell * (run.y + run.scale * metrics.descender)
