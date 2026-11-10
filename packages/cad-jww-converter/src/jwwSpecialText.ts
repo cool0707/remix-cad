@@ -12,13 +12,17 @@
  * | `^o` | 重ね文字: the next character, small, centred on the previous one |
  * | `^w` | 重ね文字: the next two (half-width) characters, small, centred on the previous one |
  * | `^n` `^b` `^B` | 重ね文字: the next character, full size, centred on the previous one |
- * | `^0`–`^9` | not drawn (e.g. `^4` of 文字の均等縮小) |
+ * | `^0`–`^9` | 文字の均等縮小: not drawn; Jw_cad narrows the text by that many half-width cells |
  *
  * DXF has no equivalent, and a TEXT string goes through the MTEXT parser
  * where `^x` is a control character (drawn as "▯", which the fonts show as
  * "?"). The small characters of `^u` / `^d` / `^c` keep the width of the
  * character at normal size, like Jw_cad. {@link layoutJwwText} therefore splits such a string into runs that
  * become separate TEXT entities.
+ *
+ * Jw_cad saves the end point of a text where the drawn characters end, so
+ * the codes take no room and 均等縮小 is already applied. The width of the
+ * characters is that length over {@link jwwTextCells} cells.
  */
 
 /** A piece of a Jw_cad text drawn as one DXF TEXT. */
@@ -53,6 +57,18 @@ export function hasJwwSpecialCodes(text: string) {
  * Text without codes is a single run.
  */
 export function layoutJwwText(text: string): JwwTextRun[] {
+  return layout(text).runs
+}
+
+/**
+ * Length of a Jw_cad text in character cells (full-width = 1) as drawn,
+ * without the special-character codes.
+ */
+export function jwwTextCells(text: string) {
+  return layout(text).cells
+}
+
+function layout(text: string) {
   const chars = [...text]
   const runs: JwwTextRun[] = []
   let x = 0
@@ -118,7 +134,7 @@ export function layoutJwwText(text: string): JwwTextRun[] {
         break
     }
   }
-  return runs
+  return { runs, cells: x }
 
   function addOverlay(chars: string, scale: number) {
     const width = [...chars].reduce((sum, c) => sum + jwwCharCells(c), 0)
