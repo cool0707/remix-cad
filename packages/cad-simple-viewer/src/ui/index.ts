@@ -1,4 +1,5 @@
 export * from './AcUiDialog'
+export * from './AcUiConfirmDialog'
 export * from './AcUiFileOpenPanel'
 export * from './AcUiAboutDialog'
 export * from './AcUiAciPaletteUi'

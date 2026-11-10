@@ -29,6 +29,7 @@ import {
   AcApEllipseCmd,
   AcApEntityPreviewCmd,
   AcApEraseCmd,
+  AcApExplodeCmd,
   AcApExportDrawingCmd,
   AcApHatchCmd,
   AcApHideObjectsCmd,
@@ -2026,6 +2027,7 @@ export class AcApDocManager {
     addSystemCommand('entout', 'entout', new AcApEntityPreviewCmd())
     addSystemCommand('ellipse', 'ellipse', new AcApEllipseCmd())
     addSystemCommand('erase', 'erase', new AcApEraseCmd())
+    addSystemCommand('explode', 'explode', new AcApExplodeCmd())
     addSystemCommand('hideobjects', 'hideobjects', new AcApHideObjectsCmd())
     addSystemCommand('dimlinear', 'dimlinear', new AcApDimLinearCmd())
     registerMeasureCommands(addSystemCommand, {

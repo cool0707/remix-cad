@@ -1,4 +1,4 @@
-import { AcGePoint2dLike } from '@mlightcad/data-model'
+import { AcDbBlockReference, AcGePoint2dLike } from '@mlightcad/data-model'
 
 import { isInsertableBlockName } from '../command/draw/isInsertableBlockName'
 import { getSessionUndo } from '../command/markup/AcApMarkupHistory'
@@ -147,13 +147,17 @@ export class AcApContextMenuController {
 
     const actions = this.options.editActions
     const selected = actions.selectedEntities(false)
+    const editable = actions.selectedEntities(true)
     const db = doc.database
     const session = getSessionUndo()
     const last = tools.lastCommand
     return {
       kind: 'idle',
       hasSelection: selected.length > 0,
-      hasEditableSelection: actions.selectedEntities(true).length > 0,
+      hasEditableSelection: editable.length > 0,
+      hasSymbolSelection: editable.some(
+        entity => entity instanceof AcDbBlockReference
+      ),
       canEdit: actions.canEdit,
       canPaste: actions.canPaste,
       canUndo: session.canUndo(db),
@@ -244,7 +248,8 @@ export class AcApContextMenuController {
         actions.duplicate()
         break
       case 'erase':
-        docManager.sendStringToExecute('erase')
+      case 'explode':
+        docManager.sendStringToExecute(id)
         break
       case 'selectSameLayer':
         actions.selectSameLayer()

@@ -251,6 +251,11 @@ export default {
       prompt:
         'حدد العناصر'
     },
+    explode: {
+      ...enCommand.ACAD.explode,
+      description: 'يفكك الرموز (الكتل) المحددة إلى الأشكال التي تتكون منها',
+      prompt: 'حدد الرموز'
+    },
 
     extmax: {
       ...enCommand.ACAD.extmax,

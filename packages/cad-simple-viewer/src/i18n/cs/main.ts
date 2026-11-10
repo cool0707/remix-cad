@@ -70,6 +70,7 @@ export default {
       imageattach: 'Připojit obrázek',
       xattach: 'Připojit propojený výkres',
       erase: 'Smazat',
+      explode: 'Rozložit',
       undo: 'Zpět',
       redo: 'Znovu',
       zoom: 'Zoom',
@@ -134,6 +135,7 @@ export default {
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      explode: 'rozložit rozbít explode',
       hatch: 'šrafa šrafování',
       insert: 'blok',
       layer: 'hladina',
@@ -161,6 +163,7 @@ export default {
     paste: 'Vložit',
     duplicate: 'Duplikovat',
     erase: 'Odstranit',
+    explode: 'Rozložit',
     selectSameLayer: 'Vybrat stejnou hladinu',
     properties: 'Zobrazit vlastnosti',
     selectAll: 'Vybrat vše',
@@ -308,6 +311,16 @@ export default {
     erase: 'Smazat',
     collapse: 'Sbalit panel nástrojů',
     expand: 'Rozbalit panel nástrojů'
+  },
+  explode: {
+    noSymbol: 'Vyberte symbol, který chcete rozložit.',
+    removeTitle: 'Odebrat ze seznamu symbolů?',
+    removeMessage:
+      'Ve výkresu už nezůstal žádný symbol {names}.\nOdebrat jej také ze seznamu symbolů?',
+    remove: 'Odebrat',
+    keep: 'Ponechat',
+    quote: '„{name}“',
+    separator: ', '
   },
   textHeight: {
     title: 'Výška textu',

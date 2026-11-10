@@ -41,6 +41,8 @@ export interface AcApContextMenuState {
   hasSelection?: boolean
   /** Idle: some selected entities can be edited (not all on locked layers) */
   hasEditableSelection?: boolean
+  /** Idle: some editable selected entities are symbols (block references) */
+  hasSymbolSelection?: boolean
   /** The document is open for writing */
   canEdit?: boolean
   /** Something copied from this document can be pasted */
@@ -111,8 +113,8 @@ function ctrl(key: string, mac?: boolean, shift = false) {
  * Builds the right-click menu for the given state.
  *
  * - While a command waits for input: Enter / undo the last pick / cancel.
- * - With a selection: clipboard, duplicate, delete, select the same layer,
- *   properties.
+ * - With a selection: clipboard, duplicate, delete, explode (symbols),
+ *   select the same layer, properties.
  * - Without one: repeat, create, symbol, comment, paste, select all, zoom
  *   extents, undo / redo.
  *
@@ -154,6 +156,10 @@ export function acapBuildContextMenu(
       'separator',
       editable && item('duplicate', ctrl('D', isMac)),
       editable && state.isAvailable('erase') && item('erase', 'Delete'),
+      editable &&
+        state.hasSymbolSelection &&
+        state.isAvailable('explode') &&
+        item('explode'),
       'separator',
       item('selectSameLayer'),
       state.isAvailable('properties') && item('properties')

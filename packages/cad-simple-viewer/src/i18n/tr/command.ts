@@ -139,6 +139,10 @@ export default {
       description: 'Seçili varlıkları çizimden siler',
       prompt: 'Varlıkları seçin'
     },
+    explode: {
+      description: 'Seçili sembolleri (blokları) oluşturan şekillere ayırır',
+      prompt: 'Sembolleri seçin'
+    },
     extmax: {
       description:
         'Tuval çizim kapsamının sağ üst köşesini saklar (salt okunur)'

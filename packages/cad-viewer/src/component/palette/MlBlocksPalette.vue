@@ -7,6 +7,7 @@ import {
   StarFilled
 } from '@element-plus/icons-vue'
 import {
+  acapBlockEvents,
   AcApBlockInsertSession,
   AcApDocManager
 } from '@mlightcad/cad-simple-viewer'
@@ -205,6 +206,11 @@ function onDocumentActivated() {
   void reload()
 }
 
+/** A symbol was removed from the list (EXPLODE of its last copy). */
+function onBlocksChanged() {
+  void reload()
+}
+
 watch(sourceTab, () => {
   void reload()
 })
@@ -223,6 +229,7 @@ onMounted(() => {
   AcApDocManager.instance.events.documentActivated.addEventListener(
     onDocumentActivated
   )
+  acapBlockEvents.blocksChanged.addEventListener(onBlocksChanged)
 })
 
 onUnmounted(() => {
@@ -230,6 +237,7 @@ onUnmounted(() => {
   AcApDocManager.instance.events.documentActivated.removeEventListener(
     onDocumentActivated
   )
+  acapBlockEvents.blocksChanged.removeEventListener(onBlocksChanged)
 })
 </script>
 

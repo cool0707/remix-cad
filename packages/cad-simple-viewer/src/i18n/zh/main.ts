@@ -70,6 +70,7 @@ export default {
       imageattach: '附着图像',
       xattach: '附着链接图纸',
       erase: '删除',
+      explode: '分解',
       undo: '撤销',
       redo: '重做',
       zoom: '缩放',
@@ -134,6 +135,7 @@ export default {
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      explode: '分解 炸开 打散',
       line: '线段',
       pline: '多段线',
       mtext: '多行文字',
@@ -171,6 +173,7 @@ export default {
     paste: '粘贴',
     duplicate: '再制',
     erase: '删除',
+    explode: '分解',
     selectSameLayer: '选择同一图层的对象',
     properties: '显示特性',
     selectAll: '全选',
@@ -314,6 +317,16 @@ export default {
     erase: '删除',
     collapse: '收起工具栏',
     expand: '展开工具栏'
+  },
+  explode: {
+    noSymbol: '请选择要分解的符号。',
+    removeTitle: '要从符号列表中删除吗?',
+    removeMessage:
+      '图纸中已没有符号 {names}。\n是否也从符号列表中删除?',
+    remove: '删除',
+    keep: '保留',
+    quote: '“{name}”',
+    separator: '、'
   },
   textHeight: {
     title: '字高设置',

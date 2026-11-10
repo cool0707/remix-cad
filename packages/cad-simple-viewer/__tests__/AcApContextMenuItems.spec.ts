@@ -66,6 +66,36 @@ describe('acapBuildContextMenu', () => {
       expect(find(entries, 'copy')?.shortcut).toBe('Ctrl+C')
     })
 
+    it('offers explode when a symbol is selected', () => {
+      const entries = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          hasEditableSelection: true,
+          hasSymbolSelection: true
+        })
+      )
+      expect(ids(entries)).toEqual([
+        'cut',
+        'copy',
+        '-',
+        'duplicate',
+        'erase',
+        'explode',
+        '-',
+        'selectSameLayer',
+        'properties'
+      ])
+      const readOnly = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          hasEditableSelection: true,
+          hasSymbolSelection: true,
+          canEdit: false
+        })
+      )
+      expect(ids(readOnly)).not.toContain('explode')
+    })
+
     it('only copies when nothing selected can be edited', () => {
       const entries = acapBuildContextMenu(
         state({ hasSelection: true, hasEditableSelection: false })

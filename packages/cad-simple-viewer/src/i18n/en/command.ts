@@ -133,6 +133,10 @@ export default {
       description: 'Deletes selected entities from the drawing',
       prompt: 'Select entities'
     },
+    explode: {
+      description: 'Breaks selected symbols (blocks) into the shapes they are made of',
+      prompt: 'Select symbols'
+    },
     extmax: {
       description:
         'Stores the upper-right corner of the model-space drawing extents (read-only)'
