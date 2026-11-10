@@ -19,11 +19,13 @@ import {
   boxFieldTransform,
   buildInspectorGroups,
   buildSymbolPropertyRows,
+  collectSymbolContentLayers,
   type MlAnchor,
   type MlBox2d,
   type MlBoxField,
   type MlInspectorRow,
   type MlInspectorSymbol,
+  type MlLayeredEntity,
   normalizeTag,
   summarizeSelection,
   toStoredValue
@@ -214,6 +216,14 @@ export function useEntityInspector(selectionIds: Ref<AcDbObjectId[]>) {
     buildSymbolPropertyRows(symbols.value.map(toInspectorSymbol))
   )
 
+  /**
+   * Layers the selected symbols' contents are drawn on (they decide whether
+   * the parts are shown, not the symbol's own layer).
+   */
+  const symbolContentLayers = computed(() =>
+    collectSymbolContentLayers(symbols.value as unknown as MlLayeredEntity[])
+  )
+
   const summary = computed(() => summarizeSelection(entities.value))
 
   const box = computed(() => unionBoxes(entities.value))
@@ -322,6 +332,7 @@ export function useEntityInspector(selectionIds: Ref<AcDbObjectId[]>) {
     groups,
     symbols,
     symbolPropertyRows,
+    symbolContentLayers,
     summary,
     box,
     precision,

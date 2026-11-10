@@ -805,6 +805,9 @@ export default {
         totalArea: 'Toplam alan',
         itemCount: '({count} öğe)',
         invisibleAttribute: 'Gizli alan',
+        contentLayers: 'İçerik katmanları',
+        contentLayersHint:
+          'Sembolün parçaları bu katmanlarla gösterilir veya gizlenir. Yalnızca sembolün kendi katmanını gizlemek onları gizlemez.',
         constantAttribute: 'Sabit (değiştirilemez)',
         allLocked: 'Bu nesneler kilitli katmanlarda ve değiştirilemez',
         someLocked: 'Kilitli katmanlardaki nesneler değiştirilmez'

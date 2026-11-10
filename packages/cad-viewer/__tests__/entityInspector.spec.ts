@@ -9,9 +9,11 @@ import {
   boxFieldTransform,
   buildInspectorGroups,
   buildSymbolPropertyRows,
+  collectSymbolContentLayers,
   formatInspectorNumber,
   inspectorValueKey,
   type MlInspectorSymbol,
+  type MlLayeredEntity,
   numberKind,
   PLACEMENT_GROUP,
   summarizeSelection,
@@ -336,5 +338,70 @@ describe('number precision', () => {
     expect(formatInspectorNumber(100, 4)).toBe('100')
     expect(formatInspectorNumber(-0.00001, 2)).toBe('0')
     expect(formatInspectorNumber(1 / 3)).toBe('0.333333')
+  })
+})
+
+describe('collectSymbolContentLayers', () => {
+  const entity = (type: string, layer: string): MlLayeredEntity => ({
+    type,
+    layer
+  })
+  const block = (id: string, entities: MlLayeredEntity[]) => ({
+    objectId: id,
+    newIterator: () => entities
+  })
+  const insert = (
+    layer: string,
+    def: ReturnType<typeof block>,
+    attributes: MlLayeredEntity[] = []
+  ): MlLayeredEntity => ({
+    type: 'BlockReference',
+    layer,
+    blockTableRecord: def,
+    attributeIterator: () => attributes
+  })
+
+  it('lists the layers of the contents, not the symbol layer', () => {
+    const def = block('B1', [
+      entity('Line', '壁'),
+      entity('Arc', '建具'),
+      entity('Line', '壁')
+    ])
+    expect(collectSymbolContentLayers([insert('記号', def)])).toEqual([
+      '壁',
+      '建具'
+    ])
+  })
+
+  it('gives contents on layer 0 the layer of the symbol', () => {
+    const def = block('B1', [entity('Line', '0'), entity('Line', '壁')])
+    expect(collectSymbolContentLayers([insert('記号', def)])).toEqual([
+      '記号',
+      '壁'
+    ])
+  })
+
+  it('follows nested symbols and attributes, skips attribute definitions', () => {
+    const inner = block('B2', [entity('Line', '0'), entity('Circle', '設備')])
+    const outer = block('B1', [
+      entity('AttDef', '文字'),
+      insert('建具', inner),
+      insert('0', inner)
+    ])
+    expect(
+      collectSymbolContentLayers([
+        insert('記号', outer, [entity('Attrib', '文字')])
+      ])
+    ).toEqual(['文字', '建具', '設備', '記号'])
+  })
+
+  it('merges several symbols and stops on cyclic definitions', () => {
+    const cyclic: ReturnType<typeof block> = block('B1', [])
+    const items = [entity('Line', '壁')]
+    cyclic.newIterator = () => [...items, insert('0', cyclic)]
+    const other = block('B3', [entity('Line', '寸法')])
+    expect(
+      collectSymbolContentLayers([insert('A', cyclic), insert('B', other)])
+    ).toEqual(['壁', '寸法'])
   })
 })
