@@ -2792,13 +2792,10 @@ export class AcTrView2d extends AcEdBaseView {
     entities.forEach(entity => {
       const objectId = String(entity.objectId ?? '')
       if (objectId) {
-        // Drop in-flight commits and release the convert claim: an entity
-        // that comes back with the same id (undo of an erase or a layer
-        // delete) must be converted again, not skipped as already claimed.
-        this._entityConvertGeneration.set(
-          objectId,
-          (this._entityConvertGeneration.get(objectId) ?? 0) + 1
-        )
+        // Release the convert claim: an entity that comes back with the same
+        // id (undo of an erase or a layer delete) must be converted again,
+        // not skipped as already claimed. In-flight commits are left alone
+        // (commands such as grip edits remove and re-add an entity at once).
         this._claimedConvertObjectIds.delete(objectId)
       }
       this._scene.removeEntity(entity.objectId)
