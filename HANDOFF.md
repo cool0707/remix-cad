@@ -243,6 +243,8 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   JWW・SXF とも往復で位置・高さ・幅係数が一致する (テスト済み)。
 - **JWW** (`cad-jww-converter/src/jwwExport.ts`、ezjww の `toJwwBytes`): 読み込みと同じ Worker で書く (`AcDbJwwConverter.exportDatabase()` / `writeJww()`)。
   用紙 A0–A4 横のみ、全レイヤグループに同じ縮尺、座標は用紙中心原点の図寸。`<g>-<l> グループ名 - レイヤ名` の画層は元の位置へ、他は順に詰める。
+  画層名は読み込み時に `<g>-<l> グループ名 - レイヤ名` / `<g>-<l> レイヤ名` (グループ名なし) / `<g>-<l> グループ名 -` (レイヤ名なし) / `<g>-<l>` にする。
+  `Group0` のように番号を繰り返すだけのグループ名と `0-1` のようなレイヤ名は名前なし扱い (`jwwLayerLabel` / `parseJwwLayerLabel`)。
   色 → 既定パレットで最も近い線色 1–9 (黒白 = 2、`colorMode: 'exact'` で SXF 拡張色)、線種は `JWW_*` 名はそのまま・他はパターンの形で 1–9、
   `@` フォント → 縦字 (角度 = 文字列方向 + 90°)、塗りつぶし → 三角形分割したソリッド (色は COLORREF で正確)、画像 → `^@BM%temp%名前` + gzip 同梱。
 - **SXF** (`cad-sxf-converter/src/sxfExport.ts`、`exportSxf(db, 'sfc'|'p21'|'sfz'|'p2z')`): 要素は図面縮尺の部分図 1 つ (sfig_org 種別 1) に実寸で入れ、

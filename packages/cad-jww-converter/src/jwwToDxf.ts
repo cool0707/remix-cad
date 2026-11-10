@@ -328,6 +328,62 @@ export function ezjwwLayerNames(header: {
   return result
 }
 
+/**
+ * Matches a layer group name that only repeats the group number, such as
+ * "Group0" or "Group A" (written by converters and some templates).
+ */
+export function isDefaultJwwGroupName(name: string, group: number) {
+  const match = /^group\s*([0-9a-f]+)$/i.exec(name.trim())
+  if (!match) return false
+  return (
+    match[1] === String(group) ||
+    match[1].toUpperCase() === hex(group)
+  )
+}
+
+/**
+ * The part of a JWW layer name after "G-L ":
+ * - "<group> - <layer>" when both are named,
+ * - "<layer>" when only the layer is named,
+ * - "<group> -" when only the group is named,
+ * - "" when neither is named.
+ * Names that only repeat the numbers ("Group0", layer "0-1") count as unnamed.
+ * `jwwExport.ts` parses this back (`parseJwwLayerLabel`).
+ */
+export function jwwLayerLabel(
+  group: number,
+  layer: number,
+  groupName: string,
+  layerName: string
+) {
+  const groupLabel = isDefaultJwwGroupName(groupName, group)
+    ? ''
+    : tableName(groupName)
+  const layerLabel =
+    layerName.trim().toUpperCase() === `${hex(group)}-${hex(layer)}`
+      ? ''
+      : tableName(layerName)
+  if (groupLabel && layerLabel) return `${groupLabel} - ${layerLabel}`
+  if (groupLabel) return `${groupLabel} -`
+  return layerLabel
+}
+
+/** Inverse of `jwwLayerLabel`. */
+export function parseJwwLayerLabel(label: string): {
+  group?: string
+  layer?: string
+} {
+  const split = label.indexOf(' - ')
+  if (split >= 0) {
+    return {
+      group: label.slice(0, split) || undefined,
+      layer: label.slice(split + 3) || undefined
+    }
+  }
+  if (label.endsWith(' -')) return { group: label.slice(0, -2) || undefined }
+  return { layer: label || undefined }
+}
+
 function hex(value: number) {
   return value.toString(16).toUpperCase()
 }
@@ -416,10 +472,7 @@ class JwwDxfWriter {
     })) {
       const group = source.groups[g]
       const layer = group.layers[l]
-      const label = [group.name, layer.name]
-        .map(s => tableName(s))
-        .filter(s => s !== '')
-        .join(' - ')
+      const label = jwwLayerLabel(g, l, group.name, layer.name)
       this.layersByEzName.set(ezName, {
         name: tableName(`${hex(g)}-${hex(l)}${label ? ` ${label}` : ''}`),
         group: g,
