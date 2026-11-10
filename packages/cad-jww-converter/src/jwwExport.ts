@@ -18,6 +18,7 @@ import type {
 } from 'ezjww'
 import { gzipSync } from 'fflate'
 
+import { parseJwwLayerLabel } from './jwwToDxf'
 import type { JwwWriteResult } from './jwwWorkerProtocol'
 
 /** The part of the `ezjww` API the writer needs (see {@link EzjwwApi}). */
@@ -231,13 +232,10 @@ class JwwBuilder {
         const key = slot.group * 16 + slot.layer
         if (!used.has(key)) {
           used.add(key)
-          const label = match[3] ?? ''
-          const split = label.indexOf(' - ')
           named.push({
             name: layer.name,
             slot,
-            group: split >= 0 ? label.slice(0, split) : label || undefined,
-            layer: split >= 0 ? label.slice(split + 3) : undefined
+            ...parseJwwLayerLabel(match[3] ?? '')
           })
           continue
         }

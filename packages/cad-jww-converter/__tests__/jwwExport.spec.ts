@@ -26,6 +26,12 @@ import {
   triangulate,
   writeJwwBytes
 } from '../src/jwwExport'
+import {
+  convertJwwToDxf,
+  isDefaultJwwGroupName,
+  jwwLayerLabel,
+  parseJwwLayerLabel
+} from '../src/jwwToDxf'
 
 const SAMPLE = resolve(
   __dirname,
@@ -341,5 +347,82 @@ describe('buildJwwDocument', () => {
       end_x: -128.5
     })
     expect(ezjww.toJwwBytes(document).length).toBeGreaterThan(0)
+  })
+})
+
+describe('JWW layer names', () => {
+  it('drops group names that only repeat the group number', () => {
+    expect(isDefaultJwwGroupName('Group0', 0)).toBe(true)
+    expect(isDefaultJwwGroupName('group 10', 10)).toBe(true)
+    expect(isDefaultJwwGroupName('GroupA', 10)).toBe(true)
+    expect(isDefaultJwwGroupName('Group1', 0)).toBe(false)
+    expect(isDefaultJwwGroupName('平面図', 0)).toBe(false)
+    expect(jwwLayerLabel(0, 1, 'Group0', '壁')).toBe('壁')
+    expect(jwwLayerLabel(0, 1, 'Group1', '壁')).toBe('Group1 - 壁')
+    expect(jwwLayerLabel(0, 1, '平面図', '壁')).toBe('平面図 - 壁')
+    expect(jwwLayerLabel(0, 1, '平面図', '')).toBe('平面図 -')
+    expect(jwwLayerLabel(0, 1, 'Group0', '')).toBe('')
+    expect(jwwLayerLabel(1, 0, '図枠', '1-0')).toBe('図枠 -')
+  })
+
+  it('parses the label back into group and layer names', () => {
+    expect(parseJwwLayerLabel('平面図 - 壁')).toEqual({
+      group: '平面図',
+      layer: '壁'
+    })
+    expect(parseJwwLayerLabel('壁')).toEqual({ layer: '壁' })
+    expect(parseJwwLayerLabel('平面図 -')).toEqual({ group: '平面図' })
+    expect(parseJwwLayerLabel('')).toEqual({})
+  })
+
+  it('round-trips layer-only, group-only and "Group0" names', () => {
+    const names = ['0-1 壁', '1-0 図枠 -', '2-3 平面図 - 通り芯']
+    const { document } = buildJwwDocument(ezjww.newJwwDocument(), {
+      title: '',
+      layers: names.map(name => ({
+        name,
+        color: [0, 0, 0] as [number, number, number],
+        foreground: true,
+        hidden: false,
+        locked: false
+      })),
+      entities: names.map((layer, i) => ({
+        kind: 'polyline' as const,
+        style: {
+          layer,
+          color: [0, 0, 0] as [number, number, number],
+          foreground: true,
+          lineType: 'CONTINUOUS',
+          lineTypePattern: [],
+          lineWeight: 0
+        },
+        points: [
+          [0, i * 100],
+          [1000, i * 100]
+        ] as [number, number][],
+        closed: false
+      })),
+      sheet: {
+        paper: 'A4',
+        portrait: false,
+        width: 297,
+        height: 210,
+        scale: 1,
+        origin: [0, 0]
+      },
+      warnings: []
+    })
+    const groups = document.options.layer_groups
+    expect(groups[0].name).toBe('')
+    expect(groups[0].layers[1].name).toBe('壁')
+    expect(groups[1].name).toBe('図枠')
+    expect(groups[2].name).toBe('平面図')
+    expect(groups[2].layers[3].name).toBe('通り芯')
+
+    // A group named after its number, as in files from other converters.
+    groups[0].name = 'Group0'
+    const { dxf } = convertJwwToDxf(ezjww, ezjww.toJwwBytes(document))
+    for (const name of names) expect(dxf).toContain(`8\n${name}\n`)
+    expect(dxf).not.toContain('Group0')
   })
 })
