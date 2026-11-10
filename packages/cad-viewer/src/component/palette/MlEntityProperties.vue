@@ -197,6 +197,7 @@
                     :options="layerOptions"
                     :placeholder="mixedText"
                     @update:modelValue="(v: string) => setProperty(row, v)"
+                    @layer-state-toggle="onLayerStateToggle"
                   />
 
                   <ml-line-type-select
@@ -279,6 +280,52 @@
                   />
                 </template>
               </div>
+
+              <!-- Symbols: layers their contents are drawn on -->
+              <template v-if="row.name === 'layer' && showContentLayers(row)">
+                <div
+                  class="ml-inspector-row__label ml-inspector-row__label--sub"
+                  :title="panelText('contentLayersHint')"
+                >
+                  {{ panelText('contentLayers') }}
+                </div>
+                <ul
+                  class="ml-inspector-row__value ml-inspector-content-layers"
+                  :title="panelText('contentLayersHint')"
+                >
+                  <li
+                    v-for="item in contentLayerItems"
+                    :key="item.name"
+                    class="ml-inspector-content-layer"
+                    :class="{ 'is-hidden': !item.shown }"
+                  >
+                    <button
+                      type="button"
+                      class="ml-inspector-content-layer__toggle"
+                      :class="item.shown ? 'is-on' : 'is-off'"
+                      :title="
+                        item.shown
+                          ? t('main.layerSelect.tooltip.hidden')
+                          : t('main.layerSelect.tooltip.visible')
+                      "
+                      :disabled="!item.exists"
+                      @click="toggleLayerState(item.name, 'on')"
+                    >
+                      <component :is="layerLight" />
+                    </button>
+                    <span
+                      class="ml-inspector-content-layer__color"
+                      :style="{ backgroundColor: item.cssColor }"
+                    />
+                    <span
+                      class="ml-inspector-content-layer__name"
+                      :title="item.name"
+                    >
+                      {{ item.name }}
+                    </span>
+                  </li>
+                </ul>
+              </template>
 
               <!-- Item values of an array property -->
               <template v-if="row.type === 'array'">
@@ -423,6 +470,7 @@ import {
   symbolicName,
   transparencyName
 } from '../../locale'
+import { layerLight } from '../../svg'
 import {
   MlColorDropdown,
   MlHatchPatternDropdown,
@@ -449,6 +497,7 @@ const {
   groups,
   symbols,
   symbolPropertyRows,
+  symbolContentLayers,
   summary,
   box,
   precision,
@@ -460,7 +509,7 @@ const {
   selectOnlyType
 } = useEntityInspector(toRef(props, 'selectionIds'))
 
-const { layers } = useLayers(AcApDocManager.instance)
+const { layers, toggleLayerState } = useLayers(AcApDocManager.instance)
 const layerOptions = computed(() =>
   layers.map(layer => ({
     value: layer.name,
@@ -472,6 +521,36 @@ const layerOptions = computed(() =>
     lineType: layer.linetype
   }))
 )
+
+function onLayerStateToggle(payload: {
+  layerName: string
+  state: 'on' | 'locked'
+}) {
+  toggleLayerState(payload.layerName, payload.state)
+}
+
+/** Layers the contents of the selected symbols are drawn on. */
+const contentLayerItems = computed(() =>
+  symbolContentLayers.value.map(name => {
+    const layer = layers.find(item => item.name === name)
+    return {
+      name,
+      exists: !!layer,
+      shown: layer ? layer.isOn && !layer.isFrozen : true,
+      cssColor: layer?.cssColor || '#7b8794'
+    }
+  })
+)
+
+/**
+ * Shown under the layer row of symbols whose contents are (also) on other
+ * layers: hiding the symbol's own layer does not hide those parts.
+ */
+function showContentLayers(row: MlInspectorRow) {
+  const names = symbolContentLayers.value
+  if (!names.length) return false
+  return row.mixed || names.some(name => name !== row.value)
+}
 
 /* ================= text ================= */
 
@@ -798,6 +877,71 @@ watch(
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--el-text-color-regular);
+}
+
+.ml-inspector-content-layers {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ml-inspector-content-layer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 20px;
+  color: var(--el-text-color-regular);
+}
+
+.ml-inspector-content-layer.is-hidden {
+  color: var(--el-text-color-secondary);
+}
+
+.ml-inspector-content-layer__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--el-color-primary);
+  cursor: pointer;
+}
+
+.ml-inspector-content-layer__toggle:hover:not(:disabled) {
+  background: var(--el-fill-color);
+}
+
+.ml-inspector-content-layer__toggle.is-off {
+  color: var(--el-text-color-disabled);
+}
+
+.ml-inspector-content-layer__toggle :deep(svg) {
+  width: 14px;
+  height: 14px;
+}
+
+.ml-inspector-content-layer__color {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid var(--el-border-color);
+}
+
+.ml-inspector-content-layer__name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .ml-inspector-muted {

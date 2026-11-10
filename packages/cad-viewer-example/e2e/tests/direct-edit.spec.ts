@@ -176,6 +176,23 @@ test('arrow keys nudge the selection, Shift ten times as far', async ({
 
 test('corner handle scales around the opposite corner', async ({ page }) => {
   await loadFixture(page)
+  // The opening zoom can put the right end of the lines (the handle) and the
+  // drop point (x = 150) under the right sidebar; zoom out so both are on
+  // the canvas.
+  const center = await clientPoint(page, { x: 50, y: 15 })
+  await page.mouse.move(center.x, center.y)
+  for (let i = 0; i < 3; i++) {
+    await page.mouse.wheel(0, 300)
+    await page.waitForTimeout(100)
+  }
+  await page.waitForTimeout(300)
+  const canvasBox = (await page
+    .locator('.ml-cad-container canvas')
+    .first()
+    .boundingBox())!
+  const drop = await clientPoint(page, { x: 160, y: 0 })
+  expect(drop.x).toBeLessThan(canvasBox.x + canvasBox.width)
+
   await clickAt(page, { x: 25, y: 0 })
   await expect(frame(page)).toBeVisible()
 

@@ -1018,9 +1018,14 @@ export class AcTrView2d extends AcEdBaseView {
         if (!this.isActiveManagedView()) return
         if (
           !this.isShortcutEventInsideViewer(e) &&
-          // Ctrl / Cmd + K also from the host's UI (ribbon, panels), but not
-          // from its text fields.
-          !(acapIsCommandPaletteShortcut(e) && !isEditableTarget(e.target))
+          // Ctrl / Cmd + K and undo / redo also from the host's UI (ribbon,
+          // panels — e.g. right after deleting a layer in the layer panel),
+          // but not from its text fields.
+          !(
+            (acapIsCommandPaletteShortcut(e) ||
+              this._keyHandler.resolveUndoRedoShortcut(e)) &&
+            !isEditableTarget(e.target)
+          )
         ) {
           return
         }
@@ -2786,6 +2791,21 @@ export class AcTrView2d extends AcEdBaseView {
     const entities = Array.isArray(entity) ? entity : [entity]
     entities.forEach(entity => this._scene.removeEntity(entity.objectId))
     this._isDirty = true
+  }
+
+  /**
+   * Forgets that entities erased from the database were converted, so that
+   * they are converted again when they come back with the same ids (undo of
+   * an erase or of a layer delete). Without this the convert claim taken on
+   * the first convert makes the restored entity be skipped.
+   */
+  releaseErasedEntities(objectIds: AcDbObjectId[]) {
+    for (const objectId of objectIds) {
+      const id = String(objectId ?? '')
+      if (id && !this._scene.hasEntity(objectId)) {
+        this._claimedConvertObjectIds.delete(id)
+      }
+    }
   }
 
   /**

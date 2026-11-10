@@ -800,6 +800,9 @@ export default {
         totalArea: 'Total area',
         itemCount: '({count} items)',
         invisibleAttribute: 'Hidden field',
+        contentLayers: 'Content layers',
+        contentLayersHint:
+          'The parts of the symbol are shown or hidden by these layers. Hiding only the symbol\'s own layer does not hide them.',
         constantAttribute: 'Constant (cannot be changed)',
         allLocked: 'These objects are on locked layers and cannot be changed',
         someLocked: 'Objects on locked layers will not be changed'

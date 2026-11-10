@@ -792,6 +792,9 @@ export default {
         totalArea: 'Celková plocha',
         itemCount: '(počet: {count})',
         invisibleAttribute: 'Skryté pole',
+        contentLayers: 'Hladiny obsahu',
+        contentLayersHint:
+          'Části symbolu se zobrazují nebo skrývají podle těchto hladin. Skrytí pouze hladiny samotného symbolu je neskryje.',
         constantAttribute: 'Konstanta (nelze změnit)',
         allLocked: 'Objekty jsou v uzamčených hladinách a nelze je změnit',
         someLocked: 'Objekty v uzamčených hladinách se nezmění'

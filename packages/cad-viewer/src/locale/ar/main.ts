@@ -1074,6 +1074,9 @@ export default {
         totalArea: 'المساحة الإجمالية',
         itemCount: '(العدد: {count})',
         invisibleAttribute: 'حقل مخفي',
+        contentLayers: 'طبقات المحتوى',
+        contentLayersHint:
+          'تظهر أجزاء الرمز أو تختفي حسب هذه الطبقات. إخفاء طبقة الرمز نفسه فقط لا يخفيها.',
         constantAttribute: 'ثابت (لا يمكن تغييره)',
         allLocked: 'هذه العناصر على طبقات مقفلة ولا يمكن تغييرها',
         someLocked: 'لن تتغير العناصر الموجودة على طبقات مقفلة'

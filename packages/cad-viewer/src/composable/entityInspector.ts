@@ -502,3 +502,69 @@ export function boxFieldTransform(
   if (Math.abs(factor - 1) < EPS) return undefined
   return { kind: 'scale', factor, baseX: current.x, baseY: current.y }
 }
+
+/* ===================== symbol content layers ===================== */
+
+/** Minimal view of an entity used to find the layers a symbol is drawn on. */
+export interface MlLayeredEntity {
+  type: string
+  layer: string
+  /** Block definition of an INSERT. */
+  blockTableRecord?: {
+    objectId: string
+    newIterator(): Iterable<MlLayeredEntity>
+  } | null
+  /** Attributes of an INSERT. */
+  attributeIterator?(): Iterable<MlLayeredEntity>
+}
+
+const ATTRIBUTE_DEFINITION_TYPES = new Set(['AttDef', 'AttributeDefinition'])
+
+/** Nested symbols deeper than this are not followed (cyclic definitions). */
+const MAX_SYMBOL_DEPTH = 16
+
+/**
+ * Lists the layers the contents of the given symbols are drawn on, in the
+ * order they are found (no duplicates).
+ *
+ * The visibility of a symbol's parts follows these layers, not the layer of
+ * the symbol itself: a JWW block whose lines are on 壁 and 建具 stays
+ * visible when only the symbol's own layer is hidden. Contents on layer 0
+ * take the layer of the symbol that holds them (as they are drawn), nested
+ * symbols are followed and attribute definitions are skipped (the INSERT's
+ * attributes are shown instead).
+ */
+export function collectSymbolContentLayers(
+  symbols: MlLayeredEntity[]
+): string[] {
+  const layers = new Set<string>()
+  const resolve = (layer: string, inherited: string) =>
+    !layer || layer === '0' ? inherited : layer
+  const walk = (
+    symbol: MlLayeredEntity,
+    layer: string,
+    path: Set<string>,
+    depth: number
+  ) => {
+    for (const attr of symbol.attributeIterator?.() ?? []) {
+      layers.add(resolve(attr.layer, layer))
+    }
+    const block = symbol.blockTableRecord
+    if (!block || path.has(block.objectId) || depth > MAX_SYMBOL_DEPTH) return
+    path.add(block.objectId)
+    for (const entity of block.newIterator()) {
+      if (ATTRIBUTE_DEFINITION_TYPES.has(entity.type)) continue
+      const own = resolve(entity.layer, layer)
+      if (entity.type === 'BlockReference') {
+        walk(entity, own, path, depth + 1)
+      } else {
+        layers.add(own)
+      }
+    }
+    path.delete(block.objectId)
+  }
+  for (const symbol of symbols) {
+    walk(symbol, symbol.layer || '0', new Set(), 0)
+  }
+  return [...layers]
+}

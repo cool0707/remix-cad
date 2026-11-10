@@ -781,6 +781,9 @@ export default {
         totalArea: '面積の合計',
         itemCount: '({count} 個)',
         invisibleAttribute: '非表示の項目',
+        contentLayers: '中身のレイヤー',
+        contentLayersHint:
+          'シンボルの中の図形は、これらのレイヤーで表示・非表示が切り替わります。シンボル自体のレイヤーを非表示にしても消えません。',
         constantAttribute: '固定値 (変更できません)',
         allLocked: 'ロックされたレイヤーの図形なので変更できません',
         someLocked: 'ロックされたレイヤーの図形は変更されません'

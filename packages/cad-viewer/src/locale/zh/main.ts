@@ -755,6 +755,9 @@ export default {
         totalArea: '总面积',
         itemCount: '({count} 个)',
         invisibleAttribute: '隐藏项',
+        contentLayers: '内容所在图层',
+        contentLayersHint:
+          '符号内的图形按这些图层显示或隐藏。仅隐藏符号本身的图层不会隐藏它们。',
         constantAttribute: '固定值（不可更改）',
         allLocked: '这些对象位于锁定的图层上，无法更改',
         someLocked: '位于锁定图层上的对象不会被更改'
