@@ -15,6 +15,11 @@ import {
   parseJwwImageReference
 } from './jwwImage'
 import { jwwPaperSize } from './jwwPaper'
+import {
+  escapeTextCarets,
+  hasJwwSpecialCodes,
+  layoutJwwText
+} from './jwwSpecialText'
 
 /**
  * The subset of the `ezjww` module API used for conversion. Accepting it as a
@@ -585,16 +590,27 @@ class JwwDxfWriter {
         const cell = n('height')
         const rotation = jwwTextRotation(e, font)
         const angle = (rotation * Math.PI) / 180
-        const rise = cell * metrics.descender
-        const x = n('x') - Math.sin(angle) * rise
-        const y = n('y') + Math.cos(angle) * rise
-        this.entityHeader('TEXT', e, s)
-        this.point(10, x * s, y * s)
-        this.pair(40, fmt(cell * metrics.capHeight * s))
-        this.pair(41, fmt(width))
-        this.pair(1, oneLine(content))
-        this.pair(50, fmt(rotation))
-        this.pair(7, style)
+        const cos = Math.cos(angle)
+        const sin = Math.sin(angle)
+        // 特殊文字 (^u, ^o, ...) become TEXT runs of their own. Jw_cad
+        // ignores them in 縦字.
+        const runs =
+          font.trim().startsWith('@') || !hasJwwSpecialCodes(content)
+            ? [{ text: content, x: 0, y: 0, scale: 1 }]
+            : layoutJwwText(content)
+        for (const run of runs) {
+          const along = run.x * cell * width
+          const rise = cell * (run.y + run.scale * metrics.descender)
+          const x = n('x') + cos * along - sin * rise
+          const y = n('y') + sin * along + cos * rise
+          this.entityHeader('TEXT', e, s)
+          this.point(10, x * s, y * s)
+          this.pair(40, fmt(cell * run.scale * metrics.capHeight * s))
+          this.pair(41, fmt(width))
+          this.pair(1, escapeTextCarets(oneLine(run.text)))
+          this.pair(50, fmt(rotation))
+          this.pair(7, style)
+        }
         break
       }
       case 'SOLID':
