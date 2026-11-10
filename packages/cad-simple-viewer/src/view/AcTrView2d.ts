@@ -2789,18 +2789,23 @@ export class AcTrView2d extends AcEdBaseView {
    */
   removeEntity(entity: AcDbEntity | AcDbEntity[]) {
     const entities = Array.isArray(entity) ? entity : [entity]
-    entities.forEach(entity => {
-      const objectId = String(entity.objectId ?? '')
-      if (objectId) {
-        // Release the convert claim: an entity that comes back with the same
-        // id (undo of an erase or a layer delete) must be converted again,
-        // not skipped as already claimed. In-flight commits are left alone
-        // (commands such as grip edits remove and re-add an entity at once).
-        this._claimedConvertObjectIds.delete(objectId)
-      }
-      this._scene.removeEntity(entity.objectId)
-    })
+    entities.forEach(entity => this._scene.removeEntity(entity.objectId))
     this._isDirty = true
+  }
+
+  /**
+   * Forgets that entities erased from the database were converted, so that
+   * they are converted again when they come back with the same ids (undo of
+   * an erase or of a layer delete). Without this the convert claim taken on
+   * the first convert makes the restored entity be skipped.
+   */
+  releaseErasedEntities(objectIds: AcDbObjectId[]) {
+    for (const objectId of objectIds) {
+      const id = String(objectId ?? '')
+      if (id && !this._scene.hasEntity(objectId)) {
+        this._claimedConvertObjectIds.delete(id)
+      }
+    }
   }
 
   /**

@@ -113,13 +113,17 @@ export class AcApContext {
     // Erase entity
     bind(doc.database.events.entityErased, args => {
       if (!this._active) return
-      const pending = asEntityList(args.entity).filter(entity =>
+      const erased = asEntityList(args.entity)
+      const pending = erased.filter(entity =>
         this.view.hasEntity(entity.objectId)
       )
-      if (pending.length === 0) {
-        return
+      if (pending.length > 0) {
+        this.view.removeEntity(pending.length === 1 ? pending[0] : pending)
       }
-      this.view.removeEntity(pending.length === 1 ? pending[0] : pending)
+      // Undo can bring the same entities back: let them convert again.
+      if (this.view instanceof AcTrView2d) {
+        this.view.releaseErasedEntities(erased.map(entity => entity.objectId))
+      }
     })
 
     // Set layer visibility
