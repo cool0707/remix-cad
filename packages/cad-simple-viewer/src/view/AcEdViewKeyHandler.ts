@@ -293,7 +293,8 @@ export class AcEdViewKeyHandler {
     return true
   }
 
-  private resolveUndoRedoShortcut(
+  /** Undo / redo shortcut of a key event, or `null`. */
+  resolveUndoRedoShortcut(
     e: Pick<KeyboardEvent, 'code' | 'ctrlKey' | 'metaKey' | 'shiftKey'>
   ): AcEdUndoRedoShortcut | null {
     if (!e.ctrlKey && !e.metaKey) {

@@ -1018,9 +1018,14 @@ export class AcTrView2d extends AcEdBaseView {
         if (!this.isActiveManagedView()) return
         if (
           !this.isShortcutEventInsideViewer(e) &&
-          // Ctrl / Cmd + K also from the host's UI (ribbon, panels), but not
-          // from its text fields.
-          !(acapIsCommandPaletteShortcut(e) && !isEditableTarget(e.target))
+          // Ctrl / Cmd + K and undo / redo also from the host's UI (ribbon,
+          // panels — e.g. right after deleting a layer in the layer panel),
+          // but not from its text fields.
+          !(
+            (acapIsCommandPaletteShortcut(e) ||
+              this._keyHandler.resolveUndoRedoShortcut(e)) &&
+            !isEditableTarget(e.target)
+          )
         ) {
           return
         }
@@ -2784,7 +2789,20 @@ export class AcTrView2d extends AcEdBaseView {
    */
   removeEntity(entity: AcDbEntity | AcDbEntity[]) {
     const entities = Array.isArray(entity) ? entity : [entity]
-    entities.forEach(entity => this._scene.removeEntity(entity.objectId))
+    entities.forEach(entity => {
+      const objectId = String(entity.objectId ?? '')
+      if (objectId) {
+        // Drop in-flight commits and release the convert claim: an entity
+        // that comes back with the same id (undo of an erase or a layer
+        // delete) must be converted again, not skipped as already claimed.
+        this._entityConvertGeneration.set(
+          objectId,
+          (this._entityConvertGeneration.get(objectId) ?? 0) + 1
+        )
+        this._claimedConvertObjectIds.delete(objectId)
+      }
+      this._scene.removeEntity(entity.objectId)
+    })
     this._isDirty = true
   }
 
