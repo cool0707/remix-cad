@@ -214,7 +214,7 @@ export default {
     },
     group: {
       draw: '作成',
-      modify: '修正',
+      modify: '移動・変形',
       layer: 'レイヤー',
       properties: 'プロパティ',
       utilities: 'ユーティリティ',
