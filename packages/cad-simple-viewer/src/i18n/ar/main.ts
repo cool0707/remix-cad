@@ -70,6 +70,7 @@ export default {
       imageattach: 'إرفاق صورة',
       xattach: 'إرفاق رسم مرتبط',
       erase: 'حذف',
+      explode: 'تفكيك',
       undo: 'تراجع',
       redo: 'إعادة',
       zoom: 'تكبير/تصغير',
@@ -134,6 +135,7 @@ export default {
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      explode: 'تفكيك تفجير explode',
       hatch: 'تهشير',
       insert: 'كتلة',
       layer: 'طبقة',
@@ -160,6 +162,7 @@ export default {
     paste: 'لصق',
     duplicate: 'تكرار',
     erase: 'حذف',
+    explode: 'تفكيك',
     selectSameLayer: 'تحديد نفس الطبقة',
     properties: 'إظهار الخصائص',
     selectAll: 'تحديد الكل',
@@ -306,6 +309,16 @@ export default {
     erase: 'حذف',
     collapse: 'طي شريط الأدوات',
     expand: 'توسيع شريط الأدوات'
+  },
+  explode: {
+    noSymbol: 'حدد رمزًا لتفكيكه.',
+    removeTitle: 'هل تريد إزالته من قائمة الرموز؟',
+    removeMessage:
+      'لم يتبقَّ في الرسم أي رمز {names}.\nهل تريد إزالته من قائمة الرموز أيضًا؟',
+    remove: 'إزالة',
+    keep: 'إبقاء',
+    quote: '«{name}»',
+    separator: '، '
   },
   textHeight: {
     title: 'ارتفاع النص',

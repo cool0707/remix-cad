@@ -135,6 +135,10 @@ export default {
       description: 'Odstraní vybrané objekty z výkresu',
       prompt: 'Vyberte objekty'
     },
+    explode: {
+      description: 'Rozloží vybrané symboly (bloky) na tvary, ze kterých se skládají',
+      prompt: 'Vyberte symboly'
+    },
     extmax: {
       description:
         'Ukládá pravý horní roh rozsahu výkresu na plátně (pouze pro čtení)'

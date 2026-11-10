@@ -133,6 +133,10 @@ export default {
       description: '選択したオブジェクトを図面から削除します',
       prompt: 'オブジェクトを選択'
     },
+    explode: {
+      description: '選択したシンボル (ブロック) を元の図形に分解します',
+      prompt: 'シンボルを選択'
+    },
     extmax: {
       description: 'キャンバスの図面範囲の右上隅を保持します (読み取り専用)'
     },

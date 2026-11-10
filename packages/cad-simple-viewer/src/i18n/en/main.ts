@@ -70,6 +70,7 @@ export default {
       imageattach: 'Attach image',
       xattach: 'Attach linked drawing',
       erase: 'Delete',
+      explode: 'Explode',
       undo: 'Undo',
       redo: 'Redo',
       zoom: 'Zoom',
@@ -134,6 +135,7 @@ export default {
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      explode: 'explode decompose ungroup',
       pline: 'polyline',
       rectang: 'rectangle',
       mtext: 'mtext multiline',
@@ -180,6 +182,7 @@ export default {
     paste: 'Paste',
     duplicate: 'Duplicate',
     erase: 'Delete',
+    explode: 'Explode',
     selectSameLayer: 'Select same layer',
     properties: 'Show properties',
     selectAll: 'Select all',
@@ -328,6 +331,16 @@ export default {
     erase: 'Delete',
     collapse: 'Collapse toolbar',
     expand: 'Expand toolbar'
+  },
+  explode: {
+    noSymbol: 'Select a symbol to explode.',
+    removeTitle: 'Remove from the symbol list?',
+    removeMessage:
+      'No symbol {names} is left in the drawing.\nRemove it from the symbol list as well?',
+    remove: 'Remove',
+    keep: 'Keep',
+    quote: '"{name}"',
+    separator: ', '
   },
   textHeight: {
     title: 'Text Height',

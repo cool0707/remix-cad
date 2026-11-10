@@ -70,6 +70,7 @@ export default {
       imageattach: 'Resim ekle',
       xattach: 'Bağlı çizim ekle',
       erase: 'Sil',
+      explode: 'Patlat',
       undo: 'Geri al',
       redo: 'Yinele',
       zoom: 'Yakınlaştır',
@@ -134,6 +135,7 @@ export default {
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      explode: 'patlat parçala explode',
       hatch: 'tarama',
       insert: 'blok',
       layer: 'katman',
@@ -161,6 +163,7 @@ export default {
     paste: 'Yapıştır',
     duplicate: 'Çoğalt',
     erase: 'Sil',
+    explode: 'Patlat',
     selectSameLayer: 'Aynı katmandakileri seç',
     properties: 'Özellikleri göster',
     selectAll: 'Tümünü seç',
@@ -308,6 +311,16 @@ export default {
     erase: 'Sil',
     collapse: 'Araç çubuğunu daralt',
     expand: 'Araç çubuğunu genişlet'
+  },
+  explode: {
+    noSymbol: 'Patlatılacak bir sembol seçin.',
+    removeTitle: 'Sembol listesinden kaldırılsın mı?',
+    removeMessage:
+      'Çizimde {names} sembolü kalmadı.\nSembol listesinden de kaldırılsın mı?',
+    remove: 'Kaldır',
+    keep: 'Koru',
+    quote: '"{name}"',
+    separator: ', '
   },
   textHeight: {
     title: 'Yazı Yüksekliği',

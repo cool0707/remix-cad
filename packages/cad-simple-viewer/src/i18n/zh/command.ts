@@ -125,6 +125,10 @@ export default {
       description: '从图纸中删除所选对象',
       prompt: '选择对象'
     },
+    explode: {
+      description: '将选中的符号 (块) 分解为组成它的图形',
+      prompt: '选择符号'
+    },
     extmax: {
       description: '存储画布图形范围的右上角（只读）'
     },

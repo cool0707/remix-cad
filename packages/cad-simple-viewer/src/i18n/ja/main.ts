@@ -70,6 +70,7 @@ export default {
       imageattach: '画像を貼り付ける',
       xattach: 'リンク図面を貼り付ける',
       erase: '削除',
+      explode: '分解',
       undo: '元に戻す',
       redo: 'やり直し',
       zoom: 'ズーム',
@@ -134,6 +135,7 @@ export default {
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      explode: '分解 ばらす 解除 ブロック',
       line: '線分 直線',
       pline: '連続線',
       rectang: '長方形 四角形',
@@ -214,6 +216,7 @@ export default {
     paste: '貼り付け',
     duplicate: '複製',
     erase: '削除',
+    explode: '分解',
     selectSameLayer: '同じレイヤーの図形を選択',
     properties: 'プロパティを表示',
     selectAll: 'すべて選択',
@@ -363,6 +366,16 @@ export default {
     erase: '削除',
     collapse: 'ツールバーを折りたたむ',
     expand: 'ツールバーを展開'
+  },
+  explode: {
+    noSymbol: '分解するシンボルを選んでください。',
+    removeTitle: 'シンボル一覧から削除しますか?',
+    removeMessage:
+      '図面に {names} のシンボルがなくなりました。\nシンボル一覧からも削除しますか?',
+    remove: '削除する',
+    keep: '残す',
+    quote: '「{name}」',
+    separator: ''
   },
   textHeight: {
     title: '文字の高さ',

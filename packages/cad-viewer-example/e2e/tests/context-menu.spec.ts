@@ -9,6 +9,13 @@ import { useCadProfile } from '../helpers/operationProfile'
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
 /** Two horizontal lines: y = 0 and y = 30, both from x = 0 to x = 100. */
 const fixturePath = path.resolve(currentDir, '..', 'fixtures', 'two-lines.dxf')
+/** One CARIMBO symbol (a text in a block) on layer NOTES. */
+const symbolFixturePath = path.resolve(
+  currentDir,
+  '..',
+  'fixtures',
+  'find-blocks.dxf'
+)
 
 let viewerModuleUrl: string | undefined
 
@@ -25,9 +32,9 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-async function loadFixture(page: Page) {
+async function loadFixture(page: Page, file = fixturePath) {
   await page.goto('/')
-  await uploadFixture(page, fixturePath, { accessMode: 'Write' })
+  await uploadFixture(page, file, { accessMode: 'Write' })
   await expect(page.locator('.ml-cad-container')).toBeVisible({
     timeout: 30000
   })
@@ -300,4 +307,76 @@ test('CAD profile: menu when idle, right-click answers the prompt in a command',
   expect(state.count).toBe(3)
   await page.keyboard.press('Escape')
   await expect.poll(async () => (await drawingState(page)).running).toBe(false)
+})
+
+/** Symbols of model space, the CARIMBO definition and the texts. */
+async function symbolState(page: Page) {
+  return page.evaluate(async url => {
+    const mod = await import(/* @vite-ignore */ url)
+    const db = mod.AcApDocManager.instance.curDocument.database
+    let inserts = 0
+    const texts: string[] = []
+    for (const entity of db.tables.blockTable.modelSpace.newIterator()) {
+      if (entity.dxfTypeName === 'INSERT') inserts++
+      else if (entity.dxfTypeName === 'TEXT') texts.push(entity.textString)
+    }
+    return {
+      inserts,
+      texts,
+      hasDefinition: !!db.tables.blockTable.getAt('CARIMBO')
+    }
+  }, viewerModuleUrl!)
+}
+
+async function symbolCenter(page: Page) {
+  return page.evaluate(async url => {
+    const mod = await import(/* @vite-ignore */ url)
+    const db = mod.AcApDocManager.instance.curDocument.database
+    for (const entity of db.tables.blockTable.modelSpace.newIterator()) {
+      if (entity.dxfTypeName !== 'INSERT') continue
+      const box = entity.geometricExtents
+      return { x: (box.min.x + box.max.x) / 2, y: (box.min.y + box.max.y) / 2 }
+    }
+    throw new Error('no symbol')
+  }, viewerModuleUrl!)
+}
+
+test('symbol: right-click explodes it and asks to drop the unused definition', async ({
+  page
+}) => {
+  await loadFixture(page, symbolFixturePath)
+  const before = await symbolState(page)
+  expect(before.inserts).toBe(1)
+  expect(before.hasDefinition).toBe(true)
+
+  const center = await symbolCenter(page)
+  await clickAt(page, center, 'right')
+  expect(await menuIds(page)).toContain('explode')
+  await pick(page, 'explode')
+
+  // It was the last one: keeping it leaves the definition.
+  const dialog = page.locator('.ml-ui-dialog')
+  await expect(dialog).toBeVisible()
+  await dialog.locator('.ml-ui-dialog-btn-secondary').click()
+  await expect(dialog).toHaveCount(0)
+  let state = await symbolState(page)
+  expect(state.inserts).toBe(0)
+  expect(state.texts.length).toBeGreaterThan(before.texts.length)
+  expect(state.hasDefinition).toBe(true)
+
+  // Undo brings the symbol back; explode again and remove the definition.
+  await page.keyboard.press('Control+z')
+  await expect.poll(async () => (await symbolState(page)).inserts).toBe(1)
+  await clickAt(page, center, 'right')
+  await pick(page, 'explode')
+  await dialog.locator('.ml-ui-dialog-btn-primary').click()
+  await expect(dialog).toHaveCount(0)
+  state = await symbolState(page)
+  expect(state.inserts).toBe(0)
+  expect(state.hasDefinition).toBe(false)
+
+  // One undo restores both the symbol and its definition.
+  await page.keyboard.press('Control+z')
+  await expect.poll(async () => (await symbolState(page)).inserts).toBe(1)
+  expect((await symbolState(page)).hasDefinition).toBe(true)
 })
