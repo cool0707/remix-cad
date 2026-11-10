@@ -12,10 +12,12 @@
  * | `^o` | 重ね文字: the next character, small, centred on the previous one |
  * | `^w` | 重ね文字: the next two (half-width) characters, small, centred on the previous one |
  * | `^n` `^b` `^B` | 重ね文字: the next character, full size, centred on the previous one |
+ * | `^0`–`^9` | not drawn (e.g. `^4` of 文字の均等縮小) |
  *
  * DXF has no equivalent, and a TEXT string goes through the MTEXT parser
  * where `^x` is a control character (drawn as "▯", which the fonts show as
- * "?"). {@link layoutJwwText} therefore splits such a string into runs that
+ * "?"). The small characters of `^u` / `^d` / `^c` keep the width of the
+ * character at normal size, like Jw_cad. {@link layoutJwwText} therefore splits such a string into runs that
  * become separate TEXT entities.
  */
 
@@ -43,7 +45,7 @@ export function jwwCharCells(ch: string) {
 
 /** Whether `text` contains a Jw_cad special-character code. */
 export function hasJwwSpecialCodes(text: string) {
-  return /\^[udcownbB]/.test(text)
+  return /\^[udcownbB0-9]/.test(text)
 }
 
 /**
@@ -77,6 +79,11 @@ export function layoutJwwText(text: string): JwwTextRun[] {
   for (let i = 0; i < chars.length; i++) {
     const ch = chars[i]
     const code = ch === '^' ? chars[i + 1] : undefined
+    if (code && /[0-9]/.test(code)) {
+      // Jw_cad hides these (均等縮小 etc.) without changing the text.
+      i += 1
+      continue
+    }
     const next = chars[i + 2]
     if (!code || !next || !'udcownbB'.includes(code)) {
       addPlain(ch)
@@ -86,7 +93,8 @@ export function layoutJwwText(text: string): JwwTextRun[] {
       case 'u':
       case 'd':
       case 'c': {
-        const width = jwwCharCells(next) * SMALL
+        // Jw_cad keeps the full width of the character for it.
+        const width = jwwCharCells(next)
         const y = code === 'u' ? 1 - SMALL : code === 'd' ? 0 : (1 - SMALL) / 2
         addRun({ text: next, x, y, scale: SMALL })
         last = { x, width }

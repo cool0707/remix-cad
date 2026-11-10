@@ -46,13 +46,21 @@ describe('layoutJwwText', () => {
     ])
   })
 
-  it('draws ^u / ^d / ^c small and advances by their width', () => {
-    const runs = layoutJwwText('m^u2^d3^cx')
+  it('draws ^u / ^d / ^c small in a cell of normal width', () => {
+    const runs = layoutJwwText('m^u2^d3^cx^d上O')
     expect(runs).toEqual([
       { text: 'm', x: 0, y: 0, scale: 1 },
       { text: '2', x: 0.5, y: 0.5, scale: 0.5 },
-      { text: '3', x: 0.75, y: 0, scale: 0.5 },
-      { text: 'x', x: 1, y: 0.25, scale: 0.5 }
+      { text: '3', x: 1, y: 0, scale: 0.5 },
+      { text: 'x', x: 1.5, y: 0.25, scale: 0.5 },
+      { text: '上', x: 2, y: 0, scale: 0.5 },
+      { text: 'O', x: 3, y: 0, scale: 1 }
+    ])
+  })
+
+  it('hides ^ followed by a digit (文字の均等縮小)', () => {
+    expect(layoutJwwText('文字の均等縮小^4')).toEqual([
+      { text: '文字の均等縮小', x: 0, y: 0, scale: 1 }
     ])
   })
 
