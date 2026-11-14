@@ -24,7 +24,7 @@ A full-featured CAD viewer application built with Vue.js and Element Plus.
 - Vue 3 with Composition API
 - Element Plus UI components
 - UnoCSS for styling
-- LibreDWG for DWG file support
+- acadrust (WebAssembly) for DWG file support
 
 ### 2. CAD Simple Viewer Demo (`/cad-simple-viewer/`)
 A minimal, lightweight CAD viewer focusing on core functionality.
@@ -39,7 +39,7 @@ A minimal, lightweight CAD viewer focusing on core functionality.
 **Technology Stack:**
 - Vanilla TypeScript
 - Canvas-based rendering
-- LibreDWG WebAssembly
+- acadrust WebAssembly for DWG
 - Modern ES2020+ features
 
 ### 3. CAD Diff Viewer (`/cad-diff-viewer/`)
@@ -61,8 +61,8 @@ A single HTML file that loads `@mlightcad/cad-viewer` from jsDelivr — no Node,
 
 **Features:**
 - Import map + in-browser rewrite of the published `cad-viewer.js` bundle
-- Minimal DWG/DXF upload (no open-options UI)
-- LibreDWG DWG parser via a blob module worker that imports the jsDelivr script; MTEXT uses main-thread rendering
+- Minimal DXF upload (no open-options UI)
+- DXF only: no DWG converter is loaded from the CDN; MTEXT uses main-thread rendering
 - Useful as a drop-in CDN host, not as a full product UI reference
 
 Serve over HTTP(S); `file://` will not work for ES module CDN imports.

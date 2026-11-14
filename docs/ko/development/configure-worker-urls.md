@@ -60,7 +60,7 @@ AcApDocManager.createInstance({
   webworkerFileUrls: {
     mtextRender: './workers/mtext-renderer-worker.js',
     dxfParser: './workers/dxf-parser-worker.js',
-    dwgParser: './workers/libredwg-parser-worker.js'
+    dwgParser: './workers/acadrust-worker.js'
   }
 })
 ```

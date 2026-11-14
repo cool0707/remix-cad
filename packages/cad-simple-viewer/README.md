@@ -84,32 +84,24 @@ The `LockAndFade` isolation keyword matches AutoCAD naming but the viewer **lock
 
 The viewer ships an MTEXT layout worker. DXF is parsed by the built-in converter
 in `@mlightcad/data-model` (no separate worker). **DWG support is opt-in**: this
-package does not depend on or register `@mlightcad/libredwg-converter` (GPL).
-Hosts that need DWG must add that dependency (or another converter), deploy its
-worker (+ wasm) assets, register the converter, and optionally pass
+package does not depend on or register a DWG converter. Hosts that need DWG add
+`@mlightcad/cad-acadrust-converter` (acadrust, MPL-2.0 — no GPL), deploy its
+worker and wasm side by side, register the converter, and optionally pass
 `webworkerFileUrls.dwgParser` for readiness checks.
 
 ```typescript
 import {
+  ACADRUST_WORKER_FILE,
+  registerAcadrustConverter
+} from '@mlightcad/cad-acadrust-converter'
+import {
   AcApDocManager,
-  LIBREDWG_PARSER_WORKER_FILE,
   MTEXT_RENDERER_WORKER_FILE
 } from '@mlightcad/cad-simple-viewer'
-import {
-  AcDbDatabaseConverterManager,
-  AcDbFileType
-} from '@mlightcad/data-model'
-import { AcDbLibreDwgConverter } from '@mlightcad/libredwg-converter'
 
-const dwgParserUrl = `./workers/${LIBREDWG_PARSER_WORKER_FILE}`
-AcDbDatabaseConverterManager.instance.register(
-  AcDbFileType.DWG,
-  new AcDbLibreDwgConverter({
-    convertByEntityType: false,
-    useWorker: true,
-    parserWorkerUrl: dwgParserUrl
-  })
-)
+// acadrust-engine.wasm must sit next to the worker script.
+const dwgParserUrl = `./workers/${ACADRUST_WORKER_FILE}`
+registerAcadrustConverter(dwgParserUrl)
 
 const workerUrls = {
   dwgParser: dwgParserUrl,

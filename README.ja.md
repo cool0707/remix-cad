@@ -87,6 +87,11 @@
   `.sfc`・`.p21` と ZIP 版の `.sfz`・`.p2z` を開けます（`@mlightcad/cad-sxf-converter`、
   MIT、TypeScript。[ezsxf](https://github.com/monozukuri-ai/ezsxf) から移植）。
   部分図は主となる部分図の縮尺で実寸表示し、用紙を図面範囲にします。
+- **GPL を使わない DWG 対応と DWG 書き出し** — DWG の読み書きを
+  [acadrust](https://github.com/hakanaktt/acadrust)（Rust、MPL-2.0）の WebAssembly 版に切り替え、
+  LibreDWG（GPL）のコンバーターを外しました。ファイル → 書き出し から DWG（2000〜2018、コマンド `cdwg`）を
+  ブロック・寸法・レイアウトを保ったまま保存でき、DXF も別のバージョン（古い CAD / CAM 向けの R12 など）で
+  書き出せます。手元の計測では DWG を開く時間が以前の 1/2〜1/5 になり、エンジンは図面ごとにメモリを解放します。
 - **JWW / SXF への書き出し** — ファイル → 書き出し から JWW（Jw_cad）・SXF（SFC）・SXF（P21）に
   保存できます（コマンド `cjww`・`csfc`・`cp21`）。ブロック・寸法・ハッチングは分解して書き出します。
   用紙と縮尺は図面範囲から決め（JWW / SXF から読んだ図面は元の用紙・縮尺のまま）、無ければ
@@ -156,6 +161,7 @@ pnpm test
 | `fonts/*.woff` | BIZ UD ゴシック／Pゴシック／明朝／P明朝（SIL OFL 1.1） |
 | `templates/acad*.dxf` | 新規図面のテンプレート |
 | `samples/fonts-sample.dxf` | フォント置き換えの確認用図面 |
+| `samples/dwg-sample.dwg` | DWG のサンプル（JWW のサンプルを DWG 2018 にしたもの。`tools/make-dwg-sample.mjs` で生成） |
 | `samples/jww-sample.jww` | JWW のサンプル（`tools/make-jww-sample.mjs` で生成） |
 | `samples/sxf-sample.*` | SXF のサンプル：`.sfc`・`.p21`・`.sfz`・`.p2z`（`tools/make-sxf-sample.py` で生成） |
 
@@ -178,6 +184,7 @@ SHX フォントは同梱していません。SHX を使う文字は BIZ UD ゴ�
 | `@mlightcad/cad-html-plugin`、`cad-pdf-plugin`、`cad-svg-plugin` | HTML / PDF / SVG 書き出し |
 | `@mlightcad/cad-diff-viewer` | 図面の左右比較 |
 | `@mlightcad/three-renderer` | Three.js による描画 |
+| `@mlightcad/cad-acadrust-converter` | DWG の読み込みと DWG / DXF の書き出し（acadrust、WebAssembly） |
 | `@mlightcad/cad-jww-converter` | JWW / JWC（Jw_cad）の読み込みと JWW の書き出し（ezjww、WebAssembly） |
 | `@mlightcad/cad-sxf-converter` | SXF（SFC / P21 / SFZ / P2Z）の読み込みと書き出し（TypeScript） |
 | `@mlightcad/cad-export-model` | JWW / SXF 書き出し用に図面を 2D の図形と用紙に平坦化 |
@@ -188,11 +195,30 @@ SHX フォントは同梱していません。SHX を使う文字は BIZ UD ゴ�
 
 ## DWG 対応
 
-DXF は内蔵の MIT ライセンスのパーサーで読み込みます。DWG は任意で
-`@mlightcad/libredwg-converter` を使って読み込めます。これは
-[LibreDWG](https://github.com/LibreDWG/libredwg) をもとにしており、ライセンスは
-**GPL-3.0** です。サンプルアプリでは明示的に登録しています。組み込んだ製品を配布する
-場合は GPL の影響を確認してください。
+DXF は内蔵の MIT ライセンスのリーダーで読み込みます。DWG は `@mlightcad/cad-acadrust-converter` で
+読み書きします。中身は [acadrust](https://github.com/hakanaktt/acadrust)（Rust 製、**MPL-2.0**）を
+WebAssembly にしたもので、**GPL のライブラリは使っていません**（以前使っていた LibreDWG は外しました）。
+登録したうえで、パッケージの `dist/` にある `acadrust-worker.js` と `acadrust-engine.wasm` を
+同じ場所に配置してください。
+
+```ts
+import { registerAcadrustConverter } from '@mlightcad/cad-acadrust-converter'
+
+const acadrust = registerAcadrustConverter('./assets/acadrust-worker.js')
+// 書き出し: DWG（2000〜2018）、別バージョンの DXF（R12 など）、バイナリ DXF
+const { bytes } = await acadrust.exportDatabase(db, {
+  format: 'dwg',
+  version: 'AC1032'
+})
+```
+
+DWG は Web Worker 内で acadrust が解析し、バイナリ DXF にして画面側へ転送します（コピーなし）。
+それを内蔵の DXF リーダーがそのままデータベースに読み込みます。エンジンは図面 1 枚ごとに新しい
+インスタンスで動かし、使い終わった Worker はしばらくすると終了するので、開いたあとにエンジンが
+メモリを抱えません。DXF は既定では内蔵リーダーのままです（そのほうが速く、メモリも少ないため）。
+`{ dxf: 'engine' }` を渡すと DXF も acadrust 経由で読み込みます（壊れたファイルの救済用）。
+MPL-2.0 はファイル単位のライセンスなので、MIT のコードと組み合わせて配布できます
+（[`THIRD_PARTY_NOTICES.md`](./packages/cad-acadrust-converter/THIRD_PARTY_NOTICES.md)）。
 
 ## JWW / JWC 対応
 
@@ -258,12 +284,13 @@ const { bytes } = await jww.exportDatabase(db, { title: '平面図' })
 const sfc = exportSxf(db, 'sfc', { title: '平面図', paper: 'A1', scale: 100 })
 ```
 
-サンプルアプリは `acapRegisterDrawingExporter()`（`cad-simple-viewer`）で両方を登録しています。
-ラスター画像は JWW には同梱して書き出します（SXF にはまだ書き出しません）。DWG への書き出しは未対応です（読み込みに使っている
-LibreDWG の npm ビルドは書き込み機能を外してあります）。
+サンプルアプリは `acapRegisterDrawingExporter()`（`cad-simple-viewer`）で JWW・SXF・DWG を登録しています。
+ラスター画像は JWW には同梱して書き出します（SXF にはまだ書き出しません）。DWG は acadrust で、ブロック・寸法・
+レイアウトを保ったまま、選んだバージョン（2000〜2018）で書き出します。DXF も R12 など別のバージョンで書き出せます。
 
 ## ライセンス
 
 [MIT](./LICENSE)。ライセンスの条件に従い、mlightcad の著作権表示はそのまま残しています。
 同梱フォントの BIZ UD フォント（© Morisawa Inc.）と Noto Sans JP は SIL Open Font
 License 1.1 です。
+DWG の読み書きに使う acadrust は MPL-2.0 です（改変せずに利用しています）。

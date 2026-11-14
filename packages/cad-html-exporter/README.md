@@ -68,8 +68,8 @@ await exportFileToHtml('drawing.dwg', 'drawing-package', {
 
 Export time is two stages: convert the drawing into an ACEX snapshot, then pack
 that snapshot (binary encode, gzip, and the outer zip). Convert timings cover
-font setup, `worldDraw`, deferred `asyncDraw`, and snapshot capture. LibreDWG
-itself stays on the caller. The techniques below are the Node exporter; the
+font setup, `worldDraw`, deferred `asyncDraw`, and snapshot capture. Reading
+the DWG itself stays on the caller. The techniques below are the Node exporter; the
 browser plugin keeps its own codec and thread model.
 
 A server should run **one drawing per process** (or a process pool capped by
@@ -169,9 +169,9 @@ off. On a multi-building DWG this removed about 5 s of timer delay from a
 unaffected. Another export in the **same** process still waits on this
 thread; yielding would only interleave them and add the timer delay back.
 
-Raster textures are skipped when no DOM canvas is available. LibreDWG parsing
-stays on the Node main thread: Node has neither a browser `Worker` nor a
-reliable ESM-worker WASM path for that converter.
+Raster textures are skipped when no DOM canvas is available. DWG parsing
+(acadrust, WebAssembly) runs on the Node main thread: this exporter does not
+start a worker for it.
 
 ### Approaches that do not pay off
 
@@ -207,8 +207,11 @@ transferred first.
 
 ## DWG parsers
 
-`exportFileToHtml` defaults to LibreDWG (`dwgParser: 'libredwg'`), which is a
-normal dependency of this package.
+`exportFileToHtml` defaults to acadrust (`dwgParser: 'acadrust'`) through
+`@mlightcad/cad-acadrust-converter`, a normal dependency of this package.
+acadrust is MPL-2.0; nothing in the default path is GPL. Its JavaScript is
+bundled into this package and the WebAssembly is read from the converter
+package (`@mlightcad/cad-acadrust-converter/acadrust-engine.wasm`).
 
 To use the commercial parser instead:
 
@@ -223,7 +226,7 @@ singleton. That requires a `data-model` (and its `lib/` dependency packages)
 release with Node-native ESM relative imports (`.js` / `index.js` specifiers).
 
 If the package is missing, or the license/trial cannot be activated, registration
-fails with an explicit error; LibreDWG remains the default path for users who
+fails with an explicit error; acadrust remains the default path for users who
 never install the commercial converter.
 
 ## Notes
