@@ -164,7 +164,9 @@ export default {
     limited: '({max} px sınırına küçültüldü)'
   },
   exportDrawingDlg: {
-    title: '{format} olarak dışa aktar'
+    title: '{format} olarak dışa aktar',
+    fileSection: 'Dosya',
+    version: 'Sürüm'
   },
   exportSheet: {
     section: 'Kağıt ve ölçek',

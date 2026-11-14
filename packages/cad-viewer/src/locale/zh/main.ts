@@ -1137,8 +1137,7 @@ export default {
     failedToOpenFile: '无法打开文件"{fileName}"！',
     failedToOpenFileToast: '无法打开"{fileName}"。详情请查看通知中心。',
     failedToOpenFileWorkerOom:
-      '无法打开"{fileName}"。使用 LibreDWG 解析器时内存不足，导致打开失败。可点击{dwgParserLink}购买商用 DWG Parser，以支持更大图纸并避免此问题。',
-    failedToOpenFileWorkerOomLink: '此页面',
+      '无法打开"{fileName}"。内存不足，无法读取图纸。请关闭其他图纸或浏览器标签页后重试。',
     failedToOpenFileWorkerTimeout: '无法打开"{fileName}"。解析图纸时操作超时。',
     failedToOpenFileFontLoadFailed:
       '无法打开"{fileName}"。无法加载图纸所需的字体。',

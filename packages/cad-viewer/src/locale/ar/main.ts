@@ -1670,9 +1670,7 @@ export default {
       'فشل فتح "{fileName}". راجع مركز الإشعارات للتفاصيل.',
 
     failedToOpenFileWorkerOom:
-      'فشل فتح "{fileName}". فشل التحليل بسبب نفاد الذاكرة المتاحة (محلل LibreDWG). يمكنك النقر على {dwgParserLink} لشراء محلل DWG التجاري وفتح الرسومات الكبيرة دون حدوث هذا الانهيار.',
-
-    failedToOpenFileWorkerOomLink: 'هذه الصفحة',
+      'فشل فتح "{fileName}". لا توجد ذاكرة كافية لقراءة الرسم. أغلق الرسومات أو علامات تبويب المتصفح الأخرى ثم حاول مرة أخرى.',
 
     failedToOpenFileWorkerTimeout:
       'فشل فتح "{fileName}". انتهت مهلة العملية أثناء تحليل الرسم.',

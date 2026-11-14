@@ -3,9 +3,9 @@ import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-  LIBREDWG_CONVERTER_PACKAGE,
-  LIBREDWG_PARSER_WASM_FILE,
-  LIBREDWG_PARSER_WORKER_FILE,
+  ACADRUST_CONVERTER_PACKAGE,
+  ACADRUST_WASM_FILE,
+  ACADRUST_WORKER_FILE,
   MTEXT_RENDERER_PACKAGE,
   MTEXT_RENDERER_WORKER_FILE
 } from '../../../tools/worker-assets.mjs'
@@ -43,24 +43,17 @@ function copy(from, to) {
   copyFileSync(from, to)
 }
 
-function copyIfExists(from, to) {
-  if (!existsSync(from)) {
-    console.log(`Skipped (not found): ${from}`)
-    return
-  }
-  copyFileSync(from, to)
-}
-
 mkdirSync(workersDir, { recursive: true })
 
-const libredwgDist = join(pkgRoot(LIBREDWG_CONVERTER_PACKAGE), 'dist')
+// DWG: acadrust worker and the engine it loads from the same directory.
+const acadrustDist = join(pkgRoot(ACADRUST_CONVERTER_PACKAGE), 'dist')
 copy(
-  join(libredwgDist, LIBREDWG_PARSER_WORKER_FILE),
-  join(workersDir, LIBREDWG_PARSER_WORKER_FILE)
+  join(acadrustDist, ACADRUST_WORKER_FILE),
+  join(workersDir, ACADRUST_WORKER_FILE)
 )
-copyIfExists(
-  join(libredwgDist, LIBREDWG_PARSER_WASM_FILE),
-  join(workersDir, LIBREDWG_PARSER_WASM_FILE)
+copy(
+  join(acadrustDist, ACADRUST_WASM_FILE),
+  join(workersDir, ACADRUST_WASM_FILE)
 )
 copy(
   join(pkgRoot(MTEXT_RENDERER_PACKAGE), 'dist', MTEXT_RENDERER_WORKER_FILE),

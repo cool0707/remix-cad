@@ -3,6 +3,10 @@
 import '@fontsource-variable/noto-sans-jp'
 
 import {
+  ACADRUST_WORKER_FILE,
+  registerAcadrustConverter
+} from '@mlightcad/cad-acadrust-converter'
+import {
   type AcApSimpleUiPlugin,
   type AcUiDockPanelSide,
   type AcUiToolbarPlacement,
@@ -26,7 +30,6 @@ import {
   AcUiFileOpenPanel,
   eventBus,
   layoutBackgroundColorFromRgb,
-  LIBREDWG_PARSER_WORKER_FILE,
   MTEXT_RENDERER_WORKER_FILE
 } from '@mlightcad/cad-simple-viewer'
 import {
@@ -48,7 +51,6 @@ import { setupFileSidebarResize } from './fileSidebarResize'
 import { getGoogleDriveEnvConfig } from './googleDriveEnv'
 import { getOneDriveEnvConfig } from './onedriveEnv'
 import { registerLazyPlugins } from './register'
-import { registerLibreDwgConverter } from './registerLibreDwg'
 import { SCRIPT_TOOLBAR_ITEM } from './scriptToolbarItem'
 
 // Isolate this example's prefs from cad-viewer-example on localhost.
@@ -927,8 +929,9 @@ class CadViewerApp {
       // Prefer main-thread MTEXT by default (less peak memory). Pass `?worker=1`
       // with openprof, or rely on worker mode only when explicitly requested.
       const useWorkers = openProf ? isWorkerOpenMode() : false
-      const dwgParserUrl = `./workers/${LIBREDWG_PARSER_WORKER_FILE}`
-      registerLibreDwgConverter(dwgParserUrl)
+      // DWG through acadrust (MPL-2.0, WebAssembly) in a worker.
+      const dwgParserUrl = `./workers/${ACADRUST_WORKER_FILE}`
+      registerAcadrustConverter(dwgParserUrl)
       AcApDocManager.createInstance({
         container: this.container,
         busyIndicatorHost: this.viewerPane,

@@ -22,18 +22,23 @@ export class AcApExportDrawingCmd extends AcEdCommand {
   async execute(context: AcApContext) {
     const exporter = this.exporter
     const sourceName = context.doc.fileName || context.doc.docTitle
-    const sheet = await acapPromptExportSheet({
+    const answer = await acapPromptExportSheet({
       formatName: exporter.formatName,
-      landscapeOnly: exporter.landscapeOnly
+      landscapeOnly: exporter.landscapeOnly,
+      autoKeepsDrawing: exporter.autoKeepsDrawing,
+      variants: exporter.variants,
+      defaultVariant: exporter.defaultVariant
     })
-    if (!sheet) return
+    if (!answer) return
+    const { variant, ...sheet } = answer
     try {
       const result = await this.withBusyIndicator(
         () =>
           exporter.export(
             context.doc.database,
             getDrawingExportBaseName(sourceName),
-            sheet
+            sheet,
+            variant
           ),
         acapI18nTranslate('main.message.exportingDrawing', {
           format: exporter.formatName

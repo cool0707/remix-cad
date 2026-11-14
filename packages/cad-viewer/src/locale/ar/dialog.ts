@@ -211,7 +211,11 @@ export default {
 
   exportDrawingDlg: {
 
-    title: 'تصدير إلى {format}'
+    title: 'تصدير إلى {format}',
+
+    fileSection: 'الملف',
+
+    version: 'الإصدار'
 
   },
 

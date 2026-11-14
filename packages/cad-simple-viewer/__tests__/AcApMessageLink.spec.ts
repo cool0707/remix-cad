@@ -1,36 +1,31 @@
 /** @jest-environment jsdom */
 
 import {
-  ACAP_DWG_PARSER_PRODUCT_URL,
   acapAppendLinkedText,
   acapEscapeHtml,
   acapFormatMessageHtml,
   acapMarkdownLink
 } from '../src/util/AcApMessageLink'
 
-describe('AcApMessageLink', () => {
-  it('exports the commercial DWG parser product URL', () => {
-    expect(ACAP_DWG_PARSER_PRODUCT_URL).toBe(
-      'https://mlightcad.com/dwg-parser.html'
-    )
-  })
+const LINK_URL = 'https://example.com/help.html'
 
+describe('AcApMessageLink', () => {
   it('escapes HTML special characters', () => {
     expect(acapEscapeHtml(`a <b> & "c"`)).toBe('a &lt;b&gt; &amp; &quot;c&quot;')
   })
 
   it('builds a markdown link', () => {
-    expect(acapMarkdownLink('this page', ACAP_DWG_PARSER_PRODUCT_URL)).toBe(
-      `[this page](${ACAP_DWG_PARSER_PRODUCT_URL})`
+    expect(acapMarkdownLink('this page', LINK_URL)).toBe(
+      `[this page](${LINK_URL})`
     )
   })
 
   it('formats markdown links as safe HTML anchors', () => {
     const html = acapFormatMessageHtml(
-      `Failed. Click [this page](${ACAP_DWG_PARSER_PRODUCT_URL}) to buy.`
+      `Failed. Click [this page](${LINK_URL}) for help.`
     )
     expect(html).toBe(
-      `Failed. Click <a href="${ACAP_DWG_PARSER_PRODUCT_URL}" target="_blank" rel="noopener noreferrer">this page</a> to buy.`
+      `Failed. Click <a href="${LINK_URL}" target="_blank" rel="noopener noreferrer">this page</a> for help.`
     )
   })
 
@@ -52,13 +47,13 @@ describe('AcApMessageLink', () => {
     const container = document.createElement('div')
     acapAppendLinkedText(
       container,
-      `Click [this page](${ACAP_DWG_PARSER_PRODUCT_URL}) now.`
+      `Click [this page](${LINK_URL}) now.`
     )
     expect(container.childNodes).toHaveLength(3)
     expect(container.childNodes[0].textContent).toBe('Click ')
     const anchor = container.childNodes[1] as HTMLAnchorElement
     expect(anchor.tagName).toBe('A')
-    expect(anchor.href).toBe(ACAP_DWG_PARSER_PRODUCT_URL)
+    expect(anchor.href).toBe(LINK_URL)
     expect(anchor.target).toBe('_blank')
     expect(anchor.rel).toBe('noopener noreferrer')
     expect(anchor.textContent).toBe('this page')

@@ -9,12 +9,12 @@ import vue from '@vitejs/plugin-vue'
 import { brandThemeHtml } from '../vite-config/pluginBrandTheme'
 import { examplePeerPackageAliases, exampleRollupOutput } from '../vite-config/pluginRollupOutput'
 import {
+  ACADRUST_CONVERTER_PACKAGE,
+  ACADRUST_WASM_FILE,
+  ACADRUST_WORKER_FILE,
   JWW_CONVERTER_PACKAGE,
   JWW_PARSER_WASM_FILE,
   JWW_PARSER_WORKER_FILE,
-  LIBREDWG_CONVERTER_PACKAGE,
-  LIBREDWG_PARSER_WASM_FILE,
-  LIBREDWG_PARSER_WORKER_FILE,
   MTEXT_RENDERER_WORKER_FILE
 } from '../../tools/worker-assets.mjs'
 
@@ -164,14 +164,7 @@ export default defineConfig(({ command, mode }) => {
     )
   )
 
-  const libredwgDist = `./node_modules/${LIBREDWG_CONVERTER_PACKAGE}/dist`
-  const libredwgWasmSrc = resolve(
-    __dirname,
-    'node_modules',
-    LIBREDWG_CONVERTER_PACKAGE,
-    'dist',
-    LIBREDWG_PARSER_WASM_FILE
-  )
+  const acadrustDist = `./node_modules/${ACADRUST_CONVERTER_PACKAGE}/dist`
   const jwwDist = `./node_modules/${JWW_CONVERTER_PACKAGE}/dist`
 
   const mtextWorkerSrc = linkLocalMtextRenderer
@@ -196,19 +189,14 @@ export default defineConfig(({ command, mode }) => {
           rename: { stripBase: true }
         },
         {
-          src: `${libredwgDist}/${LIBREDWG_PARSER_WORKER_FILE}`,
+          // DWG / DXF: acadrust worker + wasm (MPL-2.0 engine, MIT wrapper).
+          src: [
+            `${acadrustDist}/${ACADRUST_WORKER_FILE}`,
+            `${acadrustDist}/${ACADRUST_WASM_FILE}`
+          ],
           dest: 'assets',
           rename: { stripBase: true }
         },
-        ...(existsSync(libredwgWasmSrc)
-          ? [
-              {
-                src: `${libredwgDist}/${LIBREDWG_PARSER_WASM_FILE}`,
-                dest: 'assets',
-                rename: { stripBase: true }
-              }
-            ]
-          : []),
         {
           // JWW (Jw_cad) parser: ezjww worker + wasm (MIT).
           src: [

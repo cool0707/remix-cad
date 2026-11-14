@@ -33,7 +33,7 @@ Options:
   --viewer-mode view|measure   Default: measure (view omits snap and measure)
   --max-chunk-mib <n>       Multi-file chunk budget, 1–64 (default 2)
   --no-compress-chunks      Write raw chunk bytes instead of .acex.gz
-  --dwg-parser libredwg|dwg Default: libredwg (dwg needs optional @mlightcad/dwg-converter)
+  --dwg-parser acadrust|dwg Default: acadrust (dwg needs optional @mlightcad/dwg-converter)
   --dwg-license-key <key>   License for --dwg-parser dwg (omit to use trial if active)
 `
 }
@@ -110,11 +110,11 @@ if (options.format === 'single' && options.zipPackage === false) {
 }
 if (
   options.dwgParser != null &&
-  options.dwgParser !== 'libredwg' &&
+  options.dwgParser !== 'acadrust' &&
   options.dwgParser !== 'dwg'
 ) {
   throw new Error(
-    `--dwg-parser must be libredwg or dwg, got ${options.dwgParser}`
+    `--dwg-parser must be acadrust or dwg, got ${options.dwgParser}`
   )
 }
 

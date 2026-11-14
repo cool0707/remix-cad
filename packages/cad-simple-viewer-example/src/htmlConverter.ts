@@ -1,4 +1,8 @@
 import {
+  ACADRUST_WORKER_FILE,
+  registerAcadrustConverter
+} from '@mlightcad/cad-acadrust-converter'
+import {
   type AcApHtmlExpiryDays,
   type AcApHtmlExportFormat,
   AcApHtmlSnapshotBuilder,
@@ -26,13 +30,10 @@ import {
   AcEdOpenMode,
   AcTrView2d,
   getDrawingExportBaseName,
-  LIBREDWG_PARSER_WORKER_FILE,
   MTEXT_RENDERER_WORKER_FILE,
   resolveExportDownloadName
 } from '@mlightcad/cad-simple-viewer'
 import { log } from '@mlightcad/data-model'
-
-import { registerLibreDwgConverter } from './registerLibreDwg'
 
 const SAMPLE_DRAWING_URL =
   'https://cdn.jsdelivr.net/gh/mlightcad/cad-data@main/data/canteen.dwg'
@@ -489,8 +490,9 @@ class HtmlConverterApp {
       return
     }
 
-    const dwgParserUrl = `./workers/${LIBREDWG_PARSER_WORKER_FILE}`
-    registerLibreDwgConverter(dwgParserUrl)
+    // DWG through acadrust (MPL-2.0, WebAssembly) in a worker.
+    const dwgParserUrl = `./workers/${ACADRUST_WORKER_FILE}`
+    registerAcadrustConverter(dwgParserUrl)
     AcApDocManager.createInstance({
       container: this.container,
       busyIndicatorHost: this.hiddenViewer,

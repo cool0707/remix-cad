@@ -2,10 +2,7 @@ import {
   checkWebworkerReadiness,
   resetWebworkerReadinessCache
 } from '../src/app/AcApWebworkerReadiness'
-import {
-  LIBREDWG_PARSER_WORKER_FILE,
-  MTEXT_RENDERER_WORKER_FILE
-} from '../src/app/AcApWorkerAssets'
+import { MTEXT_RENDERER_WORKER_FILE } from '../src/app/AcApWorkerAssets'
 
 function mockFetch(
   implementation: (...args: unknown[]) => unknown
@@ -15,7 +12,7 @@ function mockFetch(
 
 describe('checkWebworkerReadiness', () => {
   const originalFetch = global.fetch
-  const dwgParserUrl = `/workers/${LIBREDWG_PARSER_WORKER_FILE}`
+  const dwgParserUrl = '/workers/acadrust-worker.js'
   const mtextRenderUrl = `/workers/${MTEXT_RENDERER_WORKER_FILE}`
 
   beforeEach(() => {

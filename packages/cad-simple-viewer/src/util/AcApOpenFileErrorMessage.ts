@@ -2,10 +2,6 @@ import type { AcDbOpenDatabaseErrorCode } from '@mlightcad/data-model'
 
 import type { AcEdEvents } from '../editor/global/eventBus'
 import { AcApI18n } from '../i18n/AcApI18n'
-import {
-  ACAP_DWG_PARSER_PRODUCT_URL,
-  acapMarkdownLink
-} from './AcApMessageLink'
 
 export type AcApOpenFileErrorParams = AcEdEvents['failed-to-open-file']
 
@@ -37,21 +33,10 @@ function acapI18nTranslate(
 }
 
 /**
- * Builds the `{dwgParserLink}` placeholder for LibreDWG out-of-memory messages.
- * The value is a markdown link rendered as a clickable hyperlink in notification UIs.
- */
-function resolveWorkerOomDwgParserLink(t: TranslateFn): string {
-  return acapMarkdownLink(
-    t('main.message.failedToOpenFileWorkerOomLink'),
-    ACAP_DWG_PARSER_PRODUCT_URL
-  )
-}
-
-/**
  * Resolves a short toast message for an open-file failure.
  *
- * Toasts only report that opening failed; detailed reasons (including commercial
- * parser guidance) belong in the notification center.
+ * Toasts only report that opening failed; detailed reasons belong in the
+ * notification center.
  */
 export function acapResolveOpenFileErrorToastMessage(
   t: TranslateFn,
@@ -68,9 +53,6 @@ export function acapResolveOpenFileErrorToastMessage(
  * Maps {@link AcDbOpenDatabaseErrorCode} values (including license failures) to
  * localized `main.message.*` strings for the **notification center**.
  *
- * For `worker_oom`, the message includes a markdown link (`[label](url)`) to the
- * commercial DWG parser product page so notification UIs can render a hyperlink.
- *
  * Prefer {@link acapResolveOpenFileErrorToastMessage} for transient toasts.
  */
 export function acapResolveOpenFileErrorMessage(
@@ -80,8 +62,7 @@ export function acapResolveOpenFileErrorMessage(
   switch (params.errorCode) {
     case 'worker_oom':
       return t('main.message.failedToOpenFileWorkerOom', {
-        fileName: params.fileName,
-        dwgParserLink: resolveWorkerOomDwgParserLink(t)
+        fileName: params.fileName
       })
     case 'worker_timeout':
       return t('main.message.failedToOpenFileWorkerTimeout', {

@@ -1,3 +1,7 @@
+import {
+  ACADRUST_WORKER_FILE,
+  registerAcadrustConverter
+} from '@mlightcad/cad-acadrust-converter'
 import { registerLazyHtmlPlugin } from '@mlightcad/cad-html-plugin/register'
 import { registerLazyPdfPlugin } from '@mlightcad/cad-pdf-plugin/register'
 import {
@@ -9,16 +13,10 @@ import {
   AcApOpenViewMode,
   AcEdOpenMode,
   AcTrView2d,
-  LIBREDWG_PARSER_WORKER_FILE,
   MTEXT_RENDERER_WORKER_FILE
 } from '@mlightcad/cad-simple-viewer'
 import { registerLazySvgPlugin } from '@mlightcad/cad-svg-plugin/register'
-import {
-  accmYieldForPaint,
-  AcDbDatabaseConverterManager,
-  AcDbFileType
-} from '@mlightcad/data-model'
-import { AcDbLibreDwgConverter } from '@mlightcad/libredwg-converter'
+import { accmYieldForPaint } from '@mlightcad/data-model'
 
 /** Max time to wait for convert + deferred font/text geometry after open. */
 const SCENE_IDLE_TIMEOUT_MS = 120_000
@@ -287,15 +285,9 @@ async function ensureViewer(options: CadViewerCliRunOptions = {}): Promise<void>
   installDownloadCapture()
 
   const container = document.getElementById('cad-root') as HTMLDivElement
-  const dwgParserUrl = `./workers/${LIBREDWG_PARSER_WORKER_FILE}`
-  AcDbDatabaseConverterManager.instance.register(
-    AcDbFileType.DWG,
-    new AcDbLibreDwgConverter({
-      convertByEntityType: false,
-      useWorker: true,
-      parserWorkerUrl: dwgParserUrl
-    })
-  )
+  // DWG through acadrust (MPL-2.0, WebAssembly) in a worker.
+  const dwgParserUrl = `./workers/${ACADRUST_WORKER_FILE}`
+  registerAcadrustConverter(dwgParserUrl)
   AcApDocManager.createInstance({
     container,
     width: 1280,

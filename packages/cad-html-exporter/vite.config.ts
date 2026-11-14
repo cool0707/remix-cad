@@ -46,9 +46,7 @@ const nodeBuiltins = [
   'net',
   'child_process',
   'perf_hooks',
-  // Keep as runtime deps so WASM / Worker resolve via package import.meta.url.
   'web-worker',
-  '@mlightcad/libredwg-web',
   // Must stay external so @mlightcad/dwg-converter shares one AcDb* / host
   // services singleton (bundling data-model here caused a dual-package hazard).
   // Requires @mlightcad/data-model lib/ to be Node-native ESM (.js specifiers).
@@ -58,7 +56,7 @@ const nodeBuiltins = [
 ]
 
 /**
- * Node library build. Bundles libredwg / three-renderer (and friends) so the
+ * Node library build. Bundles the DWG converter / three-renderer (and friends) so the
  * published package does not hit extensionless `three/examples/...` imports
  * under plain Node. Leaves `@mlightcad/data-model` external so commercial
  * `dwg-converter` and this exporter share one module instance.

@@ -113,7 +113,7 @@ export interface AcExHtmlExporterOptions {
   /** Locale embedded in the snapshot (`en`, `zh`, …). Defaults to `en`. */
   locale?: string
   /**
-   * DWG parser used by {@link exportFileToHtml}. Defaults to `'libredwg'`.
+   * DWG parser used by {@link exportFileToHtml}. Defaults to `'acadrust'`.
    * `'dwg'` needs a separately installed `@mlightcad/dwg-converter` (and a
    * license or active trial). Ignored for DXF inputs.
    */

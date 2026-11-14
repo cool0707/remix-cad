@@ -1193,8 +1193,7 @@ export default {
     failedToOpenFileToast:
       '"{fileName}" açılamadı. Ayrıntılar için bildirim merkezine bakın.',
     failedToOpenFileWorkerOom:
-      '"{fileName}" açılamadı. Ayrıştırma, yetersiz bellek nedeniyle başarısız oldu (LibreDWG parser). Büyük çizimleri çökmeden açmak için ticari DWG parser satın almak üzere {dwgParserLink} bağlantısına tıklayabilirsiniz.',
-    failedToOpenFileWorkerOomLink: 'bu sayfa',
+      '"{fileName}" açılamadı. Çizimi okumak için yeterli bellek yok. Diğer çizimleri veya tarayıcı sekmelerini kapatıp yeniden deneyin.',
     failedToOpenFileWorkerTimeout:
       '"{fileName}" açılamadı. Çizim ayrıştırılırken işlem zaman aşımına uğradı.',
     failedToOpenFileFontLoadFailed:

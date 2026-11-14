@@ -225,6 +225,7 @@ export default {
     exportingPdf: 'Exporting PDF ...',
     exportingSvg: 'Exporting SVG ...',
     exportingDrawing: 'Exporting {format} ...',
+    exportSameVersion: 'Same as the drawing',
     exportApproximate: 'Exported as {format}. Some parts were written approximately (see the browser console).',
     exportFailed: 'Could not export {format}: {error}',
     calculatingSmartExtents: 'Calculating smart extents ...',
@@ -244,8 +245,7 @@ export default {
     failedToOpenFileToast:
       'Failed to open "{fileName}". Check the notification center for details.',
     failedToOpenFileWorkerOom:
-      'Failed to open "{fileName}". Parsing failed because available memory was insufficient (LibreDWG parser). You can click {dwgParserLink} to purchase the commercial DWG parser and open large drawings without this crash.',
-    failedToOpenFileWorkerOomLink: 'this page',
+      'Failed to open "{fileName}". There was not enough memory to read the drawing. Close other drawings or browser tabs and try again.',
     failedToOpenFileWorkerTimeout:
       'Failed to open "{fileName}". The operation timed out while parsing the drawing.',
     failedToOpenFileFontLoadFailed:
