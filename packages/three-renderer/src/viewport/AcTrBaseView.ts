@@ -74,6 +74,17 @@ export class AcTrBaseView {
   }
 
   /**
+   * Detaches this view's camera controls from the canvas.
+   *
+   * The controls listen on the canvas all views share, so a view that is
+   * thrown away without this keeps answering wheel and pointer events (and
+   * keeps its camera alive) for as long as the canvas exists.
+   */
+  dispose() {
+    this._cameraControls.dispose()
+  }
+
+  /**
    * The flag whether to enable camera controller
    */
   get enabled() {

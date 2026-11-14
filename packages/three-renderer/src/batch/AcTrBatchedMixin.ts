@@ -1295,12 +1295,30 @@ export function createAcTrBatchedMixin<
     }
 
     /**
-     * Disposes packed GPU buffers held by this batch object.
+     * Disposes everything this batch object holds on the GPU: the packed
+     * buffers, its highlight mask texture, and its material.
+     *
+     * The material is this batch's private clone (see
+     * `AcTrBatchedGroup.createOwnedBatchMaterial`), never a style-cache entry.
+     * Disposing it releases its shader program reference and whatever its
+     * `dispose` listeners hold, such as the refcount on a shared hatch
+     * pattern texture. Without this every closed or regenerated drawing left
+     * its mask and pattern textures on the GPU.
      *
      * @returns This instance for chaining.
      */
     dispose() {
       this.geometry.dispose()
+      this._highlightState.dispose()
+      const material = this.material as
+        | THREE.Material
+        | THREE.Material[]
+        | undefined
+      if (Array.isArray(material)) {
+        material.forEach(item => item.dispose())
+      } else {
+        material?.dispose()
+      }
       return this
     }
 

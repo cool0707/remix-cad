@@ -31,8 +31,16 @@ export interface JwwWriteResult {
   warnings: string[]
 }
 
+/**
+ * A read result as it crosses threads: the DXF as UTF-8 bytes, so it is
+ * transferred instead of cloned as a string and encoded again on the page.
+ */
+export type JwwWorkerReadResult = Omit<JwwConversionResult, 'dxf'> & {
+  dxf: ArrayBuffer
+}
+
 /** Message the JWW parser worker posts back. */
 export type JwwWorkerResponse =
-  | ({ id: number; ok: true; kind?: 'read' } & JwwConversionResult)
+  | ({ id: number; ok: true; kind?: 'read' } & JwwWorkerReadResult)
   | ({ id: number; ok: true; kind: 'write' } & JwwWriteResult)
   | { id: number; ok: false; error: string }

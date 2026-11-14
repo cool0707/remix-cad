@@ -105,6 +105,11 @@ export type AcTrSharedTemplateGeometryUserData = {
    * {@link AcTrEntity.disposeObject} skips `geometry.dispose()` for the leaf.
    */
   sharesTemplateGeometry?: boolean
+  /**
+   * When `true`, this leaf's material and its texture map are clones made for
+   * the scene (raster images) and are disposed with the leaf.
+   */
+  ownsTexturedMaterial?: boolean
 }
 
 /**

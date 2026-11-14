@@ -97,6 +97,15 @@ export interface AcApDiffViewerOptions {
   baseUrl?: string
   /** Worker script URLs forwarded to {@link AcApDocManager}. */
   webworkerFileUrls?: AcApWebworkerFiles
+  /**
+   * Lay out text on the page instead of in a pool of workers.
+   *
+   * The worker pool is up to four workers that are started up front and each
+   * load and parse the fonts for themselves, which is a lot of memory for a
+   * widget that shows two drawings side by side. The main viewer defaults to
+   * the page as well. Set `false` for the pool. @default true
+   */
+  useMainThreadDraw?: boolean
   /** Default options used when a pane opens a drawing. */
   openDocumentDefaults?: AcApOpenDatabaseOptions
   /** Compare display colors (left=old/deleted red, right=new/added green). */
@@ -506,6 +515,7 @@ export class AcApDiffViewer {
       baseUrl: options.baseUrl,
       builtinOpenFileDialog: false,
       openDocumentDefaults: openDefaults,
+      useMainThreadDraw: options.useMainThreadDraw ?? true,
       webworkerFileUrls: options.webworkerFileUrls
     })
     const mgr = AcApDocManager.instance

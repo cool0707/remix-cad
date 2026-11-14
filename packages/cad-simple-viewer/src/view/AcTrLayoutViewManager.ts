@@ -54,6 +54,32 @@ export class AcTrLayoutViewManager {
   }
 
   /**
+   * Lets the views take pointer and wheel input (the active layout only), or
+   * none of them.
+   *
+   * Every document on a canvas has its own views, and all of their camera
+   * controls listen on that one canvas. A document that is not on screen (a
+   * parked tab) must not react, or panning the visible drawing also moves the
+   * hidden ones.
+   */
+  set inputEnabled(value: boolean) {
+    this._layoutViews.forEach(layoutView => {
+      layoutView.enabled =
+        value && layoutView.layoutBtrId == this._activeLayoutBtrId
+    })
+  }
+
+  /**
+   * Disposes every layout view (camera controls, gizmos) and forgets them.
+   * Call when the document these views belong to is closed.
+   */
+  dispose() {
+    this._layoutViews.forEach(layoutView => layoutView.dispose())
+    this._layoutViews.clear()
+    this._activeLayoutBtrId = ''
+  }
+
+  /**
    * The active layout view.
    * Returns the layout view corresponding to the currently active layout,
    * or undefined if no layout is active or the active layout doesn't exist.

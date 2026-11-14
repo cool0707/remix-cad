@@ -3166,6 +3166,9 @@ export class AcTrView2d extends AcEdBaseView {
       const html = object as { isCSS2DObject?: boolean; element?: HTMLElement }
       if (html.isCSS2DObject) html.element?.remove()
     })
+    // The parked document's camera controls stay attached to this canvas;
+    // stop them from following the input meant for the next document.
+    this._layoutViewManager.inputEnabled = false
     return {
       scene: this._scene,
       layoutViewManager: this._layoutViewManager,
@@ -3205,6 +3208,7 @@ export class AcTrView2d extends AcEdBaseView {
     this._renderer.replaceMissedFonts(state.missedFonts ?? {})
     this.rebindLayerAppearance()
     this._layoutViewManager.resize(this.width, this.height)
+    this._layoutViewManager.inputEnabled = true
     this.selectionSet.clear()
     if (state.selectionIds.length > 0) {
       this.selectionSet.add(state.selectionIds)
@@ -3252,6 +3256,8 @@ export class AcTrView2d extends AcEdBaseView {
    */
   disposeSessionState(state: AcTrViewSessionState): void {
     state.scene.clear()
+    // Detach the closed document's camera controls from the shared canvas.
+    state.layoutViewManager.dispose()
     state.layoutViewManager = new AcTrLayoutViewManager()
     state.initializedLayouts.clear()
     state.externallyFramedLayouts.clear()
@@ -3757,7 +3763,10 @@ export class AcTrView2d extends AcEdBaseView {
     this.selectionSet.clear()
     this.htmlTransientManager.dispose()
     this._scene.clear()
-    this._renderer.dispose()
+    this._layoutViewManager.dispose()
+    // destroy(): caches, and the listeners that tie this renderer to the
+    // font manager singleton.
+    this._renderer.destroy()
     AcDbRenderingCache.instance.clear()
 
     const webgl = this._renderer.internalRenderer
@@ -3816,6 +3825,12 @@ export class AcTrView2d extends AcEdBaseView {
     // Refresh size first, then sync WebGL / CSS2D / frustum before notifying
     // listeners so `worldToScreen` consumers see the new projection.
     this.refreshViewSize()
+    // The ratio was read once at start-up; browser zoom or a move to another
+    // monitor changes it, and the drawing buffer should follow (sharp on a
+    // denser display, not four times too large on a plainer one).
+    const webgl = this._renderer.internalRenderer
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+    if (webgl.getPixelRatio() !== pixelRatio) webgl.setPixelRatio(pixelRatio)
     this._renderer.setSize(this.width, this.height)
     this._css2dRenderer.setSize(this.width, this.height)
     this._layoutViewManager.resize(this.width, this.height)

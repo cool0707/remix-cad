@@ -140,8 +140,9 @@ export class AcApPdfImportConvertor {
     data: ArrayBuffer,
     pageNumber: number
   ) {
+    const loadingTask = pdfjsLib.getDocument({ data })
     try {
-      const pdf = await pdfjsLib.getDocument({ data }).promise
+      const pdf = await loadingTask.promise
       const page = await pdf.getPage(pageNumber)
       const viewport = page.getViewport({ scale: 1 })
 
@@ -229,6 +230,10 @@ export class AcApPdfImportConvertor {
     } catch (err) {
       log.error('[PdfImport] Failed to import PDF:', err)
       throw err
+    } finally {
+      // Ends the PDF.js worker this import started and frees the parsed
+      // document; without it every import left a worker running.
+      await loadingTask.destroy().catch(() => {})
     }
   }
 

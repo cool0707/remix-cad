@@ -8,6 +8,7 @@ import type { AcEdBaseView } from '../../../editor'
 import { acapColorToCssAlpha, acapCssColor } from '../../../util'
 import {
   acapDrawOverlayArrowHead,
+  acapOverlayPixelRatio,
   acapScaledOverlayArrowSize,
   acapScaledOverlayLineWidth,
   acapWcsToScreenPx
@@ -54,7 +55,7 @@ function prepareMeasureCanvas(
   view: AcEdBaseView
 ): { ctx: CanvasRenderingContext2D; dpr: number } | null {
   const rect = view.canvas.getBoundingClientRect()
-  const dpr = window.devicePixelRatio || 1
+  const dpr = acapOverlayPixelRatio()
   const w = Math.round(rect.width)
   const h = Math.round(rect.height)
 
@@ -64,9 +65,13 @@ function prepareMeasureCanvas(
   canvas.style.width = `${w}px`
   canvas.style.height = `${h}px`
 
-  if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
-    canvas.width = w * dpr
-    canvas.height = h * dpr
+  // Whole pixels: with a fractional ratio (1.25, 1.5) `w * dpr` never equals
+  // the integer `canvas.width`, and the canvas was reallocated on every draw.
+  const bufferWidth = Math.max(1, Math.round(w * dpr))
+  const bufferHeight = Math.max(1, Math.round(h * dpr))
+  if (canvas.width !== bufferWidth || canvas.height !== bufferHeight) {
+    canvas.width = bufferWidth
+    canvas.height = bufferHeight
   }
 
   const ctx = canvas.getContext('2d')

@@ -8,9 +8,7 @@ import {
   AcDbDatabase,
   AcDbDatabaseConverter,
   type AcDbDatabaseConverterConfig,
-  AcDbDatabaseConverterManager,
   type AcDbDatabaseConverterReadOptions,
-  AcDbFileType,
   AcDbNativeDxfConverter,
   AcDbRasterImage,
   log
@@ -45,13 +43,24 @@ export interface AcDbJwwConverterConfig extends AcDbDatabaseConverterConfig {
    * @default 'drawing'
    */
   scaleMode?: JwwScaleMode
+  /**
+   * How long an idle worker is kept before it is ended, in milliseconds.
+   * Ending it returns the wasm's memory (WebAssembly memory never shrinks);
+   * the next file starts a new worker. @default 20000
+   */
+  idleTimeoutMs?: number
 }
+
+/** A conversion result with the DXF still as UTF-8 bytes. */
+type JwwDxfBytes = Omit<JwwConversionResult, 'dxf'> & { dxf: Uint8Array }
+
+const DEFAULT_IDLE_TIMEOUT_MS = 20_000
 
 /**
  * Reads Jw_cad drawings (`.jww`, and the older `.jwc`).
  *
  * The file is parsed by ezjww (MIT, Rust → WebAssembly), converted to DXF in
- * real-world millimetres, and then loaded by the registered DXF converter, so
+ * real-world millimetres, and then loaded by the data model's DXF reader, so
  * layers, blocks and text styles follow the regular DXF path.
  *
  * @example
@@ -64,6 +73,10 @@ export interface AcDbJwwConverterConfig extends AcDbDatabaseConverterConfig {
  */
 export class AcDbJwwConverter extends AcDbDatabaseConverter {
   private worker?: Worker
+  private idleTimer?: ReturnType<typeof setTimeout>
+  // Always the built-in reader, whatever is registered for `.dxf`: the DXF
+  // written here is made for it.
+  private readonly dxfReader = new AcDbNativeDxfConverter()
   private nextRequestId = 1
   private readonly pending = new Map<
     number,
@@ -83,7 +96,7 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
     options?: AcDbDatabaseConverterReadOptions
   ): Promise<void> {
     const timeout = this.getParserWorkerTimeout(data, options?.timeout)
-    const result = await this.toDxf(data, timeout)
+    const result = await this.toDxfBytes(data, timeout)
     if (result.unsupportedEntities.length > 0) {
       log.warn(
         `[JWW] ${result.unsupportedEntities.length} entities were not converted:`,
@@ -91,11 +104,7 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
       )
     }
     for (const warning of result.warnings) log.warn(`[JWW] ${warning}`)
-    const bytes = new TextEncoder().encode(result.dxf)
-    const dxfConverter =
-      AcDbDatabaseConverterManager.instance.get(AcDbFileType.DXF) ??
-      new AcDbNativeDxfConverter()
-    await dxfConverter.read(bytes.buffer as ArrayBuffer, db, {
+    await this.dxfReader.read(ownBuffer(result.dxf), db, {
       ...options,
       encoding: 'utf-8',
       // The viewer draws entities while the DXF converter flushes them, so
@@ -118,6 +127,18 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
     data: ArrayBuffer,
     timeout = 30000
   ): Promise<JwwConversionResult> {
+    const result = await this.toDxfBytes(data, timeout)
+    return { ...result, dxf: new TextDecoder().decode(result.dxf) }
+  }
+
+  /**
+   * Converts JWW bytes to DXF as UTF-8 bytes. From the worker they arrive by
+   * transfer, so the drawing is never held as a string on the page.
+   */
+  private async toDxfBytes(
+    data: ArrayBuffer,
+    timeout: number
+  ): Promise<JwwDxfBytes> {
     const config = this.config as AcDbJwwConverterConfig
     if (this.usesWorker) {
       // Copy so the caller's buffer is not detached by the transfer.
@@ -130,18 +151,19 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
       )
       if (response.kind === 'write') throw new Error('Unexpected response')
       return {
-        dxf: response.dxf,
+        dxf: new Uint8Array(response.dxf),
         unsupportedEntities: response.unsupportedEntities,
         images: response.images,
         warnings: response.warnings
       }
     }
     const ezjww = await this.loadEzjww()
-    return cropJwwImages(
+    const result = await cropJwwImages(
       convertJwwToDxf(ezjww, new Uint8Array(data), {
         scaleMode: config.scaleMode
       })
     )
+    return { ...result, dxf: new TextEncoder().encode(result.dxf) }
   }
 
   /**
@@ -207,6 +229,10 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
 
   /** Stops the parser worker. A later read starts a new one. */
   dispose() {
+    if (this.idleTimer !== undefined) {
+      clearTimeout(this.idleTimer)
+      this.idleTimer = undefined
+    }
     this.worker?.terminate()
     this.worker = undefined
     for (const { reject } of this.pending.values()) {
@@ -224,6 +250,10 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
     const config = this.config as AcDbJwwConverterConfig
     const worker = this.ensureWorker()
     const id = this.nextRequestId++
+    if (this.idleTimer !== undefined) {
+      clearTimeout(this.idleTimer)
+      this.idleTimer = undefined
+    }
     return new Promise<JwwWorkerResponse & { ok: true }>((resolve, reject) => {
       const timer = setTimeout(() => {
         // The wasm call cannot be interrupted; drop the worker instead.
@@ -259,6 +289,7 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
         const request = this.pending.get(response.id)
         if (!request) return
         this.pending.delete(response.id)
+        this.endWorkerWhenIdle()
         if (response.ok) {
           request.resolve(response)
         } else {
@@ -278,6 +309,33 @@ export class AcDbJwwConverter extends AcDbDatabaseConverter {
     }
     return this.worker
   }
+
+  /**
+   * Ends the worker once nothing has used it for a while. The ezjww wasm
+   * keeps the memory of the largest file it parsed, and a viewer session
+   * usually opens a JWW file once in a long while.
+   */
+  private endWorkerWhenIdle() {
+    if (this.pending.size > 0 || !this.worker) return
+    const config = this.config as AcDbJwwConverterConfig
+    const delay = config.idleTimeoutMs ?? DEFAULT_IDLE_TIMEOUT_MS
+    this.idleTimer = setTimeout(
+      () => {
+        this.idleTimer = undefined
+        if (this.pending.size === 0) this.dispose()
+      },
+      Math.max(0, delay)
+    )
+    // Never keep a Node process alive for this.
+    ;(this.idleTimer as { unref?: () => void }).unref?.()
+  }
+}
+
+/** The bytes as a buffer of their own (no copy when they already are). */
+function ownBuffer(bytes: Uint8Array): ArrayBuffer {
+  const whole =
+    bytes.byteOffset === 0 && bytes.byteLength === bytes.buffer.byteLength
+  return (whole ? bytes.buffer : bytes.slice().buffer) as ArrayBuffer
 }
 
 /**

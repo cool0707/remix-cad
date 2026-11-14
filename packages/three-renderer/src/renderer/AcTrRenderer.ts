@@ -217,6 +217,14 @@ export class AcTrRenderer implements AcGiRenderer<AcTrEntity> {
     fontLoaded: new AcCmEventManager<AcTrFontNotFoundEventArgs>()
   }
 
+  // Kept as fields so destroy() can remove them from the font manager.
+  private readonly _onFontNotFound = (args: AcTrFontNotFoundEventArgs) => {
+    this.events.fontNotFound.dispatch(args)
+  }
+  private readonly _onFontLoaded = (args: AcTrFontNotFoundEventArgs) => {
+    this.events.fontLoaded.dispatch(args)
+  }
+
   /**
    * Options for {@link AcTrRenderer} construction beyond a live WebGL backend.
    */
@@ -250,12 +258,10 @@ export class AcTrRenderer implements AcGiRenderer<AcTrEntity> {
     AcTrMTextRenderer.getInstance().overrideStyleManager(
       this._context.styleManager
     )
-    FontManager.instance.events.fontNotFound.addEventListener(args => {
-      this.events.fontNotFound.dispatch(args)
-    })
-    FontManager.instance.events.fontLoaded.addEventListener(args => {
-      this.events.fontLoaded.dispatch(args)
-    })
+    FontManager.instance.events.fontNotFound.addEventListener(
+      this._onFontNotFound
+    )
+    FontManager.instance.events.fontLoaded.addEventListener(this._onFontLoaded)
     this._subEntityTraits = AcTrSubEntityTraitsUtil.createDefaultTraits()
   }
 
@@ -941,6 +947,22 @@ export class AcTrRenderer implements AcGiRenderer<AcTrEntity> {
   dispose() {
     this._context.styleManager.dispose()
     this.clearMissedFonts()
+  }
+
+  /**
+   * Final teardown: {@link dispose}, and the listeners on the font manager
+   * singleton, which otherwise keep this renderer (and everything it
+   * references) alive for the life of the page. The renderer must not be used
+   * afterwards.
+   */
+  destroy() {
+    this.dispose()
+    FontManager.instance.events.fontNotFound.removeEventListener(
+      this._onFontNotFound
+    )
+    FontManager.instance.events.fontLoaded.removeEventListener(
+      this._onFontLoaded
+    )
   }
 
   private linePoints(points: AcGePoint3dLike[]) {
