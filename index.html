@@ -133,6 +133,10 @@
           <strong>同じ図面をオブジェクト範囲で開く</strong>
           <span>比較用: 範囲外の円まで含めて全体を表示</span>
         </a>
+        <a class="card" href="cad-viewer/?url=cad-data/samples/dwg-sample.dwg&amp;view=limits&amp;lang=ja">
+          <strong>DWG の図面を開く</strong>
+          <span>AutoCAD 2018 形式の平面図。acadrust (Rust / WebAssembly) で読み込み、GPL のライブラリは使いません</span>
+        </a>
         <a class="card" href="cad-viewer/?url=cad-data/samples/jww-sample.jww&amp;view=limits&amp;lang=ja">
           <strong>Jw_cad (JWW) の図面を開く</strong>
           <span>A3・1/100 の平面図: 実寸で計測、画層「0-1 平面図 - 壁」、線種・ペン色・ブロック・文字</span>
@@ -173,6 +177,10 @@
           <strong>サンプル DXF をダウンロード</strong>
           <span>fonts-sample.dxf</span>
         </a>
+        <a class="card" href="cad-viewer/cad-data/samples/dwg-sample.dwg" download>
+          <strong>サンプル DWG をダウンロード</strong>
+          <span>dwg-sample.dwg</span>
+        </a>
         <a class="card" href="cad-viewer/cad-data/samples/jww-sample.jww" download>
           <strong>サンプル JWW をダウンロード</strong>
           <span>jww-sample.jww</span>
@@ -191,6 +199,7 @@
         <li>Shift_JIS の DXF (文字コード宣言なし・ANSI_1252・R2007 以降でも) が文字化けしない</li>
         <li>ファイルを開く画面の初期表示に「図面範囲」があり、モデルは LIMITS、レイアウトは用紙枠で表示される (URL では <code>?view=limits</code>)</li>
         <li>JWW / JWC (Jw_cad) を開ける。図寸は主レイヤグループの縮尺で実寸に変換され (1/100 なら用紙 1 mm = 100 mm)、用紙が図面範囲になる</li>
+        <li>DWG を開ける・書き出せる (ファイル → 書き出し → DWG、バージョンは 2000〜2018)。読み書きは acadrust (MPL-2.0) で、GPL のライブラリは読み込まれない</li>
         <li>SXF (SFC / P21 / SFZ / P2Z) を開ける。部分図は主となる部分図の縮尺で実寸になり (1/100 なら用紙 1 mm = 100 mm)、用紙が図面範囲になる</li>
         <li><code>%%c</code> <code>%%d</code> <code>%%p</code> が ⌀ ° ± で表示される</li>
         <li>Arial・中国語・韓国語の文字は Google Fonts から読み込まれる (ネットワーク環境による)</li>
