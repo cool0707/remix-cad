@@ -37,6 +37,12 @@ export interface AcTrMaterialMetadata extends AcTrByLayerBindingFlags {
   drawOrder?: number
   /** Culling side used by fill materials. Present only when explicitly set. */
   side?: 'front' | 'back'
+  /**
+   * True when the colour is not the material's but the geometry's (`color`
+   * attribute). Fills of any fixed colour then share this one material, and
+   * with it one batch and one draw call.
+   */
+  vertexColors?: boolean
 }
 
 /**

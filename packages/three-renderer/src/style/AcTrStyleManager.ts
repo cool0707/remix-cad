@@ -9,6 +9,7 @@ import * as THREE from 'three'
 import { AcTrFillMaterialManager } from './AcTrFillMaterialManager'
 import { AcTrLineMaterialManager } from './AcTrLineMaterialManager'
 import { AcTrMaterialCacheStats } from './AcTrMaterialManager'
+import { getMaterialMetadata } from './AcTrMaterialMetadata'
 import { AcTrPointMaterialManager } from './AcTrPointMaterialManager'
 import { AcTrStyleManagerOptions } from './AcTrStyleManagerOptions'
 
@@ -168,6 +169,13 @@ export class AcTrStyleManager {
    *
    * @param traits - Current entity traits.
    * @param rebaseOffset - Offset used to transform pattern origins.
+   * @param gradientBounds - Extents a gradient fill is spread over.
+   * @param geometry - The geometry the material is for. When given, a plain
+   *   fill of a fixed colour is coloured through this geometry (a `color`
+   *   attribute is added to it) and gets a material shared with every other
+   *   such fill, so that fills of many colours still make one batch. Pass it
+   *   whenever the geometry exists; a geometry built later from other data
+   *   would miss the attribute.
    */
   getFillMaterial(
     traits: AcGiSubEntityTraits,
@@ -177,12 +185,18 @@ export class AcTrStyleManager {
       minY: number
       maxX: number
       maxY: number
-    }
+    },
+    geometry?: THREE.BufferGeometry
   ): THREE.Material {
-    return this.fillMgr.getMaterial(traits, {
+    const material = this.fillMgr.getMaterial(traits, {
       rebaseOffset,
-      gradientBounds
+      gradientBounds,
+      vertexColor: geometry != null
     })
+    if (geometry && getMaterialMetadata(material).vertexColors === true) {
+      this.fillMgr.paintGeometry(geometry, traits)
+    }
+    return material
   }
 
   /**

@@ -639,7 +639,12 @@ export function buildOffsetRingDirectGeometry(
     geometry,
     worldOffset,
     wcsBbox,
-    material: context.styleManager.getFillMaterial(traits)
+    material: context.styleManager.getFillMaterial(
+      traits,
+      undefined,
+      undefined,
+      geometry
+    )
   }
 }
 
@@ -787,7 +792,12 @@ export function buildAreaGeometry(
     )
     prebasedWorldOffset = prebasedWcsBbox.getCenter(new THREE.Vector3())
     geometry = buildSmallFillLoopMesh(smallLoop, prebasedWorldOffset)
-    resolvedMaterial = context.styleManager.getFillMaterial(traits)
+    resolvedMaterial = context.styleManager.getFillMaterial(
+      traits,
+      undefined,
+      undefined,
+      geometry
+    )
   } else {
     _areaBuildStats.generalPath++
     const polygon = new AcTrPolygon(areaForGeneralPath, traits, context)
@@ -874,7 +884,12 @@ export function buildAreaGeometry(
   }
   const material =
     resolvedMaterial ??
-    context.styleManager.getFillMaterial(traits, undefined, gradientBounds)
+    context.styleManager.getFillMaterial(
+      traits,
+      undefined,
+      gradientBounds,
+      geometry
+    )
 
   return {
     kind: 'mesh',

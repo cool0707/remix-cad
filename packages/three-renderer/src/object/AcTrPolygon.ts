@@ -160,7 +160,8 @@ export class AcTrPolygon extends AcTrEntity {
       const material = this.styleManager.getFillMaterial(
         traits,
         rebaseOffset,
-        gradientBounds
+        gradientBounds,
+        geometry
       )
       const mesh = new THREE.Mesh(geometry, material)
       if (localOrigin) {
