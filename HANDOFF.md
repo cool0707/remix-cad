@@ -506,6 +506,9 @@ three-renderer / pdf-renderer に残る「LibreDWG が…」というコメン�
   (渡さなければ従来どおり色ごとのマテリアル。MTEXT のグリフは渡していない)。マテリアルのメタデータ `vertexColors` が目印。
   あとから色が変わるもの (レイヤー色・背景で反転する色) は 1 つのマテリアルを塗り替える仕組みなので対象外。
   ハイライト用の複製は `AcTrMaterialUtil.setMaterialColor` が `vertexColors` を切って単色にする。
+  **バッチのマテリアルから色を読むコードは、この塗りでは白を読むことになる**。HTML 書き出しのスナップショットはメッシュ 1 つに色 1 つなので、
+  `cad-html-core/src/AcExSceneBatchCollector.ts` で色ごとに分けて出している (`isVertexColoured` / `exportVertexColouredBatch` / `forEachFillColor`)。
+  同じようにシーンを読む処理を足すときは `getMaterialMetadata(material).vertexColors` を見ること。
   描画結果は修正前と画素単位で同じ (重なった塗りの縁だけ、色別バッチ順から図形順に変わる)。テスト `AcTrFillVertexColor.spec.ts`。
   線は対象外 (レイヤー × 色 × 線種 × 線幅で、実図面では数が増えない)。
 

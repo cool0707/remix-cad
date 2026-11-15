@@ -49,6 +49,7 @@ import { AcTrEntity } from '../../three-renderer/src/object/AcTrEntity'
 import { AcTrGroup } from '../../three-renderer/src/object/AcTrGroup'
 import { AcTrLine } from '../../three-renderer/src/object/AcTrLine'
 import { AcTrRenderContext } from '../../three-renderer/src/renderer/AcTrRenderContext'
+import { AcTrStyleManager } from '../../three-renderer/src/style/AcTrStyleManager'
 import { AcTrSubEntityTraitsUtil } from '../../three-renderer/src/util'
 import {
   getHighlightUserData,
@@ -1249,5 +1250,160 @@ describe('collectBatchesFromObject3D shared block instances', () => {
     for (const place of places) {
       expect(starts.some(x => Math.abs(x - place.x) < 2)).toBe(true)
     }
+  })
+})
+
+describe('collectBatchesFromObject3D fills coloured through the geometry', () => {
+  // The renderer draws plain fills of fixed colours with one white material
+  // and a colour per vertex. A snapshot mesh batch has one colour.
+
+  function quadAt(x: number): THREE.BufferGeometry {
+    const geometry = new THREE.BufferGeometry()
+    geometry.setAttribute(
+      'position',
+      new THREE.BufferAttribute(
+        new Float32Array([x, 0, 0, x + 1, 0, 0, x + 1, 1, 0, x, 1, 0]),
+        3
+      )
+    )
+    geometry.setIndex([0, 1, 2, 0, 2, 3])
+    return geometry
+  }
+
+  function fillTraits(rgb: number) {
+    const traits = AcTrSubEntityTraitsUtil.createDefaultTraits()
+    traits.layer = 'Shades'
+    traits.color.setRGBValue(rgb)
+    return traits
+  }
+
+  /** x of every vertex a batch draws, in world coordinates. */
+  function drawnX(batch: {
+    positions: Float32Array
+    indices?: Uint32Array
+    offset: [number, number, number]
+  }): number[] {
+    return Array.from(batch.indices ?? [], index =>
+      Math.round(batch.positions[index * 3]! + batch.offset[0])
+    )
+  }
+
+  it('exports one mesh batch per colour of a batch', () => {
+    const styles = new AcTrStyleManager()
+    const group = new AcTrBatchedGroup()
+    const fills: Array<[string, number, number]> = [
+      ['red-1', 0xff0000, 0],
+      ['blue', 0x0000ff, 10],
+      ['red-2', 0xff0000, 20]
+    ]
+    for (const [objectId, rgb, x] of fills) {
+      const geometry = quadAt(x)
+      const material = styles.getFillMaterial(
+        fillTraits(rgb),
+        undefined,
+        undefined,
+        geometry
+      ) as THREE.MeshBasicMaterial
+      expect(material.vertexColors).toBe(true)
+      group.appendMeshGeometry(geometry, material, new THREE.Vector3(), {
+        objectId,
+        visible: true
+      })
+    }
+
+    const { meshBatches } = collectBatchesFromObject3D(group)
+    const byColor = new Map(meshBatches.map(batch => [batch.color, batch]))
+
+    expect([...byColor.keys()].sort((a, b) => a - b)).toEqual([
+      0x0000ff, 0xff0000
+    ])
+    expect(byColor.get(0xff0000)!.layer).toBe('Shades')
+    // Two quads in red, one in blue; each batch holds only its own vertices.
+    expect(byColor.get(0xff0000)!.positions).toHaveLength(8 * 3)
+    expect(byColor.get(0x0000ff)!.positions).toHaveLength(4 * 3)
+    expect(drawnX(byColor.get(0xff0000)!)).toEqual([
+      0, 1, 1, 0, 1, 0, 20, 21, 21, 20, 21, 20
+    ])
+    expect(drawnX(byColor.get(0x0000ff)!)).toEqual([10, 11, 11, 10, 11, 10])
+  })
+
+  it('leaves out a fill that is hidden', () => {
+    const styles = new AcTrStyleManager()
+    const group = new AcTrBatchedGroup()
+    for (const [objectId, rgb] of [
+      ['shown', 0x00ff00],
+      ['hidden', 0xff00ff]
+    ] as const) {
+      const geometry = quadAt(0)
+      group.appendMeshGeometry(
+        geometry,
+        styles.getFillMaterial(fillTraits(rgb), undefined, undefined, geometry),
+        new THREE.Vector3(),
+        { objectId, visible: true }
+      )
+    }
+    group.setEntityVisible('hidden', false)
+
+    const { meshBatches } = collectBatchesFromObject3D(group)
+    expect(meshBatches.map(batch => batch.color)).toEqual([0x00ff00])
+  })
+
+  it('splits a mesh that holds fills of several colours', () => {
+    // What compacting the fills of a block leaves: one geometry, one material.
+    const styles = new AcTrStyleManager()
+    const yellow = quadAt(0)
+    const cyan = quadAt(10)
+    const material = styles.getFillMaterial(
+      fillTraits(0xffff00),
+      undefined,
+      undefined,
+      yellow
+    )
+    expect(
+      styles.getFillMaterial(fillTraits(0x00ffff), undefined, undefined, cyan)
+    ).toBe(material)
+
+    const merged = new THREE.BufferGeometry()
+    const join = (name: string) =>
+      new THREE.BufferAttribute(
+        Float32Array.from([
+          ...(yellow.getAttribute(name).array as Float32Array),
+          ...(cyan.getAttribute(name).array as Float32Array)
+        ]),
+        3
+      )
+    merged.setAttribute('position', join('position'))
+    merged.setAttribute('color', join('color'))
+    merged.setIndex([0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7])
+    const mesh = new THREE.Mesh(merged, material)
+
+    const { meshBatches } = collectBatchesFromObject3D(mesh)
+    const byColor = new Map(meshBatches.map(batch => [batch.color, batch]))
+
+    expect([...byColor.keys()].sort((a, b) => a - b)).toEqual([
+      0x00ffff, 0xffff00
+    ])
+    expect(drawnX(byColor.get(0xffff00)!)).toEqual([0, 1, 1, 0, 1, 0])
+    expect(drawnX(byColor.get(0x00ffff)!)).toEqual([10, 11, 11, 10, 11, 10])
+    // The mesh in the scene is as it was.
+    expect(mesh.geometry).toBe(merged)
+  })
+
+  it('exports a mesh of one colour with that colour, not white', () => {
+    const styles = new AcTrStyleManager()
+    const geometry = quadAt(0)
+    const mesh = new THREE.Mesh(
+      geometry,
+      styles.getFillMaterial(
+        fillTraits(0x336699),
+        undefined,
+        undefined,
+        geometry
+      )
+    )
+
+    const { meshBatches } = collectBatchesFromObject3D(mesh)
+    expect(meshBatches.map(batch => batch.color)).toEqual([0x336699])
+    expect(mesh.geometry).toBe(geometry)
   })
 })
