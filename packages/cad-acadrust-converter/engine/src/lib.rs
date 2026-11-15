@@ -27,7 +27,7 @@ use std::sync::Arc;
 
 use acadrust::{
     CadDocument, DwgReadOptions, DwgReader, DwgWriter, DxfReader, DxfReaderConfiguration,
-    DxfVersion, DxfWriter, ReadStats,
+    DxfVersion, DxfWriter, EntityType, ReadStats,
 };
 
 use report::Report;
@@ -383,6 +383,9 @@ fn run(job: Job<'_>, input: Vec<u8>) -> Result<Done, String> {
             DwgWriter::write_to_vec(&document).map_err(|error| error.to_string())?
         }
         TARGET_DXF_ASCII | TARGET_DXF_BINARY => {
+            if target_version == Some(DxfVersion::AC1009) {
+                keep_r12_writer_from_splitting_block_names(&mut document);
+            }
             let binary = job.target == TARGET_DXF_BINARY;
             let mut writer = if binary {
                 DxfWriter::new_binary(&document)
@@ -415,6 +418,62 @@ fn run(job: Job<'_>, input: Vec<u8>) -> Result<Done, String> {
         preview,
         report,
     })
+}
+
+/// Renames the block definitions acadrust's R12 writer cannot take.
+///
+/// That writer looks for the `*Paper_Space` prefix by cutting a block name at
+/// its 12th byte, and a cut inside a multi-byte character ("FL記号（階高）")
+/// is a panic - which, compiled to WebAssembly, ends the whole job. Such a
+/// name is brought to plain ASCII first, with `_` for every other character:
+/// what the writer itself makes of it a moment later, R12 symbol names being
+/// ASCII only. Names it can take are left alone, so they keep its own mapping.
+fn keep_r12_writer_from_splitting_block_names(document: &mut CadDocument) {
+    const PREFIX_BYTES: usize = "*Paper_Space".len();
+    let unsafe_names: Vec<String> = document
+        .block_records
+        .iter()
+        .map(|record| &record.name)
+        .filter(|name| name.len() >= PREFIX_BYTES && !name.is_char_boundary(PREFIX_BYTES))
+        .cloned()
+        .collect();
+    if unsafe_names.is_empty() {
+        return;
+    }
+
+    let mut renamed: Vec<(String, String)> = Vec::with_capacity(unsafe_names.len());
+    for old in unsafe_names {
+        let ascii: String = old
+            .chars()
+            .map(|c| if c.is_ascii() { c } else { '_' })
+            .collect();
+        // Two names can differ only in the characters that were replaced.
+        let mut name = ascii.clone();
+        let mut attempt = 1;
+        while document.block_records.contains(&name) {
+            name = format!("{ascii}_{attempt}");
+            attempt += 1;
+        }
+        if document.block_records.rename(&old, name.clone()).is_ok() {
+            renamed.push((old, name));
+        }
+    }
+
+    // Everything that names a block has to follow.
+    for entity in document.entities_mut() {
+        let block_name = match entity {
+            EntityType::Insert(insert) => &mut insert.block_name,
+            EntityType::Dimension(dimension) => &mut dimension.base_mut().block_name,
+            EntityType::Block(block) => &mut block.name,
+            _ => continue,
+        };
+        if let Some((_, name)) = renamed
+            .iter()
+            .find(|(old, _)| old.eq_ignore_ascii_case(block_name))
+        {
+            block_name.clone_from(name);
+        }
+    }
 }
 
 fn read_dwg(input: Vec<u8>, strict: bool) -> Result<(CadDocument, ReadStats), String> {
@@ -544,6 +603,132 @@ mod tests {
                 .unwrap_or_else(|error| panic!("AC{version} read back: {error}"));
             assert!(String::from_utf8_lossy(&ascii).contains("LINE"));
         }
+    }
+
+    /// A block and an INSERT of it, the block's name given as written.
+    fn dxf_with_block(name: &str) -> Vec<u8> {
+        let pairs: &[(&str, &str)] = &[
+            ("0", "SECTION"),
+            ("2", "BLOCKS"),
+            ("0", "BLOCK"),
+            ("8", "0"),
+            ("2", name),
+            ("70", "0"),
+            ("10", "0.0"),
+            ("20", "0.0"),
+            ("30", "0.0"),
+            ("0", "LINE"),
+            ("8", "0"),
+            ("10", "0.0"),
+            ("20", "0.0"),
+            ("11", "10.0"),
+            ("21", "5.0"),
+            ("0", "ENDBLK"),
+            ("8", "0"),
+            ("0", "ENDSEC"),
+            ("0", "SECTION"),
+            ("2", "ENTITIES"),
+            ("0", "INSERT"),
+            ("8", "0"),
+            ("2", name),
+            ("10", "50.0"),
+            ("20", "50.0"),
+            ("0", "ENDSEC"),
+            ("0", "EOF"),
+        ];
+        let mut text = String::new();
+        for (code, value) in pairs {
+            text.push_str(code);
+            text.push('\n');
+            text.push_str(value);
+            text.push('\n');
+        }
+        text.into_bytes()
+    }
+
+    /// Values of group `code` that follow an entity of type `kind`.
+    fn names_of(dxf: &str, kind: &str, code: &str) -> Vec<String> {
+        let lines: Vec<&str> = dxf.lines().map(str::trim).collect();
+        let mut names = Vec::new();
+        let mut inside = false;
+        for pair in lines.chunks(2) {
+            let [group, value] = pair else { break };
+            if *group == "0" {
+                inside = *value == kind;
+            } else if inside && *group == code {
+                names.push(value.to_string());
+                inside = false;
+            }
+        }
+        names
+    }
+
+    #[test]
+    fn r12_takes_block_names_with_a_character_across_the_12th_byte() {
+        // 'F' 'L' + 3-byte characters: byte 12 is inside the fourth of them.
+        let name = "FL記号（階高）";
+        assert!(!name.is_char_boundary(12));
+        let (r12, report) = convert(
+            dxf_with_block(name),
+            SOURCE_AUTO,
+            TARGET_DXF_ASCII,
+            1009,
+            false,
+            None,
+        )
+        .expect("R12");
+        assert!(report.contains("\"outputVersion\":\"AC1009\""));
+        let text = String::from_utf8(r12).expect("R12 is ASCII");
+        // The definition is there under an R12 name, and the INSERT uses it.
+        let inserted = names_of(&text, "INSERT", "2");
+        assert_eq!(inserted, ["FL______"]);
+        assert!(names_of(&text, "BLOCK", "2").contains(&inserted[0]));
+    }
+
+    #[test]
+    fn r12_keeps_blocks_apart_whose_names_differ_only_in_other_scripts() {
+        // Both come down to the same ASCII letters.
+        let mut dxf = dxf_with_block("FL記号（階高）");
+        let second = String::from_utf8(dxf_with_block("FL番号（階数）")).expect("utf-8");
+        // Splice the second drawing's BLOCK into the first one's BLOCKS section.
+        let block = &second[second.find("0\nBLOCK\n").expect("block")
+            ..second.find("0\nENDSEC\n").expect("end of blocks")];
+        let first = String::from_utf8(std::mem::take(&mut dxf)).expect("utf-8");
+        let at = first.find("0\nENDSEC\n").expect("end of blocks");
+        let merged = format!("{}{}{}", &first[..at], block, &first[at..]);
+
+        let (r12, _) = convert(
+            merged.into_bytes(),
+            SOURCE_AUTO,
+            TARGET_DXF_ASCII,
+            1009,
+            false,
+            None,
+        )
+        .expect("R12");
+        let text = String::from_utf8(r12).expect("R12 is ASCII");
+        let blocks: Vec<String> = names_of(&text, "BLOCK", "2")
+            .into_iter()
+            .filter(|block| block.starts_with("FL"))
+            .collect();
+        assert_eq!(blocks.len(), 2, "{blocks:?}");
+        assert_ne!(blocks[0], blocks[1]);
+    }
+
+    #[test]
+    fn other_versions_keep_the_block_name() {
+        let name = "FL記号（階高）";
+        let (ascii, _) = convert(
+            dxf_with_block(name),
+            SOURCE_AUTO,
+            TARGET_DXF_ASCII,
+            1032,
+            false,
+            None,
+        )
+        .expect("AC1032");
+        let text = String::from_utf8(ascii).expect("utf-8");
+        assert_eq!(names_of(&text, "INSERT", "2"), [name]);
     }
 
     #[test]
