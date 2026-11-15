@@ -27,7 +27,7 @@
 
 | パッケージ | 目的 |
 | --- | --- |
-| `@mlightcad/data-model@1.15.14` | ① `lib/base/AcDbDxfPairReader.js`: 文字コード自動判定 (`acdbGuessLegacyEncoding`)、② `lib/dxf/AcDbDxfHeaderReader.js`: `$LIMMIN/$LIMMAX/$PLIMMIN/$PLIMMAX` を `db.limmin` 等に格納 (+ `.d.ts`)、③ `lib/dxf/AcDbNativeDxfConverter.js`: 読み込み直後に画層 0 と参照画層を作成 (`acdbEnsureReferencedLayers`)、④ `lib/entity/AcDbRasterImage.js` + `dist/data-model.cjs`: `boundaryPath()` の回転の中心が右下の角になっていた・負の角度を無視していたのを、挿入点 (左下) 中心・0 以外すべてに修正。**以下は 2026-11-14 追加 (ESM の `lib/` と Jest 用の `dist/data-model.cjs` の両方)**: ⑤ `lib/dxf/AcDbDxfDocumentReader.js` `shouldAcceptBlockEntity`: BLOCKS セクションの `*Paper_Space0` 以降 (アクティブでないレイアウト) の図形を捨てていた。AutoCAD も acadrust もそこに書くので、アクティブ以外のレイアウトが空になっていた。⑥ `lib/dxf/AcDbDxfHeaderReader.js`: `$EXTMIN = 1e20` / `$EXTMAX = -1e20` (図形が無いときの番兵。data-model 自身もこう書く) を範囲として読んで ±1e20 の箱にしていた。⑦ `lib/dxf/AcDbDxfObjectsReader.js` `finishNamedObjectDictionaries` / `materializeBufferedDictionaries`: 新規データベースの組み込み辞書に振られた仮ハンドル (A〜16) がハンドル表に残り、ファイル側の同じハンドルの辞書と取り違えていた (ezdxf / acadrust 既定の配置では ACAD_MLINESTYLE = 10 がレイアウト辞書 = 10 に混ざり、名前の無いレイアウトができる)。束縛前に仮ハンドルを外し、ファイルに無い辞書には `$HANDSEED` より後の新しいハンドルを振る。⑧ `lib/database/AcDbDatabase.js` `writeDxfExtentsHeader`: `db.limmin` 等を `$LIMMIN` … として `dxfOut` に書く (②で読んだ図面範囲が保存で落ちていた。DWG 書き出しはこの DXF を経由する)。CJS には②相当の読み込みも入れた (Jest でも limits が読める) |
+| `@mlightcad/data-model@1.15.14` | ① `lib/base/AcDbDxfPairReader.js`: 文字コード自動判定 (`acdbGuessLegacyEncoding`)、② `lib/dxf/AcDbDxfHeaderReader.js`: `$LIMMIN/$LIMMAX/$PLIMMIN/$PLIMMAX` を `db.limmin` 等に格納 (+ `.d.ts`)、③ `lib/dxf/AcDbNativeDxfConverter.js`: 読み込み直後に画層 0 と参照画層を作成 (`acdbEnsureReferencedLayers`)、④ `lib/entity/AcDbRasterImage.js` + `dist/data-model.cjs`: `boundaryPath()` の回転の中心が右下の角になっていた・負の角度を無視していたのを、挿入点 (左下) 中心・0 以外すべてに修正。**以下は 2026-11-14 追加 (ESM の `lib/` と Jest 用の `dist/data-model.cjs` の両方)**: ⑤ `lib/dxf/AcDbDxfDocumentReader.js` `shouldAcceptBlockEntity`: BLOCKS セクションの `*Paper_Space0` 以降 (アクティブでないレイアウト) の図形を捨てていた。AutoCAD も acadrust もそこに書くので、アクティブ以外のレイアウトが空になっていた。⑥ `lib/dxf/AcDbDxfHeaderReader.js`: `$EXTMIN = 1e20` / `$EXTMAX = -1e20` (図形が無いときの番兵。data-model 自身もこう書く) を範囲として読んで ±1e20 の箱にしていた。⑦ `lib/dxf/AcDbDxfObjectsReader.js` `finishNamedObjectDictionaries` / `materializeBufferedDictionaries`: 新規データベースの組み込み辞書に振られた仮ハンドル (A〜16) がハンドル表に残り、ファイル側の同じハンドルの辞書と取り違えていた (ezdxf / acadrust 既定の配置では ACAD_MLINESTYLE = 10 がレイアウト辞書 = 10 に混ざり、名前の無いレイアウトができる)。束縛前に仮ハンドルを外し、ファイルに無い辞書には `$HANDSEED` より後の新しいハンドルを振る。⑧ `lib/database/AcDbDatabase.js` `writeDxfExtentsHeader`: `db.limmin` 等を `$LIMMIN` … として `dxfOut` に書く (②で読んだ図面範囲が保存で落ちていた。DWG 書き出しはこの DXF を経由する)。CJS には②相当の読み込みも入れた (Jest でも limits が読める)。⑨ `lib/dxf/AcDbDxfDocumentReader.js` `ensureBlockTableRecord`: BLOCK にパス名 (グループ 1) があるだけで xref フラグを立てていた。ファイルから挿入したブロックは xref でなくてもパスが残るので、書き出すと xref として出てしまい、読む側 (acadrust も AutoCAD も) が中身を捨てる → フラグ (グループ 70) だけを信じる。⑩ `lib/database/AcDbLayerTableRecord.js` `dxfOutFields`: オフのレイヤーを負の色番号 (62) で書く (読むだけで書いておらず、書き出すと全レイヤーがオンになっていた)。⑪ `lib/entity/AcDbBlockReference.js` `dxfOutFields`: 属性を持つ INSERT に `66=1` (属性が続く) を書く。無いと後続の ATTRIB が読み手に捨てられ、属性値が全部消える。⑫ `lib/entity/AcDbPolyline.js` `dxfInFields`: 一定幅 (43) があるのに頂点ごとの幅 (40/41) が 0 で併記されている LWPOLYLINE (acadrust はこう書く) を幅 0 として読んでいた → 一定幅を使う。⑬ `lib/dxf/AcDbDxfDocumentReader.js` `acceptEntity` / `linkOrDeferAttribute`: 所有者ハンドル (330) の無い ATTRIB (R12 形式) を捨てていた → 直前の INSERT に付ける。⑨〜⑬ は ESM と CJS の両方。回帰テストは `cad-acadrust-converter/__tests__/exportFidelity.spec.ts` |
 | `@mlightcad/geometry-engine@3.15.14` | NURBS 評価の高速パス。`AcGeNurbsCurve.createFitPointsForClosedCurve` (ESM + UMD): 閉じたフィット点スプラインは DWG / DXF では始点が末尾に重複して入っている。閉じた Catmull-Rom がそれを長さ 0 の区間にし、弦長パラメータ化が 0 で割って継ぎ目付近で大きく膨らんでいたので、重複点を落とす (2026-11-14) |
 | `@mlightcad/mtext-renderer@0.13.5` | `fonts.json` の絶対 URL (Google Fonts) を許可 |
 | `@mlightcad/ui-components@0.1.11` | `useBoundingRect` (`dist/*.js` と `src/`): 左右にドッキングしたパレットを、ウィンドウのリサイズ時と折りたたみ/展開時に端から位置を計算し直す。元はリサイズ時に幅の差分を足していたので、ビューア側の再配置と合わせて 2 倍ずれていた。折りたたみ中にタイトルバーを押すと記憶位置が折りたたみ位置で上書きされ、展開すると右にはみ出していた |
@@ -391,19 +391,60 @@ example は `?dxf=acadrust`。壊れた DXF の救済用。文字コードの判
 
 ### 検証
 
-- **Jest** `packages/cad-acadrust-converter/__tests__` 30 件: DXF → DWG → 読み戻しが全レイアウト・文字・画層で一致、
-  R2000 (コードページ) DWG で日本語、DWG 6 バージョン、図面範囲、R12 DXF、バイナリ DXF、進捗の順序、エラー分類、壊れたファイル。
-  `cargo test` 13 件 (文字コード判定)。e2e `dwg.spec.ts` 6 件 (実ブラウザで読み込み・書き出し・再読み込み)。
+- **Jest** `packages/cad-acadrust-converter/__tests__` 40 件: DXF → DWG → 読み戻しが全レイアウト・文字・画層で一致、
+  R2000 (コードページ) DWG で日本語、DWG 6 バージョン、図面範囲、R12 DXF、バイナリ DXF、進捗の順序、エラー分類、壊れたファイル、
+  書き出しで落ちていた情報 (`exportFidelity.spec.ts`。下の「実図面での検証」)。
+  `cargo test` 16 件 (文字コード判定、R12 のブロック名)。e2e `dwg.spec.ts` 6 件 (実ブラウザで読み込み・書き出し・再読み込み)。
 - リポジトリの DXF 24 件は TS リーダーと acadrust 経由でデータベースが一致 (パッチ⑤⑦の後)。
 - 書き出した DWG (サンプル 21 件 × 6 バージョン) は acadrust と **LibreDWG (独立した実装)** の両方で読み戻して図形数が一致。
 - acadrust のテスト用 DWG 13 件 (AC1024〜AC1032、小さいもの。作成元の CAD はまちまち) を旧経路と比較: 図形の種類と数は一致。
   違いが出たのは 3 点で、どれも新経路のほうが筋が通る (寸法の種類: 旧は回転 90° の長さ寸法を平行寸法として読む。
   スプライン: 旧は周期スプラインが 1 点に潰れる。一部の文字: 旧は空で読む)。
   無名ブロックの番号 (`*U2` など) は振り方が違うが、ブロックと参照の対応は合っている。
-- **未確認**: 実務の大きな AutoCAD 製 DWG (canteen.dwg など)。作業環境から取得できなかった (download.autodesk.com はプロキシで 403)。
-  プレビューのデモで手元の DWG を開いて確認すること。書き出した DWG を AutoCAD / Jw_cad 実機で開く確認もしていない。
+- 実務の AutoCAD 製 DWG は下の「実図面での検証」。**書き出した DWG を AutoCAD / Jw_cad 実機で開く確認はしていない**
+  (読み戻しは acadrust と LibreDWG、表示はこのビューアで確認した)。
 - 検証に使ったスクリプトはリポジトリに入れていない (比較は Jest に移した)。DWG サンプルは `node tools/make-dwg-sample.mjs`
   (JWW サンプルを DWG 2018 にしたもの。画像は DWG に同梱できないので「見つからない画像」になる)。
+
+### 実図面での検証 (2026-11-15)
+
+AutoCAD 2007 形式 (AC1021) の DWG 4 件 (0.5〜2.4 MB、11,683〜47,562 図形、レイアウト 3〜9 枚、日本語とアイスランド語の文字・属性を含む)。
+ファイルはリポジトリに入れていない (権利が分からないため)。
+
+**読み込み**
+
+- 4 件ともエラー・スキップ・復旧なしで読めた。図形の種類と数は LibreDWG (生の `libredwg-web`) と一致 (ATTRIB / VERTEX / SEQEND を
+  LibreDWG は親の中に数えるので、その分を除いて完全一致)。1 件は LibreDWG では読めず (図形 0)、acadrust だけが読めた。
+- 文字 (TEXT / MTEXT / ATTRIB / ATTDEF。LibreDWG が読めた 3 件で計 9,249 個) をハンドル単位で突き合わせ: 位置は全部一致、
+  acadrust が空で LibreDWG に文字があるものは 0。逆に LibreDWG が空で acadrust が読めているものが 224 個。
+- Node での時間 (エンジン + TS リーダー): 0.5 MB で 0.1 + 0.3 秒、2.4 MB (47,562 図形) で 0.3 + 0.9 秒。wasm のピークは 21〜85 MB。
+  ブラウザでファイルを選んでから図面が開くまでは 2〜4.5 秒 (ヘッドレス Chromium)。
+
+**書き出し** (各ファイル → DWG 6 バージョン + DXF R12)
+
+- 読み戻し (acadrust) は元のデータベースと一致。違いはスプラインフィットの 2D ポリライン計 3 本が LWPOLYLINE になる点だけ (下の制限)。
+  LibreDWG で読み戻した図形数も元と一致 (LibreDWG が元ファイルを読めない 1 件を除く)。
+- 書き出した DWG (2018 と 2000) をこのビューアで開いたスクリーンショットは、元ファイルと画素単位で一致
+  (1 件だけ塗りの重なる縁で 24 / 148 画素の差)。R2000 はトゥルーカラーを持てないので、色は近い ACI 色になる (形式の制限)。
+
+**見つけて直したもの**
+
+| 症状 | 原因 | 直した場所 |
+| --- | --- | --- |
+| モデルタブに切り替えると何も映らない (ズームが 3.7e18 倍) | ペーパー空間で保存した DWG の Model レイアウトは図面範囲が (0,0)–(0,0)。それにフィットしていた | `AcApLayoutViewFraming.ts` `toFrameBox` (点だけの箱は枠にしない)、`AcTrBaseView.zoomTo` (大きさの無い箱は中心に移るだけ) |
+| 色違いの塗り 36,000 個の図面が開くのに 12〜15 秒、1 フレーム約 0.5 秒 | 色ごとにマテリアル・バッチ・テクスチャ | 2.9 の「塗りの色を頂点に」 |
+| 書き出すとブロックの中身が消える (368 図形) | data-model がパス名のあるブロックを xref 扱い | パッチ⑨ |
+| 書き出すとオフのレイヤーが全部オンになる (隠してあったビューポート枠が出る) | オフ状態を書いていない | パッチ⑩ |
+| 書き出すとブロックの属性値が消える (通り芯記号の文字など。53 個中 53 個、280 個中 277 個) | INSERT に `66=1` が無い | パッチ⑪ |
+| 書き出した DWG を開くと幅付きポリライン (塗りつぶした円) が細い線になる | 一定幅 + 頂点幅 0 の読み方 | パッチ⑫ |
+| DXF R12 への書き出しがエンジンごと止まる | acadrust の R12 ライターがブロック名を 12 バイト目で切る (`name[..12]`)。そこがマルチバイト文字の途中だと panic (例: `FL記号（階高）`) | `engine/src/lib.rs` `keep_r12_writer_from_splitting_block_names` (R12 のときだけ、該当するブロック名を先に ASCII にする。R12 のシンボル名はもともと ASCII だけ) |
+
+**残っている制限** (どれも data-model のモデルに無い情報)
+
+- スプラインフィット / カーブフィットした 2D ポリライン (POLYLINE のフラグ 2・4): フィット後の頂点で読むので形は合うが、
+  書き出すと普通のポリラインになる (制御フレームは戻らない)。
+- DXF R12 を読むとき、サブクラスマーカーの無い ATTRIB / ATTDEF のタグ名 (グループ 2) は読めない (値と位置は読める)。
+- 無名ブロックの番号 (`*X23` → `*X24`) は DWG に書くと振り直される (参照の対応は保たれる。AutoCAD も同じ)。
 
 ### 撤去したもの
 
@@ -451,6 +492,22 @@ three-renderer / pdf-renderer に残る「LibreDWG が…」というコメン�
 - 計測・マークアップのオーバーレイ用キャンバス: 倍率を 2 で頭打ちに (WebGL と同じ)。端数の倍率 (125 %・150 %) で `canvas.width !== w * dpr` が
   常に真になり、描画のたびにキャンバスを作り直していたのを修正。
 - 描画バッファの倍率を起動時の一度しか読んでいなかった → リサイズ時に追従 (モニター移動・ブラウザの拡大)。
+- **塗りの色を頂点に** (2026-11-15): バッチはマテリアルごと、塗りのマテリアルは色ごとだったので、色の数だけバッチ (ジオメトリ・
+  ハイライト用テクスチャ・描画呼び出し) ができていた。トゥルーカラーで塗り分けた図面 (色違いの SOLID 36,095 個) で計測:
+
+  | | 修正前 | 修正後 |
+  | --- | --- | --- |
+  | GPU のジオメトリ / テクスチャ | 32,109 / 32,109 | 17 / 17 |
+  | ファイルを選んでから開くまで | 12〜15 秒 | 3〜4.5 秒 |
+  | 2 フレームの時間 (ヘッドレス、ソフトウェア描画) | 約 1,100 ms | 約 120 ms |
+
+  固定色 (ByLayer・ByBlock・ACI 7・ワイプアウト・模様・グラデーション以外) の単純な塗りは、色をジオメトリの `color` 属性に書き、
+  白い共有マテリアル (`vertexColors`) で描く。`AcTrStyleManager.getFillMaterial(traits, …, geometry)` にジオメトリを渡すと切り替わる
+  (渡さなければ従来どおり色ごとのマテリアル。MTEXT のグリフは渡していない)。マテリアルのメタデータ `vertexColors` が目印。
+  あとから色が変わるもの (レイヤー色・背景で反転する色) は 1 つのマテリアルを塗り替える仕組みなので対象外。
+  ハイライト用の複製は `AcTrMaterialUtil.setMaterialColor` が `vertexColors` を切って単色にする。
+  描画結果は修正前と画素単位で同じ (重なった塗りの縁だけ、色別バッチ順から図形順に変わる)。テスト `AcTrFillVertexColor.spec.ts`。
+  線は対象外 (レイヤー × 色 × 線種 × 線幅で、実図面では数が増えない)。
 
 **直していないもの (判断)**
 
@@ -469,7 +526,8 @@ three-renderer / pdf-renderer に残る「LibreDWG が…」というコメン�
   メニューから始めた長方形の 2 点目が入らず図形数が 2 のままになる。CI (GitHub Actions) での状況は未確認。
 
 - DWG を開く処理は acadrust に置き換えて速くなった (2.8 の計測)。残る時間の大半はメインスレッドでのデータベース構築と描画。
-- **acadrust 経由の DWG は、実際の AutoCAD 製の大きな図面では未確認** (作業環境からサンプルを取得できなかった。2.8 の「検証」)。
+- acadrust 経由の DWG は AutoCAD 2007 形式の実図面 4 件で確認した (2.8 の「実図面での検証」。制限もそこ)。
+  それ以外の形式 (R2010 以降・R2000) の実図面と、書き出した DWG を AutoCAD / Jw_cad 実機で開く確認は未実施。
 - 文字コード自動判定: ヘッダーのない EUC-KR を GBK と誤判定することがある (日本語は問題なし)。
 - Google Fonts からのフォント読み込み (Arial → Arimo など) は、作業環境から外部に出られなかったため実ブラウザでは未確認。
 - vue-tsc の既存エラー (MlStatusBar / MlEntityProperties など) と eslint の既存エラーは上流由来。
