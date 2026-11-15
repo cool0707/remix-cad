@@ -108,6 +108,31 @@ describe('acapResolveLayoutFrameBox', () => {
     expect(framed?.source).toBe('entityBox')
   })
 
+  it('does not frame on extents that are a single point', () => {
+    // The Model layout of a drawing saved in paper space: AutoCAD writes
+    // its extents as (0,0)-(0,0).
+    const framed = acapResolveLayoutFrameBox({
+      layoutExtents: { min: { x: 0, y: 0 }, max: { x: 0, y: 0 } },
+      entityBox: modelEntities
+    })
+    expect(framed?.source).toBe('entityBox')
+    expect(framed?.box.max.x).toBe(modelEntities.max.x)
+
+    // Nothing else to go by: no frame, rather than a frame of no size.
+    expect(
+      acapResolveLayoutFrameBox({
+        layoutExtents: { min: { x: 0, y: 0 }, max: { x: 0, y: 0 } }
+      })
+    ).toBeUndefined()
+  })
+
+  it('still frames a drawing that is one straight line', () => {
+    const framed = acapResolveLayoutFrameBox({
+      entityBox: { min: { x: 0, y: 5 }, max: { x: 100, y: 5 } }
+    })
+    expect(framed?.source).toBe('entityBox')
+  })
+
   it('round-trips through AcGeBox2d', () => {
     const box = acapFrameBoxToGeBox2d(templateLimits)
     expect(box.min.x).toBe(0)

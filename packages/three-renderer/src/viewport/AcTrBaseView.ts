@@ -217,6 +217,13 @@ export class AcTrBaseView {
     const center = new AcGeVector2d()
     box.getCenter(center)
 
+    // A box without width and height (one point, or the extents of a drawing
+    // that holds one) has no scale to fit: go there and keep the zoom.
+    if (size.x === 0 && size.y === 0) {
+      this.flyTo(center)
+      return
+    }
+
     const fitWidth = Math.max(Math.abs(size.x) * margin, Number.EPSILON)
     const fitHeight = Math.max(Math.abs(size.y) * margin, Number.EPSILON)
     const aspect = this._width / Math.max(this._height, 1)
