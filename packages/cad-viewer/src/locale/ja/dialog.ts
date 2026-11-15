@@ -178,7 +178,9 @@ export default {
     limited: '(上限 {max} px に縮小)'
   },
   exportDrawingDlg: {
-    title: '{format} に書き出し'
+    title: '{format} に書き出し',
+    fileSection: 'ファイル',
+    version: 'バージョン'
   },
   exportSheet: {
     section: '用紙と縮尺',

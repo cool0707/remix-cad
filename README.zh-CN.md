@@ -66,6 +66,9 @@
 - **导入 SXF**（日本公共工程 CAD 数据交换标准）— 示例应用可打开 `.sfc`、`.p21` 及其 ZIP 形式
   `.sfz` / `.p2z`（`@mlightcad/cad-sxf-converter`，MIT，TypeScript，移植自
   [ezsxf](https://github.com/monozukuri-ai/ezsxf)）。局部图按主视图比例以实际尺寸显示，图纸幅面作为图形界限。
+- **不含 GPL 的 DWG 支持与 DWG 导出** — DWG 的读写改用编译为 WebAssembly 的
+  [acadrust](https://github.com/hakanaktt/acadrust)（Rust，MPL-2.0），在 Web Worker 中运行；
+  已移除 LibreDWG（GPL）转换器。通过 文件 → 导出 可保存 DWG（2000–2018，命令 `cdwg`）以及其他版本的 DXF（R12）。
 - **导出为 JWW / SXF** — 通过 文件 → 导出 可将图纸保存为 JWW（Jw_cad）、SXF SFC 或 SXF P21
   （命令 `cjww`、`csfc`、`cp21`）。块、标注和填充图案会被分解；图纸幅面和比例取自图形界限
   （从 JWW / SXF 读入的图纸保持原样），否则自动选择（A3、能容纳的最小标准比例）。
@@ -109,9 +112,10 @@ pnpm test
 
 ## DWG 支持
 
-DXF 由内置的 MIT 解析器读取。DWG 可选使用基于
-[LibreDWG](https://github.com/LibreDWG/libredwg) 的 `@mlightcad/libredwg-converter`，
-其许可证为 **GPL-3.0**，分发前请确认 GPL 的影响。
+DXF 由内置的 MIT 读取器读取。DWG 由 `@mlightcad/cad-acadrust-converter` 读取和写入，它把
+[acadrust](https://github.com/hakanaktt/acadrust)（Rust，**MPL-2.0**）编译为 WebAssembly 并在
+Web Worker 中运行。**不再有任何 GPL 依赖**（原先基于 LibreDWG 的转换器已移除）。导出支持
+DWG（2000–2018）以及其他版本的 DXF（R12、二进制）。
 
 ## JWW / JWC 支持
 
@@ -167,10 +171,11 @@ const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
 const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
 ```
 
-示例应用通过 `acapRegisterDrawingExporter()`（`cad-simple-viewer`）注册了这两种格式。
-光栅图像会嵌入 JWW（尚不写入 SXF）；尚不支持导出 DWG（读取所用的 LibreDWG npm 构建关闭了写入功能）。
+示例应用通过 `acapRegisterDrawingExporter()`（`cad-simple-viewer`）注册了 JWW、SXF 和 DWG。
+光栅图像会嵌入 JWW（尚不写入 SXF）；DWG 通过 acadrust 导出，保留块、标注和布局，可选择版本（2000–2018）。
 
 ## 许可证
 
 [MIT](./LICENSE)。按照许可证要求保留了 mlightcad 的原始版权声明。内置的
 BIZ UD 字体（© Morisawa Inc.）和 Noto Sans JP 采用 SIL Open Font License 1.1。
+用于读写 DWG 的 acadrust 采用 MPL-2.0（未作修改）。

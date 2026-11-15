@@ -161,7 +161,9 @@ export default {
     limited: '(zmenšeno na limit {max} px)'
   },
   exportDrawingDlg: {
-    title: 'Exportovat do {format}'
+    title: 'Exportovat do {format}',
+    fileSection: 'Soubor',
+    version: 'Verze'
   },
   exportSheet: {
     section: 'Papír a měřítko',

@@ -1,0 +1,22 @@
+[package]
+name = "remixcad-acadrust-engine"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "DWG / DXF conversion engine for RemixCAD (acadrust compiled to WebAssembly)"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# MPL-2.0. Used unmodified from crates.io; see ../THIRD_PARTY_NOTICES.md.
+# `parallel` (rayon) is off: WebAssembly runs on one thread.
+acadrust = { version = "=0.6.8", default-features = false }
+encoding_rs = "0.8"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

@@ -1,8 +1,10 @@
 import {
+  type AcApExportSheetAnswer,
   type AcApExportSheetRequest,
   type AcApPaperName,
   acapSetExportSheetPrompt,
-  type AcApSheetOptions} from '@mlightcad/cad-simple-viewer'
+  type AcApSheetOptions
+} from '@mlightcad/cad-simple-viewer'
 import { reactive } from 'vue'
 
 /** Form values of {@link MlExportSheetFields}; `''` / `'auto'` mean automatic. */
@@ -57,7 +59,7 @@ export function formatExportScale(scale: number) {
 /** Pending sheet question of the DXF / JWW / SXF export dialog. */
 export const exportSheetRequest = reactive<{
   request?: AcApExportSheetRequest
-  resolve?: (options: AcApSheetOptions | undefined) => void
+  resolve?: (answer: AcApExportSheetAnswer | undefined) => void
 }>({})
 
 /**
@@ -80,8 +82,10 @@ export function installExportSheetPrompt(open: () => void) {
 }
 
 /** Answers the pending request (`undefined` = cancelled). */
-export function answerExportSheetRequest(options: AcApSheetOptions | undefined) {
+export function answerExportSheetRequest(
+  answer: AcApExportSheetAnswer | undefined
+) {
   const resolve = exportSheetRequest.resolve
   exportSheetRequest.resolve = undefined
-  resolve?.(options)
+  resolve?.(answer)
 }

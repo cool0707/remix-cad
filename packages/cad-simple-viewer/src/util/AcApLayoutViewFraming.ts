@@ -130,6 +130,12 @@ function toFrameBox(
   ) {
     return undefined
   }
+  // A single point frames nothing. AutoCAD saves the Model layout's extents
+  // as (0,0)-(0,0) when they were never computed; framing on that would zoom
+  // in without end, so let the next signal decide.
+  if (max.x === min.x && max.y === min.y) {
+    return undefined
+  }
   return { min: { x: min.x, y: min.y }, max: { x: max.x, y: max.y } }
 }
 

@@ -1,0 +1,44 @@
+{
+  "name": "@mlightcad/cad-acadrust-converter",
+  "version": "1.7.7-preview.1",
+  "license": "MIT",
+  "type": "module",
+  "description": "DWG / DXF reader and writer for the CAD viewer, powered by acadrust (Rust/WebAssembly)",
+  "files": [
+    "dist",
+    "lib",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "package.json"
+  ],
+  "main": "./dist/cad-acadrust-converter.js",
+  "module": "./dist/cad-acadrust-converter.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./dist/cad-acadrust-converter.js",
+      "default": "./dist/cad-acadrust-converter.js"
+    },
+    "./node": {
+      "types": "./lib/node.d.ts",
+      "import": "./dist/node.js",
+      "default": "./dist/node.js"
+    },
+    "./acadrust-engine.wasm": "./dist/acadrust-engine.wasm"
+  },
+  "scripts": {
+    "clean": "rimraf dist lib tsconfig.tsbuildinfo",
+    "build": "tsc && vite build && vite build --config vite.worker.config.ts",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "check:wasm": "node scripts/build-wasm.mjs --check",
+    "lint": "eslint src/",
+    "lint:fix": "eslint --fix --quiet src/"
+  },
+  "devDependencies": {
+    "@mlightcad/data-model": "1.15.14"
+  },
+  "peerDependencies": {
+    "@mlightcad/data-model": "1.15.14"
+  }
+}

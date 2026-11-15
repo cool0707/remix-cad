@@ -1,0 +1,8 @@
+{
+  "acadrust": "0.6.8",
+  "rustc": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "target": "wasm32-wasip1",
+  "sourceHash": "765f97a6160309f729aa8ee099619b7a965c46bd423c47df45ad35f78a5287d2",
+  "wasmSha256": "2bfa87474ec06f70ae37f50942e3137a6bfe18623389289e2a39345a672e15cf",
+  "wasmBytes": 6545338
+}

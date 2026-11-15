@@ -4,7 +4,6 @@ jest.mock('../src/i18n/AcApI18n', () => ({
   }
 }))
 
-import { ACAP_DWG_PARSER_PRODUCT_URL } from '../src/util/AcApMessageLink'
 import {
   acapResolveOpenFileErrorMessage,
   acapResolveOpenFileErrorTitle,
@@ -14,8 +13,7 @@ import {
 describe('AcApOpenFileErrorMessage', () => {
   const templates: Record<string, string> = {
     'main.message.failedToOpenFileWorkerOom':
-      'Failed to open "{fileName}". Click {dwgParserLink} to buy.',
-    'main.message.failedToOpenFileWorkerOomLink': 'this page',
+      'Failed to open "{fileName}". There was not enough memory.',
     'main.message.failedToOpenFile': 'Failed to open file "{fileName}"!',
     'main.message.failedToOpenFileToast':
       'Failed to open "{fileName}". Check the notification center for details.',
@@ -69,15 +67,13 @@ describe('AcApOpenFileErrorMessage', () => {
     ).toBe('Failed to open file "demo.dwg"!')
   })
 
-  it('embeds a commercial DWG parser markdown link for worker_oom', () => {
+  it('maps worker_oom to the out-of-memory message', () => {
     expect(
       acapResolveOpenFileErrorMessage(t, {
         fileName: 'huge.dwg',
         errorCode: 'worker_oom'
       })
-    ).toBe(
-      `Failed to open "huge.dwg". Click [this page](${ACAP_DWG_PARSER_PRODUCT_URL}) to buy.`
-    )
+    ).toBe('Failed to open "huge.dwg". There was not enough memory.')
   })
 
   it('maps worker_oom to the insufficient-memory title', () => {

@@ -2,15 +2,16 @@
 // Chinese system fonts. Drawing text uses the CAD font catalog instead.
 import '@fontsource-variable/noto-sans-jp'
 
+import {
+  ACADRUST_WORKER_FILE,
+  registerAcadrustConverter
+} from '@mlightcad/cad-acadrust-converter'
 import { AcApDiffViewer } from '@mlightcad/cad-diff-viewer'
 import {
   AcApI18n,
   type AcApLocale,
-  LIBREDWG_PARSER_WORKER_FILE,
   MTEXT_RENDERER_WORKER_FILE
 } from '@mlightcad/cad-simple-viewer'
-
-import { registerLibreDwgConverter } from './registerLibreDwg'
 
 /** Picks an {@link AcApLocale} from `navigator.language`. */
 function detectLocale(): AcApLocale {
@@ -35,8 +36,9 @@ if (!host) {
   throw new Error('Diff viewer demo markup is missing')
 }
 
-const dwgParserUrl = `./workers/${LIBREDWG_PARSER_WORKER_FILE}`
-registerLibreDwgConverter(dwgParserUrl)
+// DWG through acadrust (MPL-2.0, WebAssembly) in a worker.
+const dwgParserUrl = `./workers/${ACADRUST_WORKER_FILE}`
+registerAcadrustConverter(dwgParserUrl)
 
 new AcApDiffViewer({
   container: host,

@@ -2,8 +2,8 @@
  * Nx runtime input fingerprint for pnpm-linked packages that live outside this
  * workspace (see `pnpm-workspace.yaml` overrides → sibling `realdwg-web`).
  *
- * Without this, editing/rebuilding `@mlightcad/data-model` (or
- * `@mlightcad/libredwg-converter`) does not change any Nx `inputs` hash, so
+ * Without this, editing/rebuilding `@mlightcad/data-model` does not change any
+ * Nx `inputs` hash, so
  * `pnpm build` restores stale cached `dist` and `pnpm preview` serves old
  * bundles until `pnpm clean` + `nx reset`.
  *
@@ -25,10 +25,7 @@ import { fileURLToPath } from 'node:url'
 const workspaceRoot = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 /** Packages overridden to a local checkout outside this monorepo. */
-const LINKED_PACKAGES = [
-  '@mlightcad/data-model',
-  '@mlightcad/libredwg-converter'
-]
+const LINKED_PACKAGES = ['@mlightcad/data-model']
 
 /**
  * Consumers known to depend on the linked packages; first existing link wins.

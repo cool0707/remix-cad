@@ -1170,8 +1170,7 @@ export default {
     failedToOpenFileToast:
       '「{fileName}」を開けませんでした。詳細は通知センターを確認してください。',
     failedToOpenFileWorkerOom:
-      '「{fileName}」を開けませんでした。使用可能なメモリが不足したため解析に失敗しました (LibreDWG パーサー)。{dwgParserLink}から商用 DWG パーサーを購入すると、大きな図面もこのエラーなしで開けます。',
-    failedToOpenFileWorkerOomLink: 'こちらのページ',
+      '「{fileName}」を開けませんでした。図面を読み込むためのメモリが足りません。ほかの図面やブラウザーのタブを閉じてから、もう一度お試しください。',
     failedToOpenFileWorkerTimeout:
       '「{fileName}」を開けませんでした。図面の解析中にタイムアウトしました。',
     failedToOpenFileFontLoadFailed:

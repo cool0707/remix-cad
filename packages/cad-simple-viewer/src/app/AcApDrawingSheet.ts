@@ -173,6 +173,14 @@ export function acapSetDxfLimits(
   return lines.join(eol)
 }
 
+/** One of the variants a file format can be written in (a file version). */
+export interface AcApExportVariant {
+  /** Passed back as the answer (`AC1032`, …). */
+  value: string
+  /** Shown in the list (`AutoCAD 2018`). */
+  label: string
+}
+
 /** What an export asks the user before it runs. */
 export interface AcApExportSheetRequest {
   /** Format name shown in the dialog title (`DXF`, `JWW`, …). */
@@ -181,15 +189,25 @@ export interface AcApExportSheetRequest {
   landscapeOnly?: boolean
   /**
    * The automatic choice keeps the file as it is instead of picking a sheet
-   * (DXF: the drawing limits are left unchanged).
+   * (DXF / DWG: the drawing limits are left unchanged).
    */
   autoKeepsDrawing?: boolean
+  /**
+   * Versions of the format to choose from (DWG 2018, 2013, …). The dialog
+   * shows them as a list; none = nothing to choose.
+   */
+  variants?: AcApExportVariant[]
+  /** Variant selected at first. @default the first of {@link variants} */
+  defaultVariant?: string
 }
+
+/** The chosen sheet, and the chosen variant when the request listed any. */
+export type AcApExportSheetAnswer = SheetOptions & { variant?: string }
 
 /** Asks for the sheet; resolves `undefined` when the user cancels. */
 export type AcApExportSheetPrompt = (
   request: AcApExportSheetRequest
-) => Promise<SheetOptions | undefined>
+) => Promise<AcApExportSheetAnswer | undefined>
 
 let sheetPrompt: AcApExportSheetPrompt | undefined
 
@@ -205,6 +223,7 @@ export function acapSetExportSheetPrompt(prompt?: AcApExportSheetPrompt) {
 /** Asks for the export sheet through the installed prompt (automatic without one). */
 export async function acapPromptExportSheet(
   request: AcApExportSheetRequest
-): Promise<SheetOptions | undefined> {
-  return sheetPrompt ? sheetPrompt(request) : {}
+): Promise<AcApExportSheetAnswer | undefined> {
+  if (sheetPrompt) return sheetPrompt(request)
+  return { variant: request.defaultVariant ?? request.variants?.[0]?.value }
 }

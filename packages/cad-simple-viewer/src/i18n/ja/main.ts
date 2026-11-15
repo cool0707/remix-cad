@@ -259,6 +259,7 @@ export default {
     exportingPdf: 'PDF を書き出しています...',
     exportingSvg: 'SVG を書き出しています...',
     exportingDrawing: '{format} を書き出しています...',
+    exportSameVersion: '図面と同じ',
     exportApproximate: '{format} に書き出しました。一部の要素は近似して書き出しています (詳細はブラウザのコンソール)。',
     exportFailed: '{format} に書き出せませんでした: {error}',
     calculatingSmartExtents: '表示範囲を計算しています...',
@@ -278,8 +279,7 @@ export default {
     failedToOpenFileToast:
       '「{fileName}」を開けませんでした。詳細は通知センターを確認してください。',
     failedToOpenFileWorkerOom:
-      '「{fileName}」を開けませんでした。使用可能なメモリが不足したため解析に失敗しました (LibreDWG パーサー)。{dwgParserLink}から商用 DWG パーサーを購入すると、大きな図面もこのエラーなしで開けます。',
-    failedToOpenFileWorkerOomLink: 'こちらのページ',
+      '「{fileName}」を開けませんでした。図面を読み込むためのメモリが足りません。ほかの図面やブラウザーのタブを閉じてから、もう一度お試しください。',
     failedToOpenFileWorkerTimeout:
       '「{fileName}」を開けませんでした。図面の解析中にタイムアウトしました。',
     failedToOpenFileFontLoadFailed:

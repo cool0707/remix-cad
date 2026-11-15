@@ -184,7 +184,7 @@ const viewer = new AcApDiffViewer({
   },
   webworkerFileUrls: {
     mtextRender: './workers/mtext-renderer-worker.js',
-    dwgParser: './workers/libredwg-parser-worker.js'
+    dwgParser: './workers/acadrust-worker.js'
   }
 })
 

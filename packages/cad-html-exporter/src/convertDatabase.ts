@@ -202,6 +202,10 @@ async function convertOpenDatabaseToSnapshot(
     `[cad-html-exporter] convert timings: fonts=${fontsMs.toFixed(0)}ms worldDraw=${worldDrawMs.toFixed(0)}ms asyncDraw=${asyncDrawMs.toFixed(0)}ms (n=${pendingDraws.length}, concurrency=${ASYNC_DRAW_CONCURRENCY}) snapshot=${snapshotMs.toFixed(0)}ms`
   )
 
+  // The snapshot is plain data by now. Without this the font manager
+  // singleton keeps every export's renderer alive, which adds up in a
+  // process that converts many drawings.
+  renderer.destroy()
   return snapshot
 }
 

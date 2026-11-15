@@ -1186,8 +1186,7 @@ export default {
     failedToOpenFileToast:
       'Failed to open "{fileName}". Check the notification center for details.',
     failedToOpenFileWorkerOom:
-      'Failed to open "{fileName}". Parsing failed because available memory was insufficient (LibreDWG parser). You can click {dwgParserLink} to purchase the commercial DWG parser and open large drawings without this crash.',
-    failedToOpenFileWorkerOomLink: 'this page',
+      'Failed to open "{fileName}". There was not enough memory to read the drawing. Close other drawings or browser tabs and try again.',
     failedToOpenFileWorkerTimeout:
       'Failed to open "{fileName}". The operation timed out while parsing the drawing.',
     failedToOpenFileFontLoadFailed:

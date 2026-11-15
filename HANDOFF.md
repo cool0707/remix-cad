@@ -1,6 +1,6 @@
-# 引き継ぎ資料 — JWW / SXF 読み込み対応
+# 引き継ぎ資料 — JWW / SXF 対応、DWG の acadrust 移行
 
-作成: 2026-10-23 (それまでの作業はクラウド上の Claude セッションで実施)。
+作成: 2026-10-23 (それまでの作業はクラウド上の Claude セッションで実施)。最終更新: 2026-11-14 (2.8・2.9)。
 リポジトリの基本ルール・コマンドは [`CLAUDE.md`](./CLAUDE.md)。
 
 ---
@@ -19,6 +19,7 @@
 | `641b60b` | 初期表示「図面範囲」(モデル = LIMITS、レイアウト = 用紙枠)、TABLES の無い DXF で画層を自動作成 |
 | `7bb415d` (PR #1) | **JWW 読み込み** (`packages/cad-jww-converter`)、拡張子判定の一般化 (`AcApDrawingFileTypes`) |
 | (このブランチ) | JWW 文字サイズ補正、**JWC**、**SXF (SFC / P21 / SFZ / P2Z)** (`packages/cad-sxf-converter`) |
+| `claude/acadrust-migration-optimization-jppe4j` | **DWG を acadrust に移行 (LibreDWG = GPL を撤去)、DWG / DXF 書き出し**、Worker・wasm・WebGL の後始末 (2.8・2.9) |
 
 デモ: <https://cool0707.github.io/remix-cad/> (`?url=` `?new=1` `?lang=` `?view=extents|saved|limits` が使える)
 
@@ -26,15 +27,15 @@
 
 | パッケージ | 目的 |
 | --- | --- |
-| `@mlightcad/data-model@1.15.14` | ① `lib/base/AcDbDxfPairReader.js`: 文字コード自動判定 (`acdbGuessLegacyEncoding`)、② `lib/dxf/AcDbDxfHeaderReader.js`: `$LIMMIN/$LIMMAX/$PLIMMIN/$PLIMMAX` を `db.limmin` 等に格納 (+ `.d.ts`)、③ `lib/dxf/AcDbNativeDxfConverter.js`: 読み込み直後に画層 0 と参照画層を作成 (`acdbEnsureReferencedLayers`)、④ `lib/entity/AcDbRasterImage.js` + `dist/data-model.cjs`: `boundaryPath()` の回転の中心が右下の角になっていた・負の角度を無視していたのを、挿入点 (左下) 中心・0 以外すべてに修正 |
-| `@mlightcad/libredwg-converter@3.15.14` | DWG ヘッダーの LIMMIN 等を `db` に格納 |
-| `@mlightcad/geometry-engine@3.15.14` | NURBS 評価の高速パス |
+| `@mlightcad/data-model@1.15.14` | ① `lib/base/AcDbDxfPairReader.js`: 文字コード自動判定 (`acdbGuessLegacyEncoding`)、② `lib/dxf/AcDbDxfHeaderReader.js`: `$LIMMIN/$LIMMAX/$PLIMMIN/$PLIMMAX` を `db.limmin` 等に格納 (+ `.d.ts`)、③ `lib/dxf/AcDbNativeDxfConverter.js`: 読み込み直後に画層 0 と参照画層を作成 (`acdbEnsureReferencedLayers`)、④ `lib/entity/AcDbRasterImage.js` + `dist/data-model.cjs`: `boundaryPath()` の回転の中心が右下の角になっていた・負の角度を無視していたのを、挿入点 (左下) 中心・0 以外すべてに修正。**以下は 2026-11-14 追加 (ESM の `lib/` と Jest 用の `dist/data-model.cjs` の両方)**: ⑤ `lib/dxf/AcDbDxfDocumentReader.js` `shouldAcceptBlockEntity`: BLOCKS セクションの `*Paper_Space0` 以降 (アクティブでないレイアウト) の図形を捨てていた。AutoCAD も acadrust もそこに書くので、アクティブ以外のレイアウトが空になっていた。⑥ `lib/dxf/AcDbDxfHeaderReader.js`: `$EXTMIN = 1e20` / `$EXTMAX = -1e20` (図形が無いときの番兵。data-model 自身もこう書く) を範囲として読んで ±1e20 の箱にしていた。⑦ `lib/dxf/AcDbDxfObjectsReader.js` `finishNamedObjectDictionaries` / `materializeBufferedDictionaries`: 新規データベースの組み込み辞書に振られた仮ハンドル (A〜16) がハンドル表に残り、ファイル側の同じハンドルの辞書と取り違えていた (ezdxf / acadrust 既定の配置では ACAD_MLINESTYLE = 10 がレイアウト辞書 = 10 に混ざり、名前の無いレイアウトができる)。束縛前に仮ハンドルを外し、ファイルに無い辞書には `$HANDSEED` より後の新しいハンドルを振る。⑧ `lib/database/AcDbDatabase.js` `writeDxfExtentsHeader`: `db.limmin` 等を `$LIMMIN` … として `dxfOut` に書く (②で読んだ図面範囲が保存で落ちていた。DWG 書き出しはこの DXF を経由する)。CJS には②相当の読み込みも入れた (Jest でも limits が読める)。⑨ `lib/dxf/AcDbDxfDocumentReader.js` `ensureBlockTableRecord`: BLOCK にパス名 (グループ 1) があるだけで xref フラグを立てていた。ファイルから挿入したブロックは xref でなくてもパスが残るので、書き出すと xref として出てしまい、読む側 (acadrust も AutoCAD も) が中身を捨てる → フラグ (グループ 70) だけを信じる。⑩ `lib/database/AcDbLayerTableRecord.js` `dxfOutFields`: オフのレイヤーを負の色番号 (62) で書く (読むだけで書いておらず、書き出すと全レイヤーがオンになっていた)。⑪ `lib/entity/AcDbBlockReference.js` `dxfOutFields`: 属性を持つ INSERT に `66=1` (属性が続く) を書く。無いと後続の ATTRIB が読み手に捨てられ、属性値が全部消える。⑫ `lib/entity/AcDbPolyline.js` `dxfInFields`: 一定幅 (43) があるのに頂点ごとの幅 (40/41) が 0 で併記されている LWPOLYLINE (acadrust はこう書く) を幅 0 として読んでいた → 一定幅を使う。⑬ `lib/dxf/AcDbDxfDocumentReader.js` `acceptEntity` / `linkOrDeferAttribute`: 所有者ハンドル (330) の無い ATTRIB (R12 形式) を捨てていた → 直前の INSERT に付ける。⑨〜⑬ は ESM と CJS の両方。回帰テストは `cad-acadrust-converter/__tests__/exportFidelity.spec.ts` |
+| `@mlightcad/geometry-engine@3.15.14` | NURBS 評価の高速パス。`AcGeNurbsCurve.createFitPointsForClosedCurve` (ESM + UMD): 閉じたフィット点スプラインは DWG / DXF では始点が末尾に重複して入っている。閉じた Catmull-Rom がそれを長さ 0 の区間にし、弦長パラメータ化が 0 で割って継ぎ目付近で大きく膨らんでいたので、重複点を落とす (2026-11-14) |
 | `@mlightcad/mtext-renderer@0.13.5` | `fonts.json` の絶対 URL (Google Fonts) を許可 |
 | `@mlightcad/ui-components@0.1.11` | `useBoundingRect` (`dist/*.js` と `src/`): 左右にドッキングしたパレットを、ウィンドウのリサイズ時と折りたたみ/展開時に端から位置を計算し直す。元はリサイズ時に幅の差分を足していたので、ビューア側の再配置と合わせて 2 倍ずれていた。折りたたみ中にタイトルバーを押すと記憶位置が折りたたみ位置で上書きされ、展開すると右にはみ出していた |
 | `ezjww@0.7.3` | npm 版は Node 専用 (読み込み時に `fs` で wasm を読む)。`initSync` / `initAsync` を追加し、wasm を後から渡せるようにした (`exports` に wasm パスも追加) |
 
 注意: `lib/dxf/AcDbNativeDxfConverter.js` は末尾に改行が無く、そのまま `pnpm patch-commit` すると最終行 (`}`) が落ちたパッチになりビルドが壊れる。
-編集ディレクトリでこのファイルの末尾に改行を足してから commit すること。
+編集ディレクトリでこのファイルの末尾に改行を足してから commit すること (`pnpm patch` で展開するたびに毎回必要)。
+`@mlightcad/libredwg-converter` のパッチは LibreDWG の撤去と一緒に削除した (2.8)。
 
 ---
 
@@ -273,18 +274,10 @@ SXF は国交省・JACIC (現 OCF) の CAD データ交換標準。電子納品�
   範囲を 2 点で指定する従来の `pngout` はメニュー「選択範囲を画像に書き出し」として残した。
 - 未対応・やり残し: ブロックを JWW / SXF のブロック・複合図形として残す、
   寸法を寸法要素として残す、SXF の画像、Jw_cad 実機での確認 (Wine / Windows)。
-- **DWG 書き出し — 方針 (2026-10-24 決定)**: CADcraft の DWG 対応がまともになったら、それを取り込む (ライセンスは MPL-2.0)。
-  MPL-2.0 はファイル単位のコピーレフトなので MIT の本体と組み合わせてよいが、取り込んだファイルは MPL-2.0 のまま
-  (ライセンス表記を残す・そのファイルを改変したら改変後のソースを公開する) にし、自前コードと混ぜずに専用パッケージ
-  (例: `packages/cad-dwg-writer`) に分けておく。書き出しは `ExportDrawing` を入力にすれば JWW / SXF と同じ流れに乗る。
-  進捗次第で **DWG の読み込みも CADcraft に置き換え**、LibreDWG (GPL) を外す (example の `registerLibreDwg.ts`・
-  `@mlightcad/libredwg-converter` とそのパッチ・worker の配信をやめる)。そうなれば DWG を含めて GPL の部分が無くなり、
-  Rust CLI も MIT + MPL ファイルで配布できる (CLI を先に GPL で公開していても、自分だけが書いたコードなら後から MIT にできる。
-  公開済みの GPL 版はそのまま GPL)。
-  以下はそれ以前に調べた別案。
-- **DWG 書き出し (調査メモ)**: 読み込みに使っている npm の `@mlightcad/libredwg-web` は `disable-write` でビルドされていて書けない。
-  LibreDWG を書き込み有効で wasm ビルドすれば (GPL のまま example 側 opt-in) R2000 DWG は出せるが、LibreDWG の DWG writer は実験的。
-  他の候補は ODA File Converter (無償だがプロプライエタリ、デスクトップ専用 = CLI 側なら外部ツールとして呼べる) か商用 SDK。
+- **DWG 書き出し — 済 (2026-11-14、2.8)**: acadrust (MPL-2.0) で実装した。当初の案 (CADcraft を取り込み、`ExportDrawing` を入力にする)
+  とは違い、**データベースが書いたバイナリ DXF を acadrust が DWG にする**ので、ブロック・寸法・レイアウトを分解せずそのまま保存できる
+  (JWW / SXF のような平坦化はしない)。DWG の読み込みも acadrust に置き換え、LibreDWG (GPL) は外した。
+  以前の調査メモ: `@mlightcad/libredwg-web` は `disable-write` ビルドで書けない。ODA File Converter は無償だがプロプライエタリ。
 - **Rust CLI (Windows) への道筋**: ezjww (`ezjww-core` crate、読み書き) と ezsxf (読み書き。ただし PyO3 と一体の cdylib なので
   `writer.rs` / `p21_writer.rs` / `parser.rs` を切り出す必要あり) はどちらも Rust・MIT。`ExportDrawing` は素のデータなので Rust の struct に
   1:1 で写せる。CLI は「入力 (DXF: `dxf` crate / JWW: ezjww / SXF: ezsxf) → ExportDrawing 相当 → 出力」にし、平坦化 (`collect.ts`) と
@@ -328,11 +321,217 @@ HATCH (`AcApHatchCmd`、リボンの `AcApHatchRibbonCmd` も継承) を AutoCAD
   ペーパー空間の単位は plotPaperUnits (mm / inch) とみなす。印刷範囲表示 (`AcApPrintAreaOverlay`) は印刷ページでは LIMITS を用紙として描く。
 - 元に戻す (undo) には載せていない (やり残し)。読み取り専用で開いたときは + とメニューを出さない。
 
+## 2.8 DWG / DXF を acadrust に移行 (2026-11-14)
+
+LibreDWG (GPL-3.0) を撤去し、DWG の読み書きを [acadrust](https://github.com/hakanaktt/acadrust) 0.6.8 (MPL-2.0、Rust) に
+置き換えた。**リポジトリから GPL の依存は無くなった** (`pnpm-lock.yaml` に libredwg は 0 件)。パッケージは
+`packages/cad-acadrust-converter` (`README.md` に図と数値がある)。
+
+### 構成
+
+```
+ ページ                          Worker (アイドル 20 秒で終了)
+ ファイルのバイト列 ──転送──▶  acadrust: DWG / DXF → CadDocument → バイナリ DXF
+ AcDbDatabase      ◀──転送──   (図面 1 枚ごとに wasm の新しいインスタンス)
+   ▲
+   └─ data-model の AcDbNativeDxfConverter がバイナリのペアをそのまま読む
+```
+
+- **受け渡しはバイナリ DXF**。data-model は元からバイナリ DXF をペア単位で直接データベースに流し込めるので、
+  中間のオブジェクト木 (LibreDWG の `DwgDatabase`) も、構造化クローンも、メインスレッドでの数値の文字列パースも無い。
+  DXF → データベースの変換ロジック (このフォークのパッチ込み) をそのまま使えるのも理由。
+- **エンジン** (`engine/`、Rust、MIT): acadrust への薄いラッパー。`wasm32-wasip1` の cdylib で、wasm-bindgen などの
+  生成グルーは無い。WASI の import 6 個 (`random_get` `environ_*` `clock_time_get` `fd_write` `proc_exit`) と自前の 2 個
+  (`cad_progress` `cad_panic`) を `src/engineHost.ts` が実装する。同じファイルが Worker・ページ・Node で動く
+  (ezjww のような「npm 版は Node 専用」問題が起きない)。入口は `cad_convert` 1 つ。入力は解析が済んだら出力を書く前に解放する。
+- **メモリ**: WebAssembly のメモリは縮まないので、**ジョブごとにインスタンスを作り直し**、コンパイル済みモジュールだけ
+  Worker 内で使い回す。Worker は 20 秒使われなければ終了 (`idleTimeoutMs`)。ジョブは 1 件ずつ (2 枚同時に解析してピークを重ねない)。
+  実ブラウザで「DWG を開くと Worker 起動 → 28 秒後には Worker 0 個」「DXF では worker も wasm も取得しない」を確認した。
+- **wasm はビルド済みをコミット** (`wasm/acadrust-engine.wasm` 6.5 MB、gzip 1.9 MB。LibreDWG は 10.8 MB)。`pnpm build` と CI に
+  Rust は不要。`engine/` を変えたら `pnpm --filter @mlightcad/cad-acadrust-converter build:wasm`。`wasm/BUILD_INFO.json` に
+  ソースのハッシュがあり、ずれていると Jest (`engineHost.spec.ts`) が落ちる。`opt-level = "s"` は 1.5 MB (gzip) になるが 3 割遅いので 3 のまま。
+- **panic**: wasm の標準ライブラリは `panic = abort`。acadrust は壊れたレコードを `catch_unwind` で救う箇所があるが、wasm では効かず
+  そのジョブのインスタンスが落ちる (ホストがエラーにして捨てる)。壊した DWG 440 件を流してトラップは 0 件
+  (読めた 204・エラー 236) だったので、unwind 対応 (`-Zbuild-std`、nightly 相当) は入れていない。
+
+### DXF は既定で従来の TS リーダーのまま
+
+依頼は「DWG・DXF の読み込みを acadrust に」だったが、計測すると DXF は遅く・重くなるので、**DXF の既定は data-model の
+リーダーのまま**にした (もともと MIT なので GPL 撤去には関係しない)。Node での計測 (同じマシン):
+
+| ファイル | TS リーダー (メイン) | acadrust 経由 |
+| --- | --- | --- |
+| DXF 1.9 MB・11,858 図形 | 79–125 ms | Worker 52 ms + メイン 69 ms |
+| DXF 53 MB・296,450 図形 | 1.8 s | Worker 2.4–2.8 s + メイン 1.6–1.8 s、Worker のメモリ約 370 MB |
+
+メインスレッドの時間は「テキストの解析」ではなく「データベースの構築」が占めるので、バイナリにしても減らない。
+`registerAcadrustConverter(url, { dxf: 'engine' })` で DXF も acadrust 経由にできる (失敗したら TS リーダーに戻る)。
+example は `?dxf=acadrust`。壊れた DXF の救済用。文字コードの判定 (Shift_JIS なのに ANSI_1252 と書いてある等) は
+`engine/src/encoding.rs` に data-model パッチ①と同じ規則を移植し、acadrust が誤る場合だけ UTF-8 に変換して渡す。
+
+### DWG の計測 (Node、旧経路 = LibreDWG の解析 + 変換)
+
+| ファイル | 旧 | 新 |
+| --- | --- | --- |
+| DWG 0.4 MB・11,858 図形 | 944–962 ms | Worker 32–115 ms + メイン 111–159 ms |
+| DWG 10.5 MB・296,450 図形 | 7.5–7.9 s | Worker 1.5–1.9 s + メイン 1.8 s (wasm のメモリ約 415 MB、終了で解放) |
+
+旧経路はブラウザではさらに「開くたびに Worker 起動 + 10.8 MB の wasm をコンパイル」「結果を構造化クローン」が乗っていた。
+
+### 書き出し
+
+- `AcDbAcadrustConverter.exportDatabase(db, { format: 'dwg' | 'dxf' | 'dxf-binary', version, limits })`。
+  `db.dxfOut(…, 'AC1032', { format: 'binary' })` (文字列を作らない) → acadrust → DWG / 別バージョンの DXF。
+- UI: `cdwg` と ファイル → 書き出し → DWG (バージョン 2000〜2018、既定 2018)。DXF の書き出しダイアログにも「バージョン」
+  (既定「図面と同じ」= 従来どおり data-model が書く。他を選ぶと acadrust 経由。R12 は本物の R12)。
+  仕組みは `AcApExportSheetRequest.variants` / `AcApDrawingExporter.variants` / `acapSetDxfVersionWriter()`。
+  「図面と同じ」の値は空文字にしない (el-select が未選択扱いにする)。
+- 用紙: すべて自動なら図面の LIMITS のまま、選べば `limits` として書く (DXF と同じ `autoKeepsDrawing`)。
+- DWG のサムネイル: DXF に書く場所が無いので、エンジンが別に返して `db.thumbnailImage` に入れる (HTML エクスポーターの preview.jpg 用)。
+
+### 検証
+
+- **Jest** `packages/cad-acadrust-converter/__tests__` 40 件: DXF → DWG → 読み戻しが全レイアウト・文字・画層で一致、
+  R2000 (コードページ) DWG で日本語、DWG 6 バージョン、図面範囲、R12 DXF、バイナリ DXF、進捗の順序、エラー分類、壊れたファイル、
+  書き出しで落ちていた情報 (`exportFidelity.spec.ts`。下の「実図面での検証」)。
+  `cargo test` 16 件 (文字コード判定、R12 のブロック名)。e2e `dwg.spec.ts` 6 件 (実ブラウザで読み込み・書き出し・再読み込み)。
+- リポジトリの DXF 24 件は TS リーダーと acadrust 経由でデータベースが一致 (パッチ⑤⑦の後)。
+- 書き出した DWG (サンプル 21 件 × 6 バージョン) は acadrust と **LibreDWG (独立した実装)** の両方で読み戻して図形数が一致。
+- acadrust のテスト用 DWG 13 件 (AC1024〜AC1032、小さいもの。作成元の CAD はまちまち) を旧経路と比較: 図形の種類と数は一致。
+  違いが出たのは 3 点で、どれも新経路のほうが筋が通る (寸法の種類: 旧は回転 90° の長さ寸法を平行寸法として読む。
+  スプライン: 旧は周期スプラインが 1 点に潰れる。一部の文字: 旧は空で読む)。
+  無名ブロックの番号 (`*U2` など) は振り方が違うが、ブロックと参照の対応は合っている。
+- 実務の AutoCAD 製 DWG は下の「実図面での検証」。**書き出した DWG を AutoCAD / Jw_cad 実機で開く確認はしていない**
+  (読み戻しは acadrust と LibreDWG、表示はこのビューアで確認した)。
+- 検証に使ったスクリプトはリポジトリに入れていない (比較は Jest に移した)。DWG サンプルは `node tools/make-dwg-sample.mjs`
+  (JWW サンプルを DWG 2018 にしたもの。画像は DWG に同梱できないので「見つからない画像」になる)。
+
+### 実図面での検証 (2026-11-15)
+
+AutoCAD 2007 形式 (AC1021) の DWG 4 件 (0.5〜2.4 MB、11,683〜47,562 図形、レイアウト 3〜9 枚、日本語とアイスランド語の文字・属性を含む)。
+ファイルはリポジトリに入れていない (権利が分からないため)。
+
+**読み込み**
+
+- 4 件ともエラー・スキップ・復旧なしで読めた。図形の種類と数は LibreDWG (生の `libredwg-web`) と一致 (ATTRIB / VERTEX / SEQEND を
+  LibreDWG は親の中に数えるので、その分を除いて完全一致)。1 件は LibreDWG では読めず (図形 0)、acadrust だけが読めた。
+- 文字 (TEXT / MTEXT / ATTRIB / ATTDEF。LibreDWG が読めた 3 件で計 9,249 個) をハンドル単位で突き合わせ: 位置は全部一致、
+  acadrust が空で LibreDWG に文字があるものは 0。逆に LibreDWG が空で acadrust が読めているものが 224 個。
+- Node での時間 (エンジン + TS リーダー): 0.5 MB で 0.1 + 0.3 秒、2.4 MB (47,562 図形) で 0.3 + 0.9 秒。wasm のピークは 21〜85 MB。
+  ブラウザでファイルを選んでから図面が開くまでは 2〜4.5 秒 (ヘッドレス Chromium)。
+
+**書き出し** (各ファイル → DWG 6 バージョン + DXF R12)
+
+- 読み戻し (acadrust) は元のデータベースと一致。違いはスプラインフィットの 2D ポリライン計 3 本が LWPOLYLINE になる点だけ (下の制限)。
+  LibreDWG で読み戻した図形数も元と一致 (LibreDWG が元ファイルを読めない 1 件を除く)。
+- 書き出した DWG (2018 と 2000) をこのビューアで開いたスクリーンショットは、元ファイルと画素単位で一致
+  (1 件だけ塗りの重なる縁で 24 / 148 画素の差)。R2000 はトゥルーカラーを持てないので、色は近い ACI 色になる (形式の制限)。
+
+**見つけて直したもの**
+
+| 症状 | 原因 | 直した場所 |
+| --- | --- | --- |
+| モデルタブに切り替えると何も映らない (ズームが 3.7e18 倍) | ペーパー空間で保存した DWG の Model レイアウトは図面範囲が (0,0)–(0,0)。それにフィットしていた | `AcApLayoutViewFraming.ts` `toFrameBox` (点だけの箱は枠にしない)、`AcTrBaseView.zoomTo` (大きさの無い箱は中心に移るだけ) |
+| 色違いの塗り 36,000 個の図面が開くのに 12〜15 秒、1 フレーム約 0.5 秒 | 色ごとにマテリアル・バッチ・テクスチャ | 2.9 の「塗りの色を頂点に」 |
+| 書き出すとブロックの中身が消える (368 図形) | data-model がパス名のあるブロックを xref 扱い | パッチ⑨ |
+| 書き出すとオフのレイヤーが全部オンになる (隠してあったビューポート枠が出る) | オフ状態を書いていない | パッチ⑩ |
+| 書き出すとブロックの属性値が消える (通り芯記号の文字など。53 個中 53 個、280 個中 277 個) | INSERT に `66=1` が無い | パッチ⑪ |
+| 書き出した DWG を開くと幅付きポリライン (塗りつぶした円) が細い線になる | 一定幅 + 頂点幅 0 の読み方 | パッチ⑫ |
+| DXF R12 への書き出しがエンジンごと止まる | acadrust の R12 ライターがブロック名を 12 バイト目で切る (`name[..12]`)。そこがマルチバイト文字の途中だと panic (例: `FL記号（階高）`) | `engine/src/lib.rs` `keep_r12_writer_from_splitting_block_names` (R12 のときだけ、該当するブロック名を先に ASCII にする。R12 のシンボル名はもともと ASCII だけ) |
+
+**残っている制限** (どれも data-model のモデルに無い情報)
+
+- スプラインフィット / カーブフィットした 2D ポリライン (POLYLINE のフラグ 2・4): フィット後の頂点で読むので形は合うが、
+  書き出すと普通のポリラインになる (制御フレームは戻らない)。
+- DXF R12 を読むとき、サブクラスマーカーの無い ATTRIB / ATTDEF のタグ名 (グループ 2) は読めない (値と位置は読める)。
+- 無名ブロックの番号 (`*X23` → `*X24`) は DWG に書くと振り直される (参照の対応は保たれる。AutoCAD も同じ)。
+
+### 撤去したもの
+
+`@mlightcad/libredwg-converter` / `libredwg-web` (依存・override・パッチ)、各 example の `registerLibreDwg.ts`、
+`tools/use-dwg-converter.mjs` (上流の商用コンバーターへの切り替え)、`LIBREDWG_*` / `DWG_PARSER_*` 定数、
+メモリ不足時の商用パーサー購入リンク (`{dwgParserLink}`、6 言語)、`cad-html-exporter/examples/check-thumbnail.mjs`。
+`packages/examples/public/cdn-bootstrap/cad-viewer.html` (上流の公開パッケージを CDN から読む例) は DXF 専用にした。
+`cad-html-exporter` の `dwgParser` は `'acadrust'` (既定) か `'dwg'` (上流の商用、任意)。
+three-renderer / pdf-renderer に残る「LibreDWG が…」というコメントは、LibreDWG 由来のデータの癖への対処で、依存ではない。
+
+## 2.9 Worker / wasm / WebGL の整理 (2026-11-14)
+
+棚卸しして、確認できたものだけ直した。
+
+**Worker / wasm**
+
+| 対象 | 以前 | 今 |
+| --- | --- | --- |
+| DWG | 開くたびに Worker + 10.8 MB の wasm を作り直し、結果は構造化クローン | 2.8 |
+| JWW (`AcDbJwwConverter`) | Worker は一度作ると常駐。DXF は文字列でクローン → メインで `TextEncoder` | 20 秒アイドルで終了 (`idleTimeoutMs`)。DXF は Worker で UTF-8 にして転送 |
+| JWW / SXF の DXF | 登録済みの DXF コンバーターへ | `AcDbNativeDxfConverter` へ直接 (DXF を acadrust 経由にしても影響しない) |
+| MTEXT (`mtext-renderer`) | 差分ビューアだけ Worker モード (最大 4 個を起動時に作り、各自フォントを解析) | 差分ビューアも既定はメインスレッド (`useMainThreadDraw`、他のホストと同じ) |
+| PDF 取り込み | `getDocument()` を破棄せず、取り込むたびに pdf.js の Worker が残る | `loadingTask.destroy()` |
+
+**WebGL** (コンテキストはビューごとに 1 つで、もともと増えていない。問題は後始末)
+
+実ブラウザでの計測 (three.js の `renderer.info.memory`。JWW サンプルを開く → 全選択 → 閉じる、を 5 回):
+
+| | 開く前 | 1 回後 | 2 | 3 | 4 | 5 |
+| --- | --- | --- | --- | --- | --- | --- |
+| テクスチャ (修正前) | 3 | 16 | 29 | 42 | 55 | 68 |
+| テクスチャ (修正後) | 3 | 3 | 3 | 3 | 3 | 3 |
+| ジオメトリ (修正前) | 3 | 4 | 5 | 6 | 7 | 8 |
+| ジオメトリ (修正後) | 3 | 3 | 3 | 3 | 3 | 3 |
+
+- バッチ (`AcTrBatchedMixin.dispose`) がジオメトリしか破棄していなかった。バッチ専用のマテリアル複製、ハイライト用マスクテクスチャ、
+  ハッチ模様テクスチャの参照カウントが残り、図面を閉じても再生成しても GPU に残っていた → まとめて破棄。`updateMaterial` で差し替えた古い複製も破棄。
+- ラスター画像の複製マテリアルとテクスチャ (`cloneUnbatchedTexturedMaterial`) が破棄されていなかった (1 枚で数十 MB になりうる) → `ownsTexturedMaterial` を付けて破棄。
+- `AcTrRenderer` が `FontManager` のシングルトンに付けたリスナーを外しておらず、破棄したレンダラーが残り続けた → `destroy()` を追加
+  (`dispose()` は「キャッシュを空にする」意味で再利用されるので別にした)。HTML エクスポートの使い捨てレンダラーも `destroy()`。
+- レイアウトビューの `OrbitControls` が共有キャンバスに付いたまま破棄されなかった。しかも**別タブに切り替えて待機中の図面のカメラ操作が有効なまま**で、
+  表示中の図面のパン・ズームに一緒に反応していた (実ブラウザで確認: 2 枚目をホイールで拡大すると、待機中の 1 枚目のカメラが
+  ズーム 11.6 → 467 に動いていた) → 待機時は入力を切り (`AcTrLayoutViewManager.inputEnabled`)、閉じるときに `dispose()`。
+  軸ギズモのラベルのテクスチャも破棄。e2e `parked-document-view.spec.ts`。
+- 計測・マークアップのオーバーレイ用キャンバス: 倍率を 2 で頭打ちに (WebGL と同じ)。端数の倍率 (125 %・150 %) で `canvas.width !== w * dpr` が
+  常に真になり、描画のたびにキャンバスを作り直していたのを修正。
+- 描画バッファの倍率を起動時の一度しか読んでいなかった → リサイズ時に追従 (モニター移動・ブラウザの拡大)。
+- **塗りの色を頂点に** (2026-11-15): バッチはマテリアルごと、塗りのマテリアルは色ごとだったので、色の数だけバッチ (ジオメトリ・
+  ハイライト用テクスチャ・描画呼び出し) ができていた。トゥルーカラーで塗り分けた図面 (色違いの SOLID 36,095 個) で計測:
+
+  | | 修正前 | 修正後 |
+  | --- | --- | --- |
+  | GPU のジオメトリ / テクスチャ | 32,109 / 32,109 | 17 / 17 |
+  | ファイルを選んでから開くまで | 12〜15 秒 | 3〜4.5 秒 |
+  | 2 フレームの時間 (ヘッドレス、ソフトウェア描画) | 約 1,100 ms | 約 120 ms |
+
+  固定色 (ByLayer・ByBlock・ACI 7・ワイプアウト・模様・グラデーション以外) の単純な塗りは、色をジオメトリの `color` 属性に書き、
+  白い共有マテリアル (`vertexColors`) で描く。`AcTrStyleManager.getFillMaterial(traits, …, geometry)` にジオメトリを渡すと切り替わる
+  (渡さなければ従来どおり色ごとのマテリアル。MTEXT のグリフは渡していない)。マテリアルのメタデータ `vertexColors` が目印。
+  あとから色が変わるもの (レイヤー色・背景で反転する色) は 1 つのマテリアルを塗り替える仕組みなので対象外。
+  ハイライト用の複製は `AcTrMaterialUtil.setMaterialColor` が `vertexColors` を切って単色にする。
+  **バッチのマテリアルから色を読むコードは、この塗りでは白を読むことになる**。HTML 書き出しのスナップショットはメッシュ 1 つに色 1 つなので、
+  `cad-html-core/src/AcExSceneBatchCollector.ts` で色ごとに分けて出している (`isVertexColoured` / `exportVertexColouredBatch` / `forEachFillColor`)。
+  同じようにシーンを読む処理を足すときは `getMaterialMetadata(material).vertexColors` を見ること。
+  描画結果は修正前と画素単位で同じ (重なった塗りの縁だけ、色別バッチ順から図形順に変わる)。テスト `AcTrFillVertexColor.spec.ts`。
+  線は対象外 (レイヤー × 色 × 線種 × 線幅で、実図面では数が増えない)。
+
+**直していないもの (判断)**
+
+- 描画ループは毎フレーム rAF が回るが、汚れていなければ WebGL は何もしない。必要時だけ回す形にするには `_isDirty` の代入 59 か所と
+  `renderFrame` を毎フレーム受ける 2 か所 (MTEXT エディター・印刷範囲) の整理が要る。効果が小さいので見送り。
+- 計測・マークアップは 1 個ごとにビュー全体の大きさのキャンバスを持つ (個数に比例してメモリを使う)。共有キャンバス 1 枚にまとめるのが本筋だが、
+  選択の見た目やレイヤー別表示が 1 キャンバス 1 要素を前提にしているので、マークアップ側の作り直しになる。未着手。
+- 別タブで待機中の図面は GPU のジオメトリを持ったまま (切り替えを速くするための元からの設計)。タブを多く開くと GPU メモリが増える。
+- バッチの頂点配列は CPU 側にも残している (ピック・範囲計算が読む)。
+- ezjww (JWW、1 MB) と acadrust (6.5 MB) を 1 つの wasm にはしていない (JWW だけ使う人に 6.5 MB を読ませないため)。
+
 ## 3. 既知の問題・やり残し
 
-- DWG を開く処理: NURBS 以外では、LibreDWG の `convertEx` (embind) が約 1 秒かかる。ここは手付かず。
+- e2e `context-menu.spec.ts` の「empty canvas: the menu creates things; select all; repeat」がこの作業環境では不安定
+  (単体で 12 回中 5 回失敗。描画・ビューのソースを 2.9 の修正前に戻しても同じ割合なので、今回の変更とは無関係)。
+  メニューから始めた長方形の 2 点目が入らず図形数が 2 のままになる。CI (GitHub Actions) での状況は未確認。
+
+- DWG を開く処理は acadrust に置き換えて速くなった (2.8 の計測)。残る時間の大半はメインスレッドでのデータベース構築と描画。
+- acadrust 経由の DWG は AutoCAD 2007 形式の実図面 4 件で確認した (2.8 の「実図面での検証」。制限もそこ)。
+  それ以外の形式 (R2010 以降・R2000) の実図面と、書き出した DWG を AutoCAD / Jw_cad 実機で開く確認は未実施。
 - 文字コード自動判定: ヘッダーのない EUC-KR を GBK と誤判定することがある (日本語は問題なし)。
-- LibreDWG のメモリ不足エラー文言が mlightcad の商用 DWG パーサー購入リンク (`{dwgParserLink}`) を案内している (`packages/cad-viewer/src/locale/*/main.ts`)。フォークとしては消すか差し替えたい。
 - Google Fonts からのフォント読み込み (Arial → Arimo など) は、作業環境から外部に出られなかったため実ブラウザでは未確認。
 - vue-tsc の既存エラー (MlStatusBar / MlEntityProperties など) と eslint の既存エラーは上流由来。
 
@@ -340,4 +539,7 @@ HATCH (`AcApHatchCmd`、リボンの `AcApHatchRibbonCmd` も継承) を AutoCAD
 
 - `pnpm build && node tools/build-demo.mjs` → `node tools/serve-demo.mjs 4300` → Playwright で `http://localhost:4300/cad-viewer/?url=...&view=...` を開いてスクリーンショット比較。
 - 大きな DWG のサンプルとして canteen.dwg (dwgmodels.com、レイアウトタブ有り) を使った。リポジトリには入れていない。
+- e2e をこの環境で回すとき: `channel` を外し `launchOptions.executablePath: '/opt/pw-browsers/chromium'` にした一時設定を作り、
+  `pnpm exec playwright test --config <一時設定> --trace off` (パッケージ内で `pnpm exec`。`npx` だと別の版の Playwright を拾って失敗する)。
+  `pnpm dev` のサーバーは `/?url=...` を 403 にするので、URL 指定の確認はデモ (`demo-dist`) で行う。
 - 同梱サンプル: `resources/cad-data/samples/fonts-sample.dxf` (フォント置き換え), `sjis-sample.dxf` (Shift_JIS 判定), `limits-sample.dxf` (図面範囲表示、TABLES 無し R12)。

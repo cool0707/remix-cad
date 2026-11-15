@@ -718,7 +718,10 @@ export class AcTrBatchedGroup extends THREE.Group {
       for (const batch of batches) {
         // Each batch keeps a private material clone so highlight-mask uniforms
         // never leak across containers that share the same style cache entry.
+        const previous = batch.material as THREE.Material | undefined
         batch.material = this.createOwnedBatchMaterial(material)
+        // The clone being replaced is this batch's own; release it.
+        previous?.dispose()
         if (batch instanceof AcTrBatchedLine) {
           // A layer rebind may swap a dash-capable material onto a batch whose
           // packed geometry skipped the lineDistance attribute; arm it before
@@ -3375,6 +3378,7 @@ export class AcTrBatchedGroup extends THREE.Group {
       clonedDrawable.sharesTemplateGeometry = ownsTexturedMaterial
         ? false
         : sourceDrawable.sharesTemplateGeometry
+      clonedDrawable.ownsTexturedMaterial = ownsTexturedMaterial
       clonedDrawable.bakedWorldMatrix = source.matrixWorld.toArray(
         new Array<number>(16)
       )
@@ -3585,13 +3589,23 @@ export class AcTrBatchedGroup extends THREE.Group {
    */
   private disposeObject(object: THREE.Object3D) {
     object.removeFromParent()
-    if (
-      this.hasGeometry(object) &&
-      !getSceneDrawableUserData(object).sharesTemplateGeometry
-    ) {
+    const drawable = getSceneDrawableUserData(object)
+    if (this.hasGeometry(object) && !drawable.sharesTemplateGeometry) {
       object.geometry.dispose()
     }
-    object.children.forEach(child => this.disposeObject(child))
+    // Raster images: the material and its texture were cloned for this group
+    // (cloneUnbatchedTexturedMaterial). A drawing's images can be tens of
+    // megabytes on the GPU each, and nothing else releases them.
+    if (drawable.ownsTexturedMaterial && this.hasMaterial(object)) {
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material]
+      for (const material of materials) {
+        ;(material as THREE.MeshBasicMaterial).map?.dispose()
+        material.dispose()
+      }
+    }
+    ;[...object.children].forEach(child => this.disposeObject(child))
   }
 
   /**

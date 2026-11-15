@@ -161,7 +161,9 @@ export default {
     limited: '(reduced to the {max} px limit)'
   },
   exportDrawingDlg: {
-    title: 'Export to {format}'
+    title: 'Export to {format}',
+    fileSection: 'File',
+    version: 'Version'
   },
   exportSheet: {
     section: 'Paper and scale',

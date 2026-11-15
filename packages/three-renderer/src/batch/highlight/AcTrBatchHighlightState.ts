@@ -357,4 +357,17 @@ export class AcTrBatchHighlightState {
       height: Math.max(this.maskTextureHeight, 1)
     }
   }
+
+  /**
+   * Releases the mask texture. It lives on the GPU, which three.js never
+   * frees on its own, so the owning batch calls this when it is disposed.
+   * The CPU-side flags stay; a later upload recreates the texture.
+   */
+  dispose() {
+    this.maskTexture?.dispose()
+    this.maskTexture = null
+    this.maskTextureWidth = 0
+    this.maskTextureHeight = 0
+    this.dirty = true
+  }
 }

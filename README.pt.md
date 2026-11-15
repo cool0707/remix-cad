@@ -92,6 +92,10 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   `.sfc`, `.p21` e as versões ZIP `.sfz` / `.p2z` com `@mlightcad/cad-sxf-converter` (MIT, TypeScript,
   portado do [ezsxf](https://github.com/monozukuri-ai/ezsxf)). Desenhos parciais aparecem no tamanho real
   da vista principal, e a folha vira os limites do desenho.
+- **DWG sem GPL e exportação para DWG** — DWG é lido e gravado pelo
+  [acadrust](https://github.com/hakanaktt/acadrust) (Rust, MPL-2.0) compilado para WebAssembly em um
+  Web Worker; o conversor LibreDWG (GPL) foi removido. Arquivo → Exportar salva DWG (2000–2018,
+  comando `cdwg`) e DXF em outras versões (R12).
 - **Exportação para JWW / SXF** — Arquivo → Exportar salva o desenho como JWW (Jw_cad), SXF SFC
   ou SXF P21 (comandos `cjww`, `csfc`, `cp21`). Blocos, cotas e hachuras são explodidos; a folha e
   a escala vêm dos limites do desenho (desenhos lidos de JWW / SXF mantêm os seus) ou são escolhidas
@@ -140,10 +144,12 @@ são exibidos com BIZ UD Gothic.
 
 ## Suporte a DWG
 
-DXF é lido pelo analisador MIT embutido. DWG é opcional por meio do
-`@mlightcad/libredwg-converter`, baseado no
-[LibreDWG](https://github.com/LibreDWG/libredwg) e licenciado sob **GPL-3.0**;
-verifique as implicações da GPL antes de distribuí-lo.
+DXF é lido pelo leitor MIT embutido. DWG é lido e gravado pelo
+`@mlightcad/cad-acadrust-converter`, que executa o
+[acadrust](https://github.com/hakanaktt/acadrust) (Rust, **MPL-2.0**) como
+WebAssembly em um Web Worker. **Não há nenhuma dependência GPL**: o conversor
+baseado no LibreDWG foi removido. A exportação aceita DWG (2000–2018) e DXF em
+outras versões (R12, binário).
 
 ## Suporte a JWW / JWC
 
@@ -205,12 +211,12 @@ const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
 const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
 ```
 
-O aplicativo de exemplo registra ambos com `acapRegisterDrawingExporter()` (`cad-simple-viewer`).
-Imagens raster são incorporadas ao JWW (ainda não ao SXF) e a exportação para DWG não está disponível (a build npm
-do LibreDWG usada para leitura tem a gravação desativada).
+O aplicativo de exemplo registra JWW, SXF e DWG com `acapRegisterDrawingExporter()` (`cad-simple-viewer`).
+Imagens raster são incorporadas ao JWW (ainda não ao SXF). O DWG é gravado pelo acadrust mantendo blocos,
+cotas e layouts, na versão escolhida (2000–2018).
 
 ## Licença
 
 [MIT](./LICENSE). O aviso de copyright original da mlightcad é mantido, conforme
 exigido pela licença. As fontes incluídas BIZ UD (© Morisawa Inc.) e
-Noto Sans JP usam a SIL Open Font License 1.1.
+Noto Sans JP usam a SIL Open Font License 1.1. O acadrust, usado para ler e gravar DWG, é licenciado sob MPL-2.0 (usado sem modificações).

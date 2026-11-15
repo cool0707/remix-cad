@@ -119,6 +119,21 @@ describe('AcTrBaseView camera fitting', () => {
     expect(view.internalCamera.position.y).toBeCloseTo(45)
   })
 
+  it('zoomTo a single point goes there without changing the zoom', () => {
+    const view = new TestView(createMockRenderer(), 800, 600)
+    view.zoomTo(
+      new AcGeBox2d(new AcGePoint2d(0, 0), new AcGePoint2d(100, 50)),
+      1
+    )
+    const zoom = view.internalCamera.zoom
+
+    view.zoomTo(new AcGeBox2d(new AcGePoint2d(7, 9), new AcGePoint2d(7, 9)))
+
+    expect(view.internalCamera.zoom).toBe(zoom)
+    expect(view.internalCamera.position.x).toBeCloseTo(7)
+    expect(view.internalCamera.position.y).toBeCloseTo(9)
+  })
+
   it('applyExportCamera uses export aspect rather than view aspect', () => {
     const view = new TestView(createMockRenderer(), 1600, 900)
     const bounds = new AcGeBox2d(

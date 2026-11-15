@@ -19,7 +19,7 @@ import { writePackageDirectory } from './writePackageDirectory'
  * For `exportFormat: 'multi'` with `zipPackage: false`, `outputPath` is the
  * output folder (created if missing). Otherwise it is the `.html` or `.zip` file.
  *
- * DWG parsing defaults to LibreDWG. Pass `dwgParser: 'dwg'` to use the optional
+ * DWG parsing defaults to acadrust. Pass `dwgParser: 'dwg'` to use the optional
  * commercial `@mlightcad/dwg-converter` (must be installed; see `dwgLicenseKey`).
  *
  * @returns The in-memory export result (also written to `outputPath`).

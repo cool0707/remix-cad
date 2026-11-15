@@ -206,6 +206,7 @@ export default {
     exportingPdf: 'Exportuji PDF…',
     exportingSvg: 'Exportuji SVG…',
     exportingDrawing: 'Exportuji {format}…',
+    exportSameVersion: 'Stejná jako výkres',
     exportApproximate: 'Exportováno do {format}. Některé části jsou zapsány přibližně (podrobnosti v konzoli prohlížeče).',
     exportFailed: 'Export do {format} se nezdařil: {error}',
     calculatingSmartExtents: 'Počítám chytrý rozsah…',
@@ -224,8 +225,7 @@ export default {
     failedToOpenFileToast:
       'Nepodařilo se otevřít „{fileName}“. Podrobnosti najdete v centru oznámení.',
     failedToOpenFileWorkerOom:
-      'Nepodařilo se otevřít „{fileName}“. Analýza selhala kvůli nedostatku dostupné paměti (LibreDWG parser). Kliknutím na {dwgParserLink} můžete zakoupit komerční DWG parser a otevírat velké výkresy bez tohoto pádu.',
-    failedToOpenFileWorkerOomLink: 'tuto stránku',
+      'Nepodařilo se otevřít „{fileName}“. Pro načtení výkresu není dostatek paměti. Zavřete ostatní výkresy nebo karty prohlížeče a zkuste to znovu.',
     failedToOpenFileWorkerTimeout:
       'Nepodařilo se otevřít „{fileName}“. Při načítání výkresu vypršel časový limit.',
     failedToOpenFileFontLoadFailed:

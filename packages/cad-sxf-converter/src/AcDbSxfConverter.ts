@@ -2,9 +2,7 @@ import {
   AcDbDatabase,
   AcDbDatabaseConverter,
   type AcDbDatabaseConverterConfig,
-  AcDbDatabaseConverterManager,
   type AcDbDatabaseConverterReadOptions,
-  AcDbFileType,
   AcDbNativeDxfConverter,
   AcDbRasterImage,
   log
@@ -30,10 +28,15 @@ export interface AcDbSxfConverterConfig extends AcDbDatabaseConverterConfig {
  * ZIP forms SFZ / P2Z.
  *
  * The file is parsed in TypeScript (no WebAssembly), flattened into lines,
- * curves, text and fills, written as DXF and loaded by the registered DXF
- * converter.
+ * curves, text and fills, written as DXF and loaded by the data model's DXF
+ * reader.
  */
 export class AcDbSxfConverter extends AcDbDatabaseConverter {
+  // Always the built-in reader, whatever is registered for `.dxf`: the DXF
+  // written here is made for it, and a detour through another converter would
+  // only cost time.
+  private readonly dxfReader = new AcDbNativeDxfConverter()
+
   constructor(config: AcDbSxfConverterConfig = {}) {
     super({ useWorker: false, ...config })
   }
@@ -54,10 +57,7 @@ export class AcDbSxfConverter extends AcDbDatabaseConverter {
       )
     }
     const bytes = new TextEncoder().encode(result.dxf)
-    const dxfConverter =
-      AcDbDatabaseConverterManager.instance.get(AcDbFileType.DXF) ??
-      new AcDbNativeDxfConverter()
-    await dxfConverter.read(bytes.buffer as ArrayBuffer, db, {
+    await this.dxfReader.read(bytes.buffer as ArrayBuffer, db, {
       ...options,
       encoding: 'utf-8',
       // The viewer draws entities while the DXF converter flushes them, so

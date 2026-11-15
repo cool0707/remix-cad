@@ -7,9 +7,9 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { brandThemeHtml } from '../vite-config/pluginBrandTheme'
 import { examplePeerPackageAliases, exampleRollupOutput } from '../vite-config/pluginRollupOutput'
 import {
-  LIBREDWG_CONVERTER_PACKAGE,
-  LIBREDWG_PARSER_WASM_FILE,
-  LIBREDWG_PARSER_WORKER_FILE,
+  ACADRUST_CONVERTER_PACKAGE,
+  ACADRUST_WASM_FILE,
+  ACADRUST_WORKER_FILE,
   MTEXT_RENDERER_WORKER_FILE
 } from '../../tools/worker-assets.mjs'
 
@@ -29,14 +29,7 @@ export default defineConfig(() => {
   }
 
   const realdwgRoot = resolve(__dirname, '../../../realdwg-web')
-  const libredwgDist = `./node_modules/${LIBREDWG_CONVERTER_PACKAGE}/dist`
-  const libredwgWasmSrc = resolve(
-    __dirname,
-    'node_modules',
-    LIBREDWG_CONVERTER_PACKAGE,
-    'dist',
-    LIBREDWG_PARSER_WASM_FILE
-  )
+  const acadrustDist = `./node_modules/${ACADRUST_CONVERTER_PACKAGE}/dist`
 
   return {
     base: './',
@@ -81,19 +74,14 @@ export default defineConfig(() => {
             rename: { stripBase: true }
           },
           {
-            src: `${libredwgDist}/${LIBREDWG_PARSER_WORKER_FILE}`,
+            // DWG: acadrust worker + wasm (MPL-2.0 engine, MIT wrapper).
+            src: [
+              `${acadrustDist}/${ACADRUST_WORKER_FILE}`,
+              `${acadrustDist}/${ACADRUST_WASM_FILE}`
+            ],
             dest: 'workers',
             rename: { stripBase: true }
           },
-          ...(existsSync(libredwgWasmSrc)
-            ? [
-                {
-                  src: `${libredwgDist}/${LIBREDWG_PARSER_WASM_FILE}`,
-                  dest: 'workers',
-                  rename: { stripBase: true }
-                }
-              ]
-            : []),
           ...(hasViewerRuntime
             ? [
                 {

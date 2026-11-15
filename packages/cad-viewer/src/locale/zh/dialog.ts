@@ -157,7 +157,9 @@ export default {
     limited: '（已缩小到上限 {max} 像素）'
   },
   exportDrawingDlg: {
-    title: '导出为 {format}'
+    title: '导出为 {format}',
+    fileSection: '文件',
+    version: '版本'
   },
   exportSheet: {
     section: '图纸与比例',

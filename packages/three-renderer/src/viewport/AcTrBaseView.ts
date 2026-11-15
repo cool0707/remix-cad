@@ -74,6 +74,17 @@ export class AcTrBaseView {
   }
 
   /**
+   * Detaches this view's camera controls from the canvas.
+   *
+   * The controls listen on the canvas all views share, so a view that is
+   * thrown away without this keeps answering wheel and pointer events (and
+   * keeps its camera alive) for as long as the canvas exists.
+   */
+  dispose() {
+    this._cameraControls.dispose()
+  }
+
+  /**
    * The flag whether to enable camera controller
    */
   get enabled() {
@@ -205,6 +216,13 @@ export class AcTrBaseView {
 
     const center = new AcGeVector2d()
     box.getCenter(center)
+
+    // A box without width and height (one point, or the extents of a drawing
+    // that holds one) has no scale to fit: go there and keep the zoom.
+    if (size.x === 0 && size.y === 0) {
+      this.flyTo(center)
+      return
+    }
 
     const fitWidth = Math.max(Math.abs(size.x) * margin, Number.EPSILON)
     const fitHeight = Math.max(Math.abs(size.y) * margin, Number.EPSILON)

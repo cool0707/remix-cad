@@ -16,7 +16,8 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "import": "./dist/cad-jww-converter.js"
+      "import": "./dist/cad-jww-converter.js",
+      "default": "./dist/cad-jww-converter.js"
     }
   },
   "scripts": {

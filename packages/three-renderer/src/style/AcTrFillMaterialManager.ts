@@ -32,11 +32,31 @@ export interface AcTrFillMaterialOptions {
    * keeps the (now CW-wound) triangles — with zero fillrate overhead.
    */
   side?: AcTrMaterialSide
+  /**
+   * The caller can carry the fill colour on the geometry (a `color`
+   * attribute written by {@link AcTrFillMaterialManager.paintGeometry}).
+   *
+   * A plain fill of a fixed colour then gets a material shared by every
+   * such colour, instead of one material - and one batch, one draw call -
+   * per colour. A drawing shaded with thousands of true colours would
+   * otherwise need thousands of draw calls per frame.
+   *
+   * Whether the returned material really is the shared one is in its
+   * metadata (`vertexColors`): ByLayer, ByBlock and foreground (ACI 7)
+   * colours, patterns, gradients and wipeouts keep a material of their own,
+   * because their colour changes with the layer or the canvas.
+   */
+  vertexColor?: boolean
 }
 
 const PATTERN_BASE_WRAP_EPS = 1e-9
 
 const _wrapScratch = /*@__PURE__*/ new THREE.Vector2()
+
+const _paintColor = /*@__PURE__*/ new THREE.Color()
+
+/** Name of the attribute a vertex-coloured fill reads its colour from. */
+const FILL_COLOR_ATTRIBUTE = 'color'
 
 /** Matches hatch shader `rotate` (column-vector convention). */
 function rotatePatternVec2(
@@ -198,7 +218,9 @@ export class AcTrFillMaterialManager extends AcTrMaterialManager<AcTrFillMateria
         threeSide
       )
     } else if (!style.definitionLines || style.definitionLines.length < 1) {
-      material = this.createMeshBasicMaterial(rgb, threeSide)
+      material = this.usesVertexColor(traits, options)
+        ? this.createVertexColorMaterial(threeSide)
+        : this.createMeshBasicMaterial(rgb, threeSide)
     } else if (
       style.definitionLines.some(line => !this.isValidDefinitionLine(line))
     ) {
@@ -217,9 +239,64 @@ export class AcTrFillMaterialManager extends AcTrMaterialManager<AcTrFillMateria
     // Draw-order metadata is stamped by the base material manager from
     // `traits.drawOrder`.
     setMaterialMetadata(material, {
-      side
+      side,
+      vertexColors: (material as THREE.MeshBasicMaterial).vertexColors === true
     })
     return material
+  }
+
+  /**
+   * Writes the fill colour of `traits` on every vertex of `geometry`, for a
+   * material whose metadata says `vertexColors`.
+   *
+   * The values are in the renderer's working colour space, the same ones a
+   * material colour of that RGB would hand to the shader, so a fill looks the
+   * same whichever way it is coloured.
+   */
+  paintGeometry(geometry: THREE.BufferGeometry, traits: AcGiSubEntityTraits) {
+    const position = geometry.getAttribute('position')
+    if (!position) return
+    _paintColor.setHex(this.resolveTraitsRgb(traits))
+    const { r, g, b } = _paintColor
+    const values = new Float32Array(position.count * 3)
+    for (let at = 0; at < values.length; at += 3) {
+      values[at] = r
+      values[at + 1] = g
+      values[at + 2] = b
+    }
+    geometry.setAttribute(
+      FILL_COLOR_ATTRIBUTE,
+      new THREE.BufferAttribute(values, 3)
+    )
+  }
+
+  /**
+   * Whether this fill takes its colour from the geometry.
+   *
+   * Only a colour that never changes after the entity is drawn qualifies:
+   * a layer's colour can be edited, ByBlock depends on the INSERT, ACI 7
+   * flips with the canvas, and a wipeout is the canvas colour itself. Those
+   * are repainted by changing one material, which a baked attribute cannot
+   * follow.
+   */
+  private usesVertexColor(
+    traits: AcGiSubEntityTraits,
+    options: AcTrFillMaterialOptions
+  ): boolean {
+    if (options.vertexColor !== true || traits.isBackgroundFill) {
+      return false
+    }
+    const style = traits.fillType
+    if (style.gradient || (style.definitionLines?.length ?? 0) > 0) {
+      return false
+    }
+    const color = traits.color
+    return (
+      !color.isByLayer &&
+      !color.isByBlock &&
+      !color.isForeground &&
+      typeof color.RGB === 'number'
+    )
   }
 
   /**
@@ -361,6 +438,15 @@ export class AcTrFillMaterialManager extends AcTrMaterialManager<AcTrFillMateria
     return new THREE.MeshBasicMaterial({ color: rgb, side })
   }
 
+  /** White, so that the shader's `material colour x vertex colour` is the vertex colour. */
+  private createVertexColorMaterial(side: THREE.Side): THREE.Material {
+    return new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      side,
+      vertexColors: true
+    })
+  }
+
   /**
    * Build a deterministic caching key based on traits and options.
    *
@@ -385,7 +471,10 @@ export class AcTrFillMaterialManager extends AcTrMaterialManager<AcTrFillMateria
     const sideSuffix = options.side === 'back' ? '_back' : ''
     const drawOrderSuffix = this.buildDrawOrderSuffix(traits)
     const bgFillSuffix = traits.isBackgroundFill ? '_bgfill' : ''
-    const colorKey = this.buildKeyColorSegment(traits)
+    // One key for every fixed colour when the geometry carries the colour.
+    const colorKey = this.usesVertexColor(traits, options)
+      ? 'vertexcolor'
+      : this.buildKeyColorSegment(traits)
     // Use colour semantics + layer + rebaseOffset + pattern info for key
     if (style.gradient) {
       const gradient = style.gradient

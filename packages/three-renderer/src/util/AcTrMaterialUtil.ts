@@ -82,6 +82,12 @@ export class AcTrMaterialUtil {
 
     // Handle materials with color property
     if (this.hasColorProperty(material)) {
+      // A vertex-coloured fill multiplies this colour by the geometry's own;
+      // painting the material means one colour for all of it.
+      if (material.vertexColors) {
+        material.vertexColors = false
+        material.needsUpdate = true
+      }
       material.color.set(color)
       if (this.hasEmissiveProperty(material)) {
         material.emissive.set(color)

@@ -343,6 +343,17 @@ export function acapLiveBadgeOffLine(
 }
 
 /**
+ * Device pixel ratio for overlay canvases, capped at 2 like the WebGL canvas.
+ *
+ * Each measurement and markup has a canvas the size of the view, so an
+ * uncapped ratio (3 on many phones) costs 2.25 times the memory per overlay
+ * for strokes that look the same.
+ */
+export function acapOverlayPixelRatio(): number {
+  return Math.min(window.devicePixelRatio || 1, 2)
+}
+
+/**
  * Fit a canvas to its container and return a 2D context cleared for this frame.
  *
  * Resizes CSS and buffer dimensions (honoring devicePixelRatio) only when they
@@ -357,7 +368,7 @@ export function acapFitOverlayCanvas(
   container: HTMLElement
 ): CanvasRenderingContext2D | null {
   const rect = container.getBoundingClientRect()
-  const dpr = window.devicePixelRatio || 1
+  const dpr = acapOverlayPixelRatio()
   const cssWidth = `${rect.width}px`
   const cssHeight = `${rect.height}px`
   const bufferWidth = Math.max(1, Math.floor(rect.width * dpr))
@@ -393,7 +404,7 @@ export function acapFitOverlayCanvasToView(
   view: AcEdBaseView
 ): CanvasRenderingContext2D | null {
   const rect = view.canvas.getBoundingClientRect()
-  const dpr = window.devicePixelRatio || 1
+  const dpr = acapOverlayPixelRatio()
   const w = Math.round(rect.width)
   const h = Math.round(rect.height)
   const origin = view.canvasToContainer({ x: 0, y: 0 })

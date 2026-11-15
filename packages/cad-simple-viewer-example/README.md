@@ -118,7 +118,7 @@ Click **Convert and download HTML**. The page opens the drawing locally, builds 
 | Format | Notes |
 |--------|--------|
 | **DXF** | Built-in parser in `@mlightcad/data-model` |
-| **DWG** | Optional `@mlightcad/libredwg-converter` (GPL) — registered by this example |
+| **DWG** | `@mlightcad/cad-acadrust-converter` (acadrust, MPL-2.0; no GPL) — registered by this example |
 
 ## What this example demonstrates
 

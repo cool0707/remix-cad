@@ -232,10 +232,9 @@ export interface AcApWebworkerFiles {
   /**
    * Optional URL of a Web Worker that parses DWG files.
    *
-   * The viewer does **not** register a DWG converter by default (LibreDWG is
-   * GPL). Hosts that opt into DWG support should register their own converter
-   * (e.g. `@mlightcad/libredwg-converter`) and may pass this URL so readiness
-   * checks can verify the worker script is reachable.
+   * The viewer does **not** register a DWG converter itself. Hosts that want
+   * DWG register one (`@mlightcad/cad-acadrust-converter`) and may pass its
+   * worker URL here so readiness checks can verify the script is reachable.
    */
   dwgParser?: string | URL
 
@@ -2847,8 +2846,8 @@ export class AcApDocManager {
    * Points the MText renderer at its Web Worker script for text layout and
    * shaping. DXF parsing is handled by the built-in converter in
    * `@mlightcad/data-model`. DWG converters are **not** registered here —
-   * hosts that need DWG must depend on and register a converter themselves
-   * (e.g. `@mlightcad/libredwg-converter`).
+   * hosts that need DWG depend on and register a converter themselves
+   * (`@mlightcad/cad-acadrust-converter`).
    */
   private registerWorkers(webworkerFileUrls?: AcApWebworkerFiles) {
     const mtextRenderer = AcTrMTextRenderer.getInstance()

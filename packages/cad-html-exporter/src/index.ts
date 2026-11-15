@@ -23,7 +23,7 @@ export {
 } from './extractPreviewJpeg'
 export {
   ensureDwgParserRegistered,
-  ensureLibreDwgRegistered
+  ensureAcadrustRegistered
 } from './registerDwg'
 export type {
   AcExDwgParser,

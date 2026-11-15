@@ -24,6 +24,7 @@ import { AcTrView2d } from '../../view'
 import { acapAddUndoOnRightClick } from '../draw/AcApRepeatDrawUtil'
 import {
   acapOverlayDash,
+  acapOverlayPixelRatio,
   acapScaledOverlayLineWidth,
   acapSyncLiveOverlayTextHeight
 } from '../overlay/AcApOverlayDrawUtil'
@@ -165,7 +166,7 @@ export class AcApMeasureAreaCmd extends AcApMeasureDrawCmd {
 
     const drawPolygon = (cursor?: AcGePoint3dLike) => {
       const rect = context.view.canvas.getBoundingClientRect()
-      const dpr = window.devicePixelRatio || 1
+      const dpr = acapOverlayPixelRatio()
       const w = Math.round(rect.width)
       const h = Math.round(rect.height)
 
@@ -175,9 +176,15 @@ export class AcApMeasureAreaCmd extends AcApMeasureDrawCmd {
       fillCanvas.style.width = `${w}px`
       fillCanvas.style.height = `${h}px`
 
-      if (fillCanvas.width !== w * dpr || fillCanvas.height !== h * dpr) {
-        fillCanvas.width = w * dpr
-        fillCanvas.height = h * dpr
+      // Whole pixels, or a fractional ratio reallocates the canvas every draw.
+      const bufferWidth = Math.max(1, Math.round(w * dpr))
+      const bufferHeight = Math.max(1, Math.round(h * dpr))
+      if (
+        fillCanvas.width !== bufferWidth ||
+        fillCanvas.height !== bufferHeight
+      ) {
+        fillCanvas.width = bufferWidth
+        fillCanvas.height = bufferHeight
       }
 
       const ctx = fillCanvas.getContext('2d')

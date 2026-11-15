@@ -4,14 +4,12 @@
  * Producer (cad-simple-viewer):
  *   node tools/copy-workers.mjs
  *   → copies mtext worker into ./dist
- *   → copies proprietary dwg workers when that package is available
- *   → does NOT copy LibreDWG (GPL) — hosts/examples must depend on
- *     @mlightcad/libredwg-converter and copy those assets themselves
  *
  * Consumer (examples):
  *   node tools/copy-workers.mjs dist/workers
  *   → copies *-worker.js from @mlightcad/cad-simple-viewer/dist
- *   → copies LibreDWG worker + wasm from @mlightcad/libredwg-converter when present
+ *   → copies the DWG / DXF worker + wasm from
+ *     @mlightcad/cad-acadrust-converter when the example depends on it
  *   → copies JWW worker + wasm from @mlightcad/cad-jww-converter when present
  */
 import {
@@ -24,15 +22,12 @@ import {
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
 import {
-  DWG_CONVERTER_PACKAGE,
-  DWG_PARSER_MAIN_FILE,
-  DWG_PARSER_WORKER_FILE,
+  ACADRUST_CONVERTER_PACKAGE,
+  ACADRUST_WASM_FILE,
+  ACADRUST_WORKER_FILE,
   JWW_CONVERTER_PACKAGE,
   JWW_PARSER_WASM_FILE,
   JWW_PARSER_WORKER_FILE,
-  LIBREDWG_CONVERTER_PACKAGE,
-  LIBREDWG_PARSER_WASM_FILE,
-  LIBREDWG_PARSER_WORKER_FILE,
   MTEXT_RENDERER_PACKAGE,
   MTEXT_RENDERER_WORKER_FILE
 } from './worker-assets.mjs'
@@ -98,26 +93,15 @@ function copyOptionalWorker(pkgName, workerFile, outDir) {
 function copyProducerWorkers() {
   const outDir = join(packageRoot, 'dist')
   mkdirSync(outDir, { recursive: true })
-  // Optional proprietary converter.
-  copyOptionalWorker(DWG_CONVERTER_PACKAGE, DWG_PARSER_WORKER_FILE, outDir)
-  copyOptionalWorker(DWG_CONVERTER_PACKAGE, DWG_PARSER_MAIN_FILE, outDir)
   copy(
     join(pkgRoot(MTEXT_RENDERER_PACKAGE), 'dist', MTEXT_RENDERER_WORKER_FILE),
     join(outDir, MTEXT_RENDERER_WORKER_FILE)
   )
 }
 
-function copyLibreDwgAssets(outDir) {
-  copyOptionalWorker(
-    LIBREDWG_CONVERTER_PACKAGE,
-    LIBREDWG_PARSER_WORKER_FILE,
-    outDir
-  )
-  copyOptionalWorker(
-    LIBREDWG_CONVERTER_PACKAGE,
-    LIBREDWG_PARSER_WASM_FILE,
-    outDir
-  )
+function copyAcadrustAssets(outDir) {
+  copyOptionalWorker(ACADRUST_CONVERTER_PACKAGE, ACADRUST_WORKER_FILE, outDir)
+  copyOptionalWorker(ACADRUST_CONVERTER_PACKAGE, ACADRUST_WASM_FILE, outDir)
 }
 
 function copyJwwAssets(outDir) {
@@ -133,8 +117,8 @@ function copyFromCadSimpleViewer(destRelativePath) {
     )
   }
 
-  const workers = readdirSync(srcDir).filter(
-    name => name.endsWith('-worker.js') || name === DWG_PARSER_MAIN_FILE
+  const workers = readdirSync(srcDir).filter(name =>
+    name.endsWith('-worker.js')
   )
   if (workers.length === 0) {
     throw new Error(
@@ -149,8 +133,8 @@ function copyFromCadSimpleViewer(destRelativePath) {
     copy(join(srcDir, name), join(outDir, name))
   }
 
-  // LibreDWG is host-owned; copy when the example depends on the converter.
-  copyLibreDwgAssets(outDir)
+  // Converters are host-owned; copy when the example depends on them.
+  copyAcadrustAssets(outDir)
   copyJwwAssets(outDir)
 }
 

@@ -51,9 +51,13 @@ self.onmessage = async (event: MessageEvent<JwwWorkerRequest>) => {
     const result = await cropJwwImages(
       convertJwwToDxf(ezjww, new Uint8Array(data), { scaleMode })
     )
-    response = { id, ok: true, ...result }
+    // The DXF goes back as transferred UTF-8 bytes: no string clone, and no
+    // encoding work on the page.
+    const dxf = new TextEncoder().encode(result.dxf).buffer as ArrayBuffer
+    response = { id, ok: true, ...result, dxf }
     // An image left whole for a trim shares its buffer with the original.
     transfer = [
+      dxf,
       ...new Set(result.images.map(image => image.data.buffer as ArrayBuffer))
     ]
   } catch (error) {

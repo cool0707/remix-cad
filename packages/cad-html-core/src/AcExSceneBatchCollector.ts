@@ -190,6 +190,146 @@ function drawableExcludesFromOsnap(object: THREE.Object3D): boolean {
   return getSceneDrawableUserData(object).bboxIntersectionCheck === true
 }
 
+const _vertexColor = /*@__PURE__*/ new THREE.Color()
+
+/**
+ * Whether the fill colours are on the geometry (a `color` attribute) rather
+ * than on the material. The renderer does that for plain fills of a fixed
+ * colour so that fills of many colours share one batch; a snapshot mesh
+ * batch has one colour, so such geometry is exported one colour at a time.
+ */
+function isVertexColoured(
+  material: THREE.Material,
+  geometry: THREE.BufferGeometry
+): boolean {
+  return (
+    getMaterialMetadata(material).vertexColors === true &&
+    geometry.hasAttribute('color')
+  )
+}
+
+/** Colour of one vertex as the 24-bit RGB a material colour would give. */
+function readVertexColor(
+  colors: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  vertex: number
+): number {
+  return _vertexColor
+    .setRGB(colors.getX(vertex), colors.getY(vertex), colors.getZ(vertex))
+    .getHex()
+}
+
+/**
+ * The given packed geometries of a batched mesh as one slice: their vertices
+ * one after the other, indices pointing into that.
+ */
+function exportBatchedSlots(
+  geometry: THREE.BufferGeometry,
+  slots: AcTrPackedGeometryInfo[]
+): AcExBufferGeometrySlice {
+  const positionAttr = geometry.getAttribute('position') as THREE.BufferAttribute
+  const itemSize = positionAttr.itemSize
+  const source = positionAttr.array as ArrayLike<number>
+  const indexArray = geometry.getIndex()?.array
+
+  let vertexTotal = 0
+  let indexTotal = 0
+  for (const slot of slots) {
+    vertexTotal += slot.vertexCount
+    indexTotal += slot.indexCount ?? 0
+  }
+  const positions = new Float32Array(vertexTotal * itemSize)
+  const indices = indexArray ? new Uint32Array(indexTotal) : undefined
+
+  let vertexAt = 0
+  let indexAt = 0
+  for (const slot of slots) {
+    const from = slot.vertexStart * itemSize
+    const to = from + slot.vertexCount * itemSize
+    if (source instanceof Float32Array) {
+      positions.set(source.subarray(from, to), vertexAt * itemSize)
+    } else {
+      for (let at = from; at < to; at++) {
+        positions[vertexAt * itemSize + (at - from)] = source[at]!
+      }
+    }
+    if (indices && indexArray) {
+      // Batch indices count from the batch's first vertex.
+      const shift = vertexAt - slot.vertexStart
+      const start = slot.indexStart ?? 0
+      const count = slot.indexCount ?? 0
+      for (let i = 0; i < count; i++) {
+        indices[indexAt++] = indexArray[start + i]! + shift
+      }
+    }
+    vertexAt += slot.vertexCount
+  }
+  return indices ? { positions, indices } : { positions }
+}
+
+/**
+ * A vertex-coloured geometry as one geometry per colour. The parts share the
+ * attributes of `geometry` and differ in their index only.
+ */
+function splitGeometryByVertexColor(
+  geometry: THREE.BufferGeometry
+): Array<{ color: number; geometry: THREE.BufferGeometry }> {
+  const colors = geometry.getAttribute('color')
+  const position = geometry.getAttribute('position')
+  const index = geometry.getIndex()
+  const cornerCount = index ? index.count : position.count
+  const triangles = new Map<number, number[]>()
+  for (let corner = 0; corner + 2 < cornerCount; corner += 3) {
+    const a = index ? index.getX(corner) : corner
+    const b = index ? index.getX(corner + 1) : corner + 1
+    const c = index ? index.getX(corner + 2) : corner + 2
+    const color = readVertexColor(colors, a)
+    let list = triangles.get(color)
+    if (!list) {
+      list = []
+      triangles.set(color, list)
+    }
+    list.push(a, b, c)
+  }
+  if (triangles.size === 1) {
+    return [{ color: triangles.keys().next().value as number, geometry }]
+  }
+  const parts: Array<{ color: number; geometry: THREE.BufferGeometry }> = []
+  triangles.forEach((list, color) => {
+    const part = new THREE.BufferGeometry()
+    for (const name in geometry.attributes) {
+      part.setAttribute(name, geometry.attributes[name])
+    }
+    part.setIndex(new THREE.BufferAttribute(Uint32Array.from(list), 1))
+    parts.push({ color, geometry: part })
+  })
+  return parts
+}
+
+/**
+ * Calls `visit` once for a mesh whose colour is its material's, and once per
+ * colour - with the mesh showing only that colour's triangles - when the
+ * colours are on its geometry.
+ */
+function forEachFillColor<T extends { geometry: THREE.BufferGeometry }>(
+  object: T,
+  material: THREE.Material,
+  visit: (color: number | undefined) => void
+): void {
+  const whole = object.geometry
+  if (!isVertexColoured(material, whole)) {
+    visit(undefined)
+    return
+  }
+  try {
+    for (const part of splitGeometryByVertexColor(whole)) {
+      object.geometry = part.geometry
+      visit(part.color)
+    }
+  } finally {
+    object.geometry = whole
+  }
+}
+
 /**
  * Exports only active geometry data from a batched line/mesh/point buffer,
  * skipping reserved padding and inactive (deleted) slots.
@@ -573,12 +713,17 @@ function buildMeshBatch(
   object: THREE.Object3D,
   slice: AcExBufferGeometrySlice,
   offset: [number, number, number],
-  triangleList = false
+  triangleList = false,
+  vertexColor?: number
 ): AcExMeshBatch | undefined {
   if (triangleList) {
     slice = withTriangleIndices(slice)
   }
   const style = readMaterialStyle(material)
+  if (vertexColor !== undefined) {
+    // The material of a vertex-coloured fill is white; the colour is this.
+    style.color = vertexColor
+  }
   const worldHatchPattern = resolveExportedHatchPattern(
     object,
     style.hatchPattern
@@ -669,19 +814,68 @@ function exportBatchedLine(batch: AcTrBatchedLine): AcExLineBatch | undefined {
   return exported
 }
 
-function exportBatchedMesh(batch: AcTrBatchedMesh): AcExMeshBatch | undefined {
+function exportBatchedMesh(batch: AcTrBatchedMesh): AcExMeshBatch[] {
+  const material = batch.material as THREE.Material
+  if (isVertexColoured(material, batch.geometry)) {
+    return exportVertexColouredBatch(batch, material)
+  }
   const slice = exportActiveBatchedSlice(batch, batch.geometry)
   if (slice.positions.length === 0) {
-    return undefined
+    return []
   }
-  return buildMeshBatch(
+  const mesh = buildMeshBatch(
     batch.geometry,
-    batch.material as THREE.Material,
+    material,
     batch,
     slice,
     readWorldOffset(batch),
     true
   )
+  return mesh ? [mesh] : []
+}
+
+/**
+ * One mesh batch per colour of a vertex-coloured batch. Every packed geometry
+ * (one fill) has a single colour, so they are grouped as they are.
+ */
+function exportVertexColouredBatch(
+  batch: AcTrBatchedMesh,
+  material: THREE.Material
+): AcExMeshBatch[] {
+  const colors = batch.geometry.getAttribute('color')
+  const indexed = batch.geometry.getIndex() !== null
+  const slotsByColor = new Map<number, AcTrPackedGeometryInfo[]>()
+  const { count } = batch.mappingStats
+  for (let geometryId = 0; geometryId < count; geometryId++) {
+    let info: AcTrPackedGeometryInfo
+    try {
+      info = batch.getGeometryRangeAt(geometryId)
+    } catch {
+      continue
+    }
+    if (!shouldExportBatchedSlot(info) || info.vertexCount <= 0) continue
+    if (indexed && (info.indexCount ?? 0) <= 0) continue
+    const color = readVertexColor(colors, info.vertexStart)
+    const slots = slotsByColor.get(color)
+    if (slots) slots.push(info)
+    else slotsByColor.set(color, [info])
+  }
+
+  const offset = readWorldOffset(batch)
+  const meshes: AcExMeshBatch[] = []
+  slotsByColor.forEach((slots, color) => {
+    const mesh = buildMeshBatch(
+      batch.geometry,
+      material,
+      batch,
+      exportBatchedSlots(batch.geometry, slots),
+      offset,
+      true,
+      color
+    )
+    if (mesh) meshes.push(mesh)
+  })
+  return meshes
 }
 
 function exportBatchedPoint(
@@ -871,8 +1065,27 @@ function pushInstancedMesh(
   asPoints: boolean
 ): void {
   const material = readExportMaterial(object)
-  if (!asPoints && isTransparentImagePlaceholder(material)) return
+  if (asPoints) {
+    pushInstancedMeshOfColor(object, material, meshBatches, true, undefined)
+    return
+  }
+  if (isTransparentImagePlaceholder(material)) return
+  forEachFillColor(object, material, vertexColor =>
+    pushInstancedMeshOfColor(object, material, meshBatches, false, vertexColor)
+  )
+}
 
+/**
+ * Exports the instances of `object` as it is now: the whole geometry, or the
+ * triangles of one colour that {@link forEachFillColor} put in its place.
+ */
+function pushInstancedMeshOfColor(
+  object: InstancedExportDrawable,
+  material: THREE.Material,
+  meshBatches: AcExMeshBatch[],
+  asPoints: boolean,
+  vertexColor: number | undefined
+): void {
   if (!asPoints && meshNeedsPerInstanceExport(material)) {
     const template = omitNonFinitePrimitives(
       exportBufferGeometrySlice(object.geometry),
@@ -895,7 +1108,8 @@ function pushInstancedMesh(
         _instancePose,
         rebased.slice,
         rebased.offset,
-        true
+        true,
+        vertexColor
       )
       if (mesh) meshBatches.push(mesh)
     })
@@ -910,7 +1124,8 @@ function pushInstancedMesh(
     object,
     expanded.slice,
     expanded.offset,
-    !asPoints
+    !asPoints,
+    vertexColor
   )
   if (!mesh) return
   meshBatches.push(asPoints ? { ...mesh, points: true } : mesh)
@@ -995,8 +1210,7 @@ export function collectBatchesFromObject3D(
       return
     }
     if (child instanceof AcTrBatchedMesh) {
-      const batch = exportBatchedMesh(child)
-      if (batch) meshBatches.push(batch)
+      for (const batch of exportBatchedMesh(child)) meshBatches.push(batch)
       return
     }
     if (child instanceof AcTrBatchedPoint) {
@@ -1057,24 +1271,27 @@ export function collectBatchesFromObject3D(
       if (!shouldExportPlainDrawable(child)) return
       const material = readExportMaterial(child)
       if (isTransparentImagePlaceholder(material)) return
-      const rawSlice = omitNonFinitePrimitives(
-        exportBufferGeometrySlice(child.geometry),
-        3
-      )
-      if (rawSlice.positions.length === 0) return
-      // Pattern fills rebase like other meshes; hatch bases are shifted to the
-      // same local offset in buildMeshBatch (world-baked verts caused blocky
-      // hatch shaders at large survey coordinates).
-      const { offset, ...slice } = exportSceneDrawableSlice(child, rawSlice)
-      const mesh = buildMeshBatch(
-        child.geometry,
-        material,
-        child,
-        slice,
-        offset,
-        true
-      )
-      if (mesh) meshBatches.push(mesh)
+      forEachFillColor(child, material, vertexColor => {
+        const rawSlice = omitNonFinitePrimitives(
+          exportBufferGeometrySlice(child.geometry),
+          3
+        )
+        if (rawSlice.positions.length === 0) return
+        // Pattern fills rebase like other meshes; hatch bases are shifted to the
+        // same local offset in buildMeshBatch (world-baked verts caused blocky
+        // hatch shaders at large survey coordinates).
+        const { offset, ...slice } = exportSceneDrawableSlice(child, rawSlice)
+        const mesh = buildMeshBatch(
+          child.geometry,
+          material,
+          child,
+          slice,
+          offset,
+          true,
+          vertexColor
+        )
+        if (mesh) meshBatches.push(mesh)
+      })
     }
   })
 

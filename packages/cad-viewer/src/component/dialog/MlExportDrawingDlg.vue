@@ -6,6 +6,27 @@
     @open="handleOpen"
     @ok="handleOk"
   >
+    <ml-fieldset-group
+      v-if="variants.length > 0"
+      :title="t('dialog.exportDrawingDlg.fileSection')"
+    >
+      <el-form label-position="top" class="ml-export-drawing-dlg__form">
+        <el-form-item :label="t('dialog.exportDrawingDlg.version')">
+          <el-select
+            v-model="variant"
+            class="ml-export-drawing-dlg__control"
+            data-testid="export-version"
+          >
+            <el-option
+              v-for="item in variants"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+    </ml-fieldset-group>
     <ml-fieldset-group :title="t('dialog.exportSheet.section')">
       <ml-export-sheet-fields
         v-model:form="form"
@@ -20,9 +41,10 @@
 
 <script setup lang="ts">
 /**
- * Asks for the paper and scale before DXF / JWW / SXF export. Opened through
- * the sheet prompt installed by {@link installExportSheetPrompt}; OK answers
- * the pending request, Cancel / close cancels the export.
+ * Asks for the paper and scale — and the file version, for formats that have
+ * several (DWG, DXF) — before DXF / DWG / JWW / SXF export. Opened through the
+ * sheet prompt installed by {@link installExportSheetPrompt}; OK answers the
+ * pending request, Cancel / close cancels the export.
  */
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -52,6 +74,8 @@ const request = computed(() => exportSheetRequest.request)
 const formatName = computed(() => request.value?.formatName ?? '')
 const form = reactive(createExportSheetForm())
 const openCount = ref(0)
+const variants = computed(() => request.value?.variants ?? [])
+const variant = ref('')
 
 const hint = computed(() => {
   if (request.value?.autoKeepsDrawing) return t('dialog.exportSheet.dxfHint')
@@ -61,6 +85,8 @@ const hint = computed(() => {
 
 function handleOpen() {
   Object.assign(form, createExportSheetForm())
+  variant.value =
+    request.value?.defaultVariant ?? variants.value[0]?.value ?? ''
   openCount.value++
 }
 
@@ -69,7 +95,9 @@ function handleOk() {
   const options = exportSheetOptions(form)
   if (scale !== undefined && !Number.isFinite(scale)) delete options.scale
   if (request.value?.landscapeOnly) delete options.portrait
-  answerExportSheetRequest(options)
+  answerExportSheetRequest(
+    variants.value.length > 0 ? { ...options, variant: variant.value } : options
+  )
 }
 
 // Cancel, the close button and Escape all close without an answer.
@@ -77,3 +105,13 @@ watch(visible, value => {
   if (!value) answerExportSheetRequest(undefined)
 })
 </script>
+
+<style scoped>
+.ml-export-drawing-dlg__form {
+  width: 100%;
+}
+
+.ml-export-drawing-dlg__control {
+  width: 100%;
+}
+</style>

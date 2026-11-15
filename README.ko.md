@@ -75,6 +75,9 @@
   `.sfz` / `.p2z`를 열 수 있습니다(`@mlightcad/cad-sxf-converter`, MIT, TypeScript,
   [ezsxf](https://github.com/monozukuri-ai/ezsxf)에서 이식). 부분도는 주 뷰의 축척으로 실제 크기로
   표시하고, 용지를 도면 한계로 설정합니다.
+- **GPL 없는 DWG 지원과 DWG 내보내기** — DWG 읽기/쓰기를 WebAssembly로 빌드한
+  [acadrust](https://github.com/hakanaktt/acadrust)(Rust, MPL-2.0)로 바꾸고 LibreDWG(GPL) 변환기를
+  제거했습니다. 파일 → 내보내기에서 DWG(2000–2018, 명령 `cdwg`)와 다른 버전의 DXF(R12)를 저장할 수 있습니다.
 - **JWW / SXF로 내보내기** — 파일 → 내보내기에서 도면을 JWW(Jw_cad), SXF SFC, SXF P21로 저장할 수
   있습니다(명령 `cjww`, `csfc`, `cp21`). 블록·치수·해치는 분해됩니다. 용지와 축척은 도면 한계에서
   정하며(JWW / SXF에서 읽은 도면은 원래 값 유지), 없으면 자동으로 정합니다(A3, 들어가는 가장 작은 표준 축척).
@@ -120,9 +123,10 @@ SHX 글꼴은 포함하지 않으며, SHX를 사용하는 문자는 BIZ UD Gothi
 
 ## DWG 지원
 
-DXF는 내장된 MIT 파서로 읽습니다. DWG는 선택적으로
-[LibreDWG](https://github.com/LibreDWG/libredwg) 기반의 `@mlightcad/libredwg-converter`를
-사용할 수 있으며, 라이선스는 **GPL-3.0**입니다. 배포 전에 GPL 영향을 확인하세요.
+DXF는 내장된 MIT 리더로 읽습니다. DWG는 `@mlightcad/cad-acadrust-converter`로 읽고 씁니다.
+이 패키지는 [acadrust](https://github.com/hakanaktt/acadrust)(Rust, **MPL-2.0**)를 WebAssembly로
+빌드해 Web Worker에서 실행합니다. **GPL 의존성은 없습니다**(이전에 쓰던 LibreDWG 변환기는 제거했습니다).
+내보내기는 DWG(2000–2018)와 다른 버전의 DXF(R12, 바이너리)를 지원합니다.
 
 ## JWW / JWC 지원
 
@@ -182,11 +186,11 @@ const { bytes } = await jww.exportDatabase(db, { title: 'plan' })
 const sfc = exportSxf(db, 'sfc', { title: 'plan', paper: 'A1', scale: 100 })
 ```
 
-예제 앱은 `acapRegisterDrawingExporter()`(`cad-simple-viewer`)로 둘 다 등록합니다.
-래스터 이미지는 JWW에 포함해 내보내며(SXF에는 아직 쓰지 않음), DWG 내보내기는 지원하지 않습니다(읽기에 쓰는 LibreDWG npm 빌드는
-쓰기 기능이 빠져 있습니다).
+예제 앱은 `acapRegisterDrawingExporter()`(`cad-simple-viewer`)로 JWW, SXF, DWG를 등록합니다.
+래스터 이미지는 JWW에 포함해 내보냅니다(SXF에는 아직 쓰지 않음). DWG는 acadrust로 블록·치수·레이아웃을
+유지한 채 선택한 버전(2000–2018)으로 내보냅니다.
 
 ## 라이선스
 
 [MIT](./LICENSE). 라이선스 조건에 따라 mlightcad의 원 저작권 표시를 유지합니다.
-포함된 BIZ UD 글꼴(© Morisawa Inc.)과 Noto Sans JP는 SIL Open Font License 1.1을 따릅니다.
+포함된 BIZ UD 글꼴(© Morisawa Inc.)과 Noto Sans JP는 SIL Open Font License 1.1을 따릅니다. DWG 읽기/쓰기에 쓰는 acadrust는 MPL-2.0이며 수정 없이 사용합니다.

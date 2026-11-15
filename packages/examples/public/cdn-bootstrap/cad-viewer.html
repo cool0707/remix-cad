@@ -113,11 +113,11 @@
 <section id="upload">
   <div class="card">
     <h1>CAD Viewer (CDN)</h1>
-    <p>Open a local DWG or DXF file. No build step — peers load from jsDelivr.</p>
+    <p>Open a local DXF file. No build step — peers load from jsDelivr.</p>
     <label class="drop" id="drop">
-      <input id="file" type="file" accept=".dwg,.dxf,application/acad,image/vnd.dxf">
+      <input id="file" type="file" accept=".dxf,image/vnd.dxf">
       Drop a file here or <strong>browse</strong>
-      <small>DWG · DXF</small>
+      <small>DXF</small>
     </label>
   </div>
 </section>
@@ -126,14 +126,9 @@
 
 <script type="module">
 const ML = '1.5.11'
-const LIBREDWG_PARSER_WORKER_FILE = 'libredwg-parser-worker.js'
 const npm = (pkg, path = '') => `https://cdn.jsdelivr.net/npm/${pkg}${path}`
 const CAD_VIEWER_URL = npm(`@mlightcad/cad-viewer@${ML}`, '/dist/cad-viewer.js')
 const BASE_URL = 'https://cdn.jsdelivr.net/gh/mlightcad/cad-data@main/'
-const DWG_WORKER = npm(
-  '@mlightcad/libredwg-converter@3.13.0',
-  `/dist/${LIBREDWG_PARSER_WORKER_FILE}`
-)
 const CSS_SHIM = null
 
 const EXACT = {
@@ -293,7 +288,7 @@ const runtimeReady = (async () => {
     import('@mlightcad/cad-simple-viewer'),
     loadInlineCadViewer()
   ])
-  setStatus('CDN runtime ready. Choose a DWG/DXF file.')
+  setStatus('CDN runtime ready. Choose a DXF file.')
   return { vue, elementPlus, simpleViewer, cadViewer }
 })().catch((err) => {
   setStatus(err?.stack || String(err), true)
@@ -302,12 +297,12 @@ const runtimeReady = (async () => {
 
 function isCadFile(file) {
   const name = file.name.toLowerCase()
-  return name.endsWith('.dwg') || name.endsWith('.dxf')
+  return name.endsWith('.dxf')
 }
 
 async function openFile(file) {
   if (!isCadFile(file)) {
-    setStatus('Please choose a .dwg or .dxf file.', true)
+    setStatus('Please choose a .dxf file.', true)
     return
   }
   setStatus(`Opening ${file.name}…`)
@@ -315,33 +310,16 @@ async function openFile(file) {
   const { createApp, h } = vue
   const { AcApDocManager } = simpleViewer
   const { MlCadViewer, i18n } = cadViewer
-  const { AcDbDatabaseConverterManager, AcDbFileType } = await import(EXACT['@mlightcad/data-model'])
-  const { AcDbLibreDwgConverter } = await import(
-    npm('@mlightcad/libredwg-converter@3.13.0', '/+esm')
-  )
-
-  // Opt into GPL DWG support; worker (+ sibling wasm) live on the converter package CDN.
-  const dwgParser = URL.createObjectURL(
-    new Blob([`import ${JSON.stringify(DWG_WORKER)};\n`], { type: 'text/javascript' })
-  )
-  AcDbDatabaseConverterManager.instance.register(
-    AcDbFileType.DWG,
-    new AcDbLibreDwgConverter({
-      convertByEntityType: false,
-      useWorker: true,
-      parserWorkerUrl: dwgParser
-    })
-  )
+  // DXF only: the published packages on the CDN have no DWG converter that
+  // is not GPL. The apps in this repository read DWG with
+  // @mlightcad/cad-acadrust-converter (see packages/cad-viewer-example).
 
   // MlCadViewer has no webworkerFileUrls prop yet — inject CDN worker via blob URL.
   const createInstance = AcApDocManager.createInstance.bind(AcApDocManager)
   AcApDocManager.createInstance = (options = {}) => createInstance({
     ...options,
     useMainThreadDraw: options.useMainThreadDraw ?? true,
-    webworkerFileUrls: {
-      dwgParser,
-      ...options.webworkerFileUrls
-    }
+    webworkerFileUrls: { ...options.webworkerFileUrls }
   })
 
   document.getElementById('upload').classList.add('hidden')

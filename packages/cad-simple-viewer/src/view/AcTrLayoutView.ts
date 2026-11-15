@@ -203,7 +203,27 @@ export class AcTrLayoutView extends AcTrBaseView {
    * @param id - Input the id of one viewport instance to remove
    */
   removeViewport(id: string) {
+    this._viewportViews.get(id)?.dispose()
     this._viewportViews.delete(id)
+  }
+
+  /**
+   * Releases what this layout view holds outside the scene: the camera
+   * controls of the view and of its viewports (listeners on the shared
+   * canvas), and the axes gizmo with its label textures.
+   */
+  override dispose() {
+    this._viewportViews.forEach(viewportView => viewportView.dispose())
+    this._viewportViews.clear()
+    // The gizmo's own dispose() leaves the label textures on the GPU.
+    this._axesGizmo.traverse(object => {
+      const material = (object as THREE.Sprite).material as
+        | (THREE.Material & { map?: THREE.Texture | null })
+        | undefined
+      material?.map?.dispose()
+    })
+    this._axesGizmo.dispose()
+    super.dispose()
   }
 
   /**
