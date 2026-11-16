@@ -7,7 +7,11 @@ import {
   type AcApDrawingSheet,
   acapResolveDrawingSheet
 } from './AcApDrawingSheet'
-import { acapGetLayoutPageSetup, acapLayoutEvents } from './AcApLayoutActions'
+import {
+  acapGetLayoutPageSetup,
+  acapLayoutEvents,
+  acapLayoutPaperBox
+} from './AcApLayoutActions'
 import { AcApSettingManager } from './AcApSettingManager'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
@@ -64,8 +68,9 @@ export function acapPrintAreaColors(background: number): AcApPrintAreaColors {
 /**
  * Illustrator-style artboard display (`isShowPrintArea` setting): in the
  * canvas (model space), everything outside the sheet the drawing is printed /
- * exported on (see {@link acapResolveDrawingSheet}) is covered with gray; on a
- * print page (paper space), everything outside its paper (page setup).
+ * exported on (see {@link acapResolveDrawingSheet}) is covered with gray. A
+ * print page (paper space) always shows its paper this way, whether the mode
+ * is on or not (see {@link acapLayoutPaperBox}).
  *
  * The overlay is screen-space HTML over the WebGL canvas and never takes
  * pointer events. The sheet is resolved when the mode is turned on, when a
@@ -116,7 +121,7 @@ export class AcApPrintAreaOverlay {
     this.refresh(true)
   }
 
-  /** Whether the mode is on (it shows only while the canvas is active). */
+  /** Whether the mode is on (the canvas shows the sheet only in the mode). */
   get isEnabled() {
     return !!AcApSettingManager.instance.get('isShowPrintArea')
   }
@@ -169,18 +174,17 @@ export class AcApPrintAreaOverlay {
     }
     const layout = db.objects.layout.getBtrIdAt(view.activeLayoutBtrId)
     if (!layout) return undefined
-    const setup = acapGetLayoutPageSetup(layout)
-    const limits = layout.limits
-    if (!setup || !limits || limits.isEmpty()) return undefined
-    return {
-      min: { x: limits.min.x, y: limits.min.y },
-      max: { x: limits.max.x, y: limits.max.y },
-      label: setup.paper
-    }
+    const paper = acapLayoutPaperBox(layout)
+    if (!paper) return undefined
+    // Paper sizes outside A0–A4 are shown without a label.
+    return { ...paper, label: acapGetLayoutPageSetup(layout)?.paper ?? '' }
   }
 
+  /** Print pages always show their paper; the canvas only in the mode. */
   private isVisible() {
-    return this.isEnabled && !!this.docManager.curView
+    const view = this.docManager.curView
+    if (!view) return false
+    return this.isEnabled || view.activeLayoutBtrId !== view.modelSpaceBtrId
   }
 
   private readonly onViewChanged = () => this.refresh()

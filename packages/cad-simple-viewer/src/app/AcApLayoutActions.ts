@@ -239,6 +239,36 @@ export function acapGetLayoutPageSetup(
   return undefined
 }
 
+/**
+ * The paper of a print page in paper-space units: the layout limits, else the
+ * plot paper size (rotation applied) from the origin. `undefined` when the
+ * layout has neither.
+ */
+export function acapLayoutPaperBox(
+  layout: AcDbLayout
+):
+  | { min: { x: number; y: number }; max: { x: number; y: number } }
+  | undefined {
+  const limits = layout.limits
+  if (limits && !limits.isEmpty()) {
+    const { min, max } = limits
+    if (max.x - min.x > 0 && max.y - min.y > 0) {
+      return { min: { x: min.x, y: min.y }, max: { x: max.x, y: max.y } }
+    }
+  }
+  const size = layout.plotPaperSize
+  if (size && size.x > 0 && size.y > 0) {
+    const rotated =
+      layout.plotRotation === AcDbPlotRotation.k90degrees ||
+      layout.plotRotation === AcDbPlotRotation.k270degrees
+    return {
+      min: { x: 0, y: 0 },
+      max: rotated ? { x: size.y, y: size.x } : { x: size.x, y: size.y }
+    }
+  }
+  return undefined
+}
+
 /** Sets the paper and orientation of a layout. */
 export function acapSetLayoutPageSetup(
   db: AcDbDatabase,

@@ -98,6 +98,18 @@ test('plus button adds a print page and makes it current', async ({ page }) => {
   await expect(tab(page, added)).toHaveClass(/el-button--primary/)
 })
 
+test('print pages gray out everything outside the paper', async ({ page }) => {
+  await loadFixture(page)
+  const overlay = page.locator('svg.ml-print-area-overlay')
+  // The canvas shows the sheet only when "Show print area" is on (off here).
+  await expect(overlay).toBeHidden()
+  await tab(page, 'Planta').click()
+  await expect(overlay).toBeVisible()
+  await expect(overlay.locator('text')).toHaveText('A3')
+  await tab(page, 'Canvas').click()
+  await expect(overlay).toBeHidden()
+})
+
 test('tab menu renames, copies and deletes', async ({ page }) => {
   await loadFixture(page)
 
