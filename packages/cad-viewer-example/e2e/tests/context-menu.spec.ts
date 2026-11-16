@@ -111,6 +111,120 @@ async function clickAt(
   await page.waitForTimeout(250)
 }
 
+/**
+ * TEMPORARY (CI diagnosis): prints what the commands of the page do — start
+ * / end, prompts and their results, messages, appended and erased entities —
+ * to the test output.
+ */
+async function traceCommands(page: Page) {
+  page.on('console', message => {
+    const text = message.text()
+    if (text.startsWith('DBG') || message.type() === 'error') {
+      console.log(`[browser ${message.type()}] ${text}`)
+    }
+  })
+  page.on('pageerror', error => console.log(`[pageerror] ${error.message}`))
+  await page.evaluate(async url => {
+    const mod = await import(/* @vite-ignore */ url)
+    const docs = mod.AcApDocManager.instance
+    const view = docs.curView
+    const editor = view.editor
+    const db = docs.curDocument.database
+    const model = () =>
+      [...db.tables.blockTable.modelSpace.newIterator()]
+        .map((entity: { type: string; layer: string }) => {
+          return `${entity.type}@${entity.layer}`
+        })
+        .join(',')
+    const name = (args: { command: { globalName?: string } }) =>
+      args.command.globalName
+    editor.events.commandWillStart.addEventListener((args: never) =>
+      console.log('DBG start', name(args), 'model=' + model())
+    )
+    editor.events.commandEnded.addEventListener((args: never) =>
+      console.log('DBG end', name(args), 'model=' + model())
+    )
+    editor.events.promptStarted.addEventListener((args: { message: string }) =>
+      console.log('DBG prompt', JSON.stringify(args.message))
+    )
+    editor.events.promptEnded.addEventListener((args: { status: unknown }) =>
+      console.log('DBG promptEnded', String(args.status))
+    )
+    for (const method of ['getPoint', 'getKeywords', 'getDistance']) {
+      const original = editor[method]?.bind(editor)
+      if (!original) continue
+      editor[method] = async (...args: unknown[]) => {
+        try {
+          const result = await original(...args)
+          console.log(
+            `DBG ${method}`,
+            String(result?.status),
+            JSON.stringify(result?.value),
+            String(result?.stringResult)
+          )
+          return result
+        } catch (error) {
+          console.log(`DBG ${method} threw`, String(error))
+          throw error
+        }
+      }
+    }
+    const showMessage = editor.showMessage.bind(editor)
+    editor.showMessage = (...args: unknown[]) => {
+      console.log('DBG message', JSON.stringify(args))
+      return showMessage(...args)
+    }
+    const send = docs.sendStringToExecute.bind(docs)
+    docs.sendStringToExecute = (command: string) => {
+      console.log('DBG send', JSON.stringify(command))
+      return send(command)
+    }
+    db.events.entityAppended.addEventListener(() =>
+      console.log('DBG appended, model=' + model())
+    )
+    db.events.entityErased.addEventListener(() =>
+      console.log('DBG erased, model=' + model())
+    )
+    const canvas = view.canvas as HTMLCanvasElement
+    for (const type of ['mousedown', 'mouseup', 'click', 'dblclick']) {
+      window.addEventListener(
+        type,
+        event => {
+          const mouse = event as MouseEvent
+          const target = mouse.target as HTMLElement
+          const rect = canvas.getBoundingClientRect()
+          const world = view.screenToWorld({
+            x: mouse.clientX - rect.left,
+            y: mouse.clientY - rect.top
+          })
+          console.log(
+            `DBG ${type}`,
+            `button=${mouse.button}`,
+            `target=${target.tagName}.${String(target.className).slice(0, 40)}`,
+            `world=${world.x.toFixed(2)},${world.y.toFixed(2)}`
+          )
+        },
+        true
+      )
+    }
+    console.log(
+      'DBG state',
+      JSON.stringify({
+        agent: navigator.userAgent,
+        clayer: db.clayer,
+        layers: [...db.tables.layerTable.newIterator()].map(
+          (layer: { name: string }) => layer.name
+        ),
+        profile: mod.AcApSettingManager.instance.operationProfile,
+        osnap: mod.AcApSettingManager.instance.osnapEnabled,
+        editing: view.symbolEdit.path,
+        canvas: [canvas.clientWidth, canvas.clientHeight],
+        model: model()
+      })
+    )
+  }, viewerModuleUrl!)
+}
+
 const menu = (page: Page) => page.locator('.ml-context-menu').first()
 
 /** Ids of the items of the (top level) menu, separators left out. */
@@ -150,6 +264,7 @@ test('empty canvas: the menu creates things; select all; repeat', async ({
   await clickAt(page, { x: 50, y: 15 }, 'right')
   await menuIds(page)
   await page.locator('.ml-context-menu [data-id="create"]').hover()
+  await traceCommands(page)
   await pick(page, 'tool:rectang')
   expect((await drawingState(page)).running).toBe(true)
   await clickAt(page, { x: 10, y: 5 })
@@ -251,6 +366,7 @@ test('Ctrl+C / Ctrl+V paste at the cursor; Ctrl+A selects all', async ({
 
 test('while drawing (simple): Enter / undo / cancel menu', async ({ page }) => {
   await loadFixture(page)
+  await traceCommands(page)
 
   // Polyline: two points, then the menu takes the last one back.
   await clickAt(page, { x: 50, y: 15 }, 'right')
