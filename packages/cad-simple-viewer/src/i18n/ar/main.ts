@@ -19,7 +19,8 @@ export default {
     close: 'إغلاق سطر الأوامر'
   },
   prompt: {
-    orConnector: 'أو'
+    orConnector: 'أو',
+    wheelStepHint: 'العجلة: تغيير · النقر: تأكيد'
   },
   tool: {
     select: 'تحديد',

@@ -39,6 +39,8 @@ interface CopyArrayPlacement {
  */
 export class AcApCopyCmd extends AcEdCommand {
   private static _defaultMode: CopyMode = 'Multiple'
+  /** Item count of the last array copy (the next one opens with it). */
+  private static _lastArrayItemCount = 2
 
   /**
    * Creates the COPY command. Drawing geometry may only be copied in Write mode.
@@ -212,6 +214,8 @@ export class AcApCopyCmd extends AcEdCommand {
     itemCountPrompt.lowerLimit = 2
     itemCountPrompt.allowNegative = false
     itemCountPrompt.allowZero = false
+    itemCountPrompt.defaultValue = AcApCopyCmd._lastArrayItemCount
+    itemCountPrompt.useDefaultValue = true
 
     const itemCountResult =
       await AcApDocManager.instance.editor.getInteger(itemCountPrompt)
@@ -219,7 +223,8 @@ export class AcApCopyCmd extends AcEdCommand {
       return undefined
     }
 
-    const itemCount = itemCountResult.value ?? 2
+    const itemCount = Math.max(2, itemCountResult.value ?? 2)
+    AcApCopyCmd._lastArrayItemCount = itemCount
     const copyCount = Math.max(1, itemCount - 1)
 
     while (true) {

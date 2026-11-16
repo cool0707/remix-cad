@@ -71,6 +71,18 @@ export class AcEdFloatingInputBox {
     }
   }
 
+  /**
+   * Replaces the text as if the user had typed it (Enter commits it and the
+   * cursor preview no longer overwrites it), leaving it selected so typing
+   * replaces it.
+   */
+  setTypedValue(v: string) {
+    this.input.value = v
+    this.userTyped = true
+    this.resetValidation()
+    if (this.focused) this.input.select()
+  }
+
   /** Read current text */
   get value(): string {
     return this.input.value

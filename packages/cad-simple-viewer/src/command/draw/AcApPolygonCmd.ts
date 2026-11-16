@@ -12,9 +12,9 @@ import {
   AcEdCommand,
   AcEdOpenMode,
   AcEdPreviewJig,
+  AcEdPromptIntegerOptions,
   AcEdPromptPointOptions,
-  AcEdPromptStatus,
-  AcEdPromptStringOptions
+  AcEdPromptStatus
 } from '../../editor'
 import { AcApI18n } from '../../i18n'
 
@@ -318,20 +318,22 @@ export class AcApPolygonCmd extends AcEdCommand {
   private async promptSides() {
     while (true) {
       const defaultSides = AcApPolygonCmd._lastSides
-      const sidesPrompt = new AcEdPromptStringOptions(
-        AcApI18n.t('jig.polygon.numberOfSides')
+      // Integer prompt: opens with the last count, the wheel changes it and
+      // a click confirms it.
+      const sidesPrompt = new AcEdPromptIntegerOptions(
+        AcApI18n.t('jig.polygon.numberOfSides'),
+        MIN_SIDES,
+        MAX_SIDES
       )
-      sidesPrompt.allowEmpty = true
-      sidesPrompt.allowSpaces = false
-      sidesPrompt.defaultValue = String(defaultSides)
+      sidesPrompt.allowZero = false
+      sidesPrompt.allowNegative = false
+      sidesPrompt.defaultValue = defaultSides
       sidesPrompt.useDefaultValue = true
       const sidesResult =
-        await AcApDocManager.instance.editor.getString(sidesPrompt)
+        await AcApDocManager.instance.editor.getInteger(sidesPrompt)
       if (sidesResult.status !== AcEdPromptStatus.OK) return undefined
 
-      const rawInput = (sidesResult.stringResult ?? '').trim()
-      const rawValue =
-        rawInput === '' ? defaultSides : Number(rawInput)
+      const rawValue = sidesResult.value ?? defaultSides
       if (
         Number.isInteger(rawValue) &&
         rawValue >= MIN_SIDES &&
