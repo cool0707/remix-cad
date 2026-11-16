@@ -38,7 +38,16 @@ async function loadFixture(page: Page, file = fixturePath) {
   await expect(page.locator('.ml-cad-container')).toBeVisible({
     timeout: 30000
   })
-  await page.waitForTimeout(2500)
+  // TEMPORARY (CI diagnosis): before the wait below, so that the steps of
+  // the tests keep the timing they have without it.
+  // First attempt: nothing is installed. Retries: the recorder.
+  if (test.info().retry > 0) {
+    await page.waitForTimeout(300)
+    await traceCommands(page, test.info().retry > 1)
+    await page.waitForTimeout(2200)
+  } else {
+    await page.waitForTimeout(2500)
+  }
   await expect
     .poll(() =>
       page.evaluate(async url => {
@@ -117,14 +126,14 @@ async function clickAt(
  * entities, who cancels or aborts — without printing while it happens (the
  * failure only shows on a fast machine). {@link dumpTrace} prints it.
  */
-async function traceCommands(page: Page) {
+async function traceCommands(page: Page, full: boolean) {
   page.on('pageerror', error => console.log(`[pageerror] ${error.message}`))
   page.on('console', message => {
     if (message.type() === 'error') {
       console.log(`[browser error] ${message.text()}`)
     }
   })
-  await page.evaluate(async url => {
+  await page.evaluate(async ({ url, full }) => {
     const mod = await import(/* @vite-ignore */ url)
     const docs = mod.AcApDocManager.instance
     const view = docs.curView
@@ -165,6 +174,8 @@ async function traceCommands(page: Page) {
     db.events.entityErased.addEventListener(() =>
       log('erased model=' + model(), where())
     )
+    log('state', JSON.stringify({ clayer: db.clayer, model: model(), full }))
+    if (!full) return
     // Synchronous wrappers only: an async one would shift the timing.
     const wrap = (owner: Record<string, unknown>, method: string) => {
       const original = owner[method] as (...args: unknown[]) => unknown
@@ -230,7 +241,149 @@ async function traceCommands(page: Page) {
         model: model()
       })
     )
-  }, viewerModuleUrl!)
+  }, { url: viewerModuleUrl!, full })
+}
+
+/**
+ * TEMPORARY (CI diagnosis): what the page looks like after a failure, read
+ * without having installed anything before.
+ */
+async function dumpState(page: Page) {
+  const points = [
+    { x: 10, y: 5 },
+    { x: 30, y: 20 },
+    { x: 10, y: 10 },
+    { x: 40, y: 10 },
+    { x: 40, y: 25 },
+    { x: 50, y: 15 },
+    { x: 70, y: 20 }
+  ]
+  const state = await page
+    .evaluate(
+      async ({ url, points }) => {
+        const mod = await import(/* @vite-ignore */ url)
+        const docs = mod.AcApDocManager.instance
+        const view = docs.curView
+        const db = docs.curDocument.database
+        const attempt = (read: () => unknown) => {
+          try {
+            return read()
+          } catch (error) {
+            return `!${error}`
+          }
+        }
+        const rect = view.canvas.getBoundingClientRect()
+        const describe = (element: Element | null) => {
+          const chain: string[] = []
+          for (let e = element; e && chain.length < 4; e = e.parentElement) {
+            chain.push(
+              e.tagName.toLowerCase() +
+                (typeof e.className === 'string' && e.className
+                  ? '.' + e.className.split(/\s+/).slice(0, 3).join('.')
+                  : '')
+            )
+          }
+          return chain.join(' < ')
+        }
+        const box = (selector: string) =>
+          [...document.querySelectorAll(selector)].map(element => {
+            const r = element.getBoundingClientRect()
+            return `${selector} ${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}`
+          })
+        return {
+          model: attempt(() =>
+            [...db.tables.blockTable.modelSpace.newIterator()].map(
+              (e: {
+                type: string
+                layer: string
+                numberOfVertices?: number
+                geometricExtents?: {
+                  min: { x: number; y: number }
+                  max: { x: number; y: number }
+                }
+              }) =>
+                `${e.type}@${e.layer}` +
+                (e.numberOfVertices != null ? `#${e.numberOfVertices}` : '') +
+                attempt(() => {
+                  const x = e.geometricExtents!
+                  return ` [${x.min.x.toFixed(1)},${x.min.y.toFixed(1)} ${x.max.x.toFixed(1)},${x.max.y.toFixed(1)}]`
+                })
+            )
+          ),
+          clayer: attempt(() => db.clayer),
+          layers: attempt(() =>
+            [...db.tables.layerTable.newIterator()].map(
+              (l: {
+                name: string
+                isOff: boolean
+                isFrozen: boolean
+                isLocked: boolean
+              }) =>
+                `${l.name}${l.isOff ? ' off' : ''}${l.isFrozen ? ' frozen' : ''}${l.isLocked ? ' locked' : ''}`
+            )
+          ),
+          undo: attempt(() =>
+            db.transactionManager.undoStack.undoRecords.map(
+              (r: { label?: string; name?: string }) => r.label ?? r.name ?? '?'
+            )
+          ),
+          redo: attempt(
+            () => db.transactionManager.undoStack.redoRecords?.length
+          ),
+          running: attempt(() => view.toolManager.isCommandRunning),
+          editorActive: attempt(() => view.editor.isActive),
+          symbolEdit: attempt(() => view.symbolEdit.isActive),
+          selected: attempt(() => view.selectionSet.count),
+          profile: attempt(
+            () => mod.AcApSettingManager.instance.operationProfile
+          ),
+          continuous: attempt(
+            () => mod.AcApSettingManager.instance.continuousDraw
+          ),
+          canvas: `${Math.round(rect.left)},${Math.round(rect.top)} ${Math.round(rect.width)}x${Math.round(rect.height)}`,
+          window: `${window.innerWidth}x${window.innerHeight} dpr=${window.devicePixelRatio}`,
+          under: points.map(point => {
+            const s = view.worldToScreen(point)
+            const x = rect.left + s.x
+            const y = rect.top + s.y
+            return `${point.x},${point.y} -> ${Math.round(x)},${Math.round(y)} ${describe(document.elementFromPoint(x, y))}`
+          }),
+          active: describe(document.activeElement),
+          fonts: attempt(() =>
+            [...document.fonts]
+              .filter(f => f.status === 'loaded')
+              .map(f => f.family)
+              .filter((f, i, all) => all.indexOf(f) === i)
+          ),
+          bodyFont: getComputedStyle(document.body).fontFamily,
+          messages: [
+            ...document.querySelectorAll(
+              '.el-message, .el-notification, .ml-command-line, [class*="toast"], [class*="hint"]'
+            )
+          ]
+            .map(e => `${describe(e)}: ${(e.textContent ?? '').trim().slice(0, 160)}`)
+            .slice(0, 12),
+          boxes: [
+            ...box('.ml-sidebar'),
+            ...box('.ml-palette-manager'),
+            ...box('.ml-layer-list'),
+            ...box('.ml-symbol-edit-bar'),
+            ...box('.ml-context-menu'),
+            ...box('.ml-cad-container')
+          ],
+          overlays: [...document.querySelectorAll('body > *, .ml-cad-container > *')]
+            .map(e => {
+              const r = e.getBoundingClientRect()
+              const style = getComputedStyle(e)
+              return `${describe(e).split(' < ')[0]} ${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)} ${style.position} pe=${style.pointerEvents} d=${style.display} v=${style.visibility}`
+            })
+            .slice(0, 40)
+        }
+      },
+      { url: viewerModuleUrl!, points }
+    )
+    .catch(error => `dumpState failed: ${error}`)
+  console.log(`[state] ${JSON.stringify(state, null, 1)}`)
 }
 
 /** TEMPORARY (CI diagnosis): prints what {@link traceCommands} recorded. */
@@ -243,6 +396,8 @@ async function dumpTrace(page: Page) {
 
 test.afterEach(async ({ page }, testInfo) => {
   if (testInfo.status !== testInfo.expectedStatus || process.env.DUMP_TRACE) {
+    console.log(`[attempt] retry=${testInfo.retry} ${testInfo.title}`)
+    await dumpState(page)
     await dumpTrace(page)
   }
 })
@@ -286,7 +441,6 @@ test('empty canvas: the menu creates things; select all; repeat', async ({
   await clickAt(page, { x: 50, y: 15 }, 'right')
   await menuIds(page)
   await page.locator('.ml-context-menu [data-id="create"]').hover()
-  await traceCommands(page)
   await pick(page, 'tool:rectang')
   expect((await drawingState(page)).running).toBe(true)
   await clickAt(page, { x: 10, y: 5 })
@@ -388,7 +542,6 @@ test('Ctrl+C / Ctrl+V paste at the cursor; Ctrl+A selects all', async ({
 
 test('while drawing (simple): Enter / undo / cancel menu', async ({ page }) => {
   await loadFixture(page)
-  await traceCommands(page)
 
   // Polyline: two points, then the menu takes the last one back.
   await clickAt(page, { x: 50, y: 15 }, 'right')
