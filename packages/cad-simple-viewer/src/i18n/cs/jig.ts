@@ -778,6 +778,106 @@ export default {
       }
     }
   },
+  curveEdit: {
+    nothingToUndo: 'Není co vrátit.'
+  },
+  trim: {
+    selectObject: 'Vyberte část k oříznutí (Enter ukončí)',
+    unsupported: 'Oříznout lze jen úsečky, oblouky, kružnice a křivky.',
+    needTwoCuts: 'Uzavřený tvar musí jiné objekty protínat alespoň ve dvou bodech.'
+  },
+  extend: {
+    selectObject: 'Vyberte konec k prodloužení (Enter ukončí)',
+    unsupported: 'Prodloužit lze jen úsečky, oblouky a otevřené křivky.',
+    closed: 'Uzavřené tvary nelze prodloužit.',
+    noBoundary: 'Nebyl nalezen objekt, ke kterému lze prodloužit.'
+  },
+  break: {
+    selectObject: 'Klikněte na objekt v prvním bodě přerušení',
+    unsupported: 'Přerušit lze jen úsečky, oblouky, kružnice a křivky.',
+    secondPoint: 'Zadejte druhý bod přerušení nebo',
+    firstPoint: 'Zadejte první bod přerušení',
+    samePoint: 'Zadejte dva různé body (uzavřený tvar nelze rozdělit v jednom bodě).',
+    keywords: {
+      first: { display: 'První bod(F)', global: 'First', local: 'První bod' }
+    }
+  },
+  fillet: {
+    firstObject: 'Vyberte první úsečku',
+    secondObject: 'Vyberte druhou úsečku',
+    current: '(poloměr = {radius})',
+    radius: 'Zadejte poloměr zaoblení',
+    unsupported: 'Vyberte dvě úsečky nebo dvě sousední rovné strany jedné křivky.',
+    sameObject: 'Vyberte dvě různé úsečky.',
+    parallel: 'Úsečky jsou rovnoběžné.',
+    tooLarge: 'Poloměr je pro tyto úsečky příliš velký.',
+    notAdjacent: 'Vyberte dvě sousední strany křivky.',
+    arcSegment: 'Zakřivené strany křivky nelze zaoblit.',
+    keywords: {
+      radius: { display: 'Poloměr(R)', global: 'Radius', local: 'Poloměr' }
+    }
+  },
+  chamfer: {
+    firstObject: 'Vyberte první úsečku',
+    secondObject: 'Vyberte druhou úsečku',
+    current: '(vzdálenosti = {d1}, {d2})',
+    firstDistance: 'Zadejte vzdálenost zkosení na první úsečce',
+    secondDistance: 'Zadejte vzdálenost zkosení na druhé úsečce',
+    unsupported: 'Vyberte dvě úsečky nebo dvě sousední rovné strany jedné křivky.',
+    sameObject: 'Vyberte dvě různé úsečky.',
+    parallel: 'Úsečky jsou rovnoběžné.',
+    tooLarge: 'Vzdálenost je pro tyto úsečky příliš velká.',
+    notAdjacent: 'Vyberte dvě sousední strany křivky.',
+    arcSegment: 'Zakřivené strany křivky nelze zkosit.',
+    keywords: {
+      distance: { display: 'Vzdálenost(D)', global: 'Distance', local: 'Vzdálenost' }
+    }
+  },
+  mirror: {
+    firstPoint: 'Zadejte první bod osy zrcadlení',
+    secondPoint: 'Zadejte druhý bod osy zrcadlení',
+    samePoint: 'Zadejte dva různé body.',
+    eraseSource: 'Odstranit zdrojové objekty?',
+    keywords: {
+      yes: { display: 'Ano(Y)', global: 'Yes', local: 'Ano' },
+      no: { display: 'Ne(N)', global: 'No', local: 'Ne' }
+    }
+  },
+  scale: {
+    basePoint: 'Zadejte základní bod',
+    factorOrOptions: 'Zadejte měřítko nebo',
+    referenceLength: 'Zadejte referenční délku nebo',
+    firstReferencePoint: 'Zadejte první bod referenční délky',
+    secondReferencePoint: 'Zadejte druhý bod',
+    newLength: 'Zadejte novou délku',
+    invalidFactor: 'Měřítko musí být větší než 0.',
+    keywords: {
+      copy: { display: 'Kopírovat(C)', global: 'Copy', local: 'Kopírovat' },
+      reference: { display: 'Reference(R)', global: 'Reference', local: 'Reference' },
+      points: { display: 'Body(P)', global: 'Points', local: 'Body' }
+    }
+  },
+  array: {
+    type: 'Zvolte typ pole',
+    columns: 'Zadejte počet sloupců',
+    rows: 'Zadejte počet řádků',
+    columnSpacing: 'Zadejte vzdálenost sloupců (záporná = doleva)',
+    rowSpacing: 'Zadejte vzdálenost řádků (záporná = dolů)',
+    center: 'Zadejte střed pole',
+    items: 'Zadejte počet položek (včetně původní)',
+    fillAngle: 'Zadejte úhel vyplnění (360 = celý kruh)',
+    keywords: {
+      rectangular: { display: 'Obdélníkové(R)', global: 'Rectangular', local: 'Obdélníkové' },
+      polar: { display: 'Kruhové(P)', global: 'Polar', local: 'Kruhové' }
+    }
+  },
+  stretch: {
+    firstCorner: 'Zadejte první roh okna kolem bodů k posunutí',
+    secondCorner: 'Zadejte protější roh',
+    nothing: 'V okně nejsou žádné objekty k protažení.',
+    basePoint: 'Zadejte základní bod',
+    secondPoint: 'Zadejte druhý bod'
+  },
   offset: {
     distance: 'Zadejte vzdálenost offsetu',
     selectObject: 'Vyberte objekt k offsetu nebo stiskněte Enter pro dokončení',

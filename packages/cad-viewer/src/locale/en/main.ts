@@ -275,6 +275,15 @@ export default {
       arc: 'Elliptical Arc'
     },
     tooltip: {
+      scale: 'Enlarges or reduces the selected objects around a base point.',
+      mirror: 'Creates a mirror image of the selected objects.',
+      array: 'Copies the selected objects in rows and columns or around a center.',
+      stretch: 'Moves the points inside a window and stretches the objects that cross it.',
+      trim: 'Cuts off the part of an object up to where it meets other objects.',
+      extend: 'Extends an object to meet another object.',
+      fillet: 'Rounds the corner between two lines with an arc.',
+      chamfer: 'Cuts the corner between two lines with a straight line.',
+      break: 'Removes the part of an object between two points.',
       line: 'Draw a single straight line segment.',
       polyline:
         'Draw a connected series of line or arc segments as one object.',
@@ -385,6 +394,15 @@ export default {
       }
     },
     command: {
+      scale: 'Scale',
+      mirror: 'Mirror',
+      array: 'Array',
+      stretch: 'Stretch',
+      trim: 'Trim',
+      extend: 'Extend',
+      fillet: 'Fillet',
+      chamfer: 'Chamfer',
+      break: 'Break',
       line: 'Line',
       polyline: 'Polyline',
       circle: 'Circle',

@@ -54,6 +54,9 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   (guias de alinhamento). As setas deslocam a seleção um passo redondo de cerca de um pixel da tela (Shift: ×10). Clique duas vezes em um
   objeto para editar seus vértices com os grips do CAD. O snap é um único botão liga/desliga na barra de status; os modos ficam nas Configurações.
   Objetos selecionáveis são destacados na cor do tema sob o cursor (nos dois perfis); sobre um objeto selecionado, o cursor indica que ele pode ser arrastado.
+- **Ferramentas de modificação** — Espelhar, Matriz (retangular / polar), Aparar, Estender, Concordância, Chanfro, Quebrar, Esticar e Escala.
+  Aparar e Estender funcionam no modo "rápido" (todos os outros objetos são limites) e cada clique pode ser desfeito separadamente.
+  Ficam no grupo Modificar da faixa de opções (CAD) e no menu Modificar da barra esquerda (Simples).
 - **Menu de contexto** — clique com o botão direito no desenho para um menu apenas com o que pode ser feito agora (Simples e CAD).
   Com seleção: recortar, copiar, colar, duplicar, excluir, selecionar a mesma camada, mostrar propriedades; sem seleção: repetir o último comando,
   criar (linha, polilinha, retângulo, círculo…), símbolo, comentário (texto, nuvem…), colar, selecionar tudo, ajustar à tela, desfazer / refazer.

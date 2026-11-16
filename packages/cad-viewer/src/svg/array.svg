@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+  <rect x="2.5" y="12.5" width="4" height="4" stroke="var(--el-color-primary)" stroke-width="1.5" fill="none"></rect>
+  <rect x="8" y="12.5" width="4" height="4" stroke="currentColor" stroke-width="1.5" fill="none"></rect>
+  <rect x="13.5" y="12.5" width="4" height="4" stroke="currentColor" stroke-width="1.5" fill="none"></rect>
+  <rect x="2.5" y="3.5" width="4" height="4" stroke="currentColor" stroke-width="1.5" fill="none"></rect>
+  <rect x="8" y="3.5" width="4" height="4" stroke="currentColor" stroke-width="1.5" fill="none"></rect>
+  <rect x="13.5" y="3.5" width="4" height="4" stroke="currentColor" stroke-width="1.5" fill="none"></rect>
+</svg>

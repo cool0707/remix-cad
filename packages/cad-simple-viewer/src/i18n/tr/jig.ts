@@ -779,6 +779,106 @@ export default {
       }
     }
   },
+  curveEdit: {
+    nothingToUndo: 'Geri alınacak işlem yok.'
+  },
+  trim: {
+    selectObject: 'Kırpılacak parçayı seçin (bitirmek için Enter)',
+    unsupported: 'Yalnızca çizgiler, yaylar, daireler ve çoklu çizgiler kırpılabilir.',
+    needTwoCuts: 'Kapalı bir şeklin kırpılması için diğer nesnelerle en az iki noktada kesişmesi gerekir.'
+  },
+  extend: {
+    selectObject: 'Uzatılacak ucun yakınını seçin (bitirmek için Enter)',
+    unsupported: 'Yalnızca çizgiler, yaylar ve açık çoklu çizgiler uzatılabilir.',
+    closed: 'Kapalı şekiller uzatılamaz.',
+    noBoundary: 'Uzatılacak bir sınır nesnesi bulunamadı.'
+  },
+  break: {
+    selectObject: 'Nesneyi kırılacak ilk noktadan seçin',
+    unsupported: 'Yalnızca çizgiler, yaylar, daireler ve çoklu çizgiler kırılabilir.',
+    secondPoint: 'İkinci kırma noktasını belirtin veya',
+    firstPoint: 'İlk kırma noktasını belirtin',
+    samePoint: 'İki farklı nokta belirtin (kapalı şekiller tek noktada bölünemez).',
+    keywords: {
+      first: { display: 'İlk nokta(F)', global: 'First', local: 'İlk nokta' }
+    }
+  },
+  fillet: {
+    firstObject: 'İlk çizgiyi seçin',
+    secondObject: 'İkinci çizgiyi seçin',
+    current: '(yarıçap = {radius})',
+    radius: 'Yuvarlama yarıçapını belirtin',
+    unsupported: 'İki çizgi veya bir çoklu çizginin komşu iki düz kenarını seçin.',
+    sameObject: 'İki farklı çizgi seçin.',
+    parallel: 'Çizgiler paralel.',
+    tooLarge: 'Yarıçap bu çizgiler için çok büyük.',
+    notAdjacent: 'Çoklu çizginin komşu iki kenarını seçin.',
+    arcSegment: 'Çoklu çizginin eğri kenarları yuvarlanamaz.',
+    keywords: {
+      radius: { display: 'Yarıçap(R)', global: 'Radius', local: 'Yarıçap' }
+    }
+  },
+  chamfer: {
+    firstObject: 'İlk çizgiyi seçin',
+    secondObject: 'İkinci çizgiyi seçin',
+    current: '(mesafeler = {d1}, {d2})',
+    firstDistance: 'İlk çizgideki pah mesafesini belirtin',
+    secondDistance: 'İkinci çizgideki pah mesafesini belirtin',
+    unsupported: 'İki çizgi veya bir çoklu çizginin komşu iki düz kenarını seçin.',
+    sameObject: 'İki farklı çizgi seçin.',
+    parallel: 'Çizgiler paralel.',
+    tooLarge: 'Mesafe bu çizgiler için çok büyük.',
+    notAdjacent: 'Çoklu çizginin komşu iki kenarını seçin.',
+    arcSegment: 'Çoklu çizginin eğri kenarlarına pah kırılamaz.',
+    keywords: {
+      distance: { display: 'Mesafe(D)', global: 'Distance', local: 'Mesafe' }
+    }
+  },
+  mirror: {
+    firstPoint: 'Ayna çizgisinin ilk noktasını belirtin',
+    secondPoint: 'Ayna çizgisinin ikinci noktasını belirtin',
+    samePoint: 'İki farklı nokta belirtin.',
+    eraseSource: 'Kaynak nesneler silinsin mi?',
+    keywords: {
+      yes: { display: 'Evet(Y)', global: 'Yes', local: 'Evet' },
+      no: { display: 'Hayır(N)', global: 'No', local: 'Hayır' }
+    }
+  },
+  scale: {
+    basePoint: 'Temel noktayı belirtin',
+    factorOrOptions: 'Ölçek faktörünü belirtin veya',
+    referenceLength: 'Referans uzunluğu belirtin veya',
+    firstReferencePoint: 'Referans uzunluğun ilk noktasını belirtin',
+    secondReferencePoint: 'İkinci noktayı belirtin',
+    newLength: 'Yeni uzunluğu belirtin',
+    invalidFactor: 'Ölçek faktörü 0\'dan büyük olmalıdır.',
+    keywords: {
+      copy: { display: 'Kopyala(C)', global: 'Copy', local: 'Kopyala' },
+      reference: { display: 'Referans(R)', global: 'Reference', local: 'Referans' },
+      points: { display: 'Noktalar(P)', global: 'Points', local: 'Noktalar' }
+    }
+  },
+  array: {
+    type: 'Dizi türünü seçin',
+    columns: 'Sütun sayısını girin',
+    rows: 'Satır sayısını girin',
+    columnSpacing: 'Sütunlar arası mesafeyi belirtin (negatif = sola)',
+    rowSpacing: 'Satırlar arası mesafeyi belirtin (negatif = aşağı)',
+    center: 'Dizinin merkez noktasını belirtin',
+    items: 'Öğe sayısını girin (orijinal dahil)',
+    fillAngle: 'Doldurulacak açıyı belirtin (360 = tam daire)',
+    keywords: {
+      rectangular: { display: 'Dikdörtgen(R)', global: 'Rectangular', local: 'Dikdörtgen' },
+      polar: { display: 'Dairesel(P)', global: 'Polar', local: 'Dairesel' }
+    }
+  },
+  stretch: {
+    firstCorner: 'Taşınacak noktaları çevreleyen pencerenin ilk köşesini belirtin',
+    secondCorner: 'Karşı köşeyi belirtin',
+    nothing: 'Pencerede esnetilebilecek nesne yok.',
+    basePoint: 'Temel noktayı belirtin',
+    secondPoint: 'İkinci noktayı belirtin'
+  },
   offset: {
     distance: 'Öteleme mesafesini belirtin',
     selectObject: 'Ötelenecek nesneyi seçin veya bitirmek için Enter\'a basın',

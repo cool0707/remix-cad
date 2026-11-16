@@ -780,6 +780,106 @@ export default {
       }
     }
   },
+  curveEdit: {
+    nothingToUndo: 'Nothing to undo.'
+  },
+  trim: {
+    selectObject: 'Select the part to trim (Enter to finish)',
+    unsupported: 'Only lines, arcs, circles and polylines can be trimmed.',
+    needTwoCuts: 'A closed shape must cross other objects at two or more points to be trimmed.'
+  },
+  extend: {
+    selectObject: 'Select the end to extend (Enter to finish)',
+    unsupported: 'Only lines, arcs and open polylines can be extended.',
+    closed: 'Closed shapes cannot be extended.',
+    noBoundary: 'No object to extend to was found.'
+  },
+  break: {
+    selectObject: 'Click the object at the first point to break',
+    unsupported: 'Only lines, arcs, circles and polylines can be broken.',
+    secondPoint: 'Specify the second break point or',
+    firstPoint: 'Specify the first break point',
+    samePoint: 'Specify two different points (a circle cannot be split at one point).',
+    keywords: {
+      first: { display: 'First point(F)', global: 'First', local: 'First point' }
+    }
+  },
+  fillet: {
+    firstObject: 'Select the first line',
+    secondObject: 'Select the second line',
+    current: '(radius = {radius})',
+    radius: 'Specify the fillet radius',
+    unsupported: 'Select two lines, or two neighbouring straight sides of one polyline.',
+    sameObject: 'Select two different lines.',
+    parallel: 'The lines are parallel.',
+    tooLarge: 'The radius is too large for these lines.',
+    notAdjacent: 'Select two neighbouring sides of the polyline.',
+    arcSegment: 'Curved sides of a polyline cannot be filleted.',
+    keywords: {
+      radius: { display: 'Radius(R)', global: 'Radius', local: 'Radius' }
+    }
+  },
+  chamfer: {
+    firstObject: 'Select the first line',
+    secondObject: 'Select the second line',
+    current: '(distances = {d1}, {d2})',
+    firstDistance: 'Specify the chamfer distance on the first line',
+    secondDistance: 'Specify the chamfer distance on the second line',
+    unsupported: 'Select two lines, or two neighbouring straight sides of one polyline.',
+    sameObject: 'Select two different lines.',
+    parallel: 'The lines are parallel.',
+    tooLarge: 'The distance is too large for these lines.',
+    notAdjacent: 'Select two neighbouring sides of the polyline.',
+    arcSegment: 'Curved sides of a polyline cannot be chamfered.',
+    keywords: {
+      distance: { display: 'Distance(D)', global: 'Distance', local: 'Distance' }
+    }
+  },
+  mirror: {
+    firstPoint: 'Specify the first point of the mirror line',
+    secondPoint: 'Specify the second point of the mirror line',
+    samePoint: 'Specify two different points.',
+    eraseSource: 'Erase the source objects?',
+    keywords: {
+      yes: { display: 'Yes(Y)', global: 'Yes', local: 'Yes' },
+      no: { display: 'No(N)', global: 'No', local: 'No' }
+    }
+  },
+  scale: {
+    basePoint: 'Specify the base point',
+    factorOrOptions: 'Specify the scale factor or',
+    referenceLength: 'Specify the reference length or',
+    firstReferencePoint: 'Specify the first point of the reference length',
+    secondReferencePoint: 'Specify the second point',
+    newLength: 'Specify the new length',
+    invalidFactor: 'The scale factor must be greater than 0.',
+    keywords: {
+      copy: { display: 'Copy(C)', global: 'Copy', local: 'Copy' },
+      reference: { display: 'Reference(R)', global: 'Reference', local: 'Reference' },
+      points: { display: 'Points(P)', global: 'Points', local: 'Points' }
+    }
+  },
+  array: {
+    type: 'Choose the array type',
+    columns: 'Enter the number of columns',
+    rows: 'Enter the number of rows',
+    columnSpacing: 'Specify the distance between columns (negative = to the left)',
+    rowSpacing: 'Specify the distance between rows (negative = downwards)',
+    center: 'Specify the center point of the array',
+    items: 'Enter the number of items (including the original)',
+    fillAngle: 'Specify the angle to fill (360 = full circle)',
+    keywords: {
+      rectangular: { display: 'Rectangular(R)', global: 'Rectangular', local: 'Rectangular' },
+      polar: { display: 'Polar(P)', global: 'Polar', local: 'Polar' }
+    }
+  },
+  stretch: {
+    firstCorner: 'Specify the first corner of the window around the points to move',
+    secondCorner: 'Specify the opposite corner',
+    nothing: 'No objects in the window can be stretched.',
+    basePoint: 'Specify the base point',
+    secondPoint: 'Specify the second point'
+  },
   offset: {
     distance: 'Specify offset distance',
     selectObject: 'Select object to offset or press Enter to finish',

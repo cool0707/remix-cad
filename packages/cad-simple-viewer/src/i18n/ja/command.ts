@@ -342,6 +342,36 @@ export default {
       description: '選択したオブジェクトを移動します',
       prompt: 'オブジェクトを選択'
     },
+    scale: {
+      description: '選択した図形を基点を中心に拡大・縮小します',
+      prompt: '図形を選択'
+    },
+    mirror: {
+      description: '選択した図形を対称軸で反転した図形を作ります',
+      prompt: '図形を選択'
+    },
+    array: {
+      description: '選択した図形を格子状または円形に並べて複製します',
+      prompt: '図形を選択'
+    },
+    stretch: {
+      description: '範囲で囲んだ点を動かし、範囲にかかる図形を伸び縮みさせます'
+    },
+    trim: {
+      description: 'ほかの図形と交わる所までの部分を切り取ります'
+    },
+    extend: {
+      description: '図形の端をほかの図形にぶつかるまで延ばします'
+    },
+    fillet: {
+      description: '2 本の線の角を円弧で丸めます'
+    },
+    chamfer: {
+      description: '2 本の線の角を斜めに切り落とします'
+    },
+    break: {
+      description: '図形の 2 点の間の部分を削除します'
+    },
     offset: {
       description: '指定した距離に平行な曲線、ポリライン、円を作成します'
     },

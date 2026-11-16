@@ -52,6 +52,9 @@ takže výkresy nikdy neopustí zařízení uživatele.
   krok přibližně jednoho pixelu obrazovky (Shift: ×10). Dvojklikem na objekt upravíte jeho vrcholy uzlovými body CAD. Uchopení je jedno tlačítko zapnout/vypnout
   ve stavovém řádku; režimy uchopení jsou v Nastavení.
   Objekty, které lze vybrat, se pod kurzorem zvýrazní barvou motivu (v obou profilech); nad vybraným objektem kurzor ukazuje, že jej lze přetáhnout.
+- **Nástroje úprav** — Zrcadlit, Pole (obdélníkové / kruhové), Oříznout, Prodloužit, Zaoblit, Zkosit, Přerušit, Protáhnout a Měřítko.
+  Oříznout a Prodloužit pracují v „rychlém“ režimu (hranicí jsou všechny ostatní objekty) a každý krok lze vrátit zvlášť.
+  Najdete je ve skupině Upravit na pásu karet (CAD) a v nabídce Upravit levého panelu nástrojů (Jednoduchý).
 - **Místní nabídka** — pravým tlačítkem na výkresu se otevře nabídka jen s tím, co lze právě udělat (Jednoduchý i CAD).
   S výběrem: vyjmout, kopírovat, vložit, duplikovat, odstranit, vybrat stejnou hladinu, zobrazit vlastnosti; bez výběru: opakovat poslední příkaz,
   vytvořit (úsečka, křivka, obdélník, kružnice…), symbol, komentář (text, obláček…), vložit, vybrat vše, zobrazit vše, zpět / znovu.

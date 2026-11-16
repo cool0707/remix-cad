@@ -275,6 +275,15 @@ export default {
       arc: 'Eliptický oblouk'
     },
     tooltip: {
+      scale: 'Zvětší nebo zmenší vybrané objekty kolem základního bodu.',
+      mirror: 'Vytvoří zrcadlový obraz vybraných objektů.',
+      array: 'Zkopíruje vybrané objekty do řádků a sloupců nebo kolem středu.',
+      stretch: 'Posune body uvnitř okna a protáhne objekty, které jej protínají.',
+      trim: 'Odřízne část objektu po místa, kde protíná jiné objekty.',
+      extend: 'Prodlouží objekt k jinému objektu.',
+      fillet: 'Zaoblí roh mezi dvěma úsečkami obloukem.',
+      chamfer: 'Zkosí roh mezi dvěma úsečkami.',
+      break: 'Odstraní část objektu mezi dvěma body.',
       line: 'Nakreslí jednu úsečku.',
       polyline: 'Nakreslí spojenou řadu úseček nebo oblouků jako jeden objekt.',
       spline: 'Nakreslí hladkou křivku splajn proložením nebo řídicími body.',
@@ -379,6 +388,15 @@ export default {
       }
     },
     command: {
+      scale: 'Měřítko',
+      mirror: 'Zrcadlit',
+      array: 'Pole',
+      stretch: 'Protáhnout',
+      trim: 'Oříznout',
+      extend: 'Prodloužit',
+      fillet: 'Zaoblit',
+      chamfer: 'Zkosit',
+      break: 'Přerušit',
       line: 'Úsečka',
       polyline: 'Křivka',
       circle: 'Kružnice',

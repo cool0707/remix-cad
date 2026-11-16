@@ -118,8 +118,11 @@ import {
   arcStartEndDirection,
   arcStartEndRadius,
   arcThreePoints,
+  arrayIcon,
   attachDwg,
   attachImage,
+  breakIcon,
+  chamfer,
   circleCenterDiameter,
   circleCenterRadius,
   circleTanTanRadius,
@@ -131,6 +134,8 @@ import {
   editAttribute,
   ellipseArc,
   ellipseCenter,
+  extend,
+  fillet,
   find,
   hatch,
   layerCurrent,
@@ -142,6 +147,7 @@ import {
   layerUnisolate,
   layerUnlock,
   line,
+  mirror,
   mline,
   move,
   mtext,
@@ -154,8 +160,11 @@ import {
   ray,
   rect,
   revFreeDraw,
+  scale,
   setting,
   splineFitPoints,
+  stretch,
+  trim,
   xline
 } from '../../svg'
 import {
@@ -1252,6 +1261,15 @@ const buildBaseTabs = (
     copy: t('main.ribbon.tooltip.copy'),
     erase: t('main.ribbon.tooltip.erase'),
     offset: t('main.ribbon.tooltip.offset'),
+    scale: t('main.ribbon.tooltip.scale'),
+    mirror: t('main.ribbon.tooltip.mirror'),
+    array: t('main.ribbon.tooltip.array'),
+    stretch: t('main.ribbon.tooltip.stretch'),
+    trim: t('main.ribbon.tooltip.trim'),
+    extend: t('main.ribbon.tooltip.extend'),
+    fillet: t('main.ribbon.tooltip.fillet'),
+    chamfer: t('main.ribbon.tooltip.chamfer'),
+    break: t('main.ribbon.tooltip.break'),
     undo: t('main.ribbon.tooltip.undo'),
     redo: t('main.ribbon.tooltip.redo'),
     properties: t('main.ribbon.tooltip.properties'),
@@ -2154,12 +2172,74 @@ const buildBaseTabs = (
                   props: { icon: RefreshRight }
                 },
                 {
+                  id: 'cmd-trim',
+                  type: 'button',
+                  label: t('main.ribbon.command.trim'),
+                  tooltip: ribbonTooltips.trim,
+                  size: 'small',
+                  props: { icon: trim }
+                }
+              ]
+            },
+            {
+              id: 'home-modify-copy',
+              layout: 'column',
+              rows: 3,
+              items: [
+                {
                   id: 'cmd-copy',
                   type: 'button',
                   label: t('main.ribbon.command.copy'),
                   tooltip: ribbonTooltips.copy,
                   size: 'small',
                   props: { icon: DocumentCopy }
+                },
+                {
+                  id: 'cmd-mirror',
+                  type: 'button',
+                  label: t('main.ribbon.command.mirror'),
+                  tooltip: ribbonTooltips.mirror,
+                  size: 'small',
+                  props: { icon: mirror }
+                },
+                {
+                  id: 'cmd-fillet',
+                  type: 'button',
+                  label: t('main.ribbon.command.fillet'),
+                  tooltip: ribbonTooltips.fillet,
+                  size: 'small',
+                  props: { icon: fillet }
+                }
+              ]
+            },
+            {
+              id: 'home-modify-transform',
+              layout: 'column',
+              rows: 3,
+              items: [
+                {
+                  id: 'cmd-stretch',
+                  type: 'button',
+                  label: t('main.ribbon.command.stretch'),
+                  tooltip: ribbonTooltips.stretch,
+                  size: 'small',
+                  props: { icon: stretch }
+                },
+                {
+                  id: 'cmd-scale',
+                  type: 'button',
+                  label: t('main.ribbon.command.scale'),
+                  tooltip: ribbonTooltips.scale,
+                  size: 'small',
+                  props: { icon: scale }
+                },
+                {
+                  id: 'cmd-array',
+                  type: 'button',
+                  label: t('main.ribbon.command.array'),
+                  tooltip: ribbonTooltips.array,
+                  size: 'small',
+                  props: { icon: arrayIcon }
                 }
               ]
             },
@@ -2183,6 +2263,37 @@ const buildBaseTabs = (
                   tooltip: ribbonTooltips.offset,
                   size: 'small',
                   props: { icon: offset }
+                },
+                {
+                  id: 'cmd-extend',
+                  type: 'button',
+                  label: t('main.ribbon.command.extend'),
+                  tooltip: ribbonTooltips.extend,
+                  size: 'small',
+                  props: { icon: extend }
+                }
+              ]
+            },
+            {
+              id: 'home-modify-corner',
+              layout: 'column',
+              rows: 3,
+              items: [
+                {
+                  id: 'cmd-chamfer',
+                  type: 'button',
+                  label: t('main.ribbon.command.chamfer'),
+                  tooltip: ribbonTooltips.chamfer,
+                  size: 'small',
+                  props: { icon: chamfer }
+                },
+                {
+                  id: 'cmd-break',
+                  type: 'button',
+                  label: t('main.ribbon.command.break'),
+                  tooltip: ribbonTooltips.break,
+                  size: 'small',
+                  props: { icon: breakIcon }
                 }
               ]
             }
@@ -2660,6 +2771,15 @@ const ribbonData = computed(() => {
   commandByItemId.set('cmd-copy', 'copy')
   commandByItemId.set('cmd-erase', 'erase')
   commandByItemId.set('cmd-offset', 'offset')
+  commandByItemId.set('cmd-scale', 'scale')
+  commandByItemId.set('cmd-mirror', 'mirror')
+  commandByItemId.set('cmd-array', 'array')
+  commandByItemId.set('cmd-stretch', 'stretch')
+  commandByItemId.set('cmd-trim', 'trim')
+  commandByItemId.set('cmd-extend', 'extend')
+  commandByItemId.set('cmd-fillet', 'fillet')
+  commandByItemId.set('cmd-chamfer', 'chamfer')
+  commandByItemId.set('cmd-break', 'break')
   commandByItemId.set('cmd-layer', 'layer')
   commandByItemId.set('cmd-properties', 'properties')
   commandByItemId.set('cmd-qselect', 'qselect')

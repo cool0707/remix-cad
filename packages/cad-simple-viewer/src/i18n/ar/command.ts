@@ -647,6 +647,36 @@ export default {
         'حدد العناصر'
     },
 
+    scale: {
+      description: 'يكبّر الكائنات المحددة أو يصغّرها حول نقطة أساس',
+      prompt: 'حدد الكائنات'
+    },
+    mirror: {
+      description: 'ينشئ صورة معكوسة للكائنات المحددة',
+      prompt: 'حدد الكائنات'
+    },
+    array: {
+      description: 'ينسخ الكائنات المحددة في صفوف وأعمدة أو حول مركز',
+      prompt: 'حدد الكائنات'
+    },
+    stretch: {
+      description: 'يحرك النقاط داخل نافذة ويمط الكائنات التي تتقاطع معها'
+    },
+    trim: {
+      description: 'يقص جزء الكائن حتى نقاط تقاطعه مع الكائنات الأخرى'
+    },
+    extend: {
+      description: 'يمدد الكائن حتى يلتقي بكائن آخر'
+    },
+    fillet: {
+      description: 'يقرّب الزاوية بين خطين بقوس'
+    },
+    chamfer: {
+      description: 'يشطف الزاوية بين خطين بخط مستقيم'
+    },
+    break: {
+      description: 'يحذف جزء الكائن بين نقطتين'
+    },
     offset: {
       ...enCommand.ACAD.offset,
       description:

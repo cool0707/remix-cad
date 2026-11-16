@@ -463,6 +463,106 @@ export default {
     },
   },
 
+  curveEdit: {
+    nothingToUndo: 'لا يوجد ما يمكن التراجع عنه.'
+  },
+  trim: {
+    selectObject: 'حدد الجزء المراد قصه (Enter للإنهاء)',
+    unsupported: 'يمكن قص الخطوط والأقواس والدوائر والخطوط المتعددة فقط.',
+    needTwoCuts: 'يجب أن يتقاطع الشكل المغلق مع كائنات أخرى في نقطتين أو أكثر حتى يمكن قصه.'
+  },
+  extend: {
+    selectObject: 'حدد الطرف المراد تمديده (Enter للإنهاء)',
+    unsupported: 'يمكن تمديد الخطوط والأقواس والخطوط المتعددة المفتوحة فقط.',
+    closed: 'لا يمكن تمديد الأشكال المغلقة.',
+    noBoundary: 'لم يتم العثور على كائن للتمديد إليه.'
+  },
+  break: {
+    selectObject: 'انقر على الكائن عند النقطة الأولى للكسر',
+    unsupported: 'يمكن كسر الخطوط والأقواس والدوائر والخطوط المتعددة فقط.',
+    secondPoint: 'حدد نقطة الكسر الثانية أو',
+    firstPoint: 'حدد نقطة الكسر الأولى',
+    samePoint: 'حدد نقطتين مختلفتين (لا يمكن تقسيم الشكل المغلق عند نقطة واحدة).',
+    keywords: {
+      first: { display: 'النقطة الأولى(F)', global: 'First', local: 'النقطة الأولى' }
+    }
+  },
+  fillet: {
+    firstObject: 'حدد الخط الأول',
+    secondObject: 'حدد الخط الثاني',
+    current: '(نصف القطر = {radius})',
+    radius: 'حدد نصف قطر التقريب',
+    unsupported: 'حدد خطين، أو ضلعين مستقيمين متجاورين من خط متعدد واحد.',
+    sameObject: 'حدد خطين مختلفين.',
+    parallel: 'الخطان متوازيان.',
+    tooLarge: 'نصف القطر كبير جدًا بالنسبة لهذين الخطين.',
+    notAdjacent: 'حدد ضلعين متجاورين من الخط المتعدد.',
+    arcSegment: 'لا يمكن تقريب الأضلاع المنحنية للخط المتعدد.',
+    keywords: {
+      radius: { display: 'نصف القطر(R)', global: 'Radius', local: 'نصف القطر' }
+    }
+  },
+  chamfer: {
+    firstObject: 'حدد الخط الأول',
+    secondObject: 'حدد الخط الثاني',
+    current: '(المسافتان = {d1}، {d2})',
+    firstDistance: 'حدد مسافة الشطف على الخط الأول',
+    secondDistance: 'حدد مسافة الشطف على الخط الثاني',
+    unsupported: 'حدد خطين، أو ضلعين مستقيمين متجاورين من خط متعدد واحد.',
+    sameObject: 'حدد خطين مختلفين.',
+    parallel: 'الخطان متوازيان.',
+    tooLarge: 'المسافة كبيرة جدًا بالنسبة لهذين الخطين.',
+    notAdjacent: 'حدد ضلعين متجاورين من الخط المتعدد.',
+    arcSegment: 'لا يمكن شطف الأضلاع المنحنية للخط المتعدد.',
+    keywords: {
+      distance: { display: 'المسافة(D)', global: 'Distance', local: 'المسافة' }
+    }
+  },
+  mirror: {
+    firstPoint: 'حدد النقطة الأولى لخط الانعكاس',
+    secondPoint: 'حدد النقطة الثانية لخط الانعكاس',
+    samePoint: 'حدد نقطتين مختلفتين.',
+    eraseSource: 'هل تريد حذف الكائنات الأصلية؟',
+    keywords: {
+      yes: { display: 'نعم(Y)', global: 'Yes', local: 'نعم' },
+      no: { display: 'لا(N)', global: 'No', local: 'لا' }
+    }
+  },
+  scale: {
+    basePoint: 'حدد نقطة الأساس',
+    factorOrOptions: 'حدد عامل التحجيم أو',
+    referenceLength: 'حدد الطول المرجعي أو',
+    firstReferencePoint: 'حدد النقطة الأولى للطول المرجعي',
+    secondReferencePoint: 'حدد النقطة الثانية',
+    newLength: 'حدد الطول الجديد',
+    invalidFactor: 'يجب أن يكون عامل التحجيم أكبر من 0.',
+    keywords: {
+      copy: { display: 'نسخ(C)', global: 'Copy', local: 'نسخ' },
+      reference: { display: 'مرجع(R)', global: 'Reference', local: 'مرجع' },
+      points: { display: 'نقاط(P)', global: 'Points', local: 'نقاط' }
+    }
+  },
+  array: {
+    type: 'اختر نوع المصفوفة',
+    columns: 'أدخل عدد الأعمدة',
+    rows: 'أدخل عدد الصفوف',
+    columnSpacing: 'حدد المسافة بين الأعمدة (السالب = إلى اليسار)',
+    rowSpacing: 'حدد المسافة بين الصفوف (السالب = إلى الأسفل)',
+    center: 'حدد نقطة مركز المصفوفة',
+    items: 'أدخل عدد العناصر (بما فيها الأصل)',
+    fillAngle: 'حدد زاوية التوزيع (360 = دائرة كاملة)',
+    keywords: {
+      rectangular: { display: 'مستطيلة(R)', global: 'Rectangular', local: 'مستطيلة' },
+      polar: { display: 'دائرية(P)', global: 'Polar', local: 'دائرية' }
+    }
+  },
+  stretch: {
+    firstCorner: 'حدد الزاوية الأولى للنافذة حول النقاط المراد تحريكها',
+    secondCorner: 'حدد الزاوية المقابلة',
+    nothing: 'لا توجد كائنات قابلة للمط داخل النافذة.',
+    basePoint: 'حدد نقطة الأساس',
+    secondPoint: 'حدد النقطة الثانية'
+  },
   offset: {
     ...enJig.offset,
 

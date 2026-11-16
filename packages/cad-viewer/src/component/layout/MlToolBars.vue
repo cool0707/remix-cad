@@ -58,15 +58,21 @@ import { usePaletteToolbarAvoidance } from '../../composable/usePaletteToolbarAv
 // Raw markup: AcUiToolbar takes SVG strings. (Rendering Vue icon components
 // while it builds buttons would flush pending watchers and re-enter it.)
 import arcThreePointsSvg from '../../svg/arc/arcThreePoints.svg?raw'
+import arraySvg from '../../svg/array.svg?raw'
 import attachDwgSvg from '../../svg/attachDwg.svg?raw'
 import attachImageSvg from '../../svg/attachImage.svg?raw'
+import breakSvg from '../../svg/break.svg?raw'
+import chamferSvg from '../../svg/chamfer.svg?raw'
 import circleCenterRadiusSvg from '../../svg/circle/circleCenterRadius.svg?raw'
 import defineAttributeSvg from '../../svg/defineAttribute.svg?raw'
 import editAttributeSvg from '../../svg/editAttribute.svg?raw'
 import ellipseCenterSvg from '../../svg/ellipse/ellipseCenter.svg?raw'
+import extendSvg from '../../svg/extend.svg?raw'
+import filletSvg from '../../svg/fillet.svg?raw'
 import hatchSvg from '../../svg/hatch/hatch.svg?raw'
 import insertBlockSvg from '../../svg/insertBlock.svg?raw'
 import lineSvg from '../../svg/line.svg?raw'
+import mirrorSvg from '../../svg/mirror.svg?raw'
 import mlineSvg from '../../svg/mline.svg?raw'
 import moveSvg from '../../svg/move.svg?raw'
 import multiPointsSvg from '../../svg/multiPoints.svg?raw'
@@ -77,6 +83,8 @@ import raySvg from '../../svg/ray.svg?raw'
 import rectSvg from '../../svg/rect.svg?raw'
 import revFreeDrawSvg from '../../svg/revFreeDraw.svg?raw'
 import splineFitPointsSvg from '../../svg/spline/splineFitPoints.svg?raw'
+import stretchSvg from '../../svg/stretch.svg?raw'
+import trimSvg from '../../svg/trim.svg?raw'
 import xlineSvg from '../../svg/xline.svg?raw'
 
 const features = useSettings()
@@ -213,6 +221,14 @@ const rect = tinted(rectSvg)
 const revFreeDraw = tinted(revFreeDrawSvg)
 const splineFitPoints = tinted(splineFitPointsSvg)
 const xline = tinted(xlineSvg)
+const arrayIcon = tinted(arraySvg)
+const breakIcon = tinted(breakSvg)
+const chamferIcon = tinted(chamferSvg)
+const extendIcon = tinted(extendSvg)
+const filletIcon = tinted(filletSvg)
+const mirrorIcon = tinted(mirrorSvg)
+const stretchIcon = tinted(stretchSvg)
+const trimIcon = tinted(trimSvg)
 
 /** Element Plus glyph (1024 viewBox) as markup, matching the ribbon icons. */
 const epIcon = (d: string) =>
@@ -415,16 +431,64 @@ const buildItems = (): AcUiToolbarItem[] => {
           command: 'copy'
         },
         {
-          id: 'modify-erase',
-          label: 'main.ribbon.command.erase',
-          icon: ICON_DELETE,
-          command: 'erase'
+          id: 'modify-mirror',
+          label: 'main.ribbon.command.mirror',
+          icon: mirrorIcon,
+          command: 'mirror'
+        },
+        {
+          id: 'modify-array',
+          label: 'main.ribbon.command.array',
+          icon: arrayIcon,
+          command: 'array'
         },
         {
           id: 'modify-offset',
           label: 'main.ribbon.command.offset',
           icon: offset,
           command: 'offset'
+        },
+        {
+          id: 'modify-trim',
+          label: 'main.ribbon.command.trim',
+          icon: trimIcon,
+          command: 'trim'
+        },
+        {
+          id: 'modify-extend',
+          label: 'main.ribbon.command.extend',
+          icon: extendIcon,
+          command: 'extend'
+        },
+        {
+          id: 'modify-fillet',
+          label: 'main.ribbon.command.fillet',
+          icon: filletIcon,
+          command: 'fillet'
+        },
+        {
+          id: 'modify-chamfer',
+          label: 'main.ribbon.command.chamfer',
+          icon: chamferIcon,
+          command: 'chamfer'
+        },
+        {
+          id: 'modify-break',
+          label: 'main.ribbon.command.break',
+          icon: breakIcon,
+          command: 'break'
+        },
+        {
+          id: 'modify-stretch',
+          label: 'main.ribbon.command.stretch',
+          icon: stretchIcon,
+          command: 'stretch'
+        },
+        {
+          id: 'modify-erase',
+          label: 'main.ribbon.command.erase',
+          icon: ICON_DELETE,
+          command: 'erase'
         }
       ]
     },

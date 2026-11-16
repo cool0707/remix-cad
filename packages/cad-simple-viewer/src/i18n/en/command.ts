@@ -354,6 +354,36 @@ export default {
       description: 'Moves selected entities by a displacement vector',
       prompt: 'Select entities'
     },
+    scale: {
+      description: 'Enlarges or reduces the selected objects around a base point',
+      prompt: 'Select objects'
+    },
+    mirror: {
+      description: 'Creates a mirror image of the selected objects',
+      prompt: 'Select objects'
+    },
+    array: {
+      description: 'Copies the selected objects in rows and columns or around a center',
+      prompt: 'Select objects'
+    },
+    stretch: {
+      description: 'Moves the points inside a window and stretches the objects that cross it'
+    },
+    trim: {
+      description: 'Cuts off the part of an object up to where it meets other objects'
+    },
+    extend: {
+      description: 'Extends an object to meet another object'
+    },
+    fillet: {
+      description: 'Rounds the corner between two lines with an arc'
+    },
+    chamfer: {
+      description: 'Cuts the corner between two lines with a straight line'
+    },
+    break: {
+      description: 'Removes the part of an object between two points'
+    },
     offset: {
       description:
         'Creates parallel curves, polylines, or circles at a specified distance'
