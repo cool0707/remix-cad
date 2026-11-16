@@ -276,6 +276,15 @@ export default {
       arc: 'Eliptik Yay'
     },
     tooltip: {
+      scale: 'Seçili nesneleri bir temel nokta etrafında büyütür veya küçültür.',
+      mirror: 'Seçili nesnelerin ayna görüntüsünü oluşturur.',
+      array: 'Seçili nesneleri satır ve sütunlar halinde veya bir merkez etrafında kopyalar.',
+      stretch: 'Pencere içindeki noktaları taşır ve pencereyle kesişen nesneleri esnetir.',
+      trim: 'Bir nesnenin diğer nesnelerle kesiştiği yere kadar olan kısmını keser.',
+      extend: 'Bir nesneyi başka bir nesneye ulaşana kadar uzatır.',
+      fillet: 'İki çizgi arasındaki köşeyi bir yayla yuvarlar.',
+      chamfer: 'İki çizgi arasındaki köşeyi düz bir çizgiyle keser.',
+      break: 'Bir nesnenin iki nokta arasındaki kısmını siler.',
       line: 'Tek bir düz çizgi parçası çizin.',
       polyline:
         'Bağlı bir dizi çizgi veya yay parçasını tek bir nesne olarak çizin.',
@@ -389,6 +398,15 @@ export default {
       }
     },
     command: {
+      scale: 'Ölçekle',
+      mirror: 'Aynala',
+      array: 'Dizi',
+      stretch: 'Esnet',
+      trim: 'Kırp',
+      extend: 'Uzat',
+      fillet: 'Yuvarla',
+      chamfer: 'Pah kır',
+      break: 'Böl',
       line: 'Çizgi',
       polyline: 'Çoklu Çizgi',
       circle: 'Daire',

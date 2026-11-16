@@ -367,6 +367,36 @@ export default {
       description: 'Seçili varlıkları bir yer değiştirme vektörüne göre taşır',
       prompt: 'Varlıkları seçin'
     },
+    scale: {
+      description: 'Seçili nesneleri bir temel nokta etrafında büyütür veya küçültür',
+      prompt: 'Nesneleri seçin'
+    },
+    mirror: {
+      description: 'Seçili nesnelerin ayna görüntüsünü oluşturur',
+      prompt: 'Nesneleri seçin'
+    },
+    array: {
+      description: 'Seçili nesneleri satır ve sütunlar halinde veya bir merkez etrafında kopyalar',
+      prompt: 'Nesneleri seçin'
+    },
+    stretch: {
+      description: 'Pencere içindeki noktaları taşır ve pencereyle kesişen nesneleri esnetir'
+    },
+    trim: {
+      description: 'Bir nesnenin diğer nesnelerle kesiştiği yere kadar olan kısmını keser'
+    },
+    extend: {
+      description: 'Bir nesneyi başka bir nesneye ulaşana kadar uzatır'
+    },
+    fillet: {
+      description: 'İki çizgi arasındaki köşeyi bir yayla yuvarlar'
+    },
+    chamfer: {
+      description: 'İki çizgi arasındaki köşeyi düz bir çizgiyle keser'
+    },
+    break: {
+      description: 'Bir nesnenin iki nokta arasındaki kısmını siler'
+    },
     offset: {
       description:
         'Belirtilen bir mesafede paralel eğriler, çoklu çizgiler veya daireler oluşturur'

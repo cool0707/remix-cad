@@ -541,6 +541,106 @@ export default {
       }
     }
   },
+  curveEdit: {
+    nothingToUndo: '元に戻す操作はありません。'
+  },
+  trim: {
+    selectObject: '切り取る部分をクリック (Enter で終了)',
+    unsupported: 'トリムできるのは線・円弧・円・ポリラインです。',
+    needTwoCuts: '円や閉じた図形は、ほかの図形と 2 か所以上で交わっていないとトリムできません。'
+  },
+  extend: {
+    selectObject: '延長する端の近くをクリック (Enter で終了)',
+    unsupported: '延長できるのは線・円弧・開いたポリラインです。',
+    closed: '閉じた図形は延長できません。',
+    noBoundary: '延長した先にぶつかる図形がありません。'
+  },
+  break: {
+    selectObject: '部分削除する図形を、削除する範囲の 1 点目でクリック',
+    unsupported: '部分削除できるのは線・円弧・円・ポリラインです。',
+    secondPoint: '削除する範囲の 2 点目を指定 または',
+    firstPoint: '削除する範囲の 1 点目を指定',
+    samePoint: '違う 2 点を指定してください (円や閉じた図形は 1 点では分けられません)。',
+    keywords: {
+      first: { display: '1 点目(F)', global: 'First', local: '1 点目' }
+    }
+  },
+  fillet: {
+    firstObject: '1 本目の線を選択',
+    secondObject: '2 本目の線を選択',
+    current: '(半径 = {radius})',
+    radius: '丸みの半径を指定',
+    unsupported: '2 本の線、または 1 本のポリラインの隣り合う直線の辺を選んでください。',
+    sameObject: '違う 2 本の線を選んでください。',
+    parallel: '同じ直線上にある線はつなげません。',
+    tooLarge: '半径が大きすぎます。',
+    notAdjacent: 'ポリラインの隣り合う 2 辺を選んでください。',
+    arcSegment: 'ポリラインの曲線の辺には使えません。',
+    keywords: {
+      radius: { display: '半径(R)', global: 'Radius', local: '半径' }
+    }
+  },
+  chamfer: {
+    firstObject: '1 本目の線を選択',
+    secondObject: '2 本目の線を選択',
+    current: '(距離 = {d1}, {d2})',
+    firstDistance: '1 本目の線の面取り距離を指定',
+    secondDistance: '2 本目の線の面取り距離を指定',
+    unsupported: '2 本の線、または 1 本のポリラインの隣り合う直線の辺を選んでください。',
+    sameObject: '違う 2 本の線を選んでください。',
+    parallel: '2 本の線が平行です。',
+    tooLarge: '面取り距離が線より長すぎます。',
+    notAdjacent: 'ポリラインの隣り合う 2 辺を選んでください。',
+    arcSegment: 'ポリラインの曲線の辺には使えません。',
+    keywords: {
+      distance: { display: '距離(D)', global: 'Distance', local: '距離' }
+    }
+  },
+  mirror: {
+    firstPoint: '対称軸の 1 点目を指定',
+    secondPoint: '対称軸の 2 点目を指定',
+    samePoint: '違う 2 点を指定してください。',
+    eraseSource: '元の図形を削除しますか?',
+    keywords: {
+      yes: { display: 'はい(Y)', global: 'Yes', local: 'はい' },
+      no: { display: 'いいえ(N)', global: 'No', local: 'いいえ' }
+    }
+  },
+  scale: {
+    basePoint: '基点を指定',
+    factorOrOptions: '倍率を指定 または',
+    referenceLength: '参照する長さを指定 または',
+    firstReferencePoint: '参照する長さの 1 点目を指定',
+    secondReferencePoint: '2 点目を指定',
+    newLength: '新しい長さを指定',
+    invalidFactor: '倍率は 0 より大きい値にしてください。',
+    keywords: {
+      copy: { display: '複写(C)', global: 'Copy', local: '複写' },
+      reference: { display: '参照(R)', global: 'Reference', local: '参照' },
+      points: { display: '点(P)', global: 'Points', local: '点' }
+    }
+  },
+  array: {
+    type: '並べ方を選択',
+    columns: '列の数 (横に並べる数) を入力',
+    rows: '行の数 (縦に並べる数) を入力',
+    columnSpacing: '列の間隔を指定 (マイナスで左へ)',
+    rowSpacing: '行の間隔を指定 (マイナスで下へ)',
+    center: '円形に並べる中心点を指定',
+    items: '個数 (元の図形を含む) を入力',
+    fillAngle: '並べる角度を指定 (360 で一周)',
+    keywords: {
+      rectangular: { display: '格子状(R)', global: 'Rectangular', local: '格子状' },
+      polar: { display: '円形(P)', global: 'Polar', local: '円形' }
+    }
+  },
+  stretch: {
+    firstCorner: '動かす点を囲む範囲の 1 つ目のコーナーを指定',
+    secondCorner: 'もう一方のコーナーを指定',
+    nothing: '範囲内にストレッチできる図形がありません。',
+    basePoint: '基点を指定',
+    secondPoint: '移動先の点を指定'
+  },
   offset: {
     distance: 'オフセット距離を指定',
     selectObject: 'オフセットするオブジェクトを選択 (Enter で終了)',
@@ -658,7 +758,7 @@ export default {
     otherCornerWithOptions: 'もう一方のコーナーを指定 または',
     chamferFirst: '1 本目の面取り距離を指定',
     chamferSecond: '2 本目の面取り距離を指定',
-    filletRadius: 'フィレットの半径を指定',
+    filletRadius: '角の丸みの半径を指定',
     segmentWidth: '長方形の線の幅を指定',
     elevationValue: '高度を指定',
     thicknessValue: '厚さを指定',
@@ -677,8 +777,8 @@ export default {
       chamfer: { display: '面取り(C)', local: '面取り', global: 'Chamfer' },
       elevation: { display: '高度(E)', local: '高度', global: 'Elevation' },
       fillet: {
-        display: 'フィレット(F)',
-        local: 'フィレット',
+        display: '角を丸める(F)',
+        local: '角を丸める',
         global: 'Fillet'
       },
       thickness: { display: '厚さ(T)', local: '厚さ', global: 'Thickness' },

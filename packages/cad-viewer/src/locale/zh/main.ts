@@ -272,6 +272,15 @@ export default {
       arc: '椭圆弧'
     },
     tooltip: {
+      scale: '以基点为中心放大或缩小选定对象。',
+      mirror: '创建选定对象的镜像。',
+      array: '将选定对象按行列或绕中心复制。',
+      stretch: '移动窗口内的点并拉伸与窗口相交的对象。',
+      trim: '修剪对象到与其他对象相交处。',
+      extend: '将对象延伸到与其他对象相交。',
+      fillet: '用圆弧连接两条线的角。',
+      chamfer: '用直线切去两条线的角。',
+      break: '删除对象上两点之间的部分。',
       line: '绘制单段直线。',
       polyline: '以一个对象绘制由直线或圆弧组成的连续线段。',
       spline: '通过拟合点或控制点绘制平滑样条曲线。',
@@ -351,6 +360,15 @@ export default {
       }
     },
     command: {
+      scale: '缩放',
+      mirror: '镜像',
+      array: '阵列',
+      stretch: '拉伸',
+      trim: '修剪',
+      extend: '延伸',
+      fillet: '圆角',
+      chamfer: '倒角',
+      break: '打断',
       line: '直线',
       polyline: '多段线',
       circle: '圆',

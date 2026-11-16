@@ -127,6 +127,22 @@ export class AcEdBatchedPreview {
   }
 
   /**
+   * Sets the world transform of each copy overlay (`matrices[i]` for copy
+   * `i`). Missing matrices leave the copy where it is. No-op when
+   * {@link useBatchPreview} is `false`.
+   *
+   * @param view - View that owns the preview overlays
+   * @param matrices - One transform per copy
+   */
+  updateMatrices(view: AcEdBaseView, matrices: AcGeMatrix3d[]): void {
+    if (!this.useBatchPreview) return
+    this._handleIds.forEach((handleId, index) => {
+      const matrix = matrices[index]
+      if (matrix) view.updateEntityPreview(handleId, matrix)
+    })
+  }
+
+  /**
    * Removes every batched preview overlay and clears internal handles.
    *
    * Safe to call multiple times. After disposal, update methods are no-ops.

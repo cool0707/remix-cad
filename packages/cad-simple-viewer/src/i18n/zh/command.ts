@@ -324,6 +324,36 @@ export default {
       description: '通过位移向量移动所选图元',
       prompt: '选择对象'
     },
+    scale: {
+      description: '以基点为中心放大或缩小选定对象',
+      prompt: '选择对象'
+    },
+    mirror: {
+      description: '创建选定对象的镜像',
+      prompt: '选择对象'
+    },
+    array: {
+      description: '将选定对象按行列或绕中心复制',
+      prompt: '选择对象'
+    },
+    stretch: {
+      description: '移动窗口内的点并拉伸与窗口相交的对象'
+    },
+    trim: {
+      description: '修剪对象到与其他对象相交处'
+    },
+    extend: {
+      description: '将对象延伸到与其他对象相交'
+    },
+    fillet: {
+      description: '用圆弧连接两条线的角'
+    },
+    chamfer: {
+      description: '用直线切去两条线的角'
+    },
+    break: {
+      description: '删除对象上两点之间的部分'
+    },
     offset: {
       description: '按指定距离创建平行曲线、多段线或圆'
     },

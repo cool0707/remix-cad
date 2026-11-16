@@ -356,6 +356,36 @@ export default {
       description: 'Posune vybrané objekty o vektor přemístění',
       prompt: 'Vyberte objekty'
     },
+    scale: {
+      description: 'Zvětší nebo zmenší vybrané objekty kolem základního bodu',
+      prompt: 'Vyberte objekty'
+    },
+    mirror: {
+      description: 'Vytvoří zrcadlový obraz vybraných objektů',
+      prompt: 'Vyberte objekty'
+    },
+    array: {
+      description: 'Zkopíruje vybrané objekty do řádků a sloupců nebo kolem středu',
+      prompt: 'Vyberte objekty'
+    },
+    stretch: {
+      description: 'Posune body uvnitř okna a protáhne objekty, které jej protínají'
+    },
+    trim: {
+      description: 'Odřízne část objektu po místa, kde protíná jiné objekty'
+    },
+    extend: {
+      description: 'Prodlouží objekt k jinému objektu'
+    },
+    fillet: {
+      description: 'Zaoblí roh mezi dvěma úsečkami obloukem'
+    },
+    chamfer: {
+      description: 'Zkosí roh mezi dvěma úsečkami'
+    },
+    break: {
+      description: 'Odstraní část objektu mezi dvěma body'
+    },
     offset: {
       description:
         'Vytvoří rovnoběžné kopie křivek, lomených čar nebo kružnic v zadané vzdálenosti'

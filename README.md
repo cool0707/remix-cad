@@ -54,6 +54,9 @@ drawings never leave the user's device.
   (alignment guides). Arrow keys nudge the selection by a round step of about one screen pixel (Shift: ×10). Double-click an object
   to edit its vertices with the CAD grips. Snapping is one on/off button in the status bar; the snap modes are in Settings.
   Objects you can select light up in the theme color under the cursor (both profiles); over a selected object the cursor shows that it can be dragged.
+- **Modify tools** — Mirror, Array (rectangular / polar), Trim, Extend, Fillet, Chamfer, Break, Stretch and Scale.
+  Trim and Extend work in "quick" mode (every other object is a boundary) and each pick can be undone on its own.
+  They sit in the ribbon's Modify group (CAD) and in the left toolbar's Modify flyout (Simple; move / rotate / scale are also done on the selection frame).
 - **Right-click menu** — right-click the drawing for a menu of what can be done right now (Simple and CAD).
   With a selection: cut, copy, paste, duplicate, delete, select the same layer, show properties; without one: repeat the last command,
   create (line, polyline, rectangle, circle…), symbol, comment (text, cloud…), paste, select all, zoom to fit, undo / redo.

@@ -769,6 +769,106 @@ export default {
       }
     }
   },
+  curveEdit: {
+    nothingToUndo: '没有可撤销的操作。'
+  },
+  trim: {
+    selectObject: '选择要修剪的部分 (按 Enter 结束)',
+    unsupported: '只能修剪直线、圆弧、圆和多段线。',
+    needTwoCuts: '闭合图形需要与其他对象有两个以上交点才能修剪。'
+  },
+  extend: {
+    selectObject: '选择要延伸的端点附近 (按 Enter 结束)',
+    unsupported: '只能延伸直线、圆弧和开放的多段线。',
+    closed: '闭合图形无法延伸。',
+    noBoundary: '找不到可延伸到的对象。'
+  },
+  break: {
+    selectObject: '在要打断的第一点处选择对象',
+    unsupported: '只能打断直线、圆弧、圆和多段线。',
+    secondPoint: '指定第二个打断点 或',
+    firstPoint: '指定第一个打断点',
+    samePoint: '请指定两个不同的点 (闭合图形无法在一点处打断)。',
+    keywords: {
+      first: { display: '第一点(F)', global: 'First', local: '第一点' }
+    }
+  },
+  fillet: {
+    firstObject: '选择第一条线',
+    secondObject: '选择第二条线',
+    current: '(半径 = {radius})',
+    radius: '指定圆角半径',
+    unsupported: '请选择两条直线，或同一多段线上相邻的两条直线边。',
+    sameObject: '请选择两条不同的线。',
+    parallel: '同一直线上的线无法连接。',
+    tooLarge: '半径过大。',
+    notAdjacent: '请选择多段线上相邻的两条边。',
+    arcSegment: '多段线的圆弧边不能倒圆角。',
+    keywords: {
+      radius: { display: '半径(R)', global: 'Radius', local: '半径' }
+    }
+  },
+  chamfer: {
+    firstObject: '选择第一条线',
+    secondObject: '选择第二条线',
+    current: '(距离 = {d1}, {d2})',
+    firstDistance: '指定第一条线的倒角距离',
+    secondDistance: '指定第二条线的倒角距离',
+    unsupported: '请选择两条直线，或同一多段线上相邻的两条直线边。',
+    sameObject: '请选择两条不同的线。',
+    parallel: '两条线平行。',
+    tooLarge: '倒角距离过大。',
+    notAdjacent: '请选择多段线上相邻的两条边。',
+    arcSegment: '多段线的圆弧边不能倒角。',
+    keywords: {
+      distance: { display: '距离(D)', global: 'Distance', local: '距离' }
+    }
+  },
+  mirror: {
+    firstPoint: '指定镜像线的第一点',
+    secondPoint: '指定镜像线的第二点',
+    samePoint: '请指定两个不同的点。',
+    eraseSource: '是否删除源对象?',
+    keywords: {
+      yes: { display: '是(Y)', global: 'Yes', local: '是' },
+      no: { display: '否(N)', global: 'No', local: '否' }
+    }
+  },
+  scale: {
+    basePoint: '指定基点',
+    factorOrOptions: '指定比例因子 或',
+    referenceLength: '指定参照长度 或',
+    firstReferencePoint: '指定参照长度的第一点',
+    secondReferencePoint: '指定第二点',
+    newLength: '指定新长度',
+    invalidFactor: '比例因子必须大于 0。',
+    keywords: {
+      copy: { display: '复制(C)', global: 'Copy', local: '复制' },
+      reference: { display: '参照(R)', global: 'Reference', local: '参照' },
+      points: { display: '点(P)', global: 'Points', local: '点' }
+    }
+  },
+  array: {
+    type: '选择阵列类型',
+    columns: '输入列数',
+    rows: '输入行数',
+    columnSpacing: '指定列间距 (负值向左)',
+    rowSpacing: '指定行间距 (负值向下)',
+    center: '指定阵列的中心点',
+    items: '输入项目数 (含原对象)',
+    fillAngle: '指定填充角度 (360 为整圆)',
+    keywords: {
+      rectangular: { display: '矩形(R)', global: 'Rectangular', local: '矩形' },
+      polar: { display: '环形(P)', global: 'Polar', local: '环形' }
+    }
+  },
+  stretch: {
+    firstCorner: '指定框住要移动的点的窗口第一角点',
+    secondCorner: '指定对角点',
+    nothing: '窗口内没有可拉伸的对象。',
+    basePoint: '指定基点',
+    secondPoint: '指定第二点'
+  },
   offset: {
     distance: '指定偏移距离',
     selectObject: '选择要偏移的对象，或按 Enter 结束',

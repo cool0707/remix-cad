@@ -15,8 +15,11 @@ import { AcTrMTextRenderer } from '@mlightcad/three-renderer'
 import {
   AcApAboutCmd,
   AcApArcCmd,
+  AcApArrayCmd,
   acapBindMarkupSession,
+  AcApBreakCmd,
   AcApCacheFontCmd,
+  AcApChamferCmd,
   AcApCircleCmd,
   AcApCloseCmd,
   AcApConvertToBmpCmd,
@@ -31,6 +34,8 @@ import {
   AcApEraseCmd,
   AcApExplodeCmd,
   AcApExportDrawingCmd,
+  AcApExtendCmd,
+  AcApFilletCmd,
   AcApHatchCmd,
   AcApHideObjectsCmd,
   AcApHpGapTolCmd,
@@ -51,6 +56,7 @@ import {
   AcApLayoffCmd,
   AcApLineCmd,
   AcApLogCmd,
+  AcApMirrorCmd,
   AcApMLineCmd,
   AcApMoveCmd,
   AcApMTextCmd,
@@ -68,11 +74,14 @@ import {
   AcApRegenCmd,
   AcApRevCloudCmd,
   AcApRotateCmd,
+  AcApScaleCmd,
   AcApSelectCmd,
   AcApSketchCmd,
   AcApSplineCmd,
+  AcApStretchCmd,
   AcApSwitchBgCmd,
   AcApSysVarCmd,
+  AcApTrimCmd,
   AcApUndoCmd,
   AcApUnisolateObjectsCmd,
   AcApXAttachCmd,
@@ -195,6 +204,15 @@ const DEFAULT_COMMAND_ALIASES: Record<string, string[]> = {
   OFFSET: ['O'],
   COPY: ['CO'],
   ROTATE: ['RO'],
+  SCALE: ['SC'],
+  MIRROR: ['MI'],
+  ARRAY: ['AR'],
+  STRETCH: ['S'],
+  TRIM: ['TR'],
+  EXTEND: ['EX'],
+  FILLET: ['F'],
+  CHAMFER: ['CHA'],
+  BREAK: ['BR'],
   OPEN: ['OP'],
   PAN: ['P'],
   POINT: ['PO'],
@@ -2058,6 +2076,15 @@ export class AcApDocManager {
     addSystemCommand('move', 'move', new AcApMoveCmd())
     addSystemCommand('offset', 'offset', new AcApOffsetCmd())
     addSystemCommand('rotate', 'rotate', new AcApRotateCmd())
+    addSystemCommand('scale', 'scale', new AcApScaleCmd())
+    addSystemCommand('mirror', 'mirror', new AcApMirrorCmd())
+    addSystemCommand('array', 'array', new AcApArrayCmd())
+    addSystemCommand('stretch', 'stretch', new AcApStretchCmd())
+    addSystemCommand('trim', 'trim', new AcApTrimCmd())
+    addSystemCommand('extend', 'extend', new AcApExtendCmd())
+    addSystemCommand('fillet', 'fillet', new AcApFilletCmd())
+    addSystemCommand('chamfer', 'chamfer', new AcApChamferCmd())
+    addSystemCommand('break', 'break', new AcApBreakCmd())
     addSystemCommand('log', 'log', new AcApLogCmd())
     addSystemCommand('open', 'open', new AcApOpenCmd())
     addSystemCommand('pan', 'pan', new AcApPanCmd())
