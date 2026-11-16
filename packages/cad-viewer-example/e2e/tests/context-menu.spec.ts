@@ -112,81 +112,91 @@ async function clickAt(
 }
 
 /**
- * TEMPORARY (CI diagnosis): prints what the commands of the page do — start
- * / end, prompts and their results, messages, appended and erased entities —
- * to the test output.
+ * TEMPORARY (CI diagnosis): records what the commands of the page do into
+ * `window.__trace` — start / end, prompts, messages, appended and erased
+ * entities, who cancels or aborts — without printing while it happens (the
+ * failure only shows on a fast machine). {@link dumpTrace} prints it.
  */
 async function traceCommands(page: Page) {
+  page.on('pageerror', error => console.log(`[pageerror] ${error.message}`))
   page.on('console', message => {
-    const text = message.text()
-    if (text.startsWith('DBG') || message.type() === 'error') {
-      console.log(`[browser ${message.type()}] ${text}`)
+    if (message.type() === 'error') {
+      console.log(`[browser error] ${message.text()}`)
     }
   })
-  page.on('pageerror', error => console.log(`[pageerror] ${error.message}`))
   await page.evaluate(async url => {
     const mod = await import(/* @vite-ignore */ url)
     const docs = mod.AcApDocManager.instance
     const view = docs.curView
     const editor = view.editor
     const db = docs.curDocument.database
+    const trace: string[] = []
+    ;(window as unknown as { __trace: string[] }).__trace = trace
+    const start = performance.now()
+    const log = (...parts: unknown[]) =>
+      trace.push(`${(performance.now() - start).toFixed(1)} ${parts.join(' ')}`)
+    const where = () =>
+      String(new Error().stack)
+        .split('\n')
+        .slice(3, 9)
+        .map(line => line.trim().replace(/\?t=\d+/g, ''))
+        .join(' | ')
     const model = () =>
       [...db.tables.blockTable.modelSpace.newIterator()]
-        .map((entity: { type: string; layer: string }) => {
-          return `${entity.type}@${entity.layer}`
-        })
+        .map((entity: { type: string }) => entity.type)
         .join(',')
     const name = (args: { command: { globalName?: string } }) =>
       args.command.globalName
     editor.events.commandWillStart.addEventListener((args: never) =>
-      console.log('DBG start', name(args), 'model=' + model())
+      log('start', name(args), 'model=' + model())
     )
     editor.events.commandEnded.addEventListener((args: never) =>
-      console.log('DBG end', name(args), 'model=' + model())
+      log('end', name(args), 'model=' + model())
     )
     editor.events.promptStarted.addEventListener((args: { message: string }) =>
-      console.log('DBG prompt', JSON.stringify(args.message))
+      log('prompt', JSON.stringify(args.message))
     )
     editor.events.promptEnded.addEventListener((args: { status: unknown }) =>
-      console.log('DBG promptEnded', String(args.status))
+      log('promptEnded', String(args.status))
     )
-    for (const method of ['getPoint', 'getKeywords', 'getDistance']) {
-      const original = editor[method]?.bind(editor)
-      if (!original) continue
-      editor[method] = async (...args: unknown[]) => {
-        try {
-          const result = await original(...args)
-          console.log(
-            `DBG ${method}`,
-            String(result?.status),
-            JSON.stringify(result?.value),
-            String(result?.stringResult)
-          )
-          return result
-        } catch (error) {
-          console.log(`DBG ${method} threw`, String(error))
-          throw error
-        }
-      }
-    }
-    const showMessage = editor.showMessage.bind(editor)
-    editor.showMessage = (...args: unknown[]) => {
-      console.log('DBG message', JSON.stringify(args))
-      return showMessage(...args)
-    }
-    const send = docs.sendStringToExecute.bind(docs)
-    docs.sendStringToExecute = (command: string) => {
-      console.log('DBG send', JSON.stringify(command))
-      return send(command)
-    }
     db.events.entityAppended.addEventListener(() =>
-      console.log('DBG appended, model=' + model())
+      log('appended model=' + model())
     )
     db.events.entityErased.addEventListener(() =>
-      console.log('DBG erased, model=' + model())
+      log('erased model=' + model(), where())
     )
+    // Synchronous wrappers only: an async one would shift the timing.
+    const wrap = (owner: Record<string, unknown>, method: string) => {
+      const original = owner[method] as (...args: unknown[]) => unknown
+      if (typeof original !== 'function') return
+      owner[method] = function (this: unknown, ...args: unknown[]) {
+        log(
+          method,
+          JSON.stringify(
+            args.map(arg => (typeof arg === 'string' ? arg : typeof arg))
+          ),
+          where()
+        )
+        return original.apply(this, args)
+      }
+    }
+    wrap(docs, 'sendStringToExecute')
+    wrap(docs.commandManager, 'cancelActive')
+    wrap(editor, 'showMessage')
+    wrap(editor, 'cancelActiveInput')
+    wrap(db.transactionManager, 'abortTransaction')
+    wrap(db.transactionManager, 'undo')
+    wrap(db.tables.blockTable.modelSpace, 'removeEntity')
     const canvas = view.canvas as HTMLCanvasElement
-    for (const type of ['mousedown', 'mouseup', 'click', 'dblclick']) {
+    for (const type of [
+      'pointerdown',
+      'mousedown',
+      'mouseup',
+      'click',
+      'dblclick',
+      'contextmenu',
+      'keydown'
+    ]) {
       window.addEventListener(
         type,
         event => {
@@ -194,36 +204,48 @@ async function traceCommands(page: Page) {
           const target = mouse.target as HTMLElement
           const rect = canvas.getBoundingClientRect()
           const world = view.screenToWorld({
-            x: mouse.clientX - rect.left,
-            y: mouse.clientY - rect.top
+            x: (mouse.clientX ?? 0) - rect.left,
+            y: (mouse.clientY ?? 0) - rect.top
           })
-          console.log(
-            `DBG ${type}`,
+          log(
+            type,
             `button=${mouse.button}`,
-            `target=${target.tagName}.${String(target.className).slice(0, 40)}`,
-            `world=${world.x.toFixed(2)},${world.y.toFixed(2)}`
+            `key=${(event as KeyboardEvent).key}`,
+            `target=${target.tagName}.${String(target.className).slice(0, 30)}`,
+            `world=${world.x.toFixed(1)},${world.y.toFixed(1)}`,
+            `running=${view.toolManager.isCommandRunning}`,
+            `active=${editor.isActive}`
           )
         },
         true
       )
     }
-    console.log(
-      'DBG state',
+    log(
+      'state',
       JSON.stringify({
-        agent: navigator.userAgent,
         clayer: db.clayer,
-        layers: [...db.tables.layerTable.newIterator()].map(
-          (layer: { name: string }) => layer.name
-        ),
         profile: mod.AcApSettingManager.instance.operationProfile,
-        osnap: mod.AcApSettingManager.instance.osnapEnabled,
-        editing: view.symbolEdit.path,
+        continuous: mod.AcApSettingManager.instance.continuousDraw,
         canvas: [canvas.clientWidth, canvas.clientHeight],
         model: model()
       })
     )
   }, viewerModuleUrl!)
 }
+
+/** TEMPORARY (CI diagnosis): prints what {@link traceCommands} recorded. */
+async function dumpTrace(page: Page) {
+  const trace = await page
+    .evaluate(() => (window as unknown as { __trace?: string[] }).__trace)
+    .catch(() => undefined)
+  if (trace) console.log(`[trace]\n${trace.join('\n')}`)
+}
+
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status !== testInfo.expectedStatus || process.env.DUMP_TRACE) {
+    await dumpTrace(page)
+  }
+})
 
 const menu = (page: Page) => page.locator('.ml-context-menu').first()
 
