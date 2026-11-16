@@ -144,11 +144,13 @@ export default {
       md: '不足しているファイル',
       xref: 'リンク図面',
       countlist: '個数カウント',
+      sameshape: '同じ形を探す',
       attedit: 'シンボルのプロパティを編集',
       attdef: 'シンボルのプロパティを追加'
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      sameshape: '同一 類似 同じ図形 同じブロック コピー 分解 ブロック化 シンボル化 置き換え',
       scale: '拡大 縮小 倍率 スケール 大きさ',
       mirror: 'ミラー 反転 対称 左右反転',
       array: '配列複写 アレイ 並べる 繰り返し 等間隔',
@@ -249,6 +251,7 @@ export default {
     editSymbol: 'シンボルを編集',
     finishSymbol: 'シンボルの編集を終了',
     selectSameLayer: '同じレイヤーの図形を選択',
+    findSameShape: '同じ形を探す…',
     properties: 'プロパティを表示',
     selectAll: 'すべて選択',
     zoomExtents: '全体表示',

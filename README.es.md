@@ -79,6 +79,12 @@ del dispositivo del usuario.
   La sección de capas del panel lateral tiene las pestañas Capas y Grupos; la pestaña Grupos muestra los grupos como un árbol (grupo → grupos dentro → objetos).
   Un clic en una fila selecciona sus objetos, un doble clic hace zoom, y se puede renombrar, desagrupar (Ctrl+Shift+G), añadir la selección o sacar un objeto;
   desactive la selección por grupos para elegir objetos uno a uno. Los grupos se guardan como objetos GROUP de DXF / DWG y se leen con su nombre los creados en AutoCAD y otros CAD.
+- **Buscar la misma forma** — seleccione una forma (un símbolo o varios objetos) y clic derecho → Buscar la misma forma… (también con Ctrl+K):
+  el panel lista los demás lugares donde está dibujada la misma forma: el mismo símbolo colocado en otro sitio, **símbolos descompuestos y simples copias**
+  (una polilínea cuenta igual que las líneas que la forman). Puede elegir si cuentan las copias giradas, reflejadas o de otro tamaño.
+  Haga clic en una fila para seleccionarla y acercarse, Seleccionar todo para seleccionarlas todas, o Reemplazar por símbolo para volver a convertir
+  las copias sueltas en inserciones del símbolo (un solo paso de deshacer; si la forma aún no es un símbolo, se crea uno nuevo). Los valores de
+  las propiedades que un descomponer dejó como texto vuelven a las propiedades.
 - **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
   abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
   (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).

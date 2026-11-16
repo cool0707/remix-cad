@@ -183,6 +183,7 @@ test('selection: right-click selects the line; copy, paste at the click, duplica
     'erase',
     'group',
     'selectSameLayer',
+    'findSameShape',
     'properties'
   ])
 

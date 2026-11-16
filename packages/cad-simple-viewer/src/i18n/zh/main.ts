@@ -144,11 +144,13 @@ export default {
       md: '缺失的文件',
       xref: '链接图纸',
       countlist: '计数',
+      sameshape: '查找相同形状',
       attedit: '编辑符号特性',
       attdef: '添加符号特性'
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      sameshape: '相同 相似 同样的图形 复制 分解 块 转换为块 替换',
       scale: '比例 放大 缩小',
       mirror: '翻转 对称',
       array: '阵列复制 重复 排列',
@@ -206,6 +208,7 @@ export default {
     editSymbol: '编辑符号',
     finishSymbol: '结束符号编辑',
     selectSameLayer: '选择同一图层的对象',
+    findSameShape: '查找相同形状…',
     properties: '显示特性',
     selectAll: '全选',
     zoomExtents: '缩放到全部',

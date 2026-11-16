@@ -62,6 +62,7 @@ describe('acapBuildContextMenu', () => {
         'group',
         '-',
         'selectSameLayer',
+        'findSameShape',
         'properties'
       ])
       expect(find(entries, 'copy')?.shortcut).toBe('Ctrl+C')
@@ -85,6 +86,7 @@ describe('acapBuildContextMenu', () => {
         'group',
         '-',
         'selectSameLayer',
+        'findSameShape',
         'properties'
       ])
       const readOnly = acapBuildContextMenu(
@@ -118,6 +120,7 @@ describe('acapBuildContextMenu', () => {
         'group',
         '-',
         'selectSameLayer',
+        'findSameShape',
         'properties'
       ])
       const unavailable = acapBuildContextMenu(
@@ -162,8 +165,31 @@ describe('acapBuildContextMenu', () => {
         'copy',
         '-',
         'selectSameLayer',
+        'findSameShape',
         'properties'
       ])
+    })
+
+    it('finds the same shape, except inside a symbol', () => {
+      const entries = acapBuildContextMenu(
+        state({ hasSelection: true, hasEditableSelection: true })
+      )
+      expect(ids(entries)).toContain('findSameShape')
+      const inSymbol = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          hasEditableSelection: true,
+          editingSymbol: true
+        })
+      )
+      expect(ids(inSymbol)).not.toContain('findSameShape')
+      const unavailable = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          isAvailable: command => command !== 'sameshape'
+        })
+      )
+      expect(ids(unavailable)).not.toContain('findSameShape')
     })
 
     it('only copies in a read-only document', () => {

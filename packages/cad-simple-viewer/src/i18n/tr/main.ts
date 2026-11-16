@@ -144,11 +144,13 @@ export default {
       md: 'Eksik dosyalar',
       xref: 'Bağlı çizimler',
       countlist: 'Sayım',
+      sameshape: 'Aynı şekli bul',
       attedit: 'Sembol özelliklerini düzenle',
       attdef: 'Sembol özelliği ekle'
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      sameshape: 'benzer özdeş kopya patlatılmış blok bloğa dönüştür değiştir',
       scale: 'boyut büyüt küçült',
       mirror: 'ayna yansıt simetri',
       array: 'tekrarla ızgara',
@@ -196,6 +198,7 @@ export default {
     editSymbol: 'Sembolü düzenle',
     finishSymbol: 'Sembol düzenlemeyi bitir',
     selectSameLayer: 'Aynı katmandakileri seç',
+    findSameShape: 'Aynı şekli bul…',
     properties: 'Özellikleri göster',
     selectAll: 'Tümünü seç',
     zoomExtents: 'Tümünü göster',

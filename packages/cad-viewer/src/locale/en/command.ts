@@ -26,6 +26,10 @@ export default {
       description:
         'Opens the Count palette to display and manage counted symbols'
     },
+    sameshape: {
+      description:
+        'Finds where the selected shape is drawn again (the same symbol, copies, exploded symbols) to select them all or replace them with a symbol'
+    },
     mem: {
       description:
         'Opens the Memory profile palette to analyze drawing memory usage'

@@ -22,6 +22,10 @@ export default {
     countlist: {
       description: '打开计数面板以显示并管理符号计数'
     },
+    sameshape: {
+      description:
+        '查找与所选图形形状相同的位置 (相同符号、副本、已分解的符号)，可全部选择或替换为符号'
+    },
     mem: {
       description: '打开内存分析面板以排查图纸内存占用'
     },

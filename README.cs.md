@@ -78,6 +78,11 @@ takže výkresy nikdy neopustí zařízení uživatele.
   Oddíl hladin v bočním panelu má karty Hladiny a Skupiny; karta Skupiny zobrazuje skupiny jako strom (skupina → vnořené skupiny → objekty).
   Kliknutím na řádek vyberete jeho objekty, dvojklikem je přiblížíte; skupinu lze přejmenovat, zrušit (Ctrl+Shift+G), přidat do ní výběr nebo z ní objekt odebrat.
   Po vypnutí výběru skupin se objekty vybírají jednotlivě. Skupiny se ukládají jako objekty GROUP v DXF / DWG a skupiny z AutoCADu a jiných CAD se načtou i s názvy.
+- **Najít stejný tvar** — vyberte tvar (symbol nebo více objektů) a pravým tlačítkem → Najít stejný tvar… (také přes Ctrl+K):
+  panel vypíše všechna další místa, kde je stejný tvar nakreslen: stejný symbol vložený jinde, **rozložené symboly i obyčejné kopie**
+  (křivka se počítá stejně jako čáry, ze kterých se skládá). Lze zvolit, zda se počítají otočené, zrcadlené a jinak velké kopie.
+  Kliknutím na řádek se místo vybere a přiblíží, Vybrat vše vybere všechna, Nahradit symbolem změní volné kopie zpět na vložení symbolu
+  (jeden krok zpět; pokud tvar ještě není symbol, vytvoří se nový). Hodnoty vlastností, které rozložení zanechalo jako text, se vrátí do vlastností.
 - **Tisková oblast** — tlačítko ve stavovém řádku vedle „Zobrazit tloušťky čar“ zašedí plátno mimo papír, na který se výkres tiskne / exportuje
   (meze výkresu, jinak A3 ve standardním měřítku), jako artboard v Illustratoru, a označí ho (např. `A3 1:100`).
 - **Měřítko zobrazení** — stavový řádek ukazuje zobrazení jako měřítko výkresu (`1/100` = 1 mm na obrazovce ukazuje 100 mm výkresu,

@@ -121,7 +121,7 @@ function ctrl(key: string, mac?: boolean, shift = false) {
  * - While a command waits for input: Enter / undo the last pick / cancel.
  * - With a selection: clipboard, duplicate, delete, explode (symbols),
  *   group / ungroup,
- *   select the same layer, properties.
+ *   select the same layer, find the same shape, properties.
  * - Without one: repeat, create, symbol, comment, paste, select all, zoom
  *   extents, undo / redo.
  *
@@ -179,6 +179,9 @@ export function acapBuildContextMenu(
         item('ungroup', ctrl('G', isMac, true)),
       'separator',
       item('selectSameLayer'),
+      !state.editingSymbol &&
+        state.isAvailable('sameshape') &&
+        item('findSameShape'),
       state.isAvailable('properties') && item('properties')
     )
     return tidy(entries)

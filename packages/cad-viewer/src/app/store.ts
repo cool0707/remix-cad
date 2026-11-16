@@ -23,6 +23,8 @@ export const store = reactive({
     openFileProfileTabVisible: false,
     /** Bumped by the FIND command so the Find palette focuses its query field. */
     findFocusTick: 0,
+    /** Incremented to make the Same shape panel search with the selection */
+    sameShapeTick: 0,
     /**
      * Query the Find palette searches for when it shows next (set by the
      * command palette's "all results" line). Cleared once used.

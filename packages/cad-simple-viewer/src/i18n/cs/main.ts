@@ -144,11 +144,13 @@ export default {
       md: 'Chybějící soubory',
       xref: 'Propojené výkresy',
       countlist: 'Počítání',
+      sameshape: 'Najít stejný tvar',
       attedit: 'Upravit vlastnosti symbolu',
       attdef: 'Přidat vlastnost symbolu'
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      sameshape: 'podobné shodné kopie rozložený blok převést na blok nahradit',
       scale: 'zvětšit zmenšit',
       mirror: 'převrátit symetrie',
       array: 'opakovat mřížka',
@@ -196,6 +198,7 @@ export default {
     editSymbol: 'Upravit symbol',
     finishSymbol: 'Ukončit úpravy symbolu',
     selectSameLayer: 'Vybrat stejnou hladinu',
+    findSameShape: 'Najít stejný tvar…',
     properties: 'Zobrazit vlastnosti',
     selectAll: 'Vybrat vše',
     zoomExtents: 'Zobrazit vše',
