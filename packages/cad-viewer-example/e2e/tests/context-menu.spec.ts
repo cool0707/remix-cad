@@ -40,14 +40,10 @@ async function loadFixture(page: Page, file = fixturePath) {
   })
   // TEMPORARY (CI diagnosis): before the wait below, so that the steps of
   // the tests keep the timing they have without it.
-  // First attempt: nothing is installed. Retries: the recorder.
-  if (test.info().retry > 0) {
-    await page.waitForTimeout(300)
-    await traceCommands(page, test.info().retry > 1)
-    await page.waitForTimeout(2200)
-  } else {
-    await page.waitForTimeout(2500)
-  }
+  // The failure follows the machine, not the recorder: record always.
+  await page.waitForTimeout(300)
+  await traceCommands(page, true)
+  await page.waitForTimeout(2200)
   await expect
     .poll(() =>
       page.evaluate(async url => {
@@ -221,6 +217,9 @@ async function traceCommands(page: Page, full: boolean) {
           log(
             type,
             `button=${mouse.button}`,
+            `detail=${mouse.detail}`,
+            `trusted=${event.isTrusted}`,
+            `pointer=${(event as PointerEvent).pointerType ?? '-'}`,
             `key=${(event as KeyboardEvent).key}`,
             `target=${target.tagName}.${String(target.className).slice(0, 30)}`,
             `world=${world.x.toFixed(1)},${world.y.toFixed(1)}`,
@@ -342,6 +341,7 @@ async function dumpState(page: Page) {
           ),
           canvas: `${Math.round(rect.left)},${Math.round(rect.top)} ${Math.round(rect.width)}x${Math.round(rect.height)}`,
           window: `${window.innerWidth}x${window.innerHeight} dpr=${window.devicePixelRatio}`,
+          agent: `${navigator.userAgent} cores=${navigator.hardwareConcurrency}`,
           under: points.map(point => {
             const s = view.worldToScreen(point)
             const x = rect.left + s.x
