@@ -85,6 +85,12 @@
               <ml-find-palette />
             </div>
             <div
+              v-else-if="topTab === 'sameShape'"
+              class="ml-same-shape-palette-wrapper"
+            >
+              <ml-same-shape-palette />
+            </div>
+            <div
               v-else-if="topTab === 'designReview'"
               class="ml-design-review-wrapper"
             >
@@ -299,6 +305,7 @@ import MlMeasurementPalette from './MlMeasurementPalette.vue'
 import MlMemoryProfile from './MlMemoryProfile.vue'
 import MlMissingResources from './MlMissingResources.vue'
 import MlOpenFileProfile from './MlOpenFileProfile.vue'
+import MlSameShapePalette from './MlSameShapePalette.vue'
 
 const loadAgentPlugin = () =>
   Promise.all([
@@ -494,6 +501,7 @@ const isSectionTab = (name: string): name is SectionTab =>
  */
 const TASK_TABS = [
   'find',
+  'sameShape',
   'countList',
   'measurements',
   'designReview',
@@ -959,7 +967,8 @@ onBeforeUnmount(() => eventBus.off('focus-symbol-property', focusSymbolProperty)
   flex-direction: column;
 }
 
-.ml-find-palette-wrapper {
+.ml-find-palette-wrapper,
+.ml-same-shape-palette-wrapper {
   overflow: hidden;
   width: 100%;
   height: 100%;

@@ -75,6 +75,12 @@ drawings never leave the user's device.
   The layers section of the side panel has Layers and Groups tabs; the Groups tab shows the groups as a tree (group → groups inside it → objects).
   Click a row to select its objects, double-click to zoom to them, and rename, ungroup (Ctrl+Shift+G), add the selection or take an object out;
   turn off group selection to pick objects one by one. Groups are saved as DXF / DWG GROUP objects, and groups made in AutoCAD and other CAD programs are read with their names.
+- **Find same shape** — select a shape (a symbol, or several objects) and right-click → Find same shape… (also in Ctrl+K):
+  the panel lists every other place the same shape is drawn — the same symbol placed elsewhere, symbols that were exploded
+  and plain copies (a polyline counts the same as the lines it is made of). Choose whether turned, mirrored and larger / smaller
+  copies count. Click a row to select and zoom to it, Select all to select them all, or Replace with symbol to turn the loose
+  copies back into placements of the symbol (one undo step; a new symbol is made when the shape is not one yet). Values of
+  symbol properties left as text by an explode go back into the properties.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).

@@ -144,11 +144,13 @@ export default {
       md: 'ملفات مفقودة',
       xref: 'رسومات مرتبطة',
       countlist: 'العدّ',
+      sameshape: 'البحث عن الشكل نفسه',
       attedit: 'تحرير خصائص الرمز',
       attdef: 'إضافة خاصية رمز'
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      sameshape: 'مماثل متطابق نسخ مفكك كتلة تحويل إلى كتلة استبدال',
       scale: 'تكبير تصغير حجم',
       mirror: 'قلب تناظر مرآة',
       array: 'تكرار شبكة',
@@ -195,6 +197,7 @@ export default {
     editSymbol: 'تحرير الرمز',
     finishSymbol: 'إنهاء تحرير الرمز',
     selectSameLayer: 'تحديد نفس الطبقة',
+    findSameShape: 'البحث عن الشكل نفسه…',
     properties: 'إظهار الخصائص',
     selectAll: 'تحديد الكل',
     zoomExtents: 'ملاءمة العرض',

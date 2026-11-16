@@ -12,6 +12,13 @@ import type { AcEdBaseView } from '../editor/view/AcEdBaseView'
 import { AcEdOpenMode } from '../editor/view/AcEdOpenMode'
 import { isEntityOnLockedLayer } from '../service/AcApLockedLayer'
 import { AcApDocManager } from './AcApDocManager'
+import {
+  acapFindSameShape,
+  acapReplaceSameShapesWithSymbol,
+  type AcApSameShapeResult,
+  type AcApSameShapeSymbolResult
+} from './AcApSameShape'
+import type { AcApShapeMatchOptions } from './AcApShapeMatch'
 
 /** A world XY box. */
 interface AcApXYBox {
@@ -181,6 +188,69 @@ export class AcApEditActions {
     return this.replaceSelection(
       this.shownIds(entity => layers.has(entity.layer))
     )
+  }
+
+  /**
+   * Finds where the shape of the given entities (the selection by default)
+   * is drawn again in the space shown in the view: the same symbol placed
+   * elsewhere, copies, exploded symbols. Only entities that are drawn (and,
+   * unless the view allows them, not on locked layers) are found.
+   *
+   * @param options - Differences that still count as the same shape.
+   * @param patternIds - Entities of the shape; the selection when omitted.
+   */
+  findSameShape(
+    options: AcApShapeMatchOptions,
+    patternIds?: AcDbObjectId[]
+  ): AcApSameShapeResult | undefined {
+    const db = AcApDocManager.instance?.curDocument?.database
+    const spaceId = this.options.activeSpaceId()
+    if (!db || !spaceId) return undefined
+    const ids =
+      patternIds ?? this.selectedEntities(false).map(entity => entity.objectId)
+    const allowLocked = this.view.allowSelectOnLockedLayer
+    return acapFindSameShape(db, spaceId, ids, options, entity => {
+      if (!this.options.isShown(entity.objectId)) return false
+      return allowLocked || !isEntityOnLockedLayer(db, entity)
+    })
+  }
+
+  /**
+   * Replaces the loose copies found by {@link findSameShape} (and the shape
+   * itself when it is not a symbol) with symbols, in one undo step. The new
+   * symbols become the selection.
+   *
+   * @param result - What {@link findSameShape} found (still current).
+   * @param newBlockName - Name of the symbol to make when the shape is not a
+   *   symbol yet.
+   */
+  replaceSameShapesWithSymbol(
+    result: AcApSameShapeResult,
+    newBlockName: string
+  ): AcApSameShapeSymbolResult | undefined {
+    if (!this.canEdit) return undefined
+    const doc = AcApDocManager.instance.curDocument
+    if (doc.database !== result.db) return undefined
+    const db = result.db
+    const replaced = doc.entityService.runEdit('SameShapeSymbol', () =>
+      acapReplaceSameShapesWithSymbol(result, {
+        newBlockName,
+        isLocked: entity => isEntityOnLockedLayer(db, entity)
+      })
+    )
+    if (replaced?.inserts.length) {
+      this.replaceSelection(replaced.inserts.map(insert => insert.objectId))
+    }
+    return replaced
+  }
+
+  /**
+   * Selects the given entities (replacing the selection).
+   *
+   * @returns Number of selected entities.
+   */
+  select(ids: AcDbObjectId[]): number {
+    return this.replaceSelection([...new Set(ids)])
   }
 
   private keep(entities: AcDbEntity[]): boolean {

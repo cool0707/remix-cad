@@ -144,11 +144,13 @@ export default {
       md: 'Missing files',
       xref: 'Linked drawings',
       countlist: 'Count',
+      sameshape: 'Find same shape',
       attedit: 'Edit symbol properties',
       attdef: 'Add a symbol property'
     },
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
+      sameshape: 'similar identical copies duplicates exploded block find blocks convert to block',
       scale: 'resize enlarge reduce zoom factor',
       mirror: 'flip reflect symmetric',
       array: 'repeat grid pattern polar rectangular',
@@ -215,6 +217,7 @@ export default {
     editSymbol: 'Edit symbol',
     finishSymbol: 'Finish editing symbol',
     selectSameLayer: 'Select same layer',
+    findSameShape: 'Find same shape…',
     properties: 'Show properties',
     selectAll: 'Select all',
     zoomExtents: 'Zoom to fit',

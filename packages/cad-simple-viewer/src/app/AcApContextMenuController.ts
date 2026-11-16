@@ -274,6 +274,9 @@ export class AcApContextMenuController {
       case 'selectSameLayer':
         actions.selectSameLayer()
         break
+      case 'findSameShape':
+        docManager.sendStringToExecute('sameshape')
+        break
       case 'properties':
         docManager.sendStringToExecute('properties')
         break

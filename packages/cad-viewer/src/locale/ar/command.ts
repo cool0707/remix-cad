@@ -46,6 +46,11 @@ export default {
       description:
         'فتح لوحة العد لعرض الرموز التي تم عدها وإدارتها'
     },
+    sameshape: {
+      ...enCommand.ACAD.sameshape,
+      description:
+        'يبحث عن الأماكن التي رُسم فيها الشكل المحدد مجددًا (الرمز نفسه، النسخ، الرموز المفككة) لتحديدها كلها أو استبدالها برمز'
+    },
 
     mem: {
       ...enCommand.ACAD.mem,

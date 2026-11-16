@@ -31,6 +31,7 @@ import {
   AcApPointStyleCmd,
   AcApPropertiesCmd,
   AcApQSelectCmd,
+  AcApSameShapeCmd,
   AcApSettingsCmd,
   AcApTextStyleCmd,
   AcApXrefCmd,
@@ -152,6 +153,13 @@ export const registerCmds = () => {
       'countlist',
       'countlist',
       new AcApCountListCmd()
+    )
+    register.addCommand(
+      AcEdCommandStack.SYSTEMT_COMMAND_GROUP_NAME,
+      'sameshape',
+      'sameshape',
+      new AcApSameShapeCmd(),
+      'similar'
     )
     register.addCommand(
       AcEdCommandStack.SYSTEMT_COMMAND_GROUP_NAME,

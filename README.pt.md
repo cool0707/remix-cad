@@ -78,6 +78,12 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   A seção de camadas do painel lateral tem as abas Camadas e Grupos; a aba Grupos mostra os grupos como uma árvore (grupo → grupos dentro dele → objetos).
   Clique numa linha para selecionar seus objetos, clique duplo para dar zoom, e renomeie, desagrupe (Ctrl+Shift+G), adicione a seleção ou retire um objeto;
   desligue a seleção por grupo para escolher objetos um a um. Os grupos são salvos como objetos GROUP do DXF / DWG, e grupos feitos no AutoCAD e outros CAD são lidos com o nome.
+- **Encontrar a mesma forma** — selecione uma forma (um símbolo ou vários objetos) e clique com o botão direito → Encontrar a mesma forma… (também no Ctrl+K):
+  o painel lista os outros lugares onde a mesma forma está desenhada: o mesmo símbolo colocado em outro lugar, **símbolos explodidos e simples cópias**
+  (uma polilinha conta como as linhas que a formam). Escolha se cópias giradas, espelhadas ou de outro tamanho contam.
+  Clique numa linha para selecioná-la e aproximar, Selecionar tudo para selecionar todas, ou Substituir por símbolo para transformar as cópias soltas
+  de novo em inserções do símbolo (um único passo de desfazer; se a forma ainda não é um símbolo, um novo é criado). Os valores das propriedades
+  que uma explosão deixou como texto voltam para as propriedades.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).

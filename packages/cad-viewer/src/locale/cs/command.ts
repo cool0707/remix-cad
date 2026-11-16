@@ -25,6 +25,10 @@ export default {
       description:
         'Otevře paletu Počet pro zobrazení a správu počítaných symbolů'
     },
+    sameshape: {
+      description:
+        'Najde místa, kde je vybraný tvar nakreslen znovu (stejný symbol, kopie, rozložené symboly), a umožní je vybrat nebo nahradit symbolem'
+    },
     mem: {
       description:
         'Otevře paletu Profil paměti pro analýzu využití paměti výkresem'

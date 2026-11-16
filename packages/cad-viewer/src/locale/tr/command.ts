@@ -26,6 +26,10 @@ export default {
       description:
         'Sayılan sembolleri görüntülemek ve yönetmek için Sayım paletini açar'
     },
+    sameshape: {
+      description:
+        'Seçili şeklin yeniden çizildiği yerleri (aynı sembol, kopyalar, patlatılmış semboller) bulur; hepsini seçebilir veya sembolle değiştirebilirsiniz'
+    },
     mem: {
       description:
         'Çizim bellek kullanımını analiz etmek için Bellek profili paletini açar'
