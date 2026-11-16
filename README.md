@@ -30,7 +30,7 @@ drawings never leave the user's device.
   (or the active language) instead of the template's Chinese names.
 - **Print page tabs like desktop CAD** — the **+** button next to the tabs adds a print page; right-click
   (or long-press) a tab to rename (also double-click), set up the page (paper A0–A4, portrait / landscape),
-  copy or delete it; drag tabs to reorder. With “Show print area” on, the paper is shown on print pages too.
+  copy or delete it; drag tabs to reorder. Print pages always gray out everything outside the paper.
 - **Plain-language terms for non-CAD users** — the UI uses everyday words: Block → Symbol,
   block attribute → symbol property, Model space → Canvas, Layout → Print page,
   Hatch → Pattern fill, Xref → Linked drawing, Quick Select → Select by Criteria, and so on.

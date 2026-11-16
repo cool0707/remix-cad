@@ -31,7 +31,7 @@ del dispositivo del usuario.
   los nombres en chino de la plantilla.
 - **Pestañas de páginas de impresión como en el CAD de escritorio** — el botón **+** junto a las pestañas añade
   una página; con clic derecho (o pulsación larga) en una pestaña se puede renombrar (también con doble clic),
-  configurar la página (papel A0–A4, vertical / horizontal), copiar o eliminar; las pestañas se reordenan arrastrándolas.
+  configurar la página (papel A0–A4, vertical / horizontal), copiar o eliminar; las pestañas se reordenan arrastrándolas. Las páginas de impresión siempre oscurecen en gris lo que queda fuera del papel.
 - **Términos sencillos para quien no usa CAD** — la interfaz usa palabras cotidianas: bloque → símbolo,
   atributo de bloque → propiedad del símbolo, espacio modelo → lienzo, presentación → página de impresión,
   sombreado → relleno de patrón, referencia externa → plano vinculado, selección rápida → seleccionar por criterios, etc.

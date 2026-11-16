@@ -5,11 +5,19 @@ import {
   AcCmEventManager,
   AcDbDatabase,
   acdbHostApplicationServices,
+  AcDbLayout,
   AcDbLine,
+  AcDbPlotRotation,
   AcGePoint3d
 } from '@mlightcad/data-model'
 
 import type { AcApDocManager } from '../src/app/AcApDocManager'
+import {
+  acapIsModelLayout,
+  acapLayoutPaperBox,
+  acapListLayouts,
+  acapSetLayoutPageSetup
+} from '../src/app/AcApLayoutActions'
 import {
   acapPrintAreaColors,
   acapPrintAreaLabel,
@@ -106,14 +114,55 @@ describe('AcApPrintAreaOverlay', () => {
     )
   })
 
-  it('hides in a print page (paper space)', () => {
+  it('always shows the paper of a print page (paper space)', () => {
     const { root, view, overlay } = setup()
-    view.activeLayoutBtrId = 'paper'
+    const db = acdbHostApplicationServices().workingDatabase
+    const layout = acapListLayouts(db).find(l => !acapIsModelLayout(db, l))!
+    acapSetLayoutPageSetup(db, layout, { paper: 'A3', portrait: false })
+    view.activeLayoutBtrId = layout.blockTableRecordId
+    // The mode is off: the canvas shows nothing, the print page its paper.
+    overlay.refresh(true)
+    expect(root.style.display).toBe('')
+    expect(overlay.currentSheet).toBeUndefined()
+    const { min } = layout.limits
+    const a = view.worldToScreen(min)
+    const b = view.worldToScreen({ x: min.x + 420, y: min.y + 297 })
+    expect(root.querySelector('path')!.getAttribute('d')).toBe(
+      `M-10,-10H810V610H-10Z M${a.x.toFixed(1)},${a.y.toFixed(1)} L` +
+        `${b.x.toFixed(1)},${a.y.toFixed(1)} L${b.x.toFixed(1)},` +
+        `${b.y.toFixed(1)} L${a.x.toFixed(1)},${b.y.toFixed(1)}Z`
+    )
+    expect(root.querySelector('text')!.textContent).toBe('A3')
+
+    view.activeLayoutBtrId = 'model'
+    overlay.refresh(true)
+    expect(root.style.display).toBe('none')
+  })
+
+  it('hides on a print page without a paper', () => {
+    const { root, view } = setup()
+    view.activeLayoutBtrId = 'missing'
     AcApSettingManager.instance.set('isShowPrintArea', true)
     expect(root.style.display).toBe('none')
-    view.activeLayoutBtrId = 'model'
-    overlay.refresh()
-    expect(root.style.display).toBe('')
+  })
+})
+
+describe('acapLayoutPaperBox', () => {
+  it('falls back to the plot paper size when there are no limits', () => {
+    const layout = {
+      limits: { isEmpty: () => true },
+      plotPaperSize: { x: 297, y: 210 },
+      plotRotation: AcDbPlotRotation.k90degrees
+    } as unknown as AcDbLayout
+    expect(acapLayoutPaperBox(layout)).toEqual({
+      min: { x: 0, y: 0 },
+      max: { x: 210, y: 297 }
+    })
+    expect(
+      acapLayoutPaperBox({
+        limits: { isEmpty: () => true }
+      } as unknown as AcDbLayout)
+    ).toBeUndefined()
   })
 })
 

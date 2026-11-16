@@ -29,7 +29,7 @@ takže výkresy nikdy neopustí zařízení uživatele.
 - **Lokalizované názvy tiskových stránek** v nových výkresech místo čínských názvů ze šablony.
 - **Karty tiskových stránek jako v desktopovém CAD** — tlačítko **+** vedle karet přidá tiskovou stránku; pravým
   kliknutím (nebo dlouhým stiskem) na kartu ji lze přejmenovat (také dvojklikem), nastavit vzhled stránky
-  (papír A0–A4, na výšku / na šířku), zkopírovat nebo odstranit; karty se řadí přetažením.
+  (papír A0–A4, na výšku / na šířku), zkopírovat nebo odstranit; karty se řadí přetažením. Tiskové stránky vždy zašedí vše mimo papír.
 - **Srozumitelné pojmy i pro uživatele bez zkušeností s CAD** — rozhraní používá běžná slova:
   blok → symbol, atribut bloku → vlastnost symbolu, modelový prostor → plátno,
   rozvržení → tisková stránka, šrafování → vzorová výplň, externí reference → propojený výkres,

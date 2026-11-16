@@ -318,7 +318,8 @@ HATCH (`AcApHatchCmd`、リボンの `AcApHatchRibbonCmd` も継承) を AutoCAD
   `renameLayout` は辞書のキーを変えない (改名後に名前で引けず、DXF にも旧名で出る) ため。改名は辞書の `_recordsByName` を
   直接作り直している (data-model を上げたら確認すること)。
 - ページ設定は用紙 (A0〜A4) と向きだけ。レイアウトの LIMITS (用紙の大きさ、左下は維持) と plotPaperSize / canonicalMediaName を書く。
-  ペーパー空間の単位は plotPaperUnits (mm / inch) とみなす。印刷範囲表示 (`AcApPrintAreaOverlay`) は印刷ページでは LIMITS を用紙として描く。
+  ペーパー空間の単位は plotPaperUnits (mm / inch) とみなす。印刷範囲表示 (`AcApPrintAreaOverlay`) は印刷ページでは**設定に関係なく常に**用紙の外を灰色にする
+  (用紙は `acapLayoutPaperBox`: LIMITS、無ければ plotPaperSize を原点から)。ステータスバーのボタンはキャンバスだけを切り替える。
 - 元に戻す (undo) には載せていない (やり残し)。読み取り専用で開いたときは + とメニューを出さない。
 
 ## 2.8 DWG / DXF を acadrust に移行 (2026-11-14)
