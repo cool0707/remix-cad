@@ -61,6 +61,12 @@
               <ml-layer-list :editor="props.editor" />
             </div>
             <div
+              v-else-if="topTab === 'groupManager'"
+              class="ml-layer-list-wrapper"
+            >
+              <ml-group-list :editor="props.editor" />
+            </div>
+            <div
               v-else-if="topTab === 'entityProperties'"
               class="ml-entity-properties-wrapper"
             >
@@ -155,6 +161,11 @@
                     ? t('main.toolPalette.layersSection.expand')
                     : t('main.toolPalette.layersSection.collapse')
                 "
+                :aria-label="
+                  layersCollapsed
+                    ? t('main.toolPalette.layersSection.expand')
+                    : t('main.toolPalette.layersSection.collapse')
+                "
                 data-testid="palette-layers-toggle"
                 @click="toggleLayersCollapsed"
               >
@@ -162,17 +173,38 @@
                   <ArrowRight v-if="layersCollapsed" />
                   <ArrowDown v-else />
                 </el-icon>
-                <span class="ml-palette-layers__title">
-                  {{ t('main.toolPalette.layerManager.tab') }}
-                </span>
-                <span
-                  v-if="layersCollapsed && currentLayerName"
-                  class="ml-palette-layers__current"
-                  data-testid="palette-layers-current"
-                >
-                  {{ currentLayerLabel }}
-                </span>
               </button>
+              <div
+                class="ml-palette-layers__tabs"
+                role="tablist"
+                :aria-label="t('main.toolPalette.layersSection.tabs')"
+              >
+                <button
+                  v-for="section in SECTION_TABS"
+                  :key="section"
+                  type="button"
+                  role="tab"
+                  class="ml-palette-layers__tab"
+                  :class="{ 'is-active': sectionTab === section }"
+                  :aria-selected="sectionTab === section"
+                  :data-testid="`palette-section-tab-${section}`"
+                  @click="selectSectionTab(section)"
+                >
+                  {{ toolPaletteTabName(section) }}
+                </button>
+              </div>
+              <span
+                v-if="
+                  layersCollapsed &&
+                  sectionTab === 'layerManager' &&
+                  currentLayerName
+                "
+                class="ml-palette-layers__current"
+                data-testid="palette-layers-current"
+              >
+                {{ currentLayerLabel }}
+              </span>
+              <span class="ml-palette-layers__spacer" />
               <el-dropdown trigger="click" @command="handleLayoutCommand">
                 <button
                   type="button"
@@ -195,8 +227,17 @@
                 </template>
               </el-dropdown>
             </header>
-            <div v-if="!layersCollapsed" class="ml-layer-list-wrapper">
+            <div
+              v-if="!layersCollapsed && sectionTab === 'layerManager'"
+              class="ml-layer-list-wrapper"
+            >
               <ml-layer-list :editor="props.editor" />
+            </div>
+            <div
+              v-else-if="!layersCollapsed"
+              class="ml-layer-list-wrapper"
+            >
+              <ml-group-list :editor="props.editor" />
             </div>
           </section>
         </template>
@@ -252,6 +293,7 @@ import MlCountList from './MlCountList.vue'
 import MlDesignReviewPalette from './MlDesignReviewPalette.vue'
 import MlEntityProperties from './MlEntityProperties.vue'
 import MlFindPalette from './MlFindPalette.vue'
+import MlGroupList from './MlGroupList.vue'
 import MlLayerList from './MlLayerList.vue'
 import MlMeasurementPalette from './MlMeasurementPalette.vue'
 import MlMemoryProfile from './MlMemoryProfile.vue'
@@ -434,7 +476,17 @@ watch(dockSide, async () => {
  * Tabs that are always there: the properties, and the layers when they are
  * not in their own section.
  */
-const FIXED_TABS = ['layerManager', 'entityProperties'] as const
+const FIXED_TABS = [
+  'layerManager',
+  'groupManager',
+  'entityProperties'
+] as const
+
+/** Tabs of the layers section (when it has one): layers and groups. */
+const SECTION_TABS = ['layerManager', 'groupManager'] as const
+type SectionTab = (typeof SECTION_TABS)[number]
+const isSectionTab = (name: string): name is SectionTab =>
+  (SECTION_TABS as readonly string[]).includes(name)
 
 /**
  * Task panels: shown as a closable tab once something opens them (the FIND
@@ -478,6 +530,7 @@ const isTabAvailable = (name: string) => {
 
 const LAYERS_RATIO_KEY = 'ml-cad-viewer.paletteLayersRatio'
 const LAYERS_COLLAPSED_KEY = 'ml-cad-viewer.paletteLayersCollapsed'
+const LAYERS_TAB_KEY = 'ml-cad-viewer.paletteLayersTab'
 const DEFAULT_LAYERS_RATIO = 0.45
 /** Below this palette height the layers start collapsed. */
 const AUTO_COLLAPSE_HEIGHT = 360
@@ -508,6 +561,18 @@ const layersCollapsed = ref(readStorage(LAYERS_COLLAPSED_KEY) === 'true')
 watch(layersCollapsed, value =>
   writeStorage(LAYERS_COLLAPSED_KEY, String(value))
 )
+const storedSectionTab = readStorage(LAYERS_TAB_KEY) ?? ''
+/** Layers or groups, in the layers section. */
+const sectionTab = ref<SectionTab>(
+  isSectionTab(storedSectionTab) ? storedSectionTab : 'layerManager'
+)
+watch(sectionTab, value => writeStorage(LAYERS_TAB_KEY, value))
+
+/** A tab of the layers section: shows it (opening the section). */
+const selectSectionTab = (name: SectionTab) => {
+  sectionTab.value = name
+  layersCollapsed.value = false
+}
 
 const bodyRef = ref<HTMLElement>()
 const bodyHeight = ref(0)
@@ -585,7 +650,7 @@ const lastTopTab = ref('entityProperties')
 const topTab = computed<string>({
   get: () => {
     const active = store.dialogs.activePaletteTab
-    if (layersSplit.value && active === 'layerManager') return lastTopTab.value
+    if (layersSplit.value && isSectionTab(active)) return lastTopTab.value
     return active
   },
   set: name => {
@@ -611,7 +676,7 @@ const tabLabel = (name: string) =>
 const tabs = computed<MlOverflowTab[]>(() => {
   const fixed = layersSplit.value
     ? ['entityProperties']
-    : ['layerManager', 'entityProperties']
+    : ['layerManager', 'groupManager', 'entityProperties']
   return [
     ...fixed.map(name => ({ name, label: tabLabel(name), closable: false })),
     ...openedTaskTabs.value.map(name => ({
@@ -639,10 +704,11 @@ watch(
     if (isTaskTab(active) && !store.dialogs.openTaskTabs.includes(active)) {
       store.dialogs.openTaskTabs.push(active)
     }
-    if (active === 'layerManager') {
-      // Something asked for the layers: show their section (not on start-up,
-      // where the layers are only the default tab).
+    if (isSectionTab(active)) {
+      // Something asked for the layers or the groups: show them in their
+      // section (not on start-up, where the layers are only the default tab).
       if (layersSplit.value && previous !== undefined) {
+        sectionTab.value = active
         layersCollapsed.value = false
       }
     } else {
@@ -670,8 +736,9 @@ const closeTaskTab = (name: string) => {
 const handleLayoutCommand = (command: 'split' | 'merge') => {
   AcApSettingManager.instance.isSidebarLayersSplit = command === 'split'
   if (command === 'merge') {
-    store.dialogs.activePaletteTab = 'layerManager'
-  } else if (store.dialogs.activePaletteTab === 'layerManager') {
+    store.dialogs.activePaletteTab = sectionTab.value
+  } else if (isSectionTab(store.dialogs.activePaletteTab)) {
+    sectionTab.value = store.dialogs.activePaletteTab
     layersCollapsed.value = false
   }
 }
@@ -749,12 +816,12 @@ onBeforeUnmount(() => eventBus.off('focus-symbol-property', focusSymbolProperty)
 }
 
 .ml-palette-layers__toggle {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 8px;
+  justify-content: center;
+  width: 28px;
+  padding: 0;
   border: 0;
   background: transparent;
   color: var(--el-text-color-primary);
@@ -773,12 +840,44 @@ onBeforeUnmount(() => eventBus.off('focus-symbol-property', focusSymbolProperty)
   color: var(--el-text-color-secondary);
 }
 
-.ml-palette-layers__title {
+.ml-palette-layers__tabs {
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.ml-palette-layers__tab {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--el-text-color-secondary);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ml-palette-layers__tab:hover {
+  color: var(--el-text-color-primary);
+  background: var(--el-fill-color-light);
+}
+
+.ml-palette-layers__tab.is-active {
+  color: var(--el-text-color-primary);
   font-weight: 600;
+  border-bottom-color: var(--ml-brand, var(--el-color-primary));
+}
+
+.ml-palette-layers__spacer {
+  flex: 1 1 auto;
 }
 
 .ml-palette-layers__current {
+  flex: 0 1 auto;
+  align-self: center;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -786,8 +885,8 @@ onBeforeUnmount(() => eventBus.off('focus-symbol-property', focusSymbolProperty)
   color: var(--el-text-color-secondary);
 }
 
-.ml-palette-layers__current::before {
-  content: ': ';
+.ml-palette-layers__current {
+  padding-inline-start: 6px;
 }
 
 .ml-palette-layers .ml-layer-list-wrapper {

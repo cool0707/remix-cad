@@ -137,6 +137,14 @@ export default {
       description: '選択したシンボル (ブロック) を元の図形に分解します',
       prompt: 'シンボルを選択'
     },
+    group: {
+      description: '選択した図形をグループにまとめます',
+      prompt: 'グループにする図形を選択'
+    },
+    ungroup: {
+      description: '選択した図形のグループを解除します (図形は残ります)',
+      prompt: 'グループを解除する図形を選択'
+    },
     refedit: {
       description: '選択したシンボル (ブロック) の中に入り、その場で編集します'
     },

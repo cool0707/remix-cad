@@ -139,6 +139,14 @@ export default {
       description: 'Rozloží vybrané symboly (bloky) na tvary, ze kterých se skládají',
       prompt: 'Vyberte symboly'
     },
+    group: {
+      description: 'Seskupí vybrané objekty do skupiny',
+      prompt: 'Vyberte objekty k seskupení'
+    },
+    ungroup: {
+      description: 'Zruší skupinu vybraných objektů (objekty zůstanou)',
+      prompt: 'Vyberte objekty ke zrušení skupiny'
+    },
     refedit: {
       description: 'Vstoupí do vybraného symbolu (bloku) a upraví jeho obsah na místě'
     },

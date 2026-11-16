@@ -43,6 +43,8 @@ export interface AcApContextMenuState {
   hasEditableSelection?: boolean
   /** Idle: some editable selected entities are symbols (block references) */
   hasSymbolSelection?: boolean
+  /** Idle: some selected entities belong to a group */
+  hasGroupSelection?: boolean
   /** Whether the selection is one placed symbol whose contents can be edited */
   canEditSymbol?: boolean
   /** Whether the contents of a symbol are being edited */
@@ -118,6 +120,7 @@ function ctrl(key: string, mac?: boolean, shift = false) {
  *
  * - While a command waits for input: Enter / undo the last pick / cancel.
  * - With a selection: clipboard, duplicate, delete, explode (symbols),
+ *   group / ungroup,
  *   select the same layer, properties.
  * - Without one: repeat, create, symbol, comment, paste, select all, zoom
  *   extents, undo / redo.
@@ -165,6 +168,15 @@ export function acapBuildContextMenu(
         state.hasSymbolSelection &&
         state.isAvailable('explode') &&
         item('explode'),
+      editable &&
+        !state.editingSymbol &&
+        state.isAvailable('group') &&
+        item('group', ctrl('G', isMac)),
+      editable &&
+        !state.editingSymbol &&
+        state.hasGroupSelection &&
+        state.isAvailable('ungroup') &&
+        item('ungroup', ctrl('G', isMac, true)),
       'separator',
       item('selectSameLayer'),
       state.isAvailable('properties') && item('properties')

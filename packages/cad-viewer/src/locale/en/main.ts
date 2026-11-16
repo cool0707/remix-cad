@@ -788,10 +788,40 @@ export default {
   toolPalette: {
     layersSection: {
       more: 'More',
-      split: 'Show layers below, in their own section',
-      merge: 'Move layers into the tabs above',
-      expand: 'Show layers',
-      collapse: 'Collapse layers'
+      split: 'Show layers and groups below, in their own section',
+      merge: 'Move layers and groups into the tabs above',
+      expand: 'Show layers and groups',
+      collapse: 'Collapse layers and groups',
+      tabs: 'Layers and groups'
+    },
+    groupManager: {
+      tab: 'Groups',
+      title: 'Groups',
+      count: '{count} group(s)',
+      searchPlaceholder: 'Search groups',
+      toolbar: {
+        newGroup: 'Group the selected objects',
+        rename: 'Rename',
+        ungroup: 'Ungroup',
+        groupSelectionOn: 'Group selection: on (a click selects the whole group)',
+        groupSelectionOff: 'Group selection: off (objects are selected one by one)'
+      },
+      empty: 'No groups yet.',
+      emptyHint: 'Select objects and press Group ({key}) to select and move them together. Grouping groups nests them.',
+      noMatch: 'No matching groups.',
+      unnamed: '(unnamed)',
+      more: '{count} more',
+      memberCount: '{count} object(s)',
+      addSelection: 'Add the selected objects to this group',
+      removeFromGroup: 'Remove from group',
+      prompts: {
+        name: 'Group name',
+        renameTitle: 'Rename group'
+      },
+      messages: {
+        nameTaken: 'A group named "{name}" already exists.',
+        ungrouped: 'Ungrouped "{name}".'
+      }
     },
     entityProperties: {
       tab: 'Properties',

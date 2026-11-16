@@ -1069,12 +1069,13 @@ export class AcTrView2d extends AcEdBaseView {
         if (!this.isActiveManagedView()) return
         if (
           !this.isShortcutEventInsideViewer(e) &&
-          // Ctrl / Cmd + K and undo / redo also from the host's UI (ribbon,
-          // panels — e.g. right after deleting a layer in the layer panel),
-          // but not from its text fields.
+          // Ctrl / Cmd + K, undo / redo and group / ungroup also from the
+          // host's UI (ribbon, panels — e.g. right after deleting a layer in
+          // the layer panel), but not from its text fields.
           !(
             (acapIsCommandPaletteShortcut(e) ||
-              this._keyHandler.resolveUndoRedoShortcut(e)) &&
+              this._keyHandler.resolveUndoRedoShortcut(e) ||
+              this._keyHandler.isGroupShortcut(e)) &&
             !isEditableTarget(e.target)
           )
         ) {
@@ -2571,6 +2572,14 @@ export class AcTrView2d extends AcEdBaseView {
   }
 
   /**
+   * Groups are not picked as a whole inside a symbol (its contents are
+   * copies that belong to no group).
+   */
+  protected override isGroupSelectionSuspended(): boolean {
+    return this._symbolEdit.isActive
+  }
+
+  /**
    * @inheritdoc
    */
   getViewportCoordinateMapper(
@@ -2658,7 +2667,7 @@ export class AcTrView2d extends AcEdBaseView {
     const idsAdded: Array<AcDbObjectId> = []
     const results = this.pick(point)
     results.forEach(item => idsAdded.push(item.id))
-    const selectable = this.selectableIds(idsAdded, 'add')
+    const selectable = this.selectableIds(this.expandToGroups(idsAdded), 'add')
     if (selectable.length > 0) this.selectionSet.add(selectable)
   }
 

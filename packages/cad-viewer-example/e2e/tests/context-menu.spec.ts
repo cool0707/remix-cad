@@ -181,6 +181,7 @@ test('selection: right-click selects the line; copy, paste at the click, duplica
     'copy',
     'duplicate',
     'erase',
+    'group',
     'selectSameLayer',
     'properties'
   ])

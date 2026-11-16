@@ -143,6 +143,14 @@ export default {
       description: 'Seçili sembolleri (blokları) oluşturan şekillere ayırır',
       prompt: 'Sembolleri seçin'
     },
+    group: {
+      description: 'Seçili nesneleri bir grupta toplar',
+      prompt: 'Gruplanacak nesneleri seçin'
+    },
+    ungroup: {
+      description: 'Seçili nesnelerin grubunu kaldırır (nesneler kalır)',
+      prompt: 'Grubu çözülecek nesneleri seçin'
+    },
     refedit: {
       description: 'Seçili sembolün (bloğun) içine girer ve içeriğini yerinde düzenler'
     },

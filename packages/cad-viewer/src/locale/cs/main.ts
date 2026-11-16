@@ -780,10 +780,40 @@ export default {
   toolPalette: {
     layersSection: {
       more: 'Další',
-      split: 'Zobrazit hladiny dole zvlášť',
-      merge: 'Přesunout hladiny do karet nahoře',
-      expand: 'Rozbalit hladiny',
-      collapse: 'Sbalit hladiny'
+      split: 'Zobrazit hladiny a skupiny dole zvlášť',
+      merge: 'Přesunout hladiny a skupiny do karet nahoře',
+      expand: 'Rozbalit hladiny a skupiny',
+      collapse: 'Sbalit hladiny a skupiny',
+      tabs: 'Hladiny a skupiny'
+    },
+    groupManager: {
+      tab: 'Skupiny',
+      title: 'Skupiny',
+      count: 'Skupiny: {count}',
+      searchPlaceholder: 'Hledat skupiny',
+      toolbar: {
+        newGroup: 'Seskupit vybrané objekty',
+        rename: 'Přejmenovat',
+        ungroup: 'Zrušit skupinu',
+        groupSelectionOn: 'Výběr skupin: zapnuto (kliknutí vybere celou skupinu)',
+        groupSelectionOff: 'Výběr skupin: vypnuto (objekty se vybírají jednotlivě)'
+      },
+      empty: 'Zatím žádné skupiny.',
+      emptyHint: 'Vyberte objekty a stiskněte Seskupit ({key}); pak je lze vybírat a přesouvat společně. Seskupením skupin vznikne vnoření.',
+      noMatch: 'Žádné odpovídající skupiny.',
+      unnamed: '(bez názvu)',
+      more: 'a dalších {count}',
+      memberCount: '{count} obj.',
+      addSelection: 'Přidat vybrané objekty do této skupiny',
+      removeFromGroup: 'Odebrat ze skupiny',
+      prompts: {
+        name: 'Název skupiny',
+        renameTitle: 'Přejmenovat skupinu'
+      },
+      messages: {
+        nameTaken: 'Skupina „{name}“ již existuje.',
+        ungrouped: 'Skupina „{name}“ byla zrušena.'
+      }
     },
     entityProperties: {
       tab: 'Vlastnosti',

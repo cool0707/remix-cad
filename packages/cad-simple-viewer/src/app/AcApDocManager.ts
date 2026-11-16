@@ -33,6 +33,7 @@ import {
   AcApEntityPreviewCmd,
   AcApEraseCmd,
   AcApExplodeCmd,
+  AcApGroupCmd,
   AcApExportDrawingCmd,
   AcApExtendCmd,
   AcApFilletCmd,
@@ -85,6 +86,7 @@ import {
   AcApSysVarCmd,
   AcApTrimCmd,
   AcApUndoCmd,
+  AcApUngroupCmd,
   AcApUnisolateObjectsCmd,
   AcApXAttachCmd,
   AcApXLineCmd,
@@ -2059,6 +2061,8 @@ export class AcApDocManager {
     addSystemCommand('ellipse', 'ellipse', new AcApEllipseCmd())
     addSystemCommand('erase', 'erase', new AcApEraseCmd())
     addSystemCommand('explode', 'explode', new AcApExplodeCmd())
+    addSystemCommand('group', 'group', new AcApGroupCmd())
+    addSystemCommand('ungroup', 'ungroup', new AcApUngroupCmd())
     addSystemCommand('hideobjects', 'hideobjects', new AcApHideObjectsCmd())
     addSystemCommand('dimlinear', 'dimlinear', new AcApDimLinearCmd())
     registerMeasureCommands(addSystemCommand, {

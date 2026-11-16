@@ -59,6 +59,7 @@ describe('acapBuildContextMenu', () => {
         '-',
         'duplicate',
         'erase',
+        'group',
         '-',
         'selectSameLayer',
         'properties'
@@ -81,6 +82,7 @@ describe('acapBuildContextMenu', () => {
         'duplicate',
         'erase',
         'explode',
+        'group',
         '-',
         'selectSameLayer',
         'properties'
@@ -113,6 +115,7 @@ describe('acapBuildContextMenu', () => {
         'erase',
         'editSymbol',
         'explode',
+        'group',
         '-',
         'selectSameLayer',
         'properties'
@@ -125,6 +128,30 @@ describe('acapBuildContextMenu', () => {
         })
       )
       expect(ids(unavailable)).not.toContain('editSymbol')
+    })
+
+    it('groups the selection, and ungroups it when it is in a group', () => {
+      const entries = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          hasEditableSelection: true,
+          hasGroupSelection: true
+        })
+      )
+      expect(ids(entries)).toContain('group')
+      expect(ids(entries)).toContain('ungroup')
+      expect(find(entries, 'group')?.shortcut).toBe('Ctrl+G')
+      expect(find(entries, 'ungroup')?.shortcut).toBe('Ctrl+Shift+G')
+      const inSymbol = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          hasEditableSelection: true,
+          hasGroupSelection: true,
+          editingSymbol: true
+        })
+      )
+      expect(ids(inSymbol)).not.toContain('group')
+      expect(ids(inSymbol)).not.toContain('ungroup')
     })
 
     it('only copies when nothing selected can be edited', () => {

@@ -7,6 +7,7 @@ import { AcEdMTextEditor } from '../editor/input/ui/AcEdMTextEditor'
 import { acedIsTouchLongPressContextMenu } from '../editor/input/ui/AcEdTouchPointSession'
 import type { AcEdBaseView } from '../editor/view/AcEdBaseView'
 import { AcApI18n } from '../i18n'
+import { acapIsAnyGrouped } from '../service/AcApGroupService'
 import {
   acapBuildContextMenu,
   type AcApContextMenuState
@@ -161,6 +162,10 @@ export class AcApContextMenuController {
       hasSymbolSelection: editable.some(
         entity => entity instanceof AcDbBlockReference
       ),
+      hasGroupSelection: acapIsAnyGrouped(
+        db,
+        editable.map(entity => entity.objectId)
+      ),
       canEditSymbol:
         selected.length === 1 &&
         !!this.options.symbolEdit?.canEnter(selected[0].objectId),
@@ -256,6 +261,8 @@ export class AcApContextMenuController {
         break
       case 'erase':
       case 'explode':
+      case 'group':
+      case 'ungroup':
         docManager.sendStringToExecute(id)
         break
       case 'editSymbol':

@@ -8,6 +8,7 @@ import {
   AcDbDatabase,
   AcDbDatabaseConverterManager,
   AcDbFileType,
+  AcDbGroup,
   acdbHostApplicationServices
 } from '@mlightcad/data-model'
 import { readFileSync } from 'fs'
@@ -368,5 +369,31 @@ describe('DXF R12 and names outside ASCII', () => {
     expect(inserted).toEqual(['FL______'])
     const back = await open(written.bytes.buffer as ArrayBuffer)
     expect(entitiesOf(back, 'FL______')).toHaveLength(1)
+  })
+})
+
+describe('groups', () => {
+  it('keep their name and members through DWG', async () => {
+    const db = await open(
+      dxf([
+        ...section('ENTITIES', [...line(0, 0, 1, 0), ...line(0, 1, 1, 1)]),
+        [0, 'EOF']
+      ])
+    )
+    const ids = [...db.tables.blockTable.modelSpace.newIterator()].map(
+      entity => entity.objectId
+    )
+    const group = new AcDbGroup()
+    group.entityIds = ids
+    db.transactionManager.runUndoable('group', () =>
+      db.objects.group.setAt('窓', group)
+    )
+
+    const back = await throughDwg(db)
+    const members = [...back.tables.blockTable.modelSpace.newIterator()].map(
+      entity => entity.objectId
+    )
+    expect(back.objects.group.getAt('窓')?.entityIds).toEqual(members)
+    expect(members).toHaveLength(2)
   })
 })

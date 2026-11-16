@@ -741,10 +741,40 @@ export default {
   toolPalette: {
     layersSection: {
       more: '更多',
-      split: '在下方单独显示图层',
-      merge: '将图层并入上方标签页',
-      expand: '展开图层',
-      collapse: '折叠图层'
+      split: '在下方单独显示图层和组',
+      merge: '将图层和组并入上方标签页',
+      expand: '展开图层和组',
+      collapse: '折叠图层和组',
+      tabs: '图层和组'
+    },
+    groupManager: {
+      tab: '组',
+      title: '组',
+      count: '组: {count} 个',
+      searchPlaceholder: '搜索组',
+      toolbar: {
+        newGroup: '将选中的对象编组',
+        rename: '重命名',
+        ungroup: '解除编组',
+        groupSelectionOn: '按组选择: 开 (单击选中整个组)',
+        groupSelectionOff: '按组选择: 关 (逐个选择对象)'
+      },
+      empty: '还没有组。',
+      emptyHint: '选择对象后按 [编组] ({key}) 即可一起选择和移动。将组再编组即可嵌套。',
+      noMatch: '没有匹配的组。',
+      unnamed: '(未命名)',
+      more: '另外 {count} 个',
+      memberCount: '{count} 个',
+      addSelection: '将选中的对象添加到此组',
+      removeFromGroup: '从组中移除',
+      prompts: {
+        name: '组名',
+        renameTitle: '重命名组'
+      },
+      messages: {
+        nameTaken: '已存在名为“{name}”的组。',
+        ungrouped: '已解除组“{name}”。'
+      }
     },
     entityProperties: {
       tab: '属性',

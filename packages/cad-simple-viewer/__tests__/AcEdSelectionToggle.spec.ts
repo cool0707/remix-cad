@@ -19,6 +19,8 @@ function createView(selected: string[], locked: string[] = []) {
   Object.defineProperties(view, {
     selectionSet: { get: () => selectionSet },
     entitySelectionEnabled: { get: () => true },
+    // No groups here (picking a group member is tested in AcApGroupService).
+    expandToGroups: { value: (ids: string[]) => ids },
     selectableIds: {
       value: (ids: string[], action: string) =>
         action === 'remove' || action === 'toggle'

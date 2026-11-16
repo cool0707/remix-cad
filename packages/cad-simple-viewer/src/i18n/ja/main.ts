@@ -80,6 +80,8 @@ export default {
       imageattach: '画像を貼り付ける',
       xattach: 'リンク図面を貼り付ける',
       erase: '削除',
+      group: 'グループにする',
+      ungroup: 'グループを解除',
       explode: '分解',
       refedit: 'シンボルを編集',
       refclose: 'シンボルの編集を終了',
@@ -156,6 +158,8 @@ export default {
       fillet: 'フィレット 角丸 R アール',
       chamfer: 'C 面 角を切る チャンファー',
       break: '切断 ブレーク 分割 切り離す',
+      group: 'グループ化 まとめる group',
+      ungroup: 'グループ解除 ばらす ungroup',
       explode: '分解 ばらす 解除 ブロック',
       refedit: 'ブロック編集 ブロックエディタ インプレイス参照編集 bedit refedit',
       refclose: 'ブロックエディタを閉じる 参照編集を閉じる bclose refclose',
@@ -239,6 +243,8 @@ export default {
     paste: '貼り付け',
     duplicate: '複製',
     erase: '削除',
+    group: 'グループにする',
+    ungroup: 'グループを解除',
     explode: '分解',
     editSymbol: 'シンボルを編集',
     finishSymbol: 'シンボルの編集を終了',
@@ -403,6 +409,14 @@ export default {
     locked: 'ロックされたレイヤーのシンボルは編集できません。',
     selectOne: '編集するシンボルを 1 つ選んでください。',
     undoLimit: 'シンボルに入る前の操作は、編集を終了してから元に戻せます。'
+  },
+  group: {
+    namePrefix: 'グループ',
+    nothingSelected: 'グループにする図形を選んでください。',
+    created: 'グループ「{name}」を作りました。',
+    noGroup: '選んだ図形はグループに入っていません。',
+    removed: 'グループを {count} 個解除しました。',
+    inSymbol: 'シンボルの編集中はグループを変更できません。'
   },
   explode: {
     noSymbol: '分解するシンボルを選んでください。',
