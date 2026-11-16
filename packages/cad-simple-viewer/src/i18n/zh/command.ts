@@ -129,6 +129,12 @@ export default {
       description: '将选中的符号 (块) 分解为组成它的图形',
       prompt: '选择符号'
     },
+    refedit: {
+      description: '进入所选符号 (块) 并在原位编辑其内容'
+    },
+    refclose: {
+      description: '结束符号编辑，并更新所有相同的符号'
+    },
     extmax: {
       description: '存储画布图形范围的右上角（只读）'
     },

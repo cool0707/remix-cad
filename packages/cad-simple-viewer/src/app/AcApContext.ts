@@ -2,6 +2,7 @@ import {
   AcCmEventManager,
   AcDbEntity,
   AcDbLayout,
+  AcDbObjectId,
   AcDbSystemVariables,
   AcDbSysVarManager
 } from '@mlightcad/data-model'
@@ -79,10 +80,33 @@ export class AcApContext {
       this._disposers.push(() => manager.removeEventListener(listener))
     }
 
+    // Entities of a symbol definition are drawn through the placed symbols,
+    // not on their own: report the definition and keep them out of the scene.
+    const drawnDirectly = (entities: AcDbEntity[]) => {
+      const blockTable = doc.database.tables.blockTable
+      const changedBlocks = new Set<AcDbObjectId>()
+      const direct = entities.filter(entity => {
+        let ownerId: AcDbObjectId | undefined
+        try {
+          ownerId = entity.ownerId
+        } catch {
+          // Not owned yet.
+        }
+        const owner = ownerId ? blockTable.getIdAt(ownerId) : undefined
+        if (!owner || owner.isModelSapce || owner.isPaperSapce) return true
+        changedBlocks.add(owner.objectId)
+        return false
+      })
+      if (changedBlocks.size > 0 && this.view instanceof AcTrView2d) {
+        this.view.notifyBlockDefinitionChanged(changedBlocks)
+      }
+      return direct
+    }
+
     // Add entity to scene
     bind(doc.database.events.entityAppended, args => {
       if (!this._active) return
-      const pending = asEntityList(args.entity).filter(
+      const pending = drawnDirectly(asEntityList(args.entity)).filter(
         entity => !this.view.hasEntity(entity.objectId)
       )
       if (pending.length === 0) {
@@ -96,6 +120,7 @@ export class AcApContext {
       if (!this._active) return
       const eventArgs = args as AcDbEntityModifiedEventArgs
       const currentView = this.view
+      if (drawnDirectly([eventArgs.entity]).length === 0) return
       if (
         currentView instanceof AcTrView2d &&
         canApplyVisibilityOnlySceneUpdate(
@@ -113,7 +138,7 @@ export class AcApContext {
     // Erase entity
     bind(doc.database.events.entityErased, args => {
       if (!this._active) return
-      const erased = asEntityList(args.entity)
+      const erased = drawnDirectly(asEntityList(args.entity))
       const pending = erased.filter(entity =>
         this.view.hasEntity(entity.objectId)
       )

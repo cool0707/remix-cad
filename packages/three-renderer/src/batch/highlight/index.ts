@@ -7,6 +7,7 @@ export {
   AcTrBatchHighlightState,
   COMPARE_ROLE_ADDED,
   COMPARE_ROLE_DELETED,
+  COMPARE_ROLE_KEEP,
   COMPARE_ROLE_MODIFIED,
   COMPARE_ROLE_NONE,
   compareRoleToMaskValue,

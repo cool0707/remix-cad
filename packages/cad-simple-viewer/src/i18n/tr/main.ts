@@ -1,6 +1,7 @@
 export default {
   newDrawing: {
-    layoutPrefix: 'Sayfa'
+    layoutPrefix: 'Sayfa',
+    layerPrefix: 'Katman'
   },
   document: {
     untitled: 'Adsız'
@@ -80,6 +81,8 @@ export default {
       xattach: 'Bağlı çizim ekle',
       erase: 'Sil',
       explode: 'Patlat',
+      refedit: 'Sembolü düzenle',
+      refclose: 'Sembol düzenlemeyi bitir',
       undo: 'Geri al',
       redo: 'Yinele',
       zoom: 'Yakınlaştır',
@@ -154,6 +157,8 @@ export default {
       chamfer: 'pah köşe',
       break: 'kır ayır',
       explode: 'patlat parçala explode',
+      refedit: 'blok düzenle blok düzenleyici yerinde düzenle bedit refedit',
+      refclose: 'blok düzenleyiciyi kapat bclose refclose',
       hatch: 'tarama',
       insert: 'blok',
       layer: 'katman',
@@ -182,6 +187,8 @@ export default {
     duplicate: 'Çoğalt',
     erase: 'Sil',
     explode: 'Patlat',
+    editSymbol: 'Sembolü düzenle',
+    finishSymbol: 'Sembol düzenlemeyi bitir',
     selectSameLayer: 'Aynı katmandakileri seç',
     properties: 'Özellikleri göster',
     selectAll: 'Tümünü seç',
@@ -329,6 +336,18 @@ export default {
     erase: 'Sil',
     collapse: 'Araç çubuğunu daralt',
     expand: 'Araç çubuğunu genişlet'
+  },
+  symbolEdit: {
+    canvas: 'Tuval',
+    done: 'Bitti',
+    doneTooltip: 'Sembol düzenlemeyi bitir (Esc)',
+    barLabel: 'Sembol düzenleme',
+    notInPlace: 'Aynalama ve esnetme olmadan gösteriliyor',
+    notEditable: 'Bu sembolün içeriği düzenlenemez.',
+    linked: 'Bağlantılı çizimin içeriği düzenlenemez.',
+    locked: 'Kilitli katmandaki sembol düzenlenemez.',
+    selectOne: 'Düzenlenecek bir sembol seçin.',
+    undoLimit: 'Sembole girmeden önceki işlemleri geri almak için düzenlemeyi bitirin.'
   },
   explode: {
     noSymbol: 'Patlatılacak bir sembol seçin.',

@@ -105,9 +105,12 @@ test('simple: the layers have their own section under the properties', async ({
   await expect(tab(page, 'Properties')).toBeVisible()
   await expect(layersSection(page).locator('.ml-layer-list-wrapper')).toBeVisible()
 
-  // Collapsed: the header keeps the current layer name.
+  // Collapsed: the header keeps the current layer name (layer 0 is listed
+  // as the symbol editing layer in the simple profile).
   await page.getByTestId('palette-layers-toggle').click()
-  await expect(page.getByTestId('palette-layers-current')).toHaveText('0')
+  await expect(page.getByTestId('palette-layers-current')).toHaveText(
+    'Symbol editing layer'
+  )
   await expect(layersSection(page).locator('.ml-layer-list-wrapper')).toHaveCount(0)
   await page.getByTestId('palette-layers-toggle').click()
   await expect(layersSection(page).locator('.ml-layer-list-wrapper')).toBeVisible()

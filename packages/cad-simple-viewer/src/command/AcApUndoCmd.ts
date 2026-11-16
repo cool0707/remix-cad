@@ -2,6 +2,7 @@ import { AcApContext } from '../app'
 import { AcEdCommand } from '../editor'
 import { AcApI18n } from '../i18n'
 import { acapNotifyUndoStackChanged } from '../util/AcApDatabaseEdit'
+import type { AcTrView2d } from '../view/AcTrView2d'
 import { getSessionUndo } from './markup/AcApMarkupHistory'
 import { getMarkupPresenter } from './markup/AcApMarkupPresenter'
 
@@ -17,6 +18,12 @@ export class AcApUndoCmd extends AcEdCommand {
   }
 
   async execute(context: AcApContext) {
+    // Inside a symbol, undo stops at the moment the symbol was entered.
+    const symbolEdit = (context.view as Partial<AcTrView2d>).symbolEdit
+    if (symbolEdit?.blocksUndo()) {
+      this.showMessage(AcApI18n.t('main.symbolEdit.undoLimit'), 'info')
+      return
+    }
     const result = getSessionUndo().undo(context.doc.database)
     if (!result) {
       const msgKey = AcApI18n.sysCmdKey(this.globalName, 'nothingToUndo')

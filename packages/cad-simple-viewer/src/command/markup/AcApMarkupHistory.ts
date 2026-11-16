@@ -339,6 +339,37 @@ export class AcApSessionUndo {
     }
   }
 
+  /** Number of session ops that can be undone, oldest first. */
+  get depth(): number {
+    return this.undoKinds.length
+  }
+
+  /** Kind of the op the next undo starts with, if any was recorded. */
+  peekUndo(): 'db' | 'markup' | 'overlay' | undefined {
+    return this.undoKinds[this.undoKinds.length - 1]
+  }
+
+  /**
+   * Forgets the DB ops recorded after `depth` (markup and overlay ops stay)
+   * and every DB op waiting to be redone. The caller removes the matching
+   * records from the database undo stack.
+   *
+   * Used when the edits made inside a symbol are folded into one undo step.
+   */
+  discardDbSince(depth: number): void {
+    for (let i = this.undoKinds.length - 1; i >= Math.max(0, depth); i--) {
+      if (this.undoKinds[i] === 'db') this.undoKinds.splice(i, 1)
+    }
+    this.discardDbRedo()
+  }
+
+  /** Forgets every DB op waiting to be redone. */
+  discardDbRedo(): void {
+    for (let i = this.redoKinds.length - 1; i >= 0; i--) {
+      if (this.redoKinds[i] === 'db') this.redoKinds.splice(i, 1)
+    }
+  }
+
   /** Drop session undo/redo kinds and bound overlay history. */
   clear(): void {
     this.undoKinds.length = 0

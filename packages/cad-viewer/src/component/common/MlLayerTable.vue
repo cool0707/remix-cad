@@ -37,7 +37,11 @@
             @keydown.escape.prevent="emit('draft-cancel')"
             @blur="emit('draft-commit')"
           />
-          <span v-else class="ml-layer-table-name">
+          <span
+            v-else
+            class="ml-layer-table-name"
+            :class="{ 'ml-layer-table-name--fit': scope.row.warning }"
+          >
             <button
               type="button"
               class="ml-layer-table-current-button"
@@ -54,7 +58,20 @@
                 <path d="M13.8 6.6l3.6 3.6" />
               </svg>
             </button>
-            <span class="ml-layer-table-name-text">{{ scope.row.name }}</span>
+            <span
+              class="ml-layer-table-name-text"
+              :title="scope.row.displayNameHint"
+              >{{ scope.row.displayName ?? scope.row.name }}</span
+            >
+            <el-icon
+              v-if="scope.row.warning"
+              class="ml-layer-table-warning"
+              :title="scope.row.warning"
+              :aria-label="scope.row.warning"
+              role="img"
+            >
+              <WarningFilled />
+            </el-icon>
           </span>
         </template>
       </el-table-column>
@@ -345,9 +362,16 @@
 </template>
 
 <script setup lang="ts">
+import { WarningFilled } from '@element-plus/icons-vue'
 import { AcCmColor, AcGiLineWeight } from '@mlightcad/data-model'
 import type { InputInstance } from 'element-plus'
-import { ElCheckbox, ElInput, ElTable, ElTableColumn } from 'element-plus'
+import {
+  ElCheckbox,
+  ElIcon,
+  ElInput,
+  ElTable,
+  ElTableColumn
+} from 'element-plus'
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -868,6 +892,18 @@ defineExpose({
   gap: 2px;
 }
 
+/* Keeps the warning icon in view: the name gives way instead. */
+.ml-layer-table-name--fit {
+  display: flex;
+  min-width: 0;
+}
+
+.ml-layer-table-name--fit .ml-layer-table-name-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
 .ml-layer-table-name-input {
   width: 100%;
 }
@@ -875,6 +911,13 @@ defineExpose({
 .ml-layer-table-name-text {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.ml-layer-table-warning {
+  flex: 0 0 auto;
+  margin-inline-start: 4px;
+  color: var(--el-color-warning);
+  font-size: 14px;
 }
 
 .ml-layer-table-current-button {

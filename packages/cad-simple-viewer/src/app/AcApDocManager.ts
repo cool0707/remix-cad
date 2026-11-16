@@ -80,6 +80,8 @@ import {
   AcApSplineCmd,
   AcApStretchCmd,
   AcApSwitchBgCmd,
+  AcApSymbolEditCloseCmd,
+  AcApSymbolEditCmd,
   AcApSysVarCmd,
   AcApTrimCmd,
   AcApUndoCmd,
@@ -143,6 +145,8 @@ import {
 import { AcApOpenFileProfiler } from './AcApOpenFileProfiler'
 import { AcApOpenFileProgressController } from './AcApOpenFileProgressController'
 import { AcApPrintAreaOverlay } from './AcApPrintAreaOverlay'
+import { AcApSettingManager } from './AcApSettingManager'
+import { acapEnsureDrawingLayer } from './AcApSymbolLayer'
 import {
   checkWebworkerReadiness,
   DEFAULT_WEBWORKER_FILE_URLS,
@@ -709,6 +713,16 @@ export class AcApDocManager {
     this.events.documentActivated.addEventListener(({ doc }) =>
       this.syncHatchScale(doc.database)
     )
+    // Simple profile: layer 0 is the symbol editing layer and is not listed
+    // on the canvas, so drawing must not start on it.
+    this.events.documentActivated.addEventListener(({ doc }) =>
+      this.syncDrawingLayer(doc)
+    )
+    AcApSettingManager.instance.events.modified.addEventListener(args => {
+      if (args.key === 'operationProfile') {
+        this.syncDrawingLayer(this.curDocument)
+      }
+    })
     this._printAreaOverlay = new AcApPrintAreaOverlay(this)
     this.bindOpenProgress(doc)
     this.events.documentCreated.dispatch({
@@ -2100,6 +2114,8 @@ export class AcApDocManager {
       view: this._mainView,
       commandManager: this._commandManager
     })
+    addSystemCommand('refedit', 'refedit', new AcApSymbolEditCmd())
+    addSystemCommand('refclose', 'refclose', new AcApSymbolEditCloseCmd())
     addSystemCommand('select', 'select', new AcApSelectCmd())
     addSystemCommand('sketch', 'sketch', new AcApSketchCmd())
     addSystemCommand('spline', 'spline', new AcApSplineCmd())
@@ -2323,6 +2339,11 @@ export class AcApDocManager {
     // with `AcEdPromptStatus.Cancel`, and we await its `trigger()` settlement
     // so its `commandEnded` lifecycle finishes before the new one begins.
     await this._commandManager.cancelActive()
+
+    // A symbol being edited has its contents copied onto the canvas. Commands
+    // that read the drawing as a whole must see the real drawing.
+    const symbolEdit = (this.curView as AcTrView2d).symbolEdit
+    if (symbolEdit?.shouldExitBefore(cmdName)) symbolEdit.exitAll()
 
     // markActive must run before trigger(): the first getPoint prompt is
     // opened synchronously until the first await, and the mobile session
@@ -2992,9 +3013,30 @@ export class AcApDocManager {
   }
 
   /**
+   * Simple profile: moves the current layer off layer 0 when layer 0 is not
+   * listed (see {@link acapEnsureDrawingLayer}). Left alone while a symbol is
+   * edited, in the CAD profile, and in documents that cannot be edited.
+   */
+  private syncDrawingLayer(doc: AcApDocument | undefined) {
+    if (!doc || doc.openMode !== AcEdOpenMode.Write) return
+    if (AcApSettingManager.instance.operationProfile !== 'simple') return
+    if ((this.curView as AcTrView2d | undefined)?.symbolEdit?.isActive) return
+    try {
+      acapEnsureDrawingLayer(
+        doc.database,
+        AcApI18n.t('main.newDrawing.layerPrefix', { fallback: 'Layer' })
+      )
+    } catch (error) {
+      log.warn('[AcApDocManager] Could not choose a drawing layer', error)
+    }
+  }
+
+  /**
    * Parks the live view onto the active session so another document can take the canvas.
    */
   private parkActiveSession() {
+    // Write a symbol being edited back while its document is still live.
+    ;(this.curView as AcTrView2d).symbolEdit?.exitAll()
     this._activeSession.context.suspend()
     this._activeSession.viewState = this.curView.captureSessionState()
   }
@@ -3027,6 +3069,7 @@ export class AcApDocManager {
     }
 
     await this._commandManager.cancelActive()
+    ;(this.curView as AcTrView2d).symbolEdit?.exitAll()
     this._activeSession.context.suspend()
     if (view === this.curView) {
       this._activeSession.viewState = this.curView.beginNewSession()

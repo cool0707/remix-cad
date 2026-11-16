@@ -3,6 +3,12 @@ import type { LayerInfo } from '../../composable'
 /** Layer table row: real layer or an in-progress new-layer draft. */
 export interface MlLayerTableRow extends LayerInfo {
   isDraft?: boolean
+  /** Name shown instead of the layer's own (the symbol editing layer) */
+  displayName?: string
+  /** Explains {@link displayName}; shown as the tooltip of the name */
+  displayNameHint?: string
+  /** Warning shown beside the name */
+  warning?: string
 }
 
 export type MlLayerTableChangeField =

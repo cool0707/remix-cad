@@ -159,7 +159,8 @@ import {
   LAYER_FILTER_ALL,
   LAYER_FILTER_ALL_USED,
   useLayerFilters,
-  useLayers
+  useLayers,
+  useSymbolLayer
 } from '../../composable'
 import { layerDelete, layerNew, layerSetCurrent } from '../../svg'
 import {
@@ -241,9 +242,13 @@ watch(filterPanelVisible, visible => {
   if (visible) void syncFilterTreeSelection()
 })
 
+const symbolLayer = useSymbolLayer()
+
 const currentLayerLabel = computed(() =>
   t('main.toolPalette.layerManager.currentLayerLabel', {
-    name: currentLayerName.value || '—'
+    name: symbolLayer.isSymbolLayer(currentLayerName.value)
+      ? t('main.symbolLayer.name')
+      : currentLayerName.value || '—'
   })
 )
 
@@ -285,9 +290,27 @@ const buildDraftRow = (): MlLayerTableRow => ({
   isDraft: true
 })
 
+/** The row of a layer, under the name the list shows it by. */
+const toRow = (layer: MlLayerTableRow): MlLayerTableRow =>
+  symbolLayer.isSymbolLayer(layer.name)
+    ? {
+        ...layer,
+        displayName: t('main.symbolLayer.name'),
+        displayNameHint: t('main.symbolLayer.hint'),
+        warning: symbolLayer.hasWarning(layer.name)
+          ? t('main.symbolLayer.warning')
+          : undefined
+      }
+    : layer
+
 const displayedLayers = computed<MlLayerTableRow[]>(() => {
   const db = props.editor.curDocument?.database
-  let result: MlLayerTableRow[] = [...layers]
+  // Simple profile: the symbol editing layer (0) is listed only while a
+  // symbol is edited, or when the drawing has entities on it outside of
+  // symbols.
+  let result: MlLayerTableRow[] = layers
+    .filter(layer => symbolLayer.isListed(layer.name))
+    .map(toRow)
 
   if (selectedFilterId.value !== LAYER_FILTER_ALL && db) {
     result = result.filter(layerInfo => {
@@ -298,7 +321,9 @@ const displayedLayers = computed<MlLayerTableRow[]>(() => {
 
   const query = searchText.value.trim().toLowerCase()
   if (query) {
-    result = result.filter(layer => layer.name.toLowerCase().includes(query))
+    result = result.filter(layer =>
+      (layer.displayName ?? layer.name).toLowerCase().includes(query)
+    )
   }
 
   if (isDraftingNewLayer.value) {

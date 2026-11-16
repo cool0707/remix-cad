@@ -139,6 +139,12 @@ export default {
       description: 'Rozloží vybrané symboly (bloky) na tvary, ze kterých se skládají',
       prompt: 'Vyberte symboly'
     },
+    refedit: {
+      description: 'Vstoupí do vybraného symbolu (bloku) a upraví jeho obsah na místě'
+    },
+    refclose: {
+      description: 'Ukončí úpravy symbolu a aktualizuje všechny jeho kopie'
+    },
     extmax: {
       description:
         'Ukládá pravý horní roh rozsahu výkresu na plátně (pouze pro čtení)'

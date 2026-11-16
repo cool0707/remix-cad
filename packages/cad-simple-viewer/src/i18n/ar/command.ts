@@ -256,6 +256,12 @@ export default {
       description: 'يفكك الرموز (الكتل) المحددة إلى الأشكال التي تتكون منها',
       prompt: 'حدد الرموز'
     },
+    refedit: {
+      description: 'يدخل إلى الرمز (البلوك) المحدد لتحرير محتوياته في مكانه'
+    },
+    refclose: {
+      description: 'ينهي تحرير الرمز ويحدّث جميع نسخه'
+    },
 
     extmax: {
       ...enCommand.ACAD.extmax,

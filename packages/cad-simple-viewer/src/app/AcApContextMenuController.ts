@@ -14,6 +14,7 @@ import {
 import { AcApDocManager } from './AcApDocManager'
 import type { AcApEditActions } from './AcApEditActions'
 import { AcApSettingManager } from './AcApSettingManager'
+import type { AcApSymbolEditController } from './AcApSymbolEdit'
 import type { AcApToolManager } from './AcApToolManager'
 
 /** Parts of the view the menu works with. */
@@ -24,6 +25,8 @@ export interface AcApContextMenuControllerOptions {
   editActions: AcApEditActions
   /** Whether a right-click inside a prompt is Enter (the CAD profile) */
   rightClickIsEnter: () => boolean
+  /** Editing the contents of a symbol, where the view supports it */
+  symbolEdit?: AcApSymbolEditController
 }
 
 /** Global name of the keyword that takes the last pick back. */
@@ -158,6 +161,10 @@ export class AcApContextMenuController {
       hasSymbolSelection: editable.some(
         entity => entity instanceof AcDbBlockReference
       ),
+      canEditSymbol:
+        selected.length === 1 &&
+        !!this.options.symbolEdit?.canEnter(selected[0].objectId),
+      editingSymbol: !!this.options.symbolEdit?.isActive,
       canEdit: actions.canEdit,
       canPaste: actions.canPaste,
       canUndo: session.canUndo(db),
@@ -250,6 +257,12 @@ export class AcApContextMenuController {
       case 'erase':
       case 'explode':
         docManager.sendStringToExecute(id)
+        break
+      case 'editSymbol':
+        docManager.sendStringToExecute('refedit')
+        break
+      case 'finishSymbol':
+        docManager.sendStringToExecute('refclose')
         break
       case 'selectSameLayer':
         actions.selectSameLayer()

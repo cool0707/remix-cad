@@ -87,8 +87,16 @@ del dispositivo del usuario.
   seleccionados, una sección Selección muestra X / Y / An / Al con un punto de referencia de 9 posiciones,
   el número de objetos por tipo (clic para quedarse solo con ese tipo) y la longitud y el área totales;
   los valores distintos aparecen como «Mixto» y se pueden cambiar a la vez. Las propiedades de símbolo
-  (atributos de bloque) se editan en el mismo panel; al reemplazar con clic, un doble clic en un símbolo
+  (atributos de bloque) se editan en el mismo panel; al reemplazar con clic, un doble clic en el texto de una propiedad
   lleva a su campo.
+- **Edición de símbolos en su sitio** — en Simple, un doble clic en un símbolo (bloque) entra en él para
+  editar su contenido con las herramientas habituales; el resto se atenúa y una ruta (Lienzo › nombre del símbolo)
+  indica dónde se está. **Listo**, Esc o un doble clic fuera salen y actualizan todas las copias del símbolo; toda
+  la visita es un solo paso de deshacer. Se entra igual en los símbolos que hay dentro de otros, y **Añadir
+  propiedad** da una propiedad nueva a todas las copias. La capa 0 aparece como **capa de edición de símbolos**
+  (sus formas siguen la capa en la que se coloca el símbolo): solo se lista mientras se edita un símbolo o, con un
+  aviso, cuando el dibujo ya tiene formas en ella fuera de los símbolos; al dibujar en el lienzo se pasa a otra
+  capa (un dibujo nuevo recibe «Layer1»).
 - **Importación de JWW / JWC (Jw_cad)** — la app de ejemplo abre archivos `.jww` y `.jwc` (formato antiguo) con
   `@mlightcad/cad-jww-converter` (MIT; analizador [ezjww](https://github.com/monozukuri-ai/ezjww),
   Rust → WebAssembly, en un Web Worker). Las coordenadas pasan de milímetros de papel a

@@ -770,6 +770,13 @@ export default {
     script: 'Skript…',
     devTools: 'Nástroje pro vývojáře'
   },
+  symbolLayer: {
+    name: 'Hladina pro úpravy symbolů',
+    hint:
+      'Hladina pro úpravy symbolů (hladina 0). Tvary nakreslené uvnitř symbolu v této hladině přebírají barvu a viditelnost hladiny, do které je symbol vložen.',
+    warning:
+      'V této hladině jsou tvary mimo jakýkoli symbol. Hladina slouží k úpravám symbolů; doporučujeme je přesunout do jiné hladiny.'
+  },
   toolPalette: {
     layersSection: {
       more: 'Další',
@@ -782,6 +789,13 @@ export default {
       tab: 'Vlastnosti',
       title: 'Vlastnosti objektu',
       propertyPanel: {
+        editSymbol: 'Upravit symbol',
+        editSymbolHint:
+          'Vstoupí do symbolu a umožní jej upravit. Změní se všechny kopie tohoto symbolu.',
+        symbolEditing: 'Úprava symbolu „{name}“',
+        symbolEditingHint: 'Změny se projeví ve všech kopiích tohoto symbolu.',
+        addSymbolProperty: 'Přidat vlastnost',
+        finishSymbolEdit: 'Hotovo',
         noEntitySelected: 'Není vybrán žádný objekt!',
         multipleEntitySelected: 'Vybráno objektů: {count}',
         propValCopied: 'Hodnota vlastnosti zkopírována',

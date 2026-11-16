@@ -1,6 +1,7 @@
 export default {
   newDrawing: {
-    layoutPrefix: 'صفحة'
+    layoutPrefix: 'صفحة',
+    layerPrefix: 'طبقة'
   },
   document: {
     untitled: 'بلا عنوان'
@@ -80,6 +81,8 @@ export default {
       xattach: 'إرفاق رسم مرتبط',
       erase: 'حذف',
       explode: 'تفكيك',
+      refedit: 'تحرير الرمز',
+      refclose: 'إنهاء تحرير الرمز',
       undo: 'تراجع',
       redo: 'إعادة',
       zoom: 'تكبير/تصغير',
@@ -154,6 +157,8 @@ export default {
       chamfer: 'حافة زاوية',
       break: 'تقسيم',
       explode: 'تفكيك تفجير explode',
+      refedit: 'تحرير البلوك محرر البلوك تحرير في المكان bedit refedit',
+      refclose: 'إغلاق محرر البلوك bclose refclose',
       hatch: 'تهشير',
       insert: 'كتلة',
       layer: 'طبقة',
@@ -181,6 +186,8 @@ export default {
     duplicate: 'تكرار',
     erase: 'حذف',
     explode: 'تفكيك',
+    editSymbol: 'تحرير الرمز',
+    finishSymbol: 'إنهاء تحرير الرمز',
     selectSameLayer: 'تحديد نفس الطبقة',
     properties: 'إظهار الخصائص',
     selectAll: 'تحديد الكل',
@@ -327,6 +334,18 @@ export default {
     erase: 'حذف',
     collapse: 'طي شريط الأدوات',
     expand: 'توسيع شريط الأدوات'
+  },
+  symbolEdit: {
+    canvas: 'لوحة الرسم',
+    done: 'تم',
+    doneTooltip: 'إنهاء تحرير الرمز (Esc)',
+    barLabel: 'تحرير الرمز',
+    notInPlace: 'معروض بدون انعكاس أو تمديد',
+    notEditable: 'لا يمكن تحرير محتويات هذا الرمز.',
+    linked: 'لا يمكن تحرير محتويات رسم مرتبط.',
+    locked: 'لا يمكن تحرير رمز على طبقة مقفلة.',
+    selectOne: 'حدد رمزًا واحدًا لتحريره.',
+    undoLimit: 'أنهِ تحرير الرمز للتراجع عما تم قبل الدخول إليه.'
   },
   explode: {
     noSymbol: 'حدد رمزًا لتفكيكه.',

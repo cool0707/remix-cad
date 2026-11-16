@@ -6,7 +6,10 @@ import { expect, test } from '@playwright/test'
 import { uploadFixture } from '../helpers/fileUpload'
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url))
-/** Layers 0 (current) and DOORS. */
+/**
+ * Layers 0 (current) and DOORS. The simple profile lists layer 0 as the
+ * "Symbol editing layer" (shown here because two lines sit on it).
+ */
 const fixturePath = path.resolve(
   currentDir,
   '..',
@@ -47,13 +50,18 @@ test('the pencil before a layer name makes it the current layer', async ({
       return mod.AcApDocManager.instance.curDocument.database.clayer as string
     }, viewerModuleUrl!)
 
-  await expect(pencil('0')).toHaveClass(/is-current/)
+  const layerZero = 'Symbol editing layer'
+  await expect(pencil(layerZero)).toHaveClass(/is-current/)
   await expect(pencil('DOORS')).not.toHaveClass(/is-current/)
 
   await pencil('DOORS').click()
   await expect.poll(currentLayer).toBe('DOORS')
   await expect(pencil('DOORS')).toHaveClass(/is-current/)
-  await expect(pencil('0')).not.toHaveClass(/is-current/)
+  await expect(pencil(layerZero)).not.toHaveClass(/is-current/)
+
+  // And back, by its listed name.
+  await pencil(layerZero).click()
+  await expect.poll(currentLayer).toBe('0')
   await page
     .locator('.ml-layer-table')
     .screenshot({ path: test.info().outputPath('layer-table.png') })

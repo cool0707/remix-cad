@@ -919,6 +919,25 @@ export class AcTrLayout {
   }
 
   /**
+   * Sets or clears the compare-display role of one entity while compare
+   * display is on. Layers created later get the updated roles as well.
+   */
+  setEntityCompareRole(
+    objectId: AcDbObjectId,
+    role: Parameters<AcTrLayer['setEntityCompareRole']>[1]
+  ) {
+    const options = this._compareDisplayOptions
+    if (!options?.enabled) return
+    const id = String(objectId)
+    const overrides = [...(options.overrides ?? [])].filter(
+      entry => String(entry.objectId) !== id
+    )
+    if (role != null) overrides.push({ objectId: id, role })
+    this._compareDisplayOptions = { ...options, overrides }
+    this._layers.forEach(layer => layer.setEntityCompareRole(id, role))
+  }
+
+  /**
    * Groups entity ids by render layer and applies one bulk highlight call per layer.
    *
    * @param ids - Entity object ids whose highlight state should change.

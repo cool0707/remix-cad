@@ -399,6 +399,21 @@ export class AcTrScene {
   }
 
   /**
+   * Sets or clears the compare-display role of one entity in every
+   * non-reference layout.
+   */
+  setEntityCompareRole(
+    objectId: AcDbObjectId,
+    role: Parameters<AcTrLayout['setEntityCompareRole']>[1]
+  ) {
+    this._layouts.forEach(layout => {
+      if (!layout.isReference) {
+        layout.setEntityCompareRole(objectId, role)
+      }
+    })
+  }
+
+  /**
    * Search entities intersected or contained in the specified bounding box.
    * @param box Input the query bounding box
    * @returns Return query results

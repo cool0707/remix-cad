@@ -778,6 +778,13 @@ export default {
     script: 'Script…',
     devTools: 'Developer tools'
   },
+  symbolLayer: {
+    name: 'Symbol editing layer',
+    hint:
+      'Symbol editing layer (layer 0). Inside a symbol, shapes drawn on this layer follow the color and visibility of the layer the symbol is placed on.',
+    warning:
+      'This layer has shapes outside of any symbol. It is meant for editing symbols; consider moving them to another layer.'
+  },
   toolPalette: {
     layersSection: {
       more: 'More',
@@ -790,6 +797,13 @@ export default {
       tab: 'Properties',
       title: 'Entity Properties',
       propertyPanel: {
+        editSymbol: 'Edit symbol',
+        editSymbolHint:
+          'Go inside the symbol to edit it. Every copy of this symbol changes.',
+        symbolEditing: 'Editing symbol "{name}"',
+        symbolEditingHint: 'Changes apply to every copy of this symbol.',
+        addSymbolProperty: 'Add property',
+        finishSymbolEdit: 'Done',
         noEntitySelected: 'No entity selected!',
         multipleEntitySelected: '{count} entities selected',
         propValCopied: 'Property value copied',

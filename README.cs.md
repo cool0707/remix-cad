@@ -83,7 +83,14 @@ takže výkresy nikdy neopustí zařízení uživatele.
   X / Y / Š / V s 9bodovým referenčním bodem, počty podle typu (kliknutím ponecháte jen daný typ)
   a celkovou délku a plochu; rozdílné hodnoty se zobrazí jako „Různé“ a lze je nastavit najednou.
   Vlastnosti symbolu (atributy bloku) se upravují ve stejném panelu; při nahrazení kliknutím
-  dvojklik na symbol přesune kurzor do jeho pole.
+  dvojklik na text vlastnosti přesune kurzor do jejího pole.
+- **Úpravy symbolů na místě** — v Jednoduchém režimu dvojklik na symbol (blok) vstoupí dovnitř a jeho obsah lze
+  upravit běžnými nástroji; vše ostatní se ztlumí a nahoře se zobrazí cesta (Plátno › název symbolu).
+  **Hotovo**, Esc nebo dvojklik mimo obsah úpravy ukončí a aktualizuje všechny kopie symbolu; celá návštěva je
+  jeden krok zpět. Do symbolů uvnitř symbolů se vstupuje stejně a **Přidat vlastnost** přidá vlastnost všem
+  kopiím. Hladina 0 se zobrazuje jako **hladina pro úpravy symbolů** (tvary v ní přebírají hladinu, do které je
+  symbol vložen): v seznamu je jen během úprav symbolu, nebo s varováním, pokud výkres už v ní má tvary mimo
+  symboly; při kreslení na plátno se přepne na jinou hladinu (nový výkres dostane „Hladina1“).
 - **Import JWW / JWC (Jw_cad)** — ukázková aplikace otevírá soubory `.jww` a `.jwc` (starý formát) pomocí
   `@mlightcad/cad-jww-converter` (MIT; parser [ezjww](https://github.com/monozukuri-ai/ezjww),
   Rust → WebAssembly, ve Web Workeru). Souřadnice se převádějí z milimetrů na papíře na skutečné

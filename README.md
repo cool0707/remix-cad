@@ -84,7 +84,14 @@ drawings never leave the user's device.
   section shows X / Y / W / H with a 9-point reference point, counts per type (click to keep only
   that type) and total length / area; values that differ show as "Mixed" and can be set at once.
   Symbol properties (block attributes) are edited in the same panel; in the replace-on-click style,
-  double-clicking a symbol jumps to its field.
+  double-clicking the text of a symbol property jumps to its field.
+- **Edit symbols in place** — in Simple, double-click a symbol (block) to go inside it and edit its contents
+  with the normal tools; everything else is dimmed and a breadcrumb (Canvas › symbol name) shows where you are.
+  **Done**, Esc or a double-click outside leaves and updates every copy of the symbol; the whole visit is one
+  undo step. Symbols inside symbols are entered the same way, and **Add property** gives every copy a new
+  symbol property. Layer 0 appears as the **Symbol editing layer** (shapes on it follow the layer the symbol
+  is placed on): it is listed only while a symbol is edited — or, with a warning, when the drawing already has
+  shapes on it outside of symbols — and drawing on the canvas moves to another layer (a new drawing gets "Layer1").
 - **JWW / JWC (Jw_cad) import** — `.jww` and the older `.jwc` files open in the example app through
   `@mlightcad/cad-jww-converter` (MIT; parser: [ezjww](https://github.com/monozukuri-ai/ezjww),
   Rust → WebAssembly, in a Web Worker). Coordinates are converted from paper

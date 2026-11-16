@@ -3,8 +3,10 @@
  * - deleted: present only in the left (old) drawing
  * - added: present only in the right (new) drawing
  * - modified: present in both but geometry/attributes differ
+ * - keep: stays in its own colors while the rest takes the unchanged color
+ *   (the entities being edited inside a symbol)
  */
-export type AcApCompareDisplayRole = 'deleted' | 'added' | 'modified'
+export type AcApCompareDisplayRole = 'deleted' | 'added' | 'modified' | 'keep'
 
 /** Configurable colors for compare display mode. */
 export interface AcApCompareDisplayColors {

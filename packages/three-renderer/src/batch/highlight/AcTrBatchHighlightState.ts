@@ -5,9 +5,11 @@ export type AcTrBatchHighlightKind = 'select' | 'hover'
 
 /**
  * Compare-display role for one packed geometry slot.
- * Encoded in the B channel of the highlight mask texture.
+ * Encoded in the B channel of the highlight mask texture. `'keep'` leaves
+ * the slot in its own colors while everything else takes the base color
+ * (the entities being edited inside a symbol); it is encoded in the A channel.
  */
-export type AcTrBatchCompareRole = 'deleted' | 'added' | 'modified'
+export type AcTrBatchCompareRole = 'deleted' | 'added' | 'modified' | 'keep'
 
 /** No compare role encoded in {@link AcTrBatchHighlightState.compareRoleMask}. */
 export const COMPARE_ROLE_NONE = 0
@@ -17,6 +19,8 @@ export const COMPARE_ROLE_DELETED = 1
 export const COMPARE_ROLE_ADDED = 2
 /** Modified entity encoded in {@link AcTrBatchHighlightState.compareRoleMask}. */
 export const COMPARE_ROLE_MODIFIED = 3
+/** Slot keeps its own colors, encoded in {@link AcTrBatchHighlightState.compareRoleMask}. */
+export const COMPARE_ROLE_KEEP = 4
 
 /**
  * Maps a compare role to its mask encoding.
@@ -29,6 +33,7 @@ export function compareRoleToMaskValue(
   if (role === 'deleted') return COMPARE_ROLE_DELETED
   if (role === 'added') return COMPARE_ROLE_ADDED
   if (role === 'modified') return COMPARE_ROLE_MODIFIED
+  if (role === 'keep') return COMPARE_ROLE_KEEP
   return COMPARE_ROLE_NONE
 }
 
@@ -73,7 +78,7 @@ export class AcTrBatchHighlightState {
   hoveredMask = new Uint8Array(0)
   /**
    * CPU-side compare roles indexed by geometry slot id.
-   * Values: {@link COMPARE_ROLE_NONE} / DELETED / ADDED / MODIFIED.
+   * Values: {@link COMPARE_ROLE_NONE} / DELETED / ADDED / MODIFIED / KEEP.
    */
   compareRoleMask = new Uint8Array(0)
   /** When true, batch shaders force the compare base color then role overrides. */
@@ -312,7 +317,12 @@ export class AcTrBatchHighlightState {
       data[offset + 1] = this.hoveredMask[slotId] ? 255 : 0
       // Encode compare role in B: 0 / 85 / 170 / 255
       const role = this.compareRoleMask[slotId] ?? 0
-      data[offset + 2] = role === 0 ? 0 : role * 85
+      if (role === COMPARE_ROLE_KEEP) {
+        // A: the slot keeps its own colors in compare display.
+        data[offset + 3] = 255
+      } else {
+        data[offset + 2] = role === 0 ? 0 : role * 85
+      }
     }
 
     if (
