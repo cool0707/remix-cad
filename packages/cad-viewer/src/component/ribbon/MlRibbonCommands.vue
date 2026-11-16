@@ -2971,6 +2971,16 @@ const handleFileMenuSelect = (command: string) => {
   background: var(--ml-ui-bg, var(--el-bg-color));
 }
 
+/*
+ * The floating bar takes the top of the drawing: the path of the symbol
+ * being edited (drawn by the view) moves to the bottom meanwhile.
+ */
+.ml-cad-main:has(.ml-ribbon-toolbar-container.is-floating)
+  .ml-symbol-edit-bar {
+  top: auto;
+  bottom: 12px;
+}
+
 .ml-ribbon-tabs-after {
   display: inline-flex;
   align-items: center;

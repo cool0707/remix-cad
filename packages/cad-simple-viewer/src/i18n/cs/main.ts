@@ -1,6 +1,7 @@
 export default {
   newDrawing: {
-    layoutPrefix: 'Stránka'
+    layoutPrefix: 'Stránka',
+    layerPrefix: 'Hladina'
   },
   document: {
     untitled: 'Bez názvu'
@@ -71,6 +72,8 @@ export default {
       xattach: 'Připojit propojený výkres',
       erase: 'Smazat',
       explode: 'Rozložit',
+      refedit: 'Upravit symbol',
+      refclose: 'Ukončit úpravy symbolu',
       undo: 'Zpět',
       redo: 'Znovu',
       zoom: 'Zoom',
@@ -136,6 +139,8 @@ export default {
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
       explode: 'rozložit rozbít explode',
+      refedit: 'upravit blok editor bloků úpravy na místě bedit refedit',
+      refclose: 'zavřít editor bloků bclose refclose',
       hatch: 'šrafa šrafování',
       insert: 'blok',
       layer: 'hladina',
@@ -164,6 +169,8 @@ export default {
     duplicate: 'Duplikovat',
     erase: 'Odstranit',
     explode: 'Rozložit',
+    editSymbol: 'Upravit symbol',
+    finishSymbol: 'Ukončit úpravy symbolu',
     selectSameLayer: 'Vybrat stejnou hladinu',
     properties: 'Zobrazit vlastnosti',
     selectAll: 'Vybrat vše',
@@ -311,6 +318,18 @@ export default {
     erase: 'Smazat',
     collapse: 'Sbalit panel nástrojů',
     expand: 'Rozbalit panel nástrojů'
+  },
+  symbolEdit: {
+    canvas: 'Plátno',
+    done: 'Hotovo',
+    doneTooltip: 'Ukončit úpravy symbolu (Esc)',
+    barLabel: 'Úpravy symbolu',
+    notInPlace: 'Zobrazeno bez zrcadlení a deformace',
+    notEditable: 'Obsah tohoto symbolu nelze upravit.',
+    linked: 'Obsah propojeného výkresu nelze upravit.',
+    locked: 'Symbol v uzamčené hladině nelze upravit.',
+    selectOne: 'Vyberte jeden symbol k úpravě.',
+    undoLimit: 'Kroky provedené před vstupem do symbolu lze vrátit až po ukončení úprav.'
   },
   explode: {
     noSymbol: 'Vyberte symbol, který chcete rozložit.',

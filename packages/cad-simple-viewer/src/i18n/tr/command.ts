@@ -143,6 +143,12 @@ export default {
       description: 'Seçili sembolleri (blokları) oluşturan şekillere ayırır',
       prompt: 'Sembolleri seçin'
     },
+    refedit: {
+      description: 'Seçili sembolün (bloğun) içine girer ve içeriğini yerinde düzenler'
+    },
+    refclose: {
+      description: 'Sembol düzenlemeyi bitirir ve aynı sembolün tüm kopyalarını günceller'
+    },
     extmax: {
       description:
         'Tuval çizim kapsamının sağ üst köşesini saklar (salt okunur)'

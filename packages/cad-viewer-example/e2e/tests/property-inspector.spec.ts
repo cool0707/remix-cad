@@ -189,7 +189,7 @@ test('changes the layer of mixed entities at once', async ({ page }) => {
     .toEqual(['DOORS', 'DOORS', 'DOORS', 'DOORS'])
 })
 
-test('double-click on a symbol focuses its field in the simple profile', async ({
+test('double-click on the text of a symbol property focuses its field in the simple profile', async ({
   page
 }) => {
   await loadFixture(page)
@@ -205,13 +205,14 @@ test('double-click on a symbol focuses its field in the simple profile', async (
     const mod = await import(/* @vite-ignore */ url)
     const view = mod.AcApDocManager.instance.curView
     const rect = view.canvas.getBoundingClientRect()
-    // On the symbol's top edge (a line of the block).
-    const screen = view.worldToScreen({ x: 10, y: 20 })
+    // On the "800" of the first symbol (WIDTH, drawn from (2, 8), 2 high).
+    // The lines of the symbol enter it instead (symbol-edit.spec.ts).
+    const screen = view.worldToScreen({ x: 2.2, y: 8.5 })
     return { x: rect.left + screen.x, y: rect.top + screen.y }
   }, viewerModuleUrl!)
   await page.mouse.dblclick(client.x, client.y)
 
   await expect(page.locator('.ml-att-edit-dlg')).toHaveCount(0)
-  await expect(field(page, 'MARK')).toBeFocused()
-  await expect(field(page, 'MARK')).toHaveValue('D1')
+  await expect(field(page, 'WIDTH')).toBeFocused()
+  await expect(field(page, 'WIDTH')).toHaveValue('800')
 })

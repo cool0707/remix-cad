@@ -1027,6 +1027,13 @@ export default {
     script: 'برنامج نصي…',
     devTools: 'أدوات المطور'
   },
+  symbolLayer: {
+    name: 'طبقة تحرير الرموز',
+    hint:
+      'طبقة تحرير الرموز (الطبقة 0). الأشكال المرسومة على هذه الطبقة داخل رمز تتبع لون وظهور الطبقة التي وُضع عليها الرمز.',
+    warning:
+      'توجد على هذه الطبقة أشكال خارج أي رمز. هذه الطبقة مخصصة لتحرير الرموز، ويُفضّل نقل تلك الأشكال إلى طبقة أخرى.'
+  },
   toolPalette: {
     ...enMain.toolPalette,
     layersSection: {
@@ -1045,6 +1052,12 @@ export default {
 
       propertyPanel: {
         ...enMain.toolPalette.entityProperties.propertyPanel,
+        editSymbol: 'تحرير الرمز',
+        editSymbolHint: 'ادخل إلى الرمز لتحريره. تتغير جميع نسخ هذا الرمز.',
+        symbolEditing: 'جارٍ تحرير الرمز «{name}»',
+        symbolEditingHint: 'تُطبَّق التغييرات على جميع نسخ هذا الرمز.',
+        addSymbolProperty: 'إضافة خاصية',
+        finishSymbolEdit: 'تم',
 
         noEntitySelected: 'لم يتم تحديد أي عنصر!',
         multipleEntitySelected: 'تم تحديد {count} عنصر',

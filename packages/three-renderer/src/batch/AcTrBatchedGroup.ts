@@ -1981,6 +1981,11 @@ export class AcTrBatchedGroup extends THREE.Group {
         continue
       }
       const role = this._compareRoles.get(objectId)
+      if (role === 'keep') {
+        // Stays in its own colors.
+        this.unhighlightUnbatchedObject(object)
+        continue
+      }
       const color = this.resolveCompareColor(role)
       this.applyUnbatchedCompareMaterial(
         object,
@@ -2352,15 +2357,22 @@ export class AcTrBatchedGroup extends THREE.Group {
     containerGroup: THREE.Group,
     options: {
       maxSlots: number
-      mode: 'highlight' | 'preview' | 'compare'
+      mode: 'highlight' | 'preview' | 'compare' | 'keep'
       previewStyle?: 'normal' | 'dashed'
       compareColor?: number
     }
   ): number {
     let added = 0
+    // 'keep' only redraws the slots that cannot keep their colors in place
+    // (shared INSERT instances are tinted as a whole batch).
+    const sharedOnly = options.mode === 'keep'
     const applyOverlayStyle = (object: THREE.Object3D) => {
       if (options.mode === 'highlight') {
         this.applyHighlightMaterial(object)
+        return
+      }
+      if (options.mode === 'keep') {
+        this.applyKeepOverlayMaterial(object)
         return
       }
       if (options.mode === 'compare') {
@@ -2379,6 +2391,9 @@ export class AcTrBatchedGroup extends THREE.Group {
         }
         const batchedObject = this.getOriginBatch(item.batchedObjectId)
         if (!batchedObject || !this.hasBatchObjectAt(batchedObject)) {
+          return false
+        }
+        if (sharedOnly && !(batchedObject instanceof AcTrSharedGeometryBatch)) {
           return false
         }
 
@@ -2400,7 +2415,9 @@ export class AcTrBatchedGroup extends THREE.Group {
       })
     }
 
-    const unbatchedObjects = this._unbatchedEntities.get(objectId)
+    const unbatchedObjects = sharedOnly
+      ? undefined
+      : this._unbatchedEntities.get(objectId)
     if (unbatchedObjects && added < options.maxSlots) {
       const limit = Math.min(unbatchedObjects.length, options.maxSlots - added)
       for (let index = 0; index < limit; index++) {
@@ -2470,8 +2487,13 @@ export class AcTrBatchedGroup extends THREE.Group {
    * Cloning the batch material would keep the highlight shader, which tints
    * everything to the unchanged base color when the packed slot mask misses.
    */
-  private applyCompareOverlayMaterial(object: THREE.Object3D, color: number) {
+  private applyCompareOverlayMaterial(
+    object: THREE.Object3D,
+    color: number | ((node: THREE.Object3D) => number)
+  ) {
+    const colorOf = typeof color === 'function' ? color : () => color
     const replace = (node: THREE.Object3D) => {
+      const color = colorOf(node)
       if (node instanceof LineSegments2) {
         const src = node.material as LineMaterial
         const material = new LineMaterial({
@@ -2522,6 +2544,20 @@ export class AcTrBatchedGroup extends THREE.Group {
   }
 
   /**
+   * Redraws a drawable in its own colors over the compare base tint (role
+   * `'keep'`). Like the role overlays it uses fresh, unpatched materials, so
+   * dash patterns are not reproduced.
+   */
+  private applyKeepOverlayMaterial(object: THREE.Object3D) {
+    this.applyCompareOverlayMaterial(object, node => {
+      const material = (node as { material?: unknown }).material
+      const source = Array.isArray(material) ? material[0] : material
+      const color = (source as { color?: THREE.Color } | undefined)?.color
+      return color instanceof THREE.Color ? color.getHex() : 0xffffff
+    })
+  }
+
+  /**
    * Rebinds compare-overlay wrappers onto the live packed attribute arrays.
    *
    * {@link AcTrBatchedLine.getObjectAt} shares `attributes`/`index` with the
@@ -2563,11 +2599,24 @@ export class AcTrBatchedGroup extends THREE.Group {
       return
     }
     this._compareRoles.forEach((role, objectId) => {
+      this.appendCompareOverlay(objectId, role)
+    })
+  }
+
+  /** Adds the compare-overlay drawables of one entity for its role. */
+  private appendCompareOverlay(objectId: string, role: AcTrBatchCompareRole) {
+    if (role === 'keep') {
+      if (!this._entitiesMap.has(objectId)) return
       this.appendEntityOverlayDrawables(objectId, this._compareOverlay, {
         maxSlots: 10000,
-        mode: 'compare',
-        compareColor: this.resolveCompareColor(role)
+        mode: 'keep'
       })
+      return
+    }
+    this.appendEntityOverlayDrawables(objectId, this._compareOverlay, {
+      maxSlots: 10000,
+      mode: 'compare',
+      compareColor: this.resolveCompareColor(role)
     })
   }
 
@@ -2583,11 +2632,7 @@ export class AcTrBatchedGroup extends THREE.Group {
     if (role == null) {
       return
     }
-    this.appendEntityOverlayDrawables(objectId, this._compareOverlay, {
-      maxSlots: 10000,
-      mode: 'compare',
-      compareColor: this.resolveCompareColor(role)
-    })
+    this.appendCompareOverlay(objectId, role)
   }
 
   /**

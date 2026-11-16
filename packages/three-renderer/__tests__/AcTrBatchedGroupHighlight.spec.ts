@@ -11,7 +11,9 @@ import {
   AcTrBatchHighlightState,
   BATCH_SLOT_ID_ATTRIBUTE,
   COMPARE_ROLE_ADDED,
-  COMPARE_ROLE_DELETED
+  COMPARE_ROLE_DELETED,
+  COMPARE_ROLE_KEEP,
+  COMPARE_ROLE_NONE
 } from '../src/batch/highlight'
 import { RTE_REBASE_THRESHOLD } from '../src/draw/AcTrBatchDrawPolicy'
 import { buildLineGeometry } from '../src/object/AcTrLineGeometryBuilder'
@@ -324,6 +326,75 @@ describe('AcTrBatchedGroup slot-mask highlight', () => {
     expect(clonedMesh.material).toBe(sceneMaterial)
     expect(sceneMaterial.color.getHex()).toBe(0xffffff)
     expect(getObjectUserData(clonedMesh).originalMaterial).toBeUndefined()
+  })
+
+  it('keeps the colors of entities with the keep role while the rest is tinted', () => {
+    const group = new AcTrBatchedGroup()
+    group.addEntity(createBatchedLineEntity('inside'))
+    group.addEntity(createBatchedLineEntity('outside'))
+
+    // An unbatched drawable inside the symbol being edited.
+    const geometry = new THREE.BufferGeometry()
+    geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute([0, 0, 0, 10, 0, 0], 3)
+    )
+    const material = new THREE.LineBasicMaterial({ color: 0xff0000 })
+    const line = new THREE.Line(geometry, material)
+    getObjectUserData(line).noBatch = true
+    const entity = new AcTrEntity(new AcTrRenderContext())
+    entity.objectId = 'inside-unbatched'
+    entity.visible = true
+    entity.add(line)
+    group.addEntity(entity)
+    const sceneLine = [...group.children[0].children].find(
+      child => child instanceof THREE.Line
+    ) as THREE.Line
+
+    group.setCompareDisplay({
+      enabled: true,
+      baseColor: 0x444444,
+      overrides: [
+        { objectId: 'inside', role: 'keep' },
+        { objectId: 'inside-unbatched', role: 'keep' }
+      ]
+    })
+
+    const batches: AcTrBatchedLine[] = []
+    group.traverse(child => {
+      if (child instanceof AcTrBatchedLine) batches.push(child)
+    })
+    /** Mask texels (blue = role color, alpha = keeps its colors) in use. */
+    const texels = () =>
+      batches.flatMap(batch => {
+        const state = batch._highlightState
+        expect(state.compareEnabled).toBe(true)
+        const data = state.uploadMaskTexture(true).image.data as Uint8Array
+        return [...state.compareRoleMask]
+          .map((role, slot) => ({
+            role,
+            blue: data[slot * 4 + 2],
+            alpha: data[slot * 4 + 3]
+          }))
+          .filter(texel => texel.role !== COMPARE_ROLE_NONE)
+      })
+    // Kept slots are marked in the alpha channel, not as a role color.
+    expect(texels()).toEqual([{ role: COMPARE_ROLE_KEEP, blue: 0, alpha: 255 }])
+    // No flat-color copy is drawn over a kept entity.
+    const overlay = group.children.find(
+      child => child.name === 'CompareOverlay'
+    )!
+    expect(overlay.children).toHaveLength(0)
+    // The unbatched drawable stays in its own material.
+    expect(sceneLine.material).toBe(material)
+
+    // One more entity joins the kept ones without a full refresh.
+    group.setEntityCompareRole('outside', 'keep')
+    expect(texels()).toHaveLength(2)
+    group.setEntityCompareRole('inside-unbatched', null)
+    expect(
+      (sceneLine.material as THREE.LineBasicMaterial).color.getHex()
+    ).toBe(0x444444)
   })
 
   it('clears u_compareEnabled uniform when compare display is disabled', () => {

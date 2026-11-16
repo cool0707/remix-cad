@@ -537,4 +537,15 @@ export class AcTrLayer {
   ) {
     this._group.setCompareDisplay(options)
   }
+
+  /**
+   * Sets or clears the compare-display role of one entity, without
+   * re-applying the whole display.
+   */
+  setEntityCompareRole(
+    objectId: string,
+    role: Parameters<AcTrBatchedGroup['setEntityCompareRole']>[1]
+  ) {
+    this._group.setEntityCompareRole(objectId, role)
+  }
 }

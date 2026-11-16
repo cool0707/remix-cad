@@ -137,6 +137,12 @@ export default {
       description: '選択したシンボル (ブロック) を元の図形に分解します',
       prompt: 'シンボルを選択'
     },
+    refedit: {
+      description: '選択したシンボル (ブロック) の中に入り、その場で編集します'
+    },
+    refclose: {
+      description: 'シンボルの編集を終了し、同じシンボルすべてに反映します'
+    },
     extmax: {
       description: 'キャンバスの図面範囲の右上隅を保持します (読み取り専用)'
     },

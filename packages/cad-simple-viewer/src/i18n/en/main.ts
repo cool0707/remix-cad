@@ -1,6 +1,7 @@
 export default {
   newDrawing: {
-    layoutPrefix: 'Page'
+    layoutPrefix: 'Page',
+    layerPrefix: 'Layer'
   },
   document: {
     untitled: 'Untitled'
@@ -71,6 +72,8 @@ export default {
       xattach: 'Attach linked drawing',
       erase: 'Delete',
       explode: 'Explode',
+      refedit: 'Edit symbol',
+      refclose: 'Finish editing symbol',
       undo: 'Undo',
       redo: 'Redo',
       zoom: 'Zoom',
@@ -136,6 +139,8 @@ export default {
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
       explode: 'explode decompose ungroup',
+      refedit: 'block editor bedit refedit edit in place',
+      refclose: 'close block editor bclose refclose',
       pline: 'polyline',
       rectang: 'rectangle',
       mtext: 'mtext multiline',
@@ -183,6 +188,8 @@ export default {
     duplicate: 'Duplicate',
     erase: 'Delete',
     explode: 'Explode',
+    editSymbol: 'Edit symbol',
+    finishSymbol: 'Finish editing symbol',
     selectSameLayer: 'Select same layer',
     properties: 'Show properties',
     selectAll: 'Select all',
@@ -331,6 +338,18 @@ export default {
     erase: 'Delete',
     collapse: 'Collapse toolbar',
     expand: 'Expand toolbar'
+  },
+  symbolEdit: {
+    canvas: 'Canvas',
+    done: 'Done',
+    doneTooltip: 'Finish editing the symbol (Esc)',
+    barLabel: 'Symbol editing',
+    notInPlace: 'Shown without mirroring or stretching',
+    notEditable: 'The contents of this symbol cannot be edited.',
+    linked: 'The contents of a linked drawing cannot be edited.',
+    locked: 'A symbol on a locked layer cannot be edited.',
+    selectOne: 'Select one symbol to edit.',
+    undoLimit: 'Finish editing the symbol to undo what was done before entering it.'
   },
   explode: {
     noSymbol: 'Select a symbol to explode.',

@@ -9,7 +9,10 @@ import { AcTrBatchHighlightState } from './AcTrBatchHighlightState'
 
 /** Uniform bag injected into batch highlight shader programs. */
 export type AcTrBatchHighlightUniforms = {
-  /** RGBA mask texture: R = selected, G = hovered, B = compare role. */
+  /**
+   * RGBA mask texture: R = selected, G = hovered, B = compare role,
+   * A = keeps its own colors in compare display.
+   */
   u_highlightMask: { value: THREE.Texture }
   /** Mask texture width and height in pixels. */
   u_highlightMaskSize: { value: THREE.Vector2 }
@@ -54,7 +57,7 @@ vec3 applyBatchHighlight(vec3 color) {
     (floor(vBatchSlotId / u_highlightMaskSize.x) + 0.5) / u_highlightMaskSize.y
   );
   vec4 mask = texture2D(u_highlightMask, maskUv);
-  if (u_compareEnabled > 0.5) {
+  if (u_compareEnabled > 0.5 && mask.a < 0.5) {
     outColor = u_compareBaseColor;
     float role = mask.b;
     if (role > 0.9) {

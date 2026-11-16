@@ -80,6 +80,10 @@ pnpm --filter @mlightcad/cad-acadrust-converter check:wasm   # ソースと wasm
 - Worker と wasm は「使うときに起動、アイドルで終了」(WebAssembly のメモリは縮まないので、インスタンスや Worker を捨てて返す)。
   スレッド間は `ArrayBuffer` の転送で渡し、文字列やオブジェクトの構造化クローンで図面を運ばない。
 - three.js の GPU リソース (ジオメトリ・マテリアルの複製・テクスチャ) は作った側が `dispose()` する。three.js は自動では解放しない。
+- **シンボルの編集中** (`view.symbolEdit`、UX-PLAN ステップ 8-4) は、定義の中身の複製がキャンバスに置かれ、入ったシンボルは隠れている。
+  図面全体を読む・書き出す・入れ替えるコマンドを足すときは、`AcApSymbolEditController.shouldExitBefore()` がその名前で編集を終了させるか確認する
+  (コマンドを通さずに `db.dxfOut()` などを呼ぶ処理なら、先に `view.symbolEdit.exitAll()`)。
+  シンボルの外の図形を編集対象から外す判定は `isEntityOnLockedLayer()` に入っているので、編集の入口では今までどおりこれを使う。
 - `main` と `ja-localization` は現在同一。今後は `main` から作業ブランチを切ればよい。
 - テーマカラーは **`packages/cad-simple-viewer/src/theme/theme.config.ts`** の 1 か所で決める
   (現在: 一色 `#AF61DA`、グラデーション `#EA60D4 → #9C62DC`)。書き換えて `pnpm build` すれば全 UI に反映される。

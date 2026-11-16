@@ -1,6 +1,7 @@
 export default {
   newDrawing: {
-    layoutPrefix: '印刷ページ'
+    layoutPrefix: '印刷ページ',
+    layerPrefix: 'レイヤー'
   },
   document: {
     untitled: '無題'
@@ -71,6 +72,8 @@ export default {
       xattach: 'リンク図面を貼り付ける',
       erase: '削除',
       explode: '分解',
+      refedit: 'シンボルを編集',
+      refclose: 'シンボルの編集を終了',
       undo: '元に戻す',
       redo: 'やり直し',
       zoom: 'ズーム',
@@ -136,6 +139,8 @@ export default {
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
       explode: '分解 ばらす 解除 ブロック',
+      refedit: 'ブロック編集 ブロックエディタ インプレイス参照編集 bedit refedit',
+      refclose: 'ブロックエディタを閉じる 参照編集を閉じる bclose refclose',
       line: '線分 直線',
       pline: '連続線',
       rectang: '長方形 四角形',
@@ -217,6 +222,8 @@ export default {
     duplicate: '複製',
     erase: '削除',
     explode: '分解',
+    editSymbol: 'シンボルを編集',
+    finishSymbol: 'シンボルの編集を終了',
     selectSameLayer: '同じレイヤーの図形を選択',
     properties: 'プロパティを表示',
     selectAll: 'すべて選択',
@@ -366,6 +373,18 @@ export default {
     erase: '削除',
     collapse: 'ツールバーを折りたたむ',
     expand: 'ツールバーを展開'
+  },
+  symbolEdit: {
+    canvas: 'キャンバス',
+    done: '完了',
+    doneTooltip: 'シンボルの編集を終了 (Esc)',
+    barLabel: 'シンボルの編集',
+    notInPlace: '反転・変形なしで表示しています',
+    notEditable: 'このシンボルは中を編集できません。',
+    linked: 'リンク図面は中を編集できません。',
+    locked: 'ロックされたレイヤーのシンボルは編集できません。',
+    selectOne: '編集するシンボルを 1 つ選んでください。',
+    undoLimit: 'シンボルに入る前の操作は、編集を終了してから元に戻せます。'
   },
   explode: {
     noSymbol: '分解するシンボルを選んでください。',

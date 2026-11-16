@@ -765,6 +765,13 @@ export default {
     script: 'Betik…',
     devTools: 'Geliştirici araçları'
   },
+  symbolLayer: {
+    name: 'Sembol düzenleme katmanı',
+    hint:
+      'Sembol düzenleme katmanı (katman 0). Bir sembolün içinde bu katmana çizilen şekiller, sembolün yerleştirildiği katmanın rengini ve görünürlüğünü izler.',
+    warning:
+      'Bu katmanda herhangi bir sembolün dışında şekiller var. Bu katman sembolleri düzenlemek içindir; şekilleri başka bir katmana taşımanız önerilir.'
+  },
   toolPalette: {
     layersSection: {
       more: 'Diğer',
@@ -777,6 +784,14 @@ export default {
       tab: 'Özellikler',
       title: 'Varlık Özellikleri',
       propertyPanel: {
+        editSymbol: 'Sembolü düzenle',
+        editSymbolHint:
+          'Düzenlemek için sembolün içine girin. Bu sembolün tüm kopyaları değişir.',
+        symbolEditing: '"{name}" sembolü düzenleniyor',
+        symbolEditingHint:
+          'Değişiklikler bu sembolün tüm kopyalarına uygulanır.',
+        addSymbolProperty: 'Özellik ekle',
+        finishSymbolEdit: 'Bitti',
         noEntitySelected: 'Hiçbir varlık seçilmedi!',
         multipleEntitySelected: '{count} varlık seçildi',
         propValCopied: 'Özellik değeri kopyalandı',

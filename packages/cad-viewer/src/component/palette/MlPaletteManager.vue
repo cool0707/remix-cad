@@ -170,7 +170,7 @@
                   class="ml-palette-layers__current"
                   data-testid="palette-layers-current"
                 >
-                  {{ currentLayerName }}
+                  {{ currentLayerLabel }}
                 </span>
               </button>
               <el-dropdown trigger="click" @command="handleLayoutCommand">
@@ -242,6 +242,7 @@ import {
   useLayers,
   useSelectionSet,
   useSettings,
+  useSymbolLayer,
   useViewerRect
 } from '../../composable'
 import { toolPaletteTabName, toolPaletteTitle } from '../../locale'
@@ -565,6 +566,13 @@ const startResize = (e: PointerEvent) => {
 }
 
 const { currentLayerName } = useLayers(props.editor)
+const symbolLayer = useSymbolLayer()
+/** Name of the current layer as the layer list shows it. */
+const currentLayerLabel = computed(() =>
+  symbolLayer.isSymbolLayer(currentLayerName.value)
+    ? t('main.symbolLayer.name')
+    : currentLayerName.value
+)
 
 // ---------------------------------------------------------------------------
 // Tabs

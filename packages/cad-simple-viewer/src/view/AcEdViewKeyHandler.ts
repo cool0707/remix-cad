@@ -209,8 +209,9 @@ export class AcEdViewKeyHandler {
   /**
    * Simple profile keys: single-key tools (V / H / L / R / T), arrow keys
    * that nudge the selection (Shift: ×10) and the staged Esc (a running command is cancelled by
-   * its prompt; then the pan tool goes back to the select tool; only then
-   * does Esc clear the selection).
+   * its prompt; then the pan tool goes back to the select tool; then Esc
+   * clears the selection; and with nothing selected it steps out of the
+   * symbol being edited).
    *
    * @returns `true` when the event was consumed.
    */
@@ -227,6 +228,16 @@ export class AcEdViewKeyHandler {
       if (tools.handleEscape()) return true
       // Also when a prompt left the focus in the (empty) command line.
       if (this.isTyping(e)) return false
+      // With nothing selected, Esc steps out of the symbol being edited.
+      const symbolEdit = this.view.symbolEdit
+      if (
+        symbolEdit?.isActive &&
+        this.view.selectionSet.count === 0 &&
+        !this.view.htmlTransientManager.hasSelection()
+      ) {
+        symbolEdit.exit()
+        return true
+      }
       this.clearSelection()
       return true
     }

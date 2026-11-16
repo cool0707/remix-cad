@@ -1,6 +1,7 @@
 export default {
   newDrawing: {
-    layoutPrefix: '打印页'
+    layoutPrefix: '打印页',
+    layerPrefix: '图层'
   },
   document: {
     untitled: '未命名'
@@ -71,6 +72,8 @@ export default {
       xattach: '附着链接图纸',
       erase: '删除',
       explode: '分解',
+      refedit: '编辑符号',
+      refclose: '结束符号编辑',
       undo: '撤销',
       redo: '重做',
       zoom: '缩放',
@@ -136,6 +139,8 @@ export default {
     /** Other words a command is found by (CAD terms), space-separated */
     keywords: {
       explode: '分解 炸开 打散',
+      refedit: '块编辑 块编辑器 在位编辑 bedit refedit',
+      refclose: '关闭块编辑器 bclose refclose',
       line: '线段',
       pline: '多段线',
       mtext: '多行文字',
@@ -174,6 +179,8 @@ export default {
     duplicate: '再制',
     erase: '删除',
     explode: '分解',
+    editSymbol: '编辑符号',
+    finishSymbol: '结束符号编辑',
     selectSameLayer: '选择同一图层的对象',
     properties: '显示特性',
     selectAll: '全选',
@@ -317,6 +324,18 @@ export default {
     erase: '删除',
     collapse: '收起工具栏',
     expand: '展开工具栏'
+  },
+  symbolEdit: {
+    canvas: '画布',
+    done: '完成',
+    doneTooltip: '结束符号编辑 (Esc)',
+    barLabel: '符号编辑',
+    notInPlace: '以未镜像、未拉伸的状态显示',
+    notEditable: '无法编辑此符号的内容。',
+    linked: '无法编辑链接图纸的内容。',
+    locked: '无法编辑锁定图层上的符号。',
+    selectOne: '请选择一个要编辑的符号。',
+    undoLimit: '进入符号之前的操作，需结束编辑后才能撤销。'
   },
   explode: {
     noSymbol: '请选择要分解的符号。',

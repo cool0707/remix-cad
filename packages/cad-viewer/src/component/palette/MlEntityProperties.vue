@@ -1,5 +1,42 @@
 <template>
   <div ref="rootRef" class="ml-entity-properties">
+    <!-- ===== Symbol being edited ===== -->
+    <div
+      v-if="symbolEdit.isEditing.value"
+      class="ml-inspector-symbol-edit"
+      data-testid="inspector-symbol-edit"
+    >
+      <div
+        class="ml-inspector-symbol-edit__title"
+        :title="symbolEdit.currentName.value"
+      >
+        {{
+          panelText('symbolEditing', { name: symbolEdit.currentName.value })
+        }}
+      </div>
+      <div class="ml-inspector-symbol-edit__hint">
+        {{ panelText('symbolEditingHint') }}
+      </div>
+      <div class="ml-inspector-symbol-edit__actions">
+        <el-button
+          size="small"
+          data-testid="inspector-add-symbol-property"
+          @click="symbolEdit.addProperty()"
+        >
+          <el-icon><Plus /></el-icon>
+          <span>{{ panelText('addSymbolProperty') }}</span>
+        </el-button>
+        <el-button
+          size="small"
+          type="primary"
+          data-testid="inspector-finish-symbol-edit"
+          @click="symbolEdit.finish()"
+        >
+          {{ panelText('finishSymbolEdit') }}
+        </el-button>
+      </div>
+    </div>
+
     <template v-if="entities.length">
       <div v-if="someLocked || allLocked" class="ml-inspector-note">
         <el-icon><Lock /></el-icon>
@@ -347,6 +384,22 @@
                 </template>
               </template>
             </template>
+
+            <!-- Symbols: enter the symbol to edit its contents -->
+            <div
+              v-if="group.groupName === SYMBOL_GROUP && canEditSymbol"
+              class="ml-inspector-symbol-action"
+            >
+              <el-button
+                size="small"
+                data-testid="inspector-edit-symbol"
+                :title="panelText('editSymbolHint')"
+                @click="symbolEdit.enterSelected()"
+              >
+                <el-icon><EditPen /></el-icon>
+                <span>{{ panelText('editSymbol') }}</span>
+              </el-button>
+            </div>
           </div>
         </section>
 
@@ -420,14 +473,21 @@
       </template>
     </template>
 
-    <div v-else class="ml-no-entity-selected">
+    <div v-else-if="!symbolEdit.isEditing.value" class="ml-no-entity-selected">
       {{ panelText('noEntitySelected') }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, ArrowRight, Hide, Lock } from '@element-plus/icons-vue'
+import {
+  ArrowDown,
+  ArrowRight,
+  EditPen,
+  Hide,
+  Lock,
+  Plus
+} from '@element-plus/icons-vue'
 import { AcApDocManager } from '@mlightcad/cad-simple-viewer'
 import {
   AcCmColor,
@@ -438,6 +498,7 @@ import {
   log
 } from '@mlightcad/data-model'
 import {
+  ElButton,
   ElIcon,
   ElInputNumber,
   ElMessage,
@@ -459,7 +520,9 @@ import {
   pendingSymbolPropertyFocus,
   SYMBOL_GROUP,
   useEntityInspector,
-  useLayers
+  useLayers,
+  useSymbolEdit,
+  useSymbolLayer
 } from '../../composable'
 import {
   colorName,
@@ -509,11 +572,32 @@ const {
   selectOnlyType
 } = useEntityInspector(toRef(props, 'selectionIds'))
 
+const symbolEdit = useSymbolEdit()
+const symbolLayer = useSymbolLayer()
+
+/** Whether the selection is one placed symbol whose contents can be edited. */
+const canEditSymbol = computed(
+  () => {
+    // What can be entered changes when symbol editing starts or ends.
+    void symbolEdit.path.value
+    return (
+      !allLocked.value &&
+      symbols.value.length === 1 &&
+      entities.value.length === 1 &&
+      symbolEdit.canEnter(symbols.value[0].objectId)
+    )
+  }
+)
+
 const { layers, toggleLayerState } = useLayers(AcApDocManager.instance)
 const layerOptions = computed(() =>
-  layers.map(layer => ({
+  // Simple profile: the symbol editing layer (0) is offered only while a
+  // symbol is edited, or when the drawing already uses it outside symbols.
+  layers.filter(layer => symbolLayer.isListed(layer.name)).map(layer => ({
     value: layer.name,
-    name: layer.name,
+    name: symbolLayer.isSymbolLayer(layer.name)
+      ? t('main.symbolLayer.name')
+      : layer.name,
     cssColor: layer.cssColor || '#7b8794',
     isOn: layer.isOn,
     isLocked: layer.isLocked,
@@ -790,6 +874,45 @@ watch(
   overflow-x: hidden;
   overflow-y: auto;
   font-size: 12px;
+}
+
+.ml-inspector-symbol-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 2px 0 8px;
+  padding: 8px;
+  border: 1px solid var(--ml-brand-soft, var(--el-border-color));
+  border-radius: 6px;
+  background: var(--ml-brand-soft, var(--el-fill-color-light));
+}
+
+.ml-inspector-symbol-edit__title {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ml-inspector-symbol-edit__hint {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+}
+
+.ml-inspector-symbol-edit__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.ml-inspector-symbol-edit__actions .el-button {
+  margin: 0;
+}
+
+.ml-inspector-symbol-action {
+  grid-column: 1 / -1;
+  padding-top: 4px;
 }
 
 .ml-inspector-note {

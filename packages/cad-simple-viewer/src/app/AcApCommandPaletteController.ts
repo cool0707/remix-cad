@@ -22,6 +22,8 @@ import { acapIsMacPlatform } from './AcApContextMenuController'
 import { AcApDocManager } from './AcApDocManager'
 import type { AcApEditActions } from './AcApEditActions'
 import { AcApSettingManager } from './AcApSettingManager'
+import type { AcApSymbolEditController } from './AcApSymbolEdit'
+import { ACAP_SYMBOL_LAYER, acapSymbolLayerState } from './AcApSymbolLayer'
 import type { AcApToolManager } from './AcApToolManager'
 
 /** Parts of the view the palette works with. */
@@ -30,6 +32,8 @@ export interface AcApCommandPaletteControllerOptions {
   toolManager: AcApToolManager
   /** Clipboard, duplicate, select all ... */
   editActions: AcApEditActions
+  /** Editing the contents of a symbol, where the view supports it */
+  symbolEdit?: AcApSymbolEditController
 }
 
 /** Options of {@link AcApCommandPaletteController.open}. */
@@ -221,13 +225,25 @@ export class AcApCommandPaletteController {
     const editable =
       actions.canEdit && actions.selectedEntities(true).length > 0
     const db = doc.database
+    const simple = AcApSettingManager.instance.operationProfile === 'simple'
+    // Simple profile: layer 0 is the symbol editing layer and is offered
+    // only where the layer list shows it.
+    const symbolEdit = this.options.symbolEdit
+    const hideSymbolLayer =
+      simple &&
+      actions.canEdit &&
+      !acapSymbolLayerState(db, !!symbolEdit?.isActive, id =>
+        symbolEdit ? symbolEdit.isWorkingEntity(id) : false
+      ).listed
     return {
       commands: this.availableCommands(),
       layers: actions.canEdit
         ? Array.from(db.tables.layerTable.newIterator(), layer => ({
             name: layer.name,
             current: layer.name === db.clayer
-          }))
+          })).filter(
+            layer => !(hideSymbolLayer && layer.name === ACAP_SYMBOL_LAYER)
+          )
         : [],
       actions: {
         cut: editable,
@@ -238,7 +254,7 @@ export class AcApCommandPaletteController {
         selectSameLayer: hasSelection,
         zoomExtents: true
       },
-      simple: AcApSettingManager.instance.operationProfile === 'simple',
+      simple,
       isMac: acapIsMacPlatform(),
       t,
       description: (group, name) =>

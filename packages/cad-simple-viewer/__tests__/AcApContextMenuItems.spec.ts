@@ -96,6 +96,37 @@ describe('acapBuildContextMenu', () => {
       expect(ids(readOnly)).not.toContain('explode')
     })
 
+    it('offers to edit the one symbol that can be entered', () => {
+      const entries = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          hasEditableSelection: true,
+          hasSymbolSelection: true,
+          canEditSymbol: true
+        })
+      )
+      expect(ids(entries)).toEqual([
+        'cut',
+        'copy',
+        '-',
+        'duplicate',
+        'erase',
+        'editSymbol',
+        'explode',
+        '-',
+        'selectSameLayer',
+        'properties'
+      ])
+      const unavailable = acapBuildContextMenu(
+        state({
+          hasSelection: true,
+          canEditSymbol: true,
+          isAvailable: command => command !== 'refedit'
+        })
+      )
+      expect(ids(unavailable)).not.toContain('editSymbol')
+    })
+
     it('only copies when nothing selected can be edited', () => {
       const entries = acapBuildContextMenu(
         state({ hasSelection: true, hasEditableSelection: false })

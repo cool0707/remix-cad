@@ -105,6 +105,35 @@ describe('AcApSessionUndo fallback', () => {
     )
   })
 
+  it('forgets the db steps made inside a symbol and keeps the others', () => {
+    const undo = getSessionUndo()
+    undo.recordDb()
+    undo.recordMarkup()
+    const depth = undo.depth
+    expect(depth).toBe(2)
+    expect(undo.peekUndo()).toBe('markup')
+
+    undo.recordDb()
+    undo.recordMarkup()
+    undo.recordDb()
+    undo.discardDbSince(depth)
+    expect(undo.depth).toBe(3)
+    expect(undo.peekUndo()).toBe('markup')
+
+    // The db step from before stays where it was.
+    const db = mockDb({ canUndo: true, undo: true })
+    jest.spyOn(getMarkupHistory(), 'undo').mockReturnValue(true)
+    expect(undo.undo(db)).toBe('markup')
+    expect(undo.undo(db)).toBe('markup')
+    expect(undo.undo(db)).toBe('db')
+    // What was undone can be redone, except db steps once they are dropped.
+    undo.discardDbRedo()
+    jest.spyOn(getMarkupHistory(), 'redo').mockReturnValue(true)
+    expect(undo.redo(db)).toBe('markup')
+    expect(undo.redo(db)).toBe('markup')
+    expect(undo.depth).toBe(2)
+  })
+
   it('keeps undo kinds isolated across document sessions', () => {
     acapBindMarkupSession('session-a')
     getSessionUndo().recordDb()

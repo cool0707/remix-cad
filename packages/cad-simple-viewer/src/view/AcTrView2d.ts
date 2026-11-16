@@ -54,6 +54,10 @@ import { acapIsCommandPaletteShortcut } from '../app/AcApCommandPaletteItems'
 import { AcApContextMenuController } from '../app/AcApContextMenuController'
 import { AcApEditActions } from '../app/AcApEditActions'
 import { AcApOpenViewMode } from '../app/AcApOpenDatabaseOptions'
+import {
+  AcApSymbolEditController,
+  type AcApSymbolEditState
+} from '../app/AcApSymbolEdit'
 import { AcApToolManager } from '../app/AcApToolManager'
 import { AcApZoomCmd } from '../command/AcApZoomCmd'
 import { isMarkupHtmlTextEditing } from '../command/markup/AcApMarkupTextEdit'
@@ -76,6 +80,7 @@ import {
   AcEdSnapLoupeViewState,
   AcEdSpatialQueryResultItem,
   AcEdSpatialQueryResultItemEx,
+  AcEdSymbolEditBar,
   AcEdViewMode,
   AcEdViewportCoordinateMapper,
   eventBus,
@@ -92,6 +97,7 @@ import {
   acedNeedsCrossingGeometryRefine
 } from '../editor/view/AcEdSelectionBoxIntersect'
 import { isEffectiveSpatialQueryHit } from '../editor/view/AcEdSpatialQueryResult'
+import { AcApI18n } from '../i18n'
 import { excludeLockedLayerIds } from '../service/AcApLockedLayer'
 import type { AcTrLazySpatialChildren } from '../spatialIndex'
 import type { AcTrSpatialSearchOptions } from '../spatialIndex/AcTrSpatialIndex'
@@ -413,6 +419,16 @@ export class AcTrView2d extends AcEdBaseView {
   private _contextMenu: AcApContextMenuController
   /** Command palette (Ctrl / Cmd + K) */
   private _commandPalette: AcApCommandPaletteController
+
+  private _symbolEdit: AcApSymbolEditController
+  private _symbolEditBar: AcEdSymbolEditBar
+  private readonly _onSymbolEditChanged = (state: AcApSymbolEditState) => {
+    if (state.view === this) this.syncSymbolEditBar()
+  }
+  private readonly _onSymbolEditLocaleChanged = () => this.syncSymbolEditBar()
+  /** Definitions whose placed symbols wait to be redrawn */
+  private readonly _changedBlockIds = new Set<AcDbObjectId>()
+  private _changedBlocksTimer: ReturnType<typeof setTimeout> | null = null
   /** Removes iOS canvas long-press callout listeners registered in the constructor. */
   private _disposeCanvasTouchCallout: (() => void) | undefined
   /** Removes mobile long-press box-selection gesture listeners. */
@@ -669,15 +685,38 @@ export class AcTrView2d extends AcEdBaseView {
       drawnBox: id => this._scene.getEntityBox(id),
       isShown: id => this._scene.isEntityShown(id)
     })
+    this._symbolEdit = new AcApSymbolEditController(this, {
+      activeSpaceId: () => this._scene.activeLayoutBtrId,
+      backgroundColor: () => this.backgroundColor,
+      setSceneVisible: (id, visible) => {
+        this.setEntitySceneVisible(id, visible)
+      },
+      setDimDisplay: options => this.setSymbolEditDisplay(options),
+      setKept: (id, kept) => {
+        // Reading mode shows everything in its one colour.
+        if (this._readingMode.isEnabled) return
+        this._scene.setEntityCompareRole(id, kept ? 'keep' : null)
+        this._isDirty = true
+      }
+    })
     this._contextMenu = new AcApContextMenuController(this, {
       toolManager: this._toolManager,
       editActions: this._editActions,
-      rightClickIsEnter: () => this.editor.inputManager.rightClickIsEnter
+      rightClickIsEnter: () => this.editor.inputManager.rightClickIsEnter,
+      symbolEdit: this._symbolEdit
     })
     this._commandPalette = new AcApCommandPaletteController(this, {
       toolManager: this._toolManager,
-      editActions: this._editActions
+      editActions: this._editActions,
+      symbolEdit: this._symbolEdit
     })
+    this._symbolEditBar = new AcEdSymbolEditBar(this.container)
+    AcApSymbolEditController.events.changed.addEventListener(
+      this._onSymbolEditChanged
+    )
+    AcApI18n.events.localeChanged.addEventListener(
+      this._onSymbolEditLocaleChanged
+    )
     this._keyHandler = new AcEdViewKeyHandler(this)
     if (options.calculateSizeCallback) {
       this.setCalculateSizeCallback(options.calculateSizeCallback)
@@ -1243,6 +1282,11 @@ export class AcTrView2d extends AcEdBaseView {
     return this._toolManager
   }
 
+  /** Editing the contents of a symbol in place. */
+  get symbolEdit() {
+    return this._symbolEdit
+  }
+
   /**
    * Gets whether the WebGL scene needs to be re-rendered.
    *
@@ -1548,6 +1592,7 @@ export class AcTrView2d extends AcEdBaseView {
    */
   set backgroundColor(value: number) {
     this.applyCanvasBackground(value)
+    this._symbolEdit.refreshDisplay()
   }
 
   /**
@@ -1652,6 +1697,7 @@ export class AcTrView2d extends AcEdBaseView {
   /** Toggles transient reading mode on or off. */
   toggleReadingMode() {
     this._readingMode.toggle()
+    this._symbolEdit.refreshDisplay()
   }
 
   /**
@@ -1663,6 +1709,8 @@ export class AcTrView2d extends AcEdBaseView {
    */
   setReadingMode(enabled: boolean) {
     this._readingMode.setEnabled(enabled)
+    // Back to the dimmed surroundings of a symbol being edited, if any.
+    this._symbolEdit.refreshDisplay()
   }
 
   /**
@@ -1787,6 +1835,8 @@ export class AcTrView2d extends AcEdBaseView {
   }
   set activeLayoutBtrId(value: string) {
     const previous = this._scene.activeLayoutBtrId
+    // A symbol is edited on the space it is placed on.
+    if (previous !== value) this._symbolEdit.exitAll()
     this._layoutViewManager.activeLayoutBtrId = value
     this._scene.activeLayoutBtrId = value
     this.htmlTransientManager.setActiveLayoutId(value)
@@ -2135,7 +2185,16 @@ export class AcTrView2d extends AcEdBaseView {
     })
     const worldPoint = this.screenToWorld(point)
     const picked = this.pick(worldPoint, undefined, true)
-    if (!picked.length) return
+    const simple = AcApSettingManager.instance.operationProfile === 'simple'
+    if (!picked.length) {
+      // Simple profile: double-clicking beside the contents of the symbol
+      // being edited steps out of it, like leaving a group.
+      if (simple && this._symbolEdit.isActive) {
+        e.preventDefault()
+        this._symbolEdit.exit()
+      }
+      return
+    }
 
     const entity =
       AcApDocManager.instance.curDocument.database.tables.blockTable.getEntityById(
@@ -2144,6 +2203,27 @@ export class AcTrView2d extends AcEdBaseView {
     if (!entity) return
 
     const attributedBlock = this.resolveAttributedBlockReference(entity)
+    // The property whose text was hit. The properties of a placed symbol
+    // are drawn as part of it, so the pick usually names the symbol.
+    const pickedAttribute =
+      attributedBlock && entity !== attributedBlock
+        ? (entity as AcDbAttribute)
+        : attributedBlock
+          ? this.attributeAt(attributedBlock, worldPoint)
+          : undefined
+    // Simple profile: a symbol is entered to edit its contents. Only the
+    // text of a symbol property still goes to that property's field.
+    const symbol = entity instanceof AcDbBlockReference ? entity : undefined
+    if (
+      simple &&
+      symbol &&
+      !pickedAttribute &&
+      this._symbolEdit.canEnter(symbol.objectId)
+    ) {
+      e.preventDefault()
+      this._symbolEdit.enter(symbol.objectId)
+      return
+    }
     if (attributedBlock) {
       e.preventDefault()
       this.selectionSet.clear()
@@ -2156,10 +2236,7 @@ export class AcTrView2d extends AcEdBaseView {
       ) {
         eventBus.emit('focus-symbol-property', {
           objectId: attributedBlock.objectId,
-          tag:
-            entity !== attributedBlock
-              ? (entity as AcDbAttribute).tag
-              : undefined
+          tag: pickedAttribute?.tag
         })
         return
       }
@@ -2188,6 +2265,40 @@ export class AcTrView2d extends AcEdBaseView {
       this._gripManager.focus(entity.objectId)
       this._selectionTransformer.refresh()
     }
+  }
+
+  /**
+   * The visible property (attribute) of a placed symbol whose text is under
+   * the point, if any. Text extents are estimated from the text length, so
+   * the pick box is added as a margin.
+   */
+  private attributeAt(
+    reference: AcDbBlockReference,
+    worldPoint: AcGePoint2dLike
+  ): AcDbAttribute | undefined {
+    const pickBox = this.activeLayoutView.pointToBox(
+      worldPoint,
+      this.selectionBoxSize
+    )
+    const margin = Math.max(pickBox.size.width, pickBox.size.height) / 2
+    for (const attribute of reference.attributeIterator()) {
+      if (attribute.isInvisible || !attribute.textString) continue
+      let extents: AcGeBox3d
+      try {
+        extents = attribute.geometricExtents
+      } catch {
+        continue
+      }
+      if (
+        worldPoint.x >= extents.min.x - margin &&
+        worldPoint.x <= extents.max.x + margin &&
+        worldPoint.y >= extents.min.y - margin &&
+        worldPoint.y <= extents.max.y + margin
+      ) {
+        return attribute
+      }
+    }
+    return undefined
   }
 
   /**
@@ -2431,7 +2542,14 @@ export class AcTrView2d extends AcEdBaseView {
       this.pickThroughViewports(point, paperBox, drillThroughViewports, results)
     }
 
-    const sortedResults = sortPickResults(results, point)
+    let sortedResults = sortPickResults(results, point)
+    // Inside a symbol, a click goes to the symbol's contents even when
+    // something of the dimmed surroundings lies on top.
+    if (this._symbolEdit.isActive && !this.allowSelectOnLockedLayer) {
+      sortedResults = sortedResults.filter(item =>
+        this._symbolEdit.isInScope(item.id)
+      )
+    }
     return pickOneOnly ? sortedResults.slice(0, 1) : sortedResults
   }
 
@@ -2859,7 +2977,10 @@ export class AcTrView2d extends AcEdBaseView {
    * Reapplies session-only hidden state after an entity enters the scene.
    */
   private applySessionHiddenObjectState(objectId: AcDbObjectId) {
-    if (!AcApDocManager.instance.curDocument.isObjectHidden(objectId)) {
+    if (
+      !AcApDocManager.instance.curDocument.isObjectHidden(objectId) &&
+      !this._symbolEdit.isHiddenReference(objectId)
+    ) {
       return
     }
     this._scene.setEntityVisible(objectId, false)
@@ -3138,6 +3259,12 @@ export class AcTrView2d extends AcEdBaseView {
    * @inheritdoc
    */
   clear() {
+    this._symbolEdit.reset()
+    if (this._changedBlocksTimer != null) {
+      clearTimeout(this._changedBlocksTimer)
+      this._changedBlocksTimer = null
+    }
+    this._changedBlockIds.clear()
     this.abortConversion()
     this._scene.clear()
     this._renderer.resetDrawOrderZ()
@@ -3689,6 +3816,132 @@ export class AcTrView2d extends AcEdBaseView {
     this._isDirty = true
   }
 
+  /** Shows the path of the symbols being edited at the top of the drawing. */
+  private syncSymbolEditBar() {
+    const path = this._symbolEdit.path
+    if (path.length === 0) {
+      this._symbolEditBar.hide()
+      return
+    }
+    const t = (key: string) => AcApI18n.t(`main.symbolEdit.${key}`)
+    this._symbolEditBar.show({
+      rootLabel: t('canvas'),
+      items: path.map(item => ({ label: item.name })),
+      doneLabel: t('done'),
+      doneTitle: t('doneTooltip'),
+      note: path[path.length - 1].inPlace ? undefined : t('notInPlace'),
+      ariaLabel: t('barLabel'),
+      onLeaveTo: depth => {
+        // A running command ends first: leaving must not be part of it.
+        void AcApDocManager.instance.commandManager
+          .cancelActive()
+          .then(() => this._symbolEdit.exitTo(depth))
+      }
+    })
+  }
+
+  /**
+   * Dims everything but the contents of the symbol being edited, or goes
+   * back to the normal display.
+   *
+   * Reading mode keeps its own display (black on white): the colours the
+   * contents would keep are the ones made for the drawing's background, and
+   * white linework would vanish on the white canvas. Only what can be
+   * selected tells the symbol from its surroundings then.
+   */
+  private setSymbolEditDisplay(options?: {
+    color: number
+    keep: AcDbObjectId[]
+  }) {
+    if (this._readingMode.isEnabled) {
+      // Drop the kept entities first: reading mode leaves roles as they are.
+      this.setCompareDisplay({ enabled: false, overrides: [] })
+      this._readingMode.reapplyIfEnabled()
+      return
+    }
+    if (options) {
+      this.setCompareDisplay({
+        enabled: true,
+        baseColor: options.color,
+        overrides: options.keep.map(objectId => ({
+          objectId,
+          role: 'keep' as const
+        }))
+      })
+      return
+    }
+    this.setCompareDisplay({ enabled: false, overrides: [] })
+  }
+
+  /**
+   * Redraws the placed symbols of definitions whose contents changed
+   * (a symbol was edited, or such an edit was undone / redone). Symbols
+   * that hold a changed symbol are redrawn as well.
+   *
+   * Changes reported in the same turn are collected into one redraw.
+   *
+   * @param blockIds - Block table records whose entities changed.
+   */
+  notifyBlockDefinitionChanged(blockIds: Iterable<AcDbObjectId>) {
+    for (const blockId of blockIds) this._changedBlockIds.add(blockId)
+    if (this._changedBlocksTimer != null) return
+    this._changedBlocksTimer = setTimeout(() => {
+      this._changedBlocksTimer = null
+      const changed = new Set(this._changedBlockIds)
+      this._changedBlockIds.clear()
+      this.redrawBlockReferences(changed)
+    }, 0)
+  }
+
+  private redrawBlockReferences(changed: Set<AcDbObjectId>) {
+    const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
+    if (!db || changed.size === 0) return
+    const blockTable = db.tables.blockTable
+
+    // Definitions that show a changed one through a symbol placed in them.
+    const blocks = [...blockTable.newIterator()].filter(
+      block => !block.isModelSapce && !block.isPaperSapce
+    )
+    for (let grew = true; grew; ) {
+      grew = false
+      for (const block of blocks) {
+        if (changed.has(block.objectId)) continue
+        for (const entity of block.newIterator()) {
+          const inner =
+            entity instanceof AcDbBlockReference
+              ? entity.blockTableRecord
+              : undefined
+          if (inner && changed.has(inner.objectId)) {
+            changed.add(block.objectId)
+            grew = true
+            break
+          }
+        }
+      }
+    }
+
+    const pending: AcDbEntity[] = []
+    for (const spaceId of this._scene.layouts.keys()) {
+      const space = blockTable.getIdAt(spaceId)
+      if (!space || (!space.isModelSapce && !space.isPaperSapce)) continue
+      for (const entity of space.newIterator()) {
+        if (!(entity instanceof AcDbBlockReference)) continue
+        const block = entity.blockTableRecord
+        if (
+          block &&
+          changed.has(block.objectId) &&
+          this.isEntityConvertScheduled(entity.objectId)
+        ) {
+          pending.push(entity)
+        }
+      }
+    }
+    if (pending.length === 0) return
+    // The templates of the old contents must not be reused.
+    AcDbRenderingCache.instance.clear()
+    this.updateEntity(pending)
+  }
+
   stopAnimationLoop() {
     if (this._rafId != null) {
       cancelAnimationFrame(this._rafId)
@@ -3719,6 +3972,18 @@ export class AcTrView2d extends AcEdBaseView {
     this._toolManager.dispose()
     this._contextMenu.dispose()
     this._commandPalette.dispose()
+    this._symbolEdit.dispose()
+    this._symbolEditBar.hide()
+    AcApSymbolEditController.events.changed.removeEventListener(
+      this._onSymbolEditChanged
+    )
+    AcApI18n.events.localeChanged.removeEventListener(
+      this._onSymbolEditLocaleChanged
+    )
+    if (this._changedBlocksTimer != null) {
+      clearTimeout(this._changedBlocksTimer)
+      this._changedBlocksTimer = null
+    }
 
     if (this._onFontNotFound) {
       this._renderer.events.fontNotFound.removeEventListener(
@@ -3789,7 +4054,7 @@ export class AcTrView2d extends AcEdBaseView {
     // Only what a click could select: not entities on locked layers.
     if (!this.allowSelectOnLockedLayer) {
       const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
-      if (excludeLockedLayerIds(db, [id]).lockedCount > 0) return
+      if (excludeLockedLayerIds(db, [id]).ids.length === 0) return
     }
     this._isDirty = this._scene.hover([id])
     this._selectionTransformer.setHoveredId(id)

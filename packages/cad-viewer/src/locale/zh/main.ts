@@ -715,6 +715,11 @@ export default {
     script: '脚本…',
     devTools: '开发者工具'
   },
+  symbolLayer: {
+    name: '符号编辑图层',
+    hint: '符号编辑图层 (图层 0)。在符号内绘制于此图层的图形，会跟随符号所在图层的颜色和显示状态。',
+    warning: '此图层上有不属于任何符号的图形。此图层用于编辑符号，建议将这些图形移到其他图层。'
+  },
   toolPalette: {
     layersSection: {
       more: '更多',
@@ -727,6 +732,12 @@ export default {
       tab: '属性',
       title: '图元属性',
       propertyPanel: {
+        editSymbol: '编辑符号',
+        editSymbolHint: '进入符号内部进行编辑。所有相同的符号都会随之更改。',
+        symbolEditing: '正在编辑符号“{name}”',
+        symbolEditingHint: '所做的更改会应用到所有相同的符号。',
+        addSymbolProperty: '添加属性',
+        finishSymbolEdit: '完成',
         noEntitySelected: '未选择任何图元！',
         multipleEntitySelected: '{count}个图元',
         propValCopied: '属性值已复制',

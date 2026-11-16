@@ -110,6 +110,19 @@ jest.mock('../src/app/AcApDocument', () => ({
   }))
 }))
 
+jest.mock('../src/app/AcApSettingManager', () => ({
+  AcApSettingManager: {
+    instance: {
+      operationProfile: 'cad',
+      events: { modified: { addEventListener: jest.fn() } }
+    }
+  }
+}))
+
+jest.mock('../src/app/AcApSymbolLayer', () => ({
+  acapEnsureDrawingLayer: jest.fn()
+}))
+
 jest.mock('../src/app/AcApXrefManager', () => ({
   AcApXrefManager: {
     instance: {
@@ -274,6 +287,8 @@ jest.mock('../src/command', () => {
     'AcApRedoCmd',
     'AcApRotateCmd',
     'AcApSelectCmd',
+    'AcApSymbolEditCloseCmd',
+    'AcApSymbolEditCmd',
     'AcApSketchCmd',
     'AcApSplineCmd',
     'AcApSwitchBgCmd',

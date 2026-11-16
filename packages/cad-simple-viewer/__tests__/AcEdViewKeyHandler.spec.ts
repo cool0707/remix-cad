@@ -436,5 +436,41 @@ describe('AcEdViewKeyHandler', () => {
       )
       expect(idle.selectionSet.clear).toHaveBeenCalled()
     })
+
+    test('Esc steps out of the symbol being edited once nothing is selected', () => {
+      const exit = jest.fn()
+      const inside = (count: number) => {
+        const view = createMockView(false, {}, tools())
+        Object.assign(view, {
+          selectionSet: { clear: jest.fn(), count },
+          symbolEdit: { isActive: true, exit }
+        })
+        return view
+      }
+
+      // Something is selected: Esc clears the selection first.
+      const selected = inside(2)
+      const first = keyboardEvent({ code: 'Escape' })
+      expect(new AcEdViewKeyHandler(selected).handleKeyDown(first)).toBe(true)
+      expect(selected.selectionSet.clear).toHaveBeenCalled()
+      expect(exit).not.toHaveBeenCalled()
+
+      const empty = inside(0)
+      const second = keyboardEvent({ code: 'Escape' })
+      expect(new AcEdViewKeyHandler(empty).handleKeyDown(second)).toBe(true)
+      expect(exit).toHaveBeenCalledTimes(1)
+      expect(empty.selectionSet.clear).not.toHaveBeenCalled()
+
+      // Not while a command runs: its prompt takes the Esc.
+      const running = createMockView(true, {}, tools())
+      Object.assign(running, {
+        selectionSet: { clear: jest.fn(), count: 0 },
+        symbolEdit: { isActive: true, exit }
+      })
+      new AcEdViewKeyHandler(running).handleKeyDown(
+        keyboardEvent({ code: 'Escape' })
+      )
+      expect(exit).toHaveBeenCalledTimes(1)
+    })
   })
 })

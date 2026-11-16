@@ -741,6 +741,11 @@ export default {
     script: 'スクリプト…',
     devTools: '開発者向け'
   },
+  symbolLayer: {
+    name: 'シンボル編集レイヤー',
+    hint: 'シンボル編集レイヤー (画層 0)。シンボルの中でこのレイヤーに描いた図形は、シンボルを置いたレイヤーの色と表示に従います。',
+    warning: 'シンボルの外に、このレイヤーの図形があります。シンボルを編集するためのレイヤーなので、別のレイヤーへ移すことをおすすめします。'
+  },
   toolPalette: {
     layersSection: {
       more: 'その他の操作',
@@ -753,6 +758,12 @@ export default {
       tab: 'プロパティ',
       title: 'オブジェクトプロパティ',
       propertyPanel: {
+        editSymbol: 'シンボルを編集',
+        editSymbolHint: 'シンボルの中に入って編集します。同じシンボルすべてに反映されます。',
+        symbolEditing: 'シンボル「{name}」を編集中',
+        symbolEditingHint: '編集した内容は、同じシンボルすべてに反映されます。',
+        addSymbolProperty: 'プロパティを追加',
+        finishSymbolEdit: '完了',
         noEntitySelected: 'オブジェクトが選択されていません。',
         multipleEntitySelected: '{count} 個のオブジェクトを選択中',
         propValCopied: 'プロパティの値をコピーしました',

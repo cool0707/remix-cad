@@ -43,6 +43,10 @@ export interface AcApContextMenuState {
   hasEditableSelection?: boolean
   /** Idle: some editable selected entities are symbols (block references) */
   hasSymbolSelection?: boolean
+  /** Whether the selection is one placed symbol whose contents can be edited */
+  canEditSymbol?: boolean
+  /** Whether the contents of a symbol are being edited */
+  editingSymbol?: boolean
   /** The document is open for writing */
   canEdit?: boolean
   /** Something copied from this document can be pasted */
@@ -156,6 +160,7 @@ export function acapBuildContextMenu(
       'separator',
       editable && item('duplicate', ctrl('D', isMac)),
       editable && state.isAvailable('erase') && item('erase', 'Delete'),
+      state.canEditSymbol && state.isAvailable('refedit') && item('editSymbol'),
       editable &&
         state.hasSymbolSelection &&
         state.isAvailable('explode') &&
@@ -165,6 +170,10 @@ export function acapBuildContextMenu(
       state.isAvailable('properties') && item('properties')
     )
     return tidy(entries)
+  }
+
+  if (state.editingSymbol && state.isAvailable('refclose')) {
+    entries.push(item('finishSymbol'), 'separator')
   }
 
   const last = state.lastCommand

@@ -137,6 +137,12 @@ export default {
       description: 'Breaks selected symbols (blocks) into the shapes they are made of',
       prompt: 'Select symbols'
     },
+    refedit: {
+      description: 'Enters the selected symbol (block) to edit its contents in place'
+    },
+    refclose: {
+      description: 'Finishes editing the symbol and updates every copy of it'
+    },
     extmax: {
       description:
         'Stores the upper-right corner of the model-space drawing extents (read-only)'
