@@ -426,6 +426,18 @@ export class AcTrView2d extends AcEdBaseView {
     if (state.view === this) this.syncSymbolEditBar()
   }
   private readonly _onSymbolEditLocaleChanged = () => this.syncSymbolEditBar()
+  /**
+   * The view as the last fit of the whole drawing left it. While the view is
+   * still there, a change of the canvas size fits the drawing again (see
+   * {@link refitAfterResize}).
+   */
+  private _fittedView?: {
+    layoutBtrId: AcDbObjectId
+    box: AcGeBox2d
+    centerX: number
+    centerY: number
+    zoom: number
+  }
   /** Definitions whose placed symbols wait to be redrawn */
   private readonly _changedBlockIds = new Set<AcDbObjectId>()
   private _changedBlocksTimer: ReturnType<typeof setTimeout> | null = null
@@ -2075,7 +2087,9 @@ export class AcTrView2d extends AcEdBaseView {
           this.endProgressiveOpenFit()
           return
         }
-        this._progressiveOpenFit.applyFinalFit(() => this.getDrawingExtents())
+        this.rememberFittedView(
+          this._progressiveOpenFit.applyFinalFit(() => this.getDrawingExtents())
+        )
         this.endProgressiveOpenFit()
         const originalBtrId = layoutBtrId ?? this.activeLayoutBtrId
         if (originalBtrId) {
@@ -2118,13 +2132,16 @@ export class AcTrView2d extends AcEdBaseView {
               const smart = await this.resolveSmartFitBox()
               if (smart) {
                 this.zoomTo(smart)
+                this.rememberFittedView(smart)
                 this._isDirty = true
                 this.endProgressiveOpenFit()
                 resolve()
                 return
               }
-              this._progressiveOpenFit.applyFinalFit(() =>
-                this.getDrawingExtents()
+              this.rememberFittedView(
+                this._progressiveOpenFit.applyFinalFit(() =>
+                  this.getDrawingExtents()
+                )
               )
               this.endProgressiveOpenFit()
               resolve()
@@ -3260,6 +3277,7 @@ export class AcTrView2d extends AcEdBaseView {
    */
   clear() {
     this._symbolEdit.reset()
+    this._fittedView = undefined
     if (this._changedBlocksTimer != null) {
       clearTimeout(this._changedBlocksTimer)
       this._changedBlocksTimer = null
@@ -4086,7 +4104,55 @@ export class AcTrView2d extends AcEdBaseView {
     return stats
   }
 
+  /**
+   * Remembers the view a fit of the whole drawing produced, so that the fit
+   * can follow the canvas size for as long as the view stays there.
+   *
+   * @param box - The box the view was fitted to; nothing forgets the fit.
+   */
+  private rememberFittedView(box: AcGeBox2d | undefined) {
+    this._fittedView = undefined
+    if (!box) return
+    const layoutView = this._layoutViewManager.activeLayoutView
+    if (!layoutView) return
+    const center = layoutView.center
+    this._fittedView = {
+      layoutBtrId: this._scene.activeLayoutBtrId,
+      box: new AcGeBox2d(box.min, box.max),
+      centerX: center.x,
+      centerY: center.y,
+      zoom: layoutView.internalCamera.zoom
+    }
+  }
+
+  /**
+   * The box of the last fit of the whole drawing, while the view is still
+   * exactly where that fit left it (same layout, not panned or zoomed since).
+   */
+  private fittedBoxIfUntouched(): AcGeBox2d | undefined {
+    const fitted = this._fittedView
+    if (!fitted) return undefined
+    const layoutView = this._layoutViewManager.activeLayoutView
+    const same = (a: number, b: number) =>
+      Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b))
+    if (
+      !layoutView ||
+      fitted.layoutBtrId !== this._scene.activeLayoutBtrId ||
+      !same(layoutView.center.x, fitted.centerX) ||
+      !same(layoutView.center.y, fitted.centerY) ||
+      !same(layoutView.internalCamera.zoom, fitted.zoom)
+    ) {
+      this._fittedView = undefined
+      return undefined
+    }
+    return fitted.box
+  }
+
   protected onWindowResize() {
+    // A drawing that was fitted to the canvas and not moved since stays
+    // fitted: a panel docking beside the canvas just after a drawing opened
+    // (or the window changing size) must not leave part of it out of view.
+    const fittedBox = this.fittedBoxIfUntouched()
     // Refresh size first, then sync WebGL / CSS2D / frustum before notifying
     // listeners so `worldToScreen` consumers see the new projection.
     this.refreshViewSize()
@@ -4099,6 +4165,10 @@ export class AcTrView2d extends AcEdBaseView {
     this._renderer.setSize(this.width, this.height)
     this._css2dRenderer.setSize(this.width, this.height)
     this._layoutViewManager.resize(this.width, this.height)
+    if (fittedBox) {
+      this._layoutViewManager.activeLayoutView?.zoomTo(fittedBox, 1.1)
+      this.rememberFittedView(fittedBox)
+    }
     this._isDirty = true
     this.events.viewResize.dispatch({
       width: this.width,

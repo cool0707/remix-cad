@@ -80,16 +80,21 @@ export class AcTrProgressiveOpenFitController {
   /**
    * Applies the terminal fit after all entities are converted, unless the user
    * already adjusted the view manually.
+   *
+   * @returns The box the view was fitted to, if it was.
    */
-  applyFinalFit(resolveFitBox: () => AcGeBox2d | undefined) {
+  applyFinalFit(
+    resolveFitBox: () => AcGeBox2d | undefined
+  ): AcGeBox2d | undefined {
     if (this.userAdjusted) {
-      return
+      return undefined
     }
 
     const box = resolveFitBox()
     if (box) {
       this.applyZoom(box)
     }
+    return box
   }
 
   /**
