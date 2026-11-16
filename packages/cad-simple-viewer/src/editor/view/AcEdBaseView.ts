@@ -13,8 +13,9 @@ import {
 } from '@mlightcad/data-model'
 import { debounce } from 'lodash-es'
 
-import { AcApDocManager } from '../../app'
+import { AcApDocManager, AcApSettingManager } from '../../app'
 import { AcApI18n } from '../../i18n'
+import { acapExpandToGroups } from '../../service/AcApGroupService'
 import { excludeLockedLayerIds } from '../../service/AcApLockedLayer'
 import type { AcTrSpatialSearchOptions } from '../../spatialIndex/AcTrSpatialIndex'
 import type {
@@ -968,6 +969,7 @@ export abstract class AcEdBaseView {
    */
   applySelection(ids: AcDbObjectId[], action: AcEdSelectionAction) {
     if (!this.entitySelectionEnabled) return
+    ids = this.expandToGroups(ids)
     // Toggle filters only the ids it adds (see below) so a locked entity
     // can still be deselected.
     if (action !== 'toggle') ids = this.selectableIds(ids, action)
@@ -998,6 +1000,24 @@ export abstract class AcEdBaseView {
       const existing = ids.filter(id => this.selectionSet.has(id))
       if (existing.length > 0) this.selectionSet.delete(existing)
     }
+  }
+
+  /**
+   * Adds the other members of the groups the ids belong to (a click on one
+   * line of a group selects the group), unless group selection is off in the
+   * settings or the contents of a symbol are being edited.
+   */
+  protected expandToGroups(ids: AcDbObjectId[]): AcDbObjectId[] {
+    if (ids.length === 0 || this.isGroupSelectionSuspended()) return ids
+    const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
+    if (!db || db.objects.group.numEntries === 0) return ids
+    if (!AcApSettingManager.instance.groupSelection) return ids
+    return acapExpandToGroups(db, ids)
+  }
+
+  /** Whether picking ignores groups right now (the view decides). */
+  protected isGroupSelectionSuspended(): boolean {
+    return false
   }
 
   /**

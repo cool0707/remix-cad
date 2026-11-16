@@ -767,10 +767,40 @@ export default {
   toolPalette: {
     layersSection: {
       more: 'その他の操作',
-      split: 'レイヤーを下に分けて表示',
-      merge: 'レイヤーを上のタブにまとめる',
-      expand: 'レイヤーを開く',
-      collapse: 'レイヤーを折りたたむ'
+      split: 'レイヤーとグループを下に分けて表示',
+      merge: 'レイヤーとグループを上のタブにまとめる',
+      expand: 'レイヤーとグループを開く',
+      collapse: 'レイヤーとグループを折りたたむ',
+      tabs: 'レイヤーとグループ'
+    },
+    groupManager: {
+      tab: 'グループ',
+      title: 'グループ',
+      count: 'グループ: {count} 個',
+      searchPlaceholder: 'グループを検索',
+      toolbar: {
+        newGroup: '選択した図形をグループにする',
+        rename: '名前を変更',
+        ungroup: 'グループを解除',
+        groupSelectionOn: 'グループ単位で選択: オン (クリックでグループ全体を選択)',
+        groupSelectionOff: 'グループ単位で選択: オフ (図形を 1 つずつ選択)'
+      },
+      empty: 'グループはまだありません。',
+      emptyHint: '図形を選んで [グループにする] ({key}) を押すと、まとめて選んだり動かしたりできます。グループをまとめてグループにすると入れ子になります。',
+      noMatch: '一致するグループはありません。',
+      unnamed: '(名前なし)',
+      more: 'ほか {count} 個',
+      memberCount: '{count} 個',
+      addSelection: '選択した図形をこのグループに追加',
+      removeFromGroup: 'グループから外す',
+      prompts: {
+        name: 'グループの名前',
+        renameTitle: 'グループの名前を変更'
+      },
+      messages: {
+        nameTaken: '「{name}」という名前のグループはすでにあります。',
+        ungrouped: 'グループ「{name}」を解除しました。'
+      }
     },
     entityProperties: {
       tab: 'プロパティ',

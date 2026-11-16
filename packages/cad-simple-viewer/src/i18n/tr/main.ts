@@ -80,6 +80,8 @@ export default {
       imageattach: 'Resim ekle',
       xattach: 'Bağlı çizim ekle',
       erase: 'Sil',
+      group: 'Grupla',
+      ungroup: 'Grubu çöz',
       explode: 'Patlat',
       refedit: 'Sembolü düzenle',
       refclose: 'Sembol düzenlemeyi bitir',
@@ -156,6 +158,8 @@ export default {
       fillet: 'köşe yuvarlama',
       chamfer: 'pah köşe',
       break: 'kır ayır',
+      group: 'grupla birleştir group',
+      ungroup: 'grubu çöz ayır ungroup',
       explode: 'patlat parçala explode',
       refedit: 'blok düzenle blok düzenleyici yerinde düzenle bedit refedit',
       refclose: 'blok düzenleyiciyi kapat bclose refclose',
@@ -186,6 +190,8 @@ export default {
     paste: 'Yapıştır',
     duplicate: 'Çoğalt',
     erase: 'Sil',
+    group: 'Grupla',
+    ungroup: 'Grubu çöz',
     explode: 'Patlat',
     editSymbol: 'Sembolü düzenle',
     finishSymbol: 'Sembol düzenlemeyi bitir',
@@ -348,6 +354,14 @@ export default {
     locked: 'Kilitli katmandaki sembol düzenlenemez.',
     selectOne: 'Düzenlenecek bir sembol seçin.',
     undoLimit: 'Sembole girmeden önceki işlemleri geri almak için düzenlemeyi bitirin.'
+  },
+  group: {
+    namePrefix: 'Grup',
+    nothingSelected: 'Gruplanacak nesneleri seçin.',
+    created: '"{name}" grubu oluşturuldu.',
+    noGroup: 'Seçili nesneler bir grupta değil.',
+    removed: '{count} grup çözüldü.',
+    inSymbol: 'Sembol düzenlenirken gruplar değiştirilemez.'
   },
   explode: {
     noSymbol: 'Patlatılacak bir sembol seçin.',

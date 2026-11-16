@@ -137,6 +137,14 @@ export default {
       description: 'Breaks selected symbols (blocks) into the shapes they are made of',
       prompt: 'Select symbols'
     },
+    group: {
+      description: 'Puts the selected objects into a group',
+      prompt: 'Select objects to group'
+    },
+    ungroup: {
+      description: 'Removes the group of the selected objects (the objects stay)',
+      prompt: 'Select objects to ungroup'
+    },
     refedit: {
       description: 'Enters the selected symbol (block) to edit its contents in place'
     },

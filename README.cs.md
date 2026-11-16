@@ -74,6 +74,10 @@ takže výkresy nikdy neopustí zařízení uživatele.
 - **Dialog Nastavení** — Soubor → Nastavení nebo ozubené kolečko vedle výběru jazyka (také příkaz `OPTIONS`)
   otevře jedno okno pro profil ovládání, výběr, pokračování v kreslení a zobrazené prvky
   (motiv, pás karet, panel nástrojů, příkazový řádek, souřadnice, výběr jazyka, informace o objektu, statistiky).
+- **Skupiny** — vyberte objekty a v místní nabídce zvolte Seskupit (Ctrl+G / ⌘G): kliknutí na kterýkoli z nich pak vybere a přesune celou skupinu.
+  Oddíl hladin v bočním panelu má karty Hladiny a Skupiny; karta Skupiny zobrazuje skupiny jako strom (skupina → vnořené skupiny → objekty).
+  Kliknutím na řádek vyberete jeho objekty, dvojklikem je přiblížíte; skupinu lze přejmenovat, zrušit (Ctrl+Shift+G), přidat do ní výběr nebo z ní objekt odebrat.
+  Po vypnutí výběru skupin se objekty vybírají jednotlivě. Skupiny se ukládají jako objekty GROUP v DXF / DWG a skupiny z AutoCADu a jiných CAD se načtou i s názvy.
 - **Tisková oblast** — tlačítko ve stavovém řádku vedle „Zobrazit tloušťky čar“ zašedí plátno mimo papír, na který se výkres tiskne / exportuje
   (meze výkresu, jinak A3 ve standardním měřítku), jako artboard v Illustratoru, a označí ho (např. `A3 1:100`).
 - **Měřítko zobrazení** — stavový řádek ukazuje zobrazení jako měřítko výkresu (`1/100` = 1 mm na obrazovce ukazuje 100 mm výkresu,

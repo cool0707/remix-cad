@@ -71,6 +71,10 @@ export class AcEdViewKeyHandler {
       return true
     }
 
+    if (this.handleGroupShortcut(e)) {
+      return true
+    }
+
     if (
       !undoRedoShortcut &&
       this.view.toolManager.isSimple &&
@@ -197,6 +201,36 @@ export class AcEdViewKeyHandler {
     }
     if (done) e.preventDefault()
     return done
+  }
+
+  /** Whether the event is Ctrl / Cmd + G (with or without Shift). */
+  isGroupShortcut(e: KeyboardEvent): boolean {
+    return (e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'KeyG'
+  }
+
+  /**
+   * Ctrl / Cmd + G: group the selection; with Shift: ungroup it. Only with
+   * a selection, while no command runs and no field has the focus.
+   *
+   * @returns `true` when the event was consumed.
+   */
+  private handleGroupShortcut(e: KeyboardEvent): boolean {
+    if (!this.isGroupShortcut(e)) return false
+    if (
+      this.isTyping(e) ||
+      this.view.editor.isActive ||
+      this.view.toolManager.isCommandRunning ||
+      AcEdMTextEditor.getActiveInputBox() ||
+      this.view.selectionSet.count === 0
+    ) {
+      return false
+    }
+    const command = e.shiftKey ? 'ungroup' : 'group'
+    const docManager = AcApDocManager.instance
+    if (!docManager.lookupGlobalCmd(command)) return false
+    e.preventDefault()
+    docManager.sendStringToExecute(command)
+    return true
   }
 
   /** Clears the entity and markup / measurement selection. */

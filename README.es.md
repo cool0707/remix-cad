@@ -75,6 +75,10 @@ del dispositivo del usuario.
   mantiene las capas en su propia sección bajo las propiedades (plegada, sigue mostrando la capa actual); Buscar, Mediciones y
   los demás paneles aparecen como pestañas que se pueden cerrar solo al abrirlos. Las capas también pueden volver a las pestañas
   (lo predeterminado en el perfil CAD); cada perfil recuerda su disposición.
+- **Grupos** — seleccione objetos y haga clic derecho → Agrupar (Ctrl+G / ⌘G): después, un clic en cualquiera de ellos selecciona y mueve todo el grupo.
+  La sección de capas del panel lateral tiene las pestañas Capas y Grupos; la pestaña Grupos muestra los grupos como un árbol (grupo → grupos dentro → objetos).
+  Un clic en una fila selecciona sus objetos, un doble clic hace zoom, y se puede renombrar, desagrupar (Ctrl+Shift+G), añadir la selección o sacar un objeto;
+  desactive la selección por grupos para elegir objetos uno a uno. Los grupos se guardan como objetos GROUP de DXF / DWG y se leen con su nombre los creados en AutoCAD y otros CAD.
 - **Diálogo de ajustes** — Archivo → Ajustes, o el engranaje junto al selector de idioma (también el comando `OPTIONS`),
   abre un único diálogo para el perfil de uso, la selección, seguir dibujando y lo que se muestra
   (tema, cinta, barra de herramientas, línea de comandos, coordenadas, selector de idioma, información del objeto, estadísticas).

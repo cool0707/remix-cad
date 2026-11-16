@@ -74,6 +74,10 @@ acontecem no cliente, então os desenhos nunca saem do dispositivo do usuário.
   seção própria abaixo das propriedades (recolhida, ainda mostra a camada atual); Localizar, Medições e os outros painéis aparecem
   como abas que podem ser fechadas só depois de abertos. As camadas também podem voltar para as abas (o padrão do perfil CAD);
   cada perfil lembra o seu layout.
+- **Grupos** — selecione objetos e clique com o botão direito → Agrupar (Ctrl+G / ⌘G): depois, um clique em qualquer um deles seleciona e move o grupo inteiro.
+  A seção de camadas do painel lateral tem as abas Camadas e Grupos; a aba Grupos mostra os grupos como uma árvore (grupo → grupos dentro dele → objetos).
+  Clique numa linha para selecionar seus objetos, clique duplo para dar zoom, e renomeie, desagrupe (Ctrl+Shift+G), adicione a seleção ou retire um objeto;
+  desligue a seleção por grupo para escolher objetos um a um. Os grupos são salvos como objetos GROUP do DXF / DWG, e grupos feitos no AutoCAD e outros CAD são lidos com o nome.
 - **Diálogo de configurações** — Arquivo → Configurações, ou a engrenagem ao lado do seletor de idioma (também o comando `OPTIONS`),
   abre um único diálogo para o perfil de uso, a seleção, continuar desenhando e o que é exibido
   (tema, faixa de opções, barra de ferramentas, linha de comando, coordenadas, seletor de idioma, informações do objeto, estatísticas).

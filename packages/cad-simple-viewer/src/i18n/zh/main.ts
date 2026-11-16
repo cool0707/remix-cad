@@ -80,6 +80,8 @@ export default {
       imageattach: '附着图像',
       xattach: '附着链接图纸',
       erase: '删除',
+      group: '编组',
+      ungroup: '解除编组',
       explode: '分解',
       refedit: '编辑符号',
       refclose: '结束符号编辑',
@@ -156,6 +158,8 @@ export default {
       fillet: '倒圆角',
       chamfer: '斜角',
       break: '断开 分割',
+      group: '编组 成组 group',
+      ungroup: '解组 取消编组 ungroup',
       explode: '分解 炸开 打散',
       refedit: '块编辑 块编辑器 在位编辑 bedit refedit',
       refclose: '关闭块编辑器 bclose refclose',
@@ -196,6 +200,8 @@ export default {
     paste: '粘贴',
     duplicate: '再制',
     erase: '删除',
+    group: '编组',
+    ungroup: '解除编组',
     explode: '分解',
     editSymbol: '编辑符号',
     finishSymbol: '结束符号编辑',
@@ -354,6 +360,14 @@ export default {
     locked: '无法编辑锁定图层上的符号。',
     selectOne: '请选择一个要编辑的符号。',
     undoLimit: '进入符号之前的操作，需结束编辑后才能撤销。'
+  },
+  group: {
+    namePrefix: '组',
+    nothingSelected: '请选择要编组的对象。',
+    created: '已创建组“{name}”。',
+    noGroup: '所选对象不在任何组中。',
+    removed: '已解除 {count} 个组。',
+    inSymbol: '编辑符号时无法更改组。'
   },
   explode: {
     noSymbol: '请选择要分解的符号。',

@@ -71,6 +71,10 @@ drawings never leave the user's device.
   section under the properties (collapsed, it still shows the current layer); Find, Measurements and the other panels
   appear as closable tabs only once opened. The layers can also go back into the tabs (the CAD profile's default);
   each profile remembers its layout.
+- **Groups** — select objects and right-click → Group (Ctrl+G / ⌘G): a click on any of them then selects and moves the whole group.
+  The layers section of the side panel has Layers and Groups tabs; the Groups tab shows the groups as a tree (group → groups inside it → objects).
+  Click a row to select its objects, double-click to zoom to them, and rename, ungroup (Ctrl+Shift+G), add the selection or take an object out;
+  turn off group selection to pick objects one by one. Groups are saved as DXF / DWG GROUP objects, and groups made in AutoCAD and other CAD programs are read with their names.
 - **Settings dialog** — File → Settings, or the gear next to the language selector (also the `OPTIONS` command)
   opens one dialog for the operation profile, selection, keep drawing and what is shown
   (theme, ribbon, toolbar, command line, coordinates, language selector, entity info, statistics).

@@ -142,6 +142,11 @@ export interface AcApSettings {
    * Shows developer tools (memory and open-file profiles) in the main menu.
    */
   isShowDevTools: boolean
+  /**
+   * Picking one member of a group selects the whole group (on by default,
+   * like PICKSTYLE 1). Off: the entities of groups are picked one by one.
+   */
+  groupSelection: boolean
 }
 
 /**
@@ -203,7 +208,8 @@ const DEFAULT_VALUES: AcApSettings = {
   isShowPrintArea: false,
   sidebarLayersSplitSimple: true,
   sidebarLayersSplitCad: false,
-  isShowDevTools: false
+  isShowDevTools: false,
+  groupSelection: true
 }
 
 /** Default localStorage key for persisting user preferences */
@@ -623,6 +629,15 @@ export class AcApSettingManager<T extends AcApSettings = AcApSettings> {
 
   set isSidebarLayersSplit(value: boolean) {
     this.set(this.sidebarLayersSplitKey, value)
+  }
+
+  /** Whether picking a group member selects the whole group. */
+  get groupSelection(): boolean {
+    return this.get('groupSelection')
+  }
+
+  set groupSelection(value: boolean) {
+    this.set('groupSelection', value)
   }
 
   /**

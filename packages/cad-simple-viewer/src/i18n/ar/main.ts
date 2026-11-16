@@ -80,6 +80,8 @@ export default {
       imageattach: 'إرفاق صورة',
       xattach: 'إرفاق رسم مرتبط',
       erase: 'حذف',
+      group: 'تجميع',
+      ungroup: 'إلغاء التجميع',
       explode: 'تفكيك',
       refedit: 'تحرير الرمز',
       refclose: 'إنهاء تحرير الرمز',
@@ -156,6 +158,8 @@ export default {
       fillet: 'تدوير زاوية',
       chamfer: 'حافة زاوية',
       break: 'تقسيم',
+      group: 'تجميع مجموعة group',
+      ungroup: 'إلغاء التجميع فك ungroup',
       explode: 'تفكيك تفجير explode',
       refedit: 'تحرير البلوك محرر البلوك تحرير في المكان bedit refedit',
       refclose: 'إغلاق محرر البلوك bclose refclose',
@@ -185,6 +189,8 @@ export default {
     paste: 'لصق',
     duplicate: 'تكرار',
     erase: 'حذف',
+    group: 'تجميع',
+    ungroup: 'إلغاء التجميع',
     explode: 'تفكيك',
     editSymbol: 'تحرير الرمز',
     finishSymbol: 'إنهاء تحرير الرمز',
@@ -346,6 +352,14 @@ export default {
     locked: 'لا يمكن تحرير رمز على طبقة مقفلة.',
     selectOne: 'حدد رمزًا واحدًا لتحريره.',
     undoLimit: 'أنهِ تحرير الرمز للتراجع عما تم قبل الدخول إليه.'
+  },
+  group: {
+    namePrefix: 'مجموعة',
+    nothingSelected: 'حدد الكائنات المراد تجميعها.',
+    created: 'تم إنشاء المجموعة "{name}".',
+    noGroup: 'الكائنات المحددة ليست في مجموعة.',
+    removed: 'تم إلغاء {count} مجموعة.',
+    inSymbol: 'لا يمكن تغيير المجموعات أثناء تحرير رمز.'
   },
   explode: {
     noSymbol: 'حدد رمزًا لتفكيكه.',

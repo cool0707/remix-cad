@@ -80,6 +80,8 @@ export default {
       imageattach: 'Připojit obrázek',
       xattach: 'Připojit propojený výkres',
       erase: 'Smazat',
+      group: 'Seskupit',
+      ungroup: 'Zrušit skupinu',
       explode: 'Rozložit',
       refedit: 'Upravit symbol',
       refclose: 'Ukončit úpravy symbolu',
@@ -156,6 +158,8 @@ export default {
       fillet: 'zaoblení roh',
       chamfer: 'sražení roh',
       break: 'rozdělit',
+      group: 'seskupit skupina group',
+      ungroup: 'zrušit skupinu rozdělit ungroup',
       explode: 'rozložit rozbít explode',
       refedit: 'upravit blok editor bloků úpravy na místě bedit refedit',
       refclose: 'zavřít editor bloků bclose refclose',
@@ -186,6 +190,8 @@ export default {
     paste: 'Vložit',
     duplicate: 'Duplikovat',
     erase: 'Odstranit',
+    group: 'Seskupit',
+    ungroup: 'Zrušit skupinu',
     explode: 'Rozložit',
     editSymbol: 'Upravit symbol',
     finishSymbol: 'Ukončit úpravy symbolu',
@@ -348,6 +354,14 @@ export default {
     locked: 'Symbol v uzamčené hladině nelze upravit.',
     selectOne: 'Vyberte jeden symbol k úpravě.',
     undoLimit: 'Kroky provedené před vstupem do symbolu lze vrátit až po ukončení úprav.'
+  },
+  group: {
+    namePrefix: 'Skupina',
+    nothingSelected: 'Vyberte objekty k seskupení.',
+    created: 'Skupina „{name}“ byla vytvořena.',
+    noGroup: 'Vybrané objekty nejsou ve skupině.',
+    removed: 'Zrušeno skupin: {count}.',
+    inSymbol: 'Během úprav symbolu nelze měnit skupiny.'
   },
   explode: {
     noSymbol: 'Vyberte symbol, který chcete rozložit.',

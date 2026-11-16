@@ -793,10 +793,40 @@ export default {
   toolPalette: {
     layersSection: {
       more: 'Diğer',
-      split: 'Katmanları altta ayrı göster',
-      merge: 'Katmanları üstteki sekmelere taşı',
-      expand: 'Katmanları göster',
-      collapse: 'Katmanları daralt'
+      split: 'Katmanları ve grupları altta ayrı göster',
+      merge: 'Katmanları ve grupları üstteki sekmelere taşı',
+      expand: 'Katmanları ve grupları göster',
+      collapse: 'Katmanları ve grupları daralt',
+      tabs: 'Katmanlar ve gruplar'
+    },
+    groupManager: {
+      tab: 'Gruplar',
+      title: 'Gruplar',
+      count: '{count} grup',
+      searchPlaceholder: 'Grup ara',
+      toolbar: {
+        newGroup: 'Seçili nesneleri grupla',
+        rename: 'Yeniden adlandır',
+        ungroup: 'Grubu çöz',
+        groupSelectionOn: 'Grup seçimi: açık (tıklama tüm grubu seçer)',
+        groupSelectionOff: 'Grup seçimi: kapalı (nesneler tek tek seçilir)'
+      },
+      empty: 'Henüz grup yok.',
+      emptyHint: 'Nesneleri seçip Grupla ({key}) ile birlikte seçip taşıyabilirsiniz. Grupları gruplamak onları iç içe koyar.',
+      noMatch: 'Eşleşen grup yok.',
+      unnamed: '(adsız)',
+      more: '{count} tane daha',
+      memberCount: '{count} nesne',
+      addSelection: 'Seçili nesneleri bu gruba ekle',
+      removeFromGroup: 'Gruptan çıkar',
+      prompts: {
+        name: 'Grup adı',
+        renameTitle: 'Grubu yeniden adlandır'
+      },
+      messages: {
+        nameTaken: '"{name}" adlı bir grup zaten var.',
+        ungrouped: '"{name}" grubu çözüldü.'
+      }
     },
     entityProperties: {
       tab: 'Özellikler',

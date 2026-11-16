@@ -129,6 +129,14 @@ export default {
       description: '将选中的符号 (块) 分解为组成它的图形',
       prompt: '选择符号'
     },
+    group: {
+      description: '将选中的对象编为一组',
+      prompt: '选择要编组的对象'
+    },
+    ungroup: {
+      description: '解除选中对象所在的组 (对象保留)',
+      prompt: '选择要解组的对象'
+    },
     refedit: {
       description: '进入所选符号 (块) 并在原位编辑其内容'
     },

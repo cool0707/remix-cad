@@ -80,6 +80,8 @@ export default {
       imageattach: 'Attach image',
       xattach: 'Attach linked drawing',
       erase: 'Delete',
+      group: 'Group',
+      ungroup: 'Ungroup',
       explode: 'Explode',
       refedit: 'Edit symbol',
       refclose: 'Finish editing symbol',
@@ -156,6 +158,8 @@ export default {
       fillet: 'round corner',
       chamfer: 'bevel corner',
       break: 'split cut gap',
+      group: 'group combine',
+      ungroup: 'ungroup separate',
       explode: 'explode decompose ungroup',
       refedit: 'block editor bedit refedit edit in place',
       refclose: 'close block editor bclose refclose',
@@ -205,6 +209,8 @@ export default {
     paste: 'Paste',
     duplicate: 'Duplicate',
     erase: 'Delete',
+    group: 'Group',
+    ungroup: 'Ungroup',
     explode: 'Explode',
     editSymbol: 'Edit symbol',
     finishSymbol: 'Finish editing symbol',
@@ -368,6 +374,14 @@ export default {
     locked: 'A symbol on a locked layer cannot be edited.',
     selectOne: 'Select one symbol to edit.',
     undoLimit: 'Finish editing the symbol to undo what was done before entering it.'
+  },
+  group: {
+    namePrefix: 'Group',
+    nothingSelected: 'Select the objects to group.',
+    created: 'Created group "{name}".',
+    noGroup: 'The selected objects are not in a group.',
+    removed: 'Ungrouped {count} group(s).',
+    inSymbol: 'Groups cannot be changed while a symbol is edited.'
   },
   explode: {
     noSymbol: 'Select a symbol to explode.',
