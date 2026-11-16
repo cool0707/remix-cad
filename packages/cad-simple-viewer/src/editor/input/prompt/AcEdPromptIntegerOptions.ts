@@ -63,4 +63,12 @@ export class AcEdPromptIntegerOptions extends AcEdPromptNumericalOptions {
       this._upperLimit = typeof val === 'number' ? Math.floor(val) : undefined
     }
   }
+
+  /**
+   * No `<default>` suffix: integer prompts open with the value already in the
+   * input box (wheel steps it), so repeating it in the message is noise.
+   */
+  override getDefaultValueDisplayText(): string | undefined {
+    return undefined
+  }
 }

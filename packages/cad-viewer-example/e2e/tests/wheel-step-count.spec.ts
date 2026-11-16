@@ -60,6 +60,10 @@ test('polygon sides: wheel steps the count, click confirms', async ({
   const input = page.locator('.ml-floating-input input').first()
   await expect(input).toHaveValue('4')
   await expect(page.locator('.ml-floating-input-wheel-hint')).toBeVisible()
+  // The value is in the box; the message has no "<4>" default suffix.
+  await expect(
+    page.locator('.ml-floating-input-label').first()
+  ).not.toContainText('<')
 
   const before = await viewScale(page)
   await page.mouse.wheel(0, -100)
