@@ -24,11 +24,14 @@ import {
   acapCornerReach,
   acapLineLineIntersection,
   acapNormAngle,
+  acapParallelJoin,
   acapPolylineVertices,
   acapProjectOnPath,
   acapReadCurvePath,
+  AcApSeg,
   acapVec,
-  AcApXY} from './AcApCurvePath'
+  AcApXY
+} from './AcApCurvePath'
 
 type CornerMode = { radius: number } | { d1: number; d2: number }
 
@@ -149,7 +152,11 @@ abstract class AcApCornerCmd extends AcEdCommand {
     const s2 = l2.startPoint
     const e2 = l2.endPoint
     const p = acapLineLineIntersection(s1, sub(e1, s1), s2, sub(e2, s2))
-    if (!p) return 'parallel'
+    if (!p) {
+      return this.key === 'fillet'
+        ? this.applyParallel(session, a, b)
+        : 'parallel'
+    }
     const side = (s: AcApXY, e: AcApXY, pick: AcApXY) => {
       const d = unit(sub(e, s))
       let u = mul(d, Math.sign(dot(sub(pick, p), d)) || 1)
@@ -201,6 +208,44 @@ abstract class AcApCornerCmd extends AcEdCommand {
         AcApEntityService.copyDisplayTraits(l1, joint)
         session.add([joint], l1)
       }
+    } finally {
+      session.end()
+    }
+    return undefined
+  }
+
+  /** FILLET of parallel lines: a half circle joins them. */
+  private applyParallel(session: AcApCurveEditSession, a: Pick, b: Pick) {
+    const l1 = a.entity as AcDbLine
+    const l2 = b.entity as AcDbLine
+    const join = acapParallelJoin(
+      l1.startPoint,
+      l1.endPoint,
+      a.point,
+      l2.startPoint,
+      l2.endPoint
+    )
+    if (!join) return 'parallel'
+    const z = l1.startPoint.z
+    session.begin()
+    try {
+      const before = acapReadCurvePath(l2)!
+      const s = l2.startPoint
+      const e = l2.endPoint
+      const segs: AcApSeg[] = [
+        {
+          kind: 'line',
+          a: join.moveStart2 ? join.end2 : { x: s.x, y: s.y },
+          b: join.moveStart2 ? { x: e.x, y: e.y } : join.end2
+        }
+      ]
+      session.modify(l2, before, { ...before, segs })
+      const arc = this.jointEntity(
+        { t1: join.end2, t2: join.end2, arc: join.arc },
+        z
+      )!
+      AcApEntityService.copyDisplayTraits(l1, arc)
+      session.add([arc], l1)
     } finally {
       session.end()
     }

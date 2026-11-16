@@ -800,7 +800,7 @@ export default {
     radius: '指定圆角半径',
     unsupported: '请选择两条直线，或同一多段线上相邻的两条直线边。',
     sameObject: '请选择两条不同的线。',
-    parallel: '两条线平行。',
+    parallel: '同一直线上的线无法连接。',
     tooLarge: '半径过大。',
     notAdjacent: '请选择多段线上相邻的两条边。',
     arcSegment: '多段线的圆弧边不能倒圆角。',

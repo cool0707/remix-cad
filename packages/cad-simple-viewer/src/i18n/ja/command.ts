@@ -364,7 +364,7 @@ export default {
       description: '図形の端をほかの図形にぶつかるまで延ばします'
     },
     fillet: {
-      description: '2 本の線の角を円弧で丸めます'
+      description: '2 本の線の角を円弧で丸めます (フィレット)'
     },
     chamfer: {
       description: '2 本の線の角を斜めに切り落とします'

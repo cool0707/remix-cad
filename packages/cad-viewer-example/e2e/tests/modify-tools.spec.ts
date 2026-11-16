@@ -267,6 +267,27 @@ test('FILLET rounds the corner of two lines with the given radius', async ({
   ])
 })
 
+test('FILLET joins parallel lines with a half circle', async ({ page }) => {
+  await loadFixture(page)
+  await focusViewer(page)
+
+  // D (y = 50, 0…40) and F (y = 100, 0…50), picked near their right ends.
+  await run(page, 'fillet')
+  await clickAt(page, { x: 35, y: 50 })
+  await clickAt(page, { x: 45, y: 100 })
+  await expect.poll(async () => (await state(page)).running).toBe(false)
+  const shapes = (await state(page)).shapes
+  expect(lines(shapes)).toEqual(
+    expect.arrayContaining([
+      [0, 50, 40, 50],
+      [0, 100, 40, 100]
+    ])
+  )
+  expect(shapes.filter(s => s.type === 'Arc').map(s => s.points)).toEqual([
+    [40, 75, 25]
+  ])
+})
+
 test('MIRROR and ARRAY copy the selection', async ({ page }) => {
   await loadFixture(page)
   await focusViewer(page)

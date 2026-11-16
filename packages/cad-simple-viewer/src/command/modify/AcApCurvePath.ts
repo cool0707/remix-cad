@@ -724,3 +724,56 @@ export function acapCornerReach(
 }
 
 export const acapVec = { sub, add, mul, dot, cross, len }
+
+/** How FILLET joins two parallel lines (see {@link acapParallelJoin}). */
+export interface AcApParallelJoin {
+  /** True when the end of the second line to move is its start point */
+  moveStart2: boolean
+  /** New position of that end */
+  end2: AcApXY
+  /** Half circle from the end of the first line to `end2` */
+  arc: AcApArcSeg
+}
+
+/**
+ * FILLET of two parallel lines (like AutoCAD): a half circle whose diameter
+ * is the distance between the lines joins them at the end of the first line
+ * nearer to `pick1`. The second line is lengthened or shortened so that its
+ * end lies across from that end. Returns `undefined` for collinear lines.
+ */
+export function acapParallelJoin(
+  s1: AcApXY,
+  e1: AcApXY,
+  pick1: AcApXY,
+  s2: AcApXY,
+  e2: AcApXY
+): AcApParallelJoin | undefined {
+  const d = sub(e1, s1)
+  const l = len(d)
+  if (l < ACAP_GEOM_EPS) return undefined
+  const dir = mul(d, 1 / l)
+  // The end of the first line nearer to the pick, and the outward direction.
+  const atEnd = acapDist(pick1, e1) <= acapDist(pick1, s1)
+  const end1 = atEnd ? e1 : s1
+  const u = atEnd ? dir : mul(dir, -1)
+  // Foot of the perpendicular from end1 onto the second line.
+  const t = dot(sub(end1, s2), dir)
+  const foot = add(s2, mul(dir, t))
+  const gap = acapDist(end1, foot)
+  if (gap < ACAP_GEOM_EPS) return undefined
+  // The end of the second line that points the same way as `u`.
+  const moveStart2 = dot(sub(s2, e2), u) > 0
+  const c = mul(add(end1, foot), 0.5)
+  const a0 = Math.atan2(end1.y - c.y, end1.x - c.x)
+  const outward = Math.atan2(u.y, u.x)
+  // Turn through the outward side.
+  const sweep =
+    Math.abs(acapNormAngle(outward - a0) - Math.PI / 2) < 1e-6
+      ? Math.PI
+      : -Math.PI
+  return {
+    moveStart2,
+    end2: foot,
+    arc: { kind: 'arc', c, r: gap / 2, a0, sweep }
+  }
+}

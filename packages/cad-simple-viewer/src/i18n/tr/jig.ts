@@ -810,7 +810,7 @@ export default {
     radius: 'Yuvarlama yarıçapını belirtin',
     unsupported: 'İki çizgi veya bir çoklu çizginin komşu iki düz kenarını seçin.',
     sameObject: 'İki farklı çizgi seçin.',
-    parallel: 'Çizgiler paralel.',
+    parallel: 'Aynı doğru üzerindeki çizgiler birleştirilemez.',
     tooLarge: 'Yarıçap bu çizgiler için çok büyük.',
     notAdjacent: 'Çoklu çizginin komşu iki kenarını seçin.',
     arcSegment: 'Çoklu çizginin eğri kenarları yuvarlanamaz.',

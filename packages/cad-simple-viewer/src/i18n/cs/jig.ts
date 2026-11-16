@@ -809,7 +809,7 @@ export default {
     radius: 'Zadejte poloměr zaoblení',
     unsupported: 'Vyberte dvě úsečky nebo dvě sousední rovné strany jedné křivky.',
     sameObject: 'Vyberte dvě různé úsečky.',
-    parallel: 'Úsečky jsou rovnoběžné.',
+    parallel: 'Úsečky na stejné přímce nelze spojit.',
     tooLarge: 'Poloměr je pro tyto úsečky příliš velký.',
     notAdjacent: 'Vyberte dvě sousední strany křivky.',
     arcSegment: 'Zakřivené strany křivky nelze zaoblit.',

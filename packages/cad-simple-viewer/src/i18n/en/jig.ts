@@ -811,7 +811,7 @@ export default {
     radius: 'Specify the fillet radius',
     unsupported: 'Select two lines, or two neighbouring straight sides of one polyline.',
     sameObject: 'Select two different lines.',
-    parallel: 'The lines are parallel.',
+    parallel: 'Lines on the same straight line cannot be joined.',
     tooLarge: 'The radius is too large for these lines.',
     notAdjacent: 'Select two neighbouring sides of the polyline.',
     arcSegment: 'Curved sides of a polyline cannot be filleted.',

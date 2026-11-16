@@ -14,11 +14,13 @@ import {
   acapEndSegEntity,
   acapEntityFromSegs,
   acapExtendPath,
+  acapParallelJoin,
   acapParamsOfPoints,
   acapPolylineVertices,
   acapProjectOnPath,
   acapReadCurvePath,
   acapSegEnd,
+  acapSegPointAt,
   acapSegStart,
   acapTrimPieces,
   acapWriteSegs
@@ -181,5 +183,50 @@ describe('AcApCurvePath', () => {
     close(chamfer.t1.x, 1)
     close(chamfer.t2.y, 3)
     expect(acapCorner(p, { x: 1, y: 0 }, { x: -1, y: 0 }, { radius: 1 })).toBeUndefined()
+  })
+})
+
+describe('acapParallelJoin', () => {
+  test('joins two parallel lines with a half circle at the picked end', () => {
+    // First line y = 0 (0…10), second y = 4 (2…20); picked near x = 10.
+    const join = acapParallelJoin(
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 9, y: 0 },
+      { x: 2, y: 4 },
+      { x: 20, y: 4 }
+    )!
+    expect(join.moveStart2).toBe(false)
+    expect(join.end2).toEqual({ x: 10, y: 4 })
+    expect(join.arc.r).toBeCloseTo(2)
+    // The half circle bulges outwards (to +x).
+    const mid = acapSegPointAt(join.arc, 0.5)
+    expect(mid.x).toBeCloseTo(12)
+    expect(mid.y).toBeCloseTo(2)
+    expect(acapSegEnd(join.arc).y).toBeCloseTo(4)
+
+    // Picked near the start: the half circle goes out to −x.
+    const left = acapParallelJoin(
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+      { x: 1, y: 0 },
+      { x: 20, y: 4 },
+      { x: 2, y: 4 }
+    )!
+    expect(left.moveStart2).toBe(false)
+    expect(left.end2).toEqual({ x: 0, y: 4 })
+    expect(acapSegPointAt(left.arc, 0.5).x).toBeCloseTo(-2)
+  })
+
+  test('collinear lines cannot be joined', () => {
+    expect(
+      acapParallelJoin(
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+        { x: 9, y: 0 },
+        { x: 12, y: 0 },
+        { x: 20, y: 0 }
+      )
+    ).toBeUndefined()
   })
 })
