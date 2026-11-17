@@ -172,6 +172,16 @@ export class AcEdFloatingInputBoxes<T> {
     return this.xInput.userTyped || !!this.yInput?.userTyped
   }
 
+  /** X box text when the user typed (or wheel-stepped) it, else undefined. */
+  get typedText(): string | undefined {
+    return this.xInput.userTyped ? this.xInput.value.trim() : undefined
+  }
+
+  /** Sets the X box text as if typed (see {@link AcEdFloatingInputBox.setTypedValue}). */
+  setTypedValue(text: string) {
+    this.xInput.setTypedValue(text)
+  }
+
   /** Return one flag to indicate whether one of inputs is focused. */
   get focused() {
     return this.xInput.focused || this.yInput?.focused

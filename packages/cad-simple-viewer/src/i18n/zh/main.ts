@@ -19,7 +19,8 @@ export default {
     close: '关闭命令行'
   },
   prompt: {
-    orConnector: '或'
+    orConnector: '或',
+    wheelStepHint: '滚轮调整 · 单击确定'
   },
   tool: {
     select: '选择',

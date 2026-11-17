@@ -19,7 +19,8 @@ export default {
     close: 'コマンドラインを閉じる'
   },
   prompt: {
-    orConnector: 'または'
+    orConnector: 'または',
+    wheelStepHint: 'ホイールで変更・クリックで確定'
   },
   tool: {
     select: '選択',

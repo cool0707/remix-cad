@@ -74,10 +74,16 @@ import {
   AcEdFloatingInputCommitCallback,
   AcEdFloatingInputDrawPreviewCallback,
   AcEdFloatingInputDynamicValueCallback,
-  AcEdFloatingInputRawData
+  AcEdFloatingInputRawData,
+  AcEdFloatingInputWheelStepper
 } from './AcEdFloatingInputTypes'
 import type { AcEdFloatingKeyword } from './AcEdFloatingMessage'
 import { AcEdFloatingMessage } from './AcEdFloatingMessage'
+import {
+  acedClampIntegerPromptValue,
+  acedIntegerPromptRange,
+  acedStepIntegerPromptValue
+} from './AcEdIntegerPromptStep'
 import { acedInteractionStrategy } from './AcEdInteractionStrategy'
 import { AcEdMessageType } from './AcEdMessageType'
 import { acedAttachMobileBoxGesture } from './AcEdMobileBoxGesture'
@@ -1418,10 +1424,68 @@ export class AcEdInputManager {
 
     return this.executePrompt(
       options,
-      () => this.getNumberTyped(options, new AcEdIntegerHandler(options)),
+      () => this.getIntegerStepped(options),
       value => new AcEdPromptIntegerResult(AcEdPromptStatus.OK, value),
       status => new AcEdPromptIntegerResult(status)
     )
+  }
+
+  /**
+   * Integer prompt that opens with a value already in the box: the mouse
+   * wheel steps it (instead of zooming) and a click commits it, so counts
+   * such as polygon sides or array items need no keyboard. Typing still
+   * works; Enter commits what the box shows.
+   *
+   * The opening value is the prompt's default, else its lower limit (or the
+   * smallest value it allows).
+   */
+  private getIntegerStepped(options: AcEdPromptIntegerOptions) {
+    const handler = new AcEdIntegerHandler(options)
+    const range = acedIntegerPromptRange(options)
+    const initial = acedClampIntegerPromptValue(
+      options.useDefaultValue ? Math.round(options.defaultValue) : range.start,
+      options
+    )
+    let current = initial
+    let floatingInput: AcEdFloatingInput<number> | undefined
+    const typedValue = (text: string | undefined) =>
+      text == null ? undefined : (handler.parse(text) ?? undefined)
+    const valueNow = () => typedValue(floatingInput?.typedText) ?? current
+
+    const wheelStepper: AcEdFloatingInputWheelStepper = {
+      initialText: String(initial),
+      hint: AcApI18n.t('main.prompt.wheelStepHint'),
+      step: (typedText, direction) => {
+        current = acedStepIntegerPromptValue(
+          typedValue(typedText) ?? current,
+          direction,
+          options
+        )
+        return String(current)
+      }
+    }
+
+    const allowNone = options.allowNone
+    return this.makeFloatingInputPromise<number>({
+      inputCount: 1,
+      promptOptions: options,
+      handler,
+      showMetrics: false,
+      wheelStepper,
+      // Enter with nothing typed commits the value shown in the box. A prompt
+      // that gives Enter its own meaning (allowNone) keeps it.
+      defaultValueOverride:
+        options.useDefaultValue || allowNone
+          ? undefined
+          : { useDefaultValue: true, defaultValue: initial },
+      onFloatingInputCreated: input => {
+        floatingInput = input
+      },
+      getDynamicValue: () => {
+        const value = valueNow()
+        return { value, raw: { x: String(value) } }
+      }
+    })
   }
 
   /**
@@ -2923,6 +2987,10 @@ export class AcEdInputManager {
     showStringInput?: boolean
     /** When false, canvas pick does not commit (string prompts). */
     allowPickCommit?: boolean
+    /** Wheel steps the value instead of zooming (integer count prompts). */
+    wheelStepper?: AcEdFloatingInputWheelStepper
+    /** Replaces the prompt's own Enter-with-no-input default. */
+    defaultValueOverride?: { useDefaultValue: boolean; defaultValue?: T }
   }): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       this.active = true
@@ -2957,9 +3025,9 @@ export class AcEdInputManager {
         'allowNone' in options.promptOptions
           ? (options.promptOptions as { allowNone: boolean }).allowNone
           : false
-      const defaultBehavior = this.resolvePromptDefaultValue(
-        options.promptOptions
-      )
+      const defaultBehavior =
+        options.defaultValueOverride ??
+        this.resolvePromptDefaultValue(options.promptOptions)
       const showStringInput =
         options.showStringInput === true &&
         acedInteractionStrategy().point.usesSessionChrome
@@ -3021,6 +3089,7 @@ export class AcEdInputManager {
         useDefaultValue: defaultBehavior.useDefaultValue,
         defaultValue: defaultBehavior.defaultValue,
         allowPickCommit,
+        wheelStepper: options.wheelStepper,
         validate: validate,
         getDynamicValue,
         drawPreview: (pos: AcGePoint2dLike) => {

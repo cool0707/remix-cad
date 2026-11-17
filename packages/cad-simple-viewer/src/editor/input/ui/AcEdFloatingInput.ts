@@ -24,7 +24,8 @@ import {
   AcEdFloatingInputKeywordCallback,
   AcEdFloatingInputNoneCallback,
   AcEdFloatingInputOptions,
-  AcEdFloatingInputValidationCallback
+  AcEdFloatingInputValidationCallback,
+  AcEdFloatingInputWheelStepper
 } from './AcEdFloatingInputTypes'
 import { AcEdFloatingMessage } from './AcEdFloatingMessage'
 import { acedInteractionStrategy } from './AcEdInteractionStrategy'
@@ -76,6 +77,9 @@ export function acedSinkFollowingDblClick() {
  * This abstraction allows higher-level objects such as AcEdInputManager to
  * remain clean and free from DOM-handling logic.
  */
+/** Pixel wheel distance that makes one step (a mouse notch is ~100px). */
+const WHEEL_STEP_PX = 50
+
 export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   /** Stores last confirmed WCS point */
   lastPoint: AcGePoint2d | null = null
@@ -165,6 +169,12 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
   }) => void
   /** Cached view change handler */
   private boundOnViewChanged: () => void
+  /** Wheel stepping of the value (numeric count prompts), if any. */
+  private wheelStepper?: AcEdFloatingInputWheelStepper
+  /** Cached window-capture `wheel` handler for {@link wheelStepper}. */
+  private boundOnWheel?: (e: WheelEvent) => void
+  /** Pixel wheel deltas not yet turned into a step (trackpads). */
+  private wheelAccum = 0
 
   // ---------------------------------------------------------------------------
   // CONSTRUCTOR
@@ -300,7 +310,65 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     this.view.events.viewResize.addEventListener(this.boundOnViewChanged)
     this.updateDynamicInputDisplay()
 
+    // -----------------------------
+    // Wheel stepping
+    // -----------------------------
+    if (options.wheelStepper && this.inputs) {
+      this.wheelStepper = options.wheelStepper
+      this.inputs.setValue({ x: options.wheelStepper.initialText })
+      if (options.wheelStepper.hint) {
+        const hint = document.createElement('span')
+        hint.className = 'ml-floating-input-wheel-hint'
+        hint.textContent = options.wheelStepper.hint
+        this.container.appendChild(hint)
+      }
+      this.boundOnWheel = e => this.handleWheel(e)
+      // Window capture runs before the canvas listeners (OrbitControls zoom).
+      window.addEventListener('wheel', this.boundOnWheel, {
+        capture: true,
+        passive: false
+      })
+    }
+
     this.injectInputCSS()
+  }
+
+  /** X box text the user typed (or wheel-stepped), else undefined. */
+  get typedText(): string | undefined {
+    return this.inputs?.typedText
+  }
+
+  /**
+   * Steps the value with the wheel instead of zooming, while the prompt is
+   * shown and the wheel is over the view (canvas or this prompt).
+   */
+  private handleWheel(e: WheelEvent) {
+    if (!this.wheelStepper || !this.inputs) return
+    if (!this.visible || this.suppressDisplay || this.disposed) return
+    const target = e.target
+    if (!(target instanceof Node) || !this.view.container.contains(target)) {
+      return
+    }
+    e.preventDefault()
+    e.stopImmediatePropagation()
+
+    let direction: 1 | -1 | 0 = 0
+    if (e.deltaMode !== WheelEvent.DOM_DELTA_PIXEL) {
+      // Line / page deltas: one notch per event.
+      if (e.deltaY !== 0) direction = e.deltaY < 0 ? 1 : -1
+    } else {
+      // Mouse notches are ~100px in one event; trackpads send many small
+      // ones, so add them up to a step.
+      this.wheelAccum += e.deltaY
+      if (Math.abs(this.wheelAccum) >= WHEEL_STEP_PX) {
+        direction = this.wheelAccum < 0 ? 1 : -1
+        this.wheelAccum = 0
+      }
+    }
+    if (direction === 0) return
+    const text = this.wheelStepper.step(this.inputs.typedText, direction)
+    this.inputs.setTypedValue(text)
+    if (!this.inputs.focused) this.inputs.focus()
   }
 
   override showAt(pos: AcGePoint2dLike) {
@@ -340,6 +408,13 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
         border-radius: 2px;
       }
   
+      .ml-floating-input .ml-floating-input-wheel-hint {
+        margin-left: 6px;
+        font-size: 11px;
+        white-space: nowrap;
+        opacity: 0.75;
+      }
+
       .ml-floating-input input.invalid {
         border-color: var(--ml-ui-danger, red);
         color: var(--ml-ui-danger, red);
@@ -383,6 +458,9 @@ export class AcEdFloatingInput<T> extends AcEdFloatingMessage {
     )
     this.view.events.viewChanged.removeEventListener(this.boundOnViewChanged)
     this.view.events.viewResize.removeEventListener(this.boundOnViewChanged)
+    if (this.boundOnWheel) {
+      window.removeEventListener('wheel', this.boundOnWheel, true)
+    }
     this.inputs?.dispose()
     this.rubberBand?.dispose()
     this.osnapMarkerManager?.clear()
