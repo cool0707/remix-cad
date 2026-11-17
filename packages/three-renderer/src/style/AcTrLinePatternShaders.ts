@@ -6,6 +6,12 @@ import {
   normalizeComplexPatternElement
 } from '../linetype'
 
+/**
+ * Half the on-screen length, in pixels, of a dot (a pattern element of length
+ * 0), and the shortest half-length a dash is drawn with.
+ */
+const DOT_HALF_PIXELS = 1
+
 export class AcTrLinePatternShaders {
   /**
    * Creates line shader by given pattern.
@@ -33,16 +39,11 @@ export class AcTrLinePatternShaders {
       ltypeElementLenArr.push(len)
       totalLength += Math.abs(len)
     }
-    // Because we cannot (or, it's kind of hard to) draw a dot, let's draw a short dash.
-    // A really small value doesn't look good, so, use a fixed small value now!
-    for (let i = 0; i < ltypeElementLenArr.length; i++) {
-      if (ltypeElementLenArr[i] === 0) {
-        ltypeElementLenArr[i] = 0.5 /*totalLength * 0.01 * scale*/
-        totalLength += ltypeElementLenArr[i]
-      }
-    }
-
-    if (ltypeElementLenArr.length === 0) {
+    // Dots (length 0) stay 0 here: the shader draws them a few pixels long
+    // at any zoom (see DOT_HALF_PIXELS). A dot stand-in in drawing units
+    // vanishes in drawings in millimetres (sub-pixel at a whole-sheet zoom).
+    if (ltypeElementLenArr.length === 0 || totalLength <= 0) {
+      ltypeElementLenArr.length = 0
       ltypeElementLenArr.push(1)
       totalLength = 1
     }
@@ -125,18 +126,29 @@ export class AcTrLinePatternShaders {
                     return;
                 }
 
-                float pos = mod(vLineDistance, patternLength * u_viewportScale);
+                float scaledLength = patternLength * u_viewportScale;
+                float pos = mod(vLineDistance, scaledLength);
+                // Half the on-screen length of a dot, in the units of pos.
+                // Dashes are never drawn shorter than a dot either.
+                float dotHalf = ${DOT_HALF_PIXELS.toFixed(1)} / u_cameraZoom;
+                float start = 0.0;
+                bool penDown = false;
 
                 for ( int i = 0; i < ${pattern.length}; i++ ) {
-                    pos = pos - abs(pattern[i] * u_viewportScale);
-                    if ( pos < 0.0 ) {
-                        if ( pattern[i] > 0.0 ) {
-                            gl_FragColor = vec4(u_color, opacity);
-                            break;
+                    float len = abs(pattern[i] * u_viewportScale);
+                    if ( pattern[i] >= 0.0 ) {
+                        if ( pos >= start && pos < start + len ) {
+                            penDown = true;
+                        } else {
+                            float d = abs(pos - (start + len * 0.5));
+                            d = min(d, scaledLength - d);
+                            if ( d <= dotHalf ) penDown = true;
                         }
-                        discard;
                     }
+                    start += len;
                 }
+                if ( !penDown ) discard;
+                gl_FragColor = vec4(u_color, opacity);
                 #include <colorspace_fragment>
             }`
 

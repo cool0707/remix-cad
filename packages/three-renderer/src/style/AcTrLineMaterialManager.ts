@@ -154,15 +154,24 @@ export class AcTrLineMaterialManager extends AcTrMaterialManager<AcTrLineMateria
   ): THREE.Material {
     let dashSize = 0
     let gapSize = 0
+    let dots = 0
     for (const el of traits.lineType.pattern!) {
       if (isComplexPatternElement(normalizeComplexPatternElement(el))) {
         continue
       }
-      let len = el.elementLength * scale
-      // Same stand-in the shader uses: a dot is a fixed 0.5 dash.
-      if (len === 0) len = 0.5
+      const len = el.elementLength * scale
       if (len > 0) dashSize += len
-      else gapSize += Math.abs(len)
+      else if (len < 0) gapSize += Math.abs(len)
+      else dots++
+    }
+    // LineMaterial dashes are in drawing units, so a dot cannot be a fixed
+    // number of pixels as in the shader. Make it a tenth of the gaps it sits
+    // between: a fixed length in drawing units vanishes in drawings in
+    // millimetres (sub-pixel at a whole-sheet zoom).
+    if (dots > 0) {
+      const dotSize = Math.max(gapSize * 0.1, 1e-6)
+      dashSize += dots * dotSize
+      gapSize = Math.max(gapSize - dots * dotSize, 0)
     }
     if (dashSize === 0) dashSize = 0.5
     const dashedLineMaterial = new LineMaterial({
