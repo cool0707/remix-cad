@@ -50,6 +50,8 @@ export class AcTrRenderContext extends AcGiContext {
     super()
     this.styleManager = styleManager
     this.batchDrawPolicy = batchDrawPolicy
+    styleManager.options.layerColorOf = layerName =>
+      this.database?.tables.layerTable.getAt(layerName)?.color
   }
 
   /**

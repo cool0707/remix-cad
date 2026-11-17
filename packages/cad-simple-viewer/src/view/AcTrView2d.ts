@@ -2742,6 +2742,11 @@ export class AcTrView2d extends AcEdBaseView {
       this._layerAppearance.syncFromLiveRecord(layer)
       this.redrawInheritingBlockReferences(layer.name)
     }
+    // A new linetype needs new geometry (dash distances, complex glyphs,
+    // fat vs. native lines), not just another material.
+    if (changes.linetype != null) {
+      this.redrawByLayerLinetypeEntities(layer.name)
+    }
 
     if (this._entityDisplay.layerVisibilityMayHaveChanged(changes)) {
       const layerInfo = this.toLayerInfo(layer)
@@ -4491,6 +4496,50 @@ export class AcTrView2d extends AcEdBaseView {
         ) {
           const block = entity.blockTableRecord
           if (block && blockInherits(block)) pending.push(entity)
+        }
+      }
+    }
+    if (pending.length > 0) this.updateEntity(pending)
+  }
+
+  /**
+   * Redraws the entities whose linetype follows `layerName`: ByLayer entities
+   * on that layer, and INSERTs whose block contents are on it. Called after
+   * the layer's linetype changed.
+   */
+  private redrawByLayerLinetypeEntities(layerName: string) {
+    const db = AcApDocManager.tryGetInstance?.()?.curDocument?.database
+    if (!db) return
+    const followsLayer = (entity: AcDbEntity) =>
+      entity.layer === layerName &&
+      entity.lineType?.toLowerCase() === 'bylayer'
+    const blockUses = new Map<AcDbObjectId, boolean>()
+    const blockUsesLayer = (block: AcDbBlockTableRecord) => {
+      const cached = blockUses.get(block.objectId)
+      if (cached != null) return cached
+      let result = false
+      for (const entity of block.newIterator()) {
+        if (followsLayer(entity)) {
+          result = true
+          break
+        }
+      }
+      blockUses.set(block.objectId, result)
+      return result
+    }
+
+    const spaceIds = new Set([this.activeLayoutBtrId, this.modelSpaceBtrId])
+    const pending: AcDbEntity[] = []
+    for (const spaceId of spaceIds) {
+      const space = db.tables.blockTable.getIdAt(spaceId)
+      if (!space) continue
+      for (const entity of space.newIterator()) {
+        if (!this.hasEntity(entity.objectId)) continue
+        if (entity instanceof AcDbBlockReference) {
+          const block = entity.blockTableRecord
+          if (block && blockUsesLayer(block)) pending.push(entity)
+        } else if (followsLayer(entity)) {
+          pending.push(entity)
         }
       }
     }

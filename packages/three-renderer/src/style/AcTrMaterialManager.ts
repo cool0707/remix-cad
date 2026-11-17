@@ -38,6 +38,9 @@ export interface AcTrMaterialCacheStats {
  */
 export type AcTrMaterialSide = 'front' | 'back'
 
+/** Cached traits whose resolved colour was taken from the layer. */
+type AcTrLayerColorTraits = AcGiSubEntityTraits & { isColorByLayer?: boolean }
+
 /**
  * Base class for all material managers (line, fill, point).
  *
@@ -108,10 +111,16 @@ export abstract class AcTrMaterialManager<T> {
 
     // cache original traits
     if (!this.keyToTraits[key]) {
-      this.keyToTraits[key] = this.cloneTraits({
+      const cloned = this.cloneTraits({
         ...traits,
         ...options
       } as AcGiSubEntityTraits & T)
+      // The clone no longer shares the layer's colour instance: record that
+      // the colour came from the layer so later layer edits still find it.
+      if (!traits.color.isByLayer && this.isTraitsColorByLayer(traits)) {
+        ;(cloned as AcTrLayerColorTraits).isColorByLayer = true
+      }
+      this.keyToTraits[key] = cloned
     }
 
     // hit cache
@@ -447,7 +456,7 @@ export abstract class AcTrMaterialManager<T> {
     if (byLayerBindings?.isByLayerColor === true) {
       return true
     }
-    if (traits.color?.isByLayer === true) {
+    if (traits.color && this.isTraitsColorByLayer(traits)) {
       return true
     }
     if (metadata?.isByLayerColor === true) {
@@ -478,7 +487,7 @@ export abstract class AcTrMaterialManager<T> {
     return {
       isByLayerColor:
         metadata?.isByLayerColor === true ||
-        (traits.color.isByLayer === true && metadata?.isForeground !== true),
+        (this.isTraitsColorByLayer(traits) && metadata?.isForeground !== true),
       isByLayerLineType:
         metadata?.isByLayerLineType ?? traits.lineType.type === 'ByLayer',
       isByLayerLineWeight:
@@ -655,7 +664,30 @@ export abstract class AcTrMaterialManager<T> {
    * Builds the colour portion of a material cache key from symbolic CAD colour.
    */
   protected buildKeyColorSegment(traits: AcGiSubEntityTraits): string {
-    return traits.color.toString()
+    const color = traits.color.toString()
+    // A layer colour resolved for a ByLayer entity must not share a material
+    // with an entity that has the same colour set explicitly: only the first
+    // follows later layer edits.
+    return !traits.color.isByLayer && this.isTraitsColorByLayer(traits)
+      ? `${color}@layer`
+      : color
+  }
+
+  /**
+   * Returns whether the colour of `traits` comes from its layer.
+   *
+   * `AcDbEntity.worldDraw` resolves ByLayer before drawing, so a ByLayer
+   * entity arrives with its layer's own colour record (not a ByLayer colour).
+   * That record is recognised by identity through
+   * {@link AcTrStyleManagerOptions.layerColorOf}; cached trait clones carry
+   * the result as `isColorByLayer`.
+   */
+  protected isTraitsColorByLayer(traits: AcGiSubEntityTraits): boolean {
+    if (traits.color?.isByLayer) return true
+    if ((traits as AcTrLayerColorTraits).isColorByLayer === true) return true
+    if (!traits.color || traits.layer == null) return false
+    const layerColor = this.options.layerColorOf?.(traits.layer)
+    return layerColor != null && traits.color === layerColor
   }
 
   /**

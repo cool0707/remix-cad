@@ -292,7 +292,7 @@ export class AcTrFillMaterialManager extends AcTrMaterialManager<AcTrFillMateria
     }
     const color = traits.color
     return (
-      !color.isByLayer &&
+      !this.isTraitsColorByLayer(traits) &&
       !color.isByBlock &&
       !color.isForeground &&
       typeof color.RGB === 'number'
