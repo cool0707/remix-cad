@@ -76,7 +76,7 @@ describe('dashed fallback material (broken linetype shader)', () => {
     expect(material.gapSize).toBe(100)
   })
 
-  it('uses a fixed dash for pure dot patterns', () => {
+  it('sizes dots relative to the gaps, keeping the pattern length', () => {
     const styleManager = new AcTrStyleManager()
     styleManager.options.linePatternShaderBroken = true
     const material = styleManager.getLineMaterial(
@@ -84,8 +84,9 @@ describe('dashed fallback material (broken linetype shader)', () => {
     ) as LineMaterial
 
     expect(material.dashed).toBe(true)
-    expect(material.dashSize).toBe(0.5)
-    expect(material.gapSize).toBe(25)
+    // A fixed length in drawing units vanishes in drawings in millimetres.
+    expect(material.dashSize).toBeCloseTo(2.5)
+    expect(material.gapSize).toBeCloseTo(22.5)
   })
 
   it('skips embedded text and keeps stray LibreDWG flags as gaps', () => {
@@ -114,8 +115,8 @@ describe('dashed fallback material (broken linetype shader)', () => {
     const borderMaterial = styleManager.getLineMaterial(
       borderTraits
     ) as LineMaterial
-    expect(borderMaterial.dashSize).toBeCloseTo(0.75)
-    expect(borderMaterial.gapSize).toBeCloseTo(0.25)
+    expect(borderMaterial.dashSize).toBeCloseTo(0.275)
+    expect(borderMaterial.gapSize).toBeCloseTo(0.225)
   })
 
   it('keeps the custom shader material on healthy GPUs', () => {
