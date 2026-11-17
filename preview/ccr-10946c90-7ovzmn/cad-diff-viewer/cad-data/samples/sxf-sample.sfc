@@ -1,0 +1,156 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('SCADEC level2 feature_mode'),'2;1');
+FILE_NAME('sxf-sample.sfc','2026-10-23T00:00:00',(''),(''),'ezsxf$$3.1','ezsxf','');
+FILE_SCHEMA(('ASSOCIATIVE_DRAUGHTING'));
+ENDSEC;
+DATA;
+/*SXF
+#1 = layer_feature(\'default\','1')
+SXF*/
+/*SXF
+#7 = layer_feature(\'’Ê‚èc\','1')
+SXF*/
+/*SXF
+#8 = layer_feature(\'•Ç\','1')
+SXF*/
+/*SXF
+#9 = layer_feature(\'Œš‹ï\','1')
+SXF*/
+/*SXF
+#10 = layer_feature(\'•¶š\','1')
+SXF*/
+/*SXF
+#11 = layer_feature(\'¡–@\','1')
+SXF*/
+/*SXF
+#2 = pre_defined_font_feature(\'continuous\')
+SXF*/
+/*SXF
+#16 = pre_defined_font_feature(\'chain\')
+SXF*/
+/*SXF
+#3 = pre_defined_colour_feature(\'black\')
+SXF*/
+/*SXF
+#12 = pre_defined_colour_feature(\'red\')
+SXF*/
+/*SXF
+#13 = pre_defined_colour_feature(\'green\')
+SXF*/
+/*SXF
+#14 = pre_defined_colour_feature(\'blue\')
+SXF*/
+/*SXF
+#15 = pre_defined_colour_feature(\'lightgray\')
+SXF*/
+/*SXF
+#4 = width_feature('0.13')
+SXF*/
+/*SXF
+#17 = width_feature('0.5')
+SXF*/
+/*SXF
+#18 = width_feature('0.18')
+SXF*/
+/*SXF
+#5 = text_font_feature(\'‚l‚r ƒSƒVƒbƒN\')
+SXF*/
+/*SXF
+#19 = text_font_feature(\'‚l‚r –¾’©\')
+SXF*/
+/*SXF
+#46 = polyline_feature('1','1','1','1','5','(320.0,320.0,400.0,400.0,320.0)','(200.0,260.0,260.0,200.0,200.0)')
+SXF*/
+/*SXF
+#47 = sfig_org_feature(\'$$ATRU$$1$$image$$‰æ‘œ$$SXF-MAP.TIF$$STR\','3')
+SXF*/
+/*SXF
+#34 = polyline_feature('1','1','1','1','5','(-200.0,200.0,200.0,-200.0,-200.0)','(-200.0,-200.0,200.0,200.0,-200.0)')
+SXF*/
+/*SXF
+#35 = composite_curve_feature('15','1','1','0')
+SXF*/
+/*SXF
+#37 = polyline_feature('1','1','1','1','5','(5300.0,9700.0,9700.0,5300.0,5300.0)','(300.0,300.0,1500.0,1500.0,300.0)')
+SXF*/
+/*SXF
+#38 = composite_curve_feature('1','1','1','0')
+SXF*/
+/*SXF
+#20 = line_feature('2','2','8','2','0','-1000','0','8000')
+SXF*/
+/*SXF
+#21 = line_feature('2','2','8','2','5000.0','-1000','5000.0','8000')
+SXF*/
+/*SXF
+#22 = line_feature('2','2','8','2','10000','-1000','10000','8000')
+SXF*/
+/*SXF
+#23 = line_feature('2','2','8','2','-1000','0','11000','0')
+SXF*/
+/*SXF
+#24 = line_feature('2','2','8','2','-1000','7000','11000','7000')
+SXF*/
+/*SXF
+#25 = polyline_feature('3','1','1','5','5','(0,10000,10000,0,0)','(0,0,7000,7000,0)')
+SXF*/
+/*SXF
+#26 = line_feature('3','1','1','5','5000.0','0','5000.0','7000')
+SXF*/
+/*SXF
+#27 = line_feature('4','3','1','1','5000.0','2000','5900.0','2000')
+SXF*/
+/*SXF
+#28 = arc_feature('4','3','1','1','5000.0','2000','900','0','0','90')
+SXF*/
+/*SXF
+#29 = circle_feature('4','3','1','1','2500.0','3500.0','600')
+SXF*/
+/*SXF
+#30 = ellipse_feature('4','4','1','1','7500.0','3500.0','1400','700','30')
+SXF*/
+/*SXF
+#31 = text_string_feature('5','1','1',\'‹ŠÔEH“°\','2500.0','5500','400','2000.0','0','0','0','2','1')
+SXF*/
+/*SXF
+#32 = text_string_feature('5','1','1',\'Qº\','7500.0','5500','400','800.0','0','0','0','2','1')
+SXF*/
+/*SXF
+#33 = linear_dim_feature('6','4','1','1','0','-1800','10000','-1800','1','0','0','0','-1200','0','-1900','1','0','0','10000','-1200','10000','-1900','1','1','0','-1800','15','1','1','10000','-1800','15','1','1',\'10,000\','5000.0','-1700','250','750','0','0','0','2','1')
+SXF*/
+/*SXF
+#36 = fill_area_style_colour_feature('3','15','1','0','()')
+SXF*/
+/*SXF
+#39 = fill_area_style_hatching_feature('3','1','(15,1,1,0,0,150,45)','2','0','()')
+SXF*/
+/*SXF
+#40 = sfig_org_feature(\'•½–Ê}\','1')
+SXF*/
+/*SXF
+#41 = sfig_locate_feature('1',\'•½–Ê}\','80.0','90.0','0.0','0.01','0.01')
+SXF*/
+/*SXF
+#42 = polyline_feature('1','1','1','5','5','(10,410,410,10,10)','(10,10,287,287,10)')
+SXF*/
+/*SXF
+#43 = polyline_feature('1','1','1','1','5','(300,410,410,300,300)','(10,10,40,40,10)')
+SXF*/
+/*SXF
+#44 = text_string_feature('1','1','2',\'ƒTƒ“ƒvƒ‹•½–Ê}\','305','26','5','35.0','0','0','0','1','1')
+SXF*/
+/*SXF
+#45 = text_string_feature('1','1','1',\'S=1/100  A3\','305','15','3.5','19.25','0','0','0','1','1')
+SXF*/
+/*SXF
+#48 = sfig_locate_feature('0',\'$$ATRU$$1$$image$$‰æ‘œ$$SXF-MAP.TIF$$STR\','0.0','0.0','0.0','1.0','1.0')
+SXF*/
+/*SXF
+#49 = text_string_feature('1','1','1',\'ˆÄ“à} (“¯«‰æ‘œ)\','320','195','3','25.5','0','0','0','1','1')
+SXF*/
+/*SXF
+#6 = drawing_sheet_feature(\'ƒTƒ“ƒvƒ‹•½–Ê}\','3','1','420','297')
+SXF*/
+ENDSEC;
+END-ISO-10303-21;
