@@ -19,7 +19,8 @@ export default {
     close: 'Zavřít příkazový řádek'
   },
   prompt: {
-    orConnector: 'nebo'
+    orConnector: 'nebo',
+    wheelStepHint: 'Kolečko: změnit · Klik: potvrdit'
   },
   tool: {
     select: 'Výběr',

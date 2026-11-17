@@ -279,6 +279,8 @@ export class AcApSplineCmd extends AcEdCommand {
         1,
         10
       )
+      degreePrompt.defaultValue = settings.degree
+      degreePrompt.useDefaultValue = true
       degreePrompt.jig = createStaticJig<number>()
       const degreeResult =
         await AcApDocManager.instance.editor.getInteger(degreePrompt)

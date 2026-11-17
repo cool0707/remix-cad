@@ -19,7 +19,8 @@ export default {
     close: 'Komut satırını kapat'
   },
   prompt: {
-    orConnector: 'veya'
+    orConnector: 'veya',
+    wheelStepHint: 'Tekerlek: değiştir · Tık: onayla'
   },
   tool: {
     select: 'Seç',

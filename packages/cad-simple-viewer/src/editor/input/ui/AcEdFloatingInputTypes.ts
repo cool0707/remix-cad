@@ -251,4 +251,30 @@ export interface AcEdFloatingInputOptions<T> {
    * floating input boxes only. Default: true.
    */
   allowPickCommit?: boolean
+
+  /**
+   * Lets the mouse wheel step the value while this prompt is open (counts
+   * such as polygon sides or array items), instead of zooming the view.
+   */
+  wheelStepper?: AcEdFloatingInputWheelStepper
+}
+
+/**
+ * Mouse-wheel stepping for a one-box numeric prompt.
+ *
+ * While the prompt shows, the wheel over the canvas (or the prompt itself)
+ * steps the value instead of zooming; a click commits it as usual.
+ */
+export interface AcEdFloatingInputWheelStepper {
+  /** Text shown in the box when the prompt opens. */
+  initialText: string
+  /** Short hint shown beside the box (e.g. "Wheel: change · Click: OK"). */
+  hint?: string
+  /**
+   * Returns the box text after one wheel notch.
+   *
+   * @param typedText - What the user typed, or undefined when nothing was typed
+   * @param direction - +1 for wheel up, -1 for wheel down
+   */
+  step(typedText: string | undefined, direction: 1 | -1): string
 }

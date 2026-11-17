@@ -19,7 +19,8 @@ export default {
     close: 'Close command line'
   },
   prompt: {
-    orConnector: 'or'
+    orConnector: 'or',
+    wheelStepHint: 'Wheel: change · Click: OK'
   },
   tool: {
     select: 'Select',
