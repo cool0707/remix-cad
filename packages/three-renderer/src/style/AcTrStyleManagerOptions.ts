@@ -1,3 +1,4 @@
+import { AcCmColor } from '@mlightcad/data-model'
 import * as THREE from 'three'
 
 export interface AcTrStyleManagerOptions {
@@ -62,4 +63,15 @@ export interface AcTrStyleManagerOptions {
    * Default is model-space dark background (`ACGI_MODEL_SPACE_BACKGROUND`).
    */
   currentBackgroundColor: number
+
+  /**
+   * Returns the live colour record of a layer of the drawing being drawn.
+   *
+   * `AcDbEntity.worldDraw` hands renderers the resolved colour, so a ByLayer
+   * entity arrives with the layer's own `AcCmColor` instance instead of a
+   * ByLayer colour. Material managers compare against this to keep such
+   * materials bound to the layer, so later layer colour / linetype edits
+   * reach entities that are already drawn. Set by `AcTrRenderContext`.
+   */
+  layerColorOf?: (layerName: string) => AcCmColor | undefined
 }
